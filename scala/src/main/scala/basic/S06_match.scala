@@ -117,12 +117,14 @@ object S06_match {
     val list6: List[Any] = List(1,2,3,4,"abc")
     val list7: List[Any] = list6.filter((i: Any) => i.isInstanceOf[Int])
     println(list7)  // List(1, 2, 3, 4)
-    val list8: List[Int] = list7.map{case i: Int => i + 1}
+    val list8: List[Int] = list7.map { case i: Int => i + 1 }
     println(list8)  // List(2, 3, 4, 5)
-    // 偏函数版：collect方法支持偏函数(PartialFunction),收集{}内符合条件的数据
-    // 注意：map方法不支持偏函数,因为map是遍历所有数据,不能指定条件 scala.MatchError: abc (of class java.lang.String)
-    val list9: List[Int] = list6.collect{case i: Int => i + 1}
+    // 偏函数：将包含在{}内的一组case语句封装成函数,只对符合条件的元素进行逻辑操作
+    // map不支持偏函数,因为map是遍历所有数据,不能指定条件,scala.MatchError: abc (of class java.lang.String)
+//    list6.map { case i: Int => i + 1}
+    val list9: List[Int] = list6.collect { case i: Int => i + 1 }
     println(list9)  // List(2, 3, 4, 5)
+
   }
 
 }
