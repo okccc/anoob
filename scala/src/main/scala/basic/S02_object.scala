@@ -16,6 +16,7 @@ object S02_object {
      * 变量
      * Scala完全面向对象没有所谓的基本数据类型,数据类型都是对象(Int、String、Boolean都是大写)
      * Scala两大数据类型：AnyVal(值类型)、AnyRef(引用类型)
+     * scala中的this关键字用于引用当前对象,可以使用this关键字调用变量、方法、构造函数
      *
      * 构造函数
      * 主构造函数：scala面向函数编程,类的整个主体是主构造函数,可以带参数也可以不带参数
@@ -86,9 +87,10 @@ object User {
 }
 
 // 普通类：需手动实现一些常用方法,比如在伴生对象中定义apply/unapply方法
-class Orc (var name: String, var age: Int)
+sealed class Orc (var name: String, var age: Int)
 // 样例类：scala编译器会自动生成类的toString/equals/copy/hashCode方法,自动创建伴生对象并实现apply/unapply方法,构造参数默认val修饰
-case class Elf (name: String, age: Int)
+// 密封类：用于模式匹配的类最好标记为sealed,只允许在当前单元定义其子类,这样在match时只关注已知子类即可而不用担心在别的单元出现该密封类的子类
+sealed case class Elf (name: String, age: Int)
 object Orc {
   // apply()：相当于构造函数,接收构造参数创建对象,通常用于实例化伴生类
   def apply(name: String, age: Int): Orc = new Orc(name, age)
