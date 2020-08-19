@@ -6,61 +6,65 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 object S04_collection {
   def main(args: Array[String]): Unit = {
-    // 1.数组,实际上是可变的,存放相同类型元素
-    val array: Array[Int] = Array(1,2,3,4)
-    println(array)  // [I@ea4a92b
-    // 索引,长度,将数组转换为字符串打印
-    println(array(0), array.length, array.mkString(","))
+    /**
+     * 所有集合类都在这三个包 scala.collection | scala.collection.immutable | scala.collection.mutable
+     * Scala默认选择不可变集合,想要获取可变集合需要显式写出collection.mutable.{ArrayBuffer, ListBuffer, Set}
+     */
+
+    // 1.数组：是Scala的一种特殊集合,对应Java数组并且支持泛型,Scala数组和Scala序列兼容(可以在要求Seq[T]的地方传入Array[T])
+    val arr: Array[Int] = Array(1,2,3,4)
+    println(arr, arr.toSeq, arr.toList)  // [I@ea4a92b, WrappedArray(1, 2, 3, 4), List(1, 2, 3, 4)
+    // Array可以隐式转换成WrappedArray
+    val seq : Seq[Int] = arr          // implicit
+    val seq1: Seq[Int] = arr.toSeq    // explicit
+    println(seq == seq1)  // true
+    println(arr.eq(seq.toArray) && arr.eq(seq1.toArray))  // true
+    // 索引,长度,转换为字符串
+    println(arr(0), arr.length, arr.mkString(","))
     // 遍历
-    for (elem <- array) {println(elem)}
-    array.foreach(println)
+    arr.foreach(println)
     // 添加元素,返回新数组
-    val array1: Array[Int] = array:+5  // 尾部添加
-    val array2: Array[Int] = 5+:array  // 头部添加
-    println(array sameElements array1)  // false
-    println(array1.mkString(","))  // 1,2,3,4,5
-    println(array2.mkString(","))  // 5,1,2,3,4
-    // 修改
-    array.update(0, 5)  // 或者array(0) = 5
-    println(array.mkString(","))  // 5,2,3,4
+    val arr1: Array[Int] = arr:+5  // 尾部添加
+    val arr2: Array[Int] = 5+:arr  // 头部添加
+    println(arr sameElements arr1)  // false
+    println(arr1.mkString(","))  // 1,2,3,4,5
+    println(arr2.mkString(","))  // 5,1,2,3,4
+    // 修改,update操作说明Array其实是可变的
+    arr.update(0, 5)  // 或者array(0) = 5
+    println(arr.mkString(","))  // 5,2,3,4
     // 删除
-    val array3: Array[Int] = array.drop(10)
+    val array3: Array[Int] = arr.drop(10)
     println(array3.length)  // 空数组
 
-    // 可变数组
-    val arrayBuffer: ArrayBuffer[Int] = ArrayBuffer(1,2,3,4)
-    println(arrayBuffer)  // ArrayBuffer(1, 2, 3, 4)
-    // 添加元素,改变原数组
-    arrayBuffer+=8  // 尾部添加
-    arrayBuffer.insert(0, 5)  // 指定位置插入
-    println(arrayBuffer)  // ArrayBuffer(5, 1, 2, 3, 4, 8)
-    // 指定索引删除元素,返回被删除元素
-    val i:Int = arrayBuffer.remove(0)
-    println(i)  // 5
-    // 指定索引删除指定长度的元素
-    arrayBuffer.remove(1,2)
-    println(arrayBuffer)  // ArrayBuffer(1, 4, 8)
+    // 数组缓冲：可以在尾部高效添加元素,常用于往尾部添加新元素来构建大的集合
+    val ab: ArrayBuffer[Int] = ArrayBuffer(1,2,3,4)
+    println(ab)  // ArrayBuffer(1, 2, 3, 4)
+    // 添加元素,返回buffer本身
+    ab+=8  // 尾部添加
+    ab.insert(0, 5)  // 指定位置插入
+    println(ab)  // ArrayBuffer(5, 1, 2, 3, 4, 8)
+    // 移除
+    ab.remove(0)  // 移除索引为i的元素并返回该元素
+    ab.remove(1, 2)  // 移除从索引i开始的n个元素
+    ab.clear()  // 移除所有元素
+    // 克隆
+    ab.clone()  // 和buffer拥有相同元素的新缓冲
+    // 转换为数组
+    println(ab.toArray)  // [I@ea1a8d5
 
-    // 可变数组和不可变数组转换
-    val array2buffer: mutable.Buffer[Int] = array.toBuffer
-    val buffer2array: Array[Int] = arrayBuffer.toArray
-    println(array2buffer)  // ArrayBuffer(5, 2, 3, 4)
-    println(buffer2array)  // [I@33f88ab
 
-    // 2.list,不可变,存放相同类型元素
+    // 2.列表：不可变,存放相同类型元素
     val list: List[Int] = List(1,2,3,4)
     println(list)  // List(1, 2, 3, 4)
     // 索引,长度,转换成字符串
-    println(list(1), list.length, list.mkString(","))
+    println(list.head, list.length, list.mkString(","))
     // 遍历
-    for (elem <- list) {println(elem)}
     list.foreach(println)
     // 添加元素
     val list1: List[Int] = list:+5  // 尾部添加
     val list2: List[Int] = 5+:list  // 头部添加
-    println(list == list1)  // false
     // ++可以合并两个list
-    val list3: List[Int] = list ++ list1
+    val list3: List[Int] = list++list1
     // ::从右往左运算
     val list4: List[Int] = 7::8::9::list
     println(list4)  // List(7, 8, 9, 1, 2, 3, 4)
@@ -89,27 +93,28 @@ object S04_collection {
     // 求和,乘积,最值,反转
     println(l2.sum, l2.product, l2.max, l2.reverse)  // 12,60,5
 
-    // 可变list集合
-    val buffer: ListBuffer[Int] = ListBuffer(1,2,3,4)
-    println(buffer)  // ListBuffer(1, 2, 3, 4)
+    // 列表缓冲：和数组缓冲类似
+    val lb: ListBuffer[Int] = ListBuffer(1,2,3,4)
+    println(lb)  // ListBuffer(1, 2, 3, 4)
     // 头部
-    println(buffer.head)  // 1
+    println(lb.head)  // 1
     // 去掉头部,tail.tail可以递归
-    println(buffer.tail)  // ListBuffer(2, 3, 4)
-    println(buffer.tail.tail)  // ListBuffer(3, 4)
+    println(lb.tail)  // ListBuffer(2, 3, 4)
+    println(lb.tail.tail)  // ListBuffer(3, 4)
     // 尾部
-    println(buffer.last)  // 4
+    println(lb.last)  // 4
     // 去掉尾部
-    println(buffer.init)  // ListBuffer(1, 2, 3)
+    println(lb.init)  // ListBuffer(1, 2, 3)
+    // 转换为列表
+    println(lb.toList)  // List(1,2,3,4)
     
     // 3.set集合
-    val set: Set[Int] = Set(1,2,3,4,4,5,6,7,8)
-    println(set)  // Set(5, 1, 6, 2, 7, 3, 8, 4)
-    val set1: Set[Int] = set+9
-    println(set1)  // Set(5, 1, 6, 9, 2, 7, 3, 8, 4)
-    println(set == set1)  // false
-    val set2: Set[Int] = set-2
-    println(set2)  // Set(5, 1, 6, 7, 3, 8, 4)
+    val s1: Set[Int] = Set(1, 2, 3, 3, 4)
+    val s2: mutable.Set[Int] = mutable.Set(1, 2, 3, 3, 4)
+    println(s1, s2)  // Set(1, 2, 3, 4) Set(1, 2, 3, 4)
+    val s11: Set[Int] = s1 + 5
+    val s21: mutable.Set[Int] = s2 += 5
+    println(s11, s21)  // Set(5, 1, 2, 3, 4) Set(1, 5, 2, 3, 4)
 
     // 4.map集合
     val map: Map[String, Int] = Map("a" -> 1, "b" -> 2, "c" -> 3)
