@@ -6,16 +6,16 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
-//import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+//import org.apache.spark.streaming.kafka.KafkaUtils
 
 object S03_DStream {
   def main(args: Array[String]): Unit = {
-    /**
+    /*
      * Spark -> RDD | SparkSql -> DataFrame/DataSet | SparkStreaming -> DStream(discretized stream)
      * 实时处理是来一条处理一条,SparkStreaming是将live streaming data切分成batches处理(准实时),类似map/mapPartitions算子
      *
-     * DStream(离散化流)：a continuous series of RDDs 连续的RDD序列,一个时间批次的数据对应一个RDD,是SparkStreaming的基本抽象
+     * DStream(离散化流)：a continuous series of RDDs 连续的RDD序列,一个时间批次的数据对应一个RDD
      * batchDuration(批处理时间间隔)：the time interval at which streaming data will be divided into batches
      * windowDuration(窗口大小)：一个窗口覆盖的批数据个数
      * slideDuration(滑动间隔)：前后两个窗口的间隔
@@ -32,6 +32,12 @@ object S03_DStream {
      * 2.设置合适的批数据间隔 -> 保证数据处理能跟上数据摄取的步伐
      */
 
+//    if (args.length < 2) {
+//      System.err.println("Usage: ClassName <> <>")
+//      System.exit(1)
+//    }
+//    官方案例：nc -lk 9999 & run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
+
     // scala中的滑动窗口函数
 //    val ints: List[Int] = List(1,2,3,4,5,6)
 //    val ints1: Iterator[List[Int]] = ints.sliding(size = 3)
@@ -39,18 +45,13 @@ object S03_DStream {
 //    println(ints1.mkString(","))  // List(1, 2, 3),List(2, 3, 4),List(3, 4, 5),List(4, 5, 6)
 //    println(ints2.mkString(","))  // List(1, 2, 3),List(4, 5, 6)
 
-//    if (args.length < 2) {
-//      System.err.println("Usage: ClassName <> <>")
-//      System.exit(1)
-//    }
-//    官方案例：nc -lk 9999 & run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
-
     // 创建spark配置信息,local[n]模式n要大于1,因为基于receiver的DStream(socket/flume/kafka)运行Receiver对象要单独占一个线程,
     // 处理接收的数据在另一个线程,cluster模式分配给application的cores也要大于receivers
     val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("SparkStreaming")
     // 创建StreamingContext对象,指定批处理时间间隔(采集周期)
     val ssc: StreamingContext = new StreamingContext(conf, batchDuration=Seconds(1))
-    // 有状态的转化操作需要设置检查点目录
+    // 有状态的转换操作需要设置检查点目录,将数据落盘保存状态从而计算累加值,cp的中间结果是不可见的,只能看到updateStateByKey的最终结果
+    // 实时流处理场景中,这种短时间内的数据可以使用redis保存,速度更快还能查看保存在redis的中间结果
     ssc.checkpoint("scala/cp")
 
     // 创建DStream两种方式：接收输入数据流,从其他DStream转换
@@ -97,26 +98,34 @@ object S03_DStream {
     // saveAsObjectFiles：将DStream内容保存到序列化的java对象SequenceFiles
     // saveAsHadoopFiles：将DStream内容保存到Hadoop文件
     // print算子：在driver节点打印DStream中生成的每个批数据(RDD)的前10个元素,用于调试代码
-//    windowDStream.print()
+    windowDStream.print()
     // foreachRDD(func)算子：最通用的输出操作,将流中生成的每个RDD的数据推送到外部系统,比如保存到文件或者通过网络写入数据库
     // 注意：func函数是运行在driver节点,通常伴随RDD的action操作从而强制计算DStream中的RDDs,创建连接对象的操作要放到executor端执行
-//    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
-//      // 遍历所有分区,foreachPartition算子是action操作,在executor端执行
-//      rdd.foreachPartition((ite: Iterator[(String, Int)]) => {
-//        // 创建数据库连接对象
-//        val conn: Connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root")
-//        // 遍历每个分区中的元素
-//        ite.foreach((t: (String, Int)) => {
-//          val sql = "insert into wc values(?,?)"
-//          val statement: PreparedStatement = conn.prepareStatement(sql)
-//          statement.setString(1, t._1)
-//          statement.setInt(2, t._2)
-//          statement.executeUpdate()
-//          statement.close()
-//        })
-//        conn.close()
-//      })
-//    })
+    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
+      // 遍历所有分区,foreachPartition算子是action操作,在executor端执行
+      rdd.foreachPartition((ite: Iterator[(String, Int)]) => {
+        // 创建数据库连接对象
+        val conn: Connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root")
+        // 遍历每个分区中的元素
+        ite.foreach((t: (String, Int)) => {
+          // 关闭自动提交
+          conn.setAutoCommit(false)
+          // sql语句
+          val sql = "insert into wc values(?,?)"
+          // 创建PreparedStatement对象
+          val ps: PreparedStatement = conn.prepareStatement(sql)
+          // 给参数赋值
+          ps.setString(1, t._1)
+          ps.setInt(2, t._2)
+          // 执行更新操做
+          ps.executeUpdate()
+          // 手动提交
+          conn.commit()
+          ps.close()
+        })
+        conn.close()
+      })
+    })
 
     // DStream中的RDD可以转换成DataFrame通过SparkSql计算WordCount
     wordsDStream.foreachRDD((rdd: RDD[String]) => {

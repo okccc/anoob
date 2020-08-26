@@ -3,12 +3,12 @@ package spark
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Encoders, Row, SparkSession, TypedColumn}
-import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.functions.{col, when}
+import org.apache.spark.sql.expressions.Aggregator
 
 object S02_DataFrame {
   def main(args: Array[String]): Unit = {
-    /**
+    /*
      * 早期数据统计分析只有2种方式：MapReduce和Sql
      * MapReduce弊端：运行速度慢且编写复杂(要写Driver、Mapper、Reducer三个类)
      * Sql优点：性能好且编写简单,但是面向关系型数据库,所以hadoop领域的hive框架应运而生,类sql语法大大简化编码难度,但是底层计算框架还是mr
@@ -53,7 +53,7 @@ object S02_DataFrame {
     // 创建SparkSession,查看源码发现SparkSession类的构造器都是private,只能通过其伴生对象创建
     //    val session: SparkSession = new SparkSession(conf)
     val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
-    // 导入隐式转换,将Scala对象转换成DataFrame/Dataset
+    // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
     import spark.implicits._
 
     // 创建DataFrame/Dataset三种方式：读取文件,从RDD转换,查询hive
@@ -61,7 +61,8 @@ object S02_DataFrame {
     // 通用读数据方法：read.format("").load(path),可简写如下格式
     val df: DataFrame = spark.read.json("scala/input/people.json")
     // 通用写数据方法：write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
-    df.filter($"age" > 20).write.mode("overwrite").json("scala/output/people.json")
+    df.write.mode("append").json("scala/output/people.json")
+    df.write.mode("overwrite").saveAsTable("people")  // overwrite模式下第一次写入数据会报错路径不存在
     // 通过jdbc读取外部数据源数据
     val jdbcDF: DataFrame = spark.read.format("jdbc").option("url", "jdbc:mysql://localhost:3306/test")
       .option("user", "root").option("password", "root").option("dbtable", "user").load()
@@ -127,7 +128,7 @@ object S02_DataFrame {
 
     // b.从RDD转换
     val rdd: RDD[Array[String]] = spark.sparkContext.textFile("scala/input/people.txt").map((row: String) => row.split(","))
-    // 1).通过样例类反射schema,先将RDD[Array]映射成RDD[Person],再隐式转换成DataFrame/Dataset
+    // 1).先通过样例类反射schema,将RDD[Array]映射成RDD[Person],再隐式转换成DataFrame/Dataset
     val personRDD: RDD[Person] = rdd.map[Person]((arr: Array[String]) => Person(arr(0), arr(1).trim.toInt))
     val df1: DataFrame = personRDD.toDF()
     val ds1: Dataset[Person] = personRDD.toDS()
@@ -142,12 +143,12 @@ object S02_DataFrame {
     // c.查询hive
     // spark操作内置hive,会在当前工作目录创建自己的hive元数据仓库 metastore_db
     // spark操作集群hive,需要将hive-site.xml|hdfs-site.xml|core-site.xml添加到spark的conf目录,删除metastore_db目录并重启集群
-    spark.sql("show databases").show()
+    spark.sql("show tables").show()
 
     // 将聚合函数转换为查询列
     val avgCol: TypedColumn[Person, Double] = MyAverage.toColumn.name("avgAge")
     // 应用聚合函数
-    //    ds1.select(avgCol).show()
+    ds1.select(avgCol).show()
   }
 }
 

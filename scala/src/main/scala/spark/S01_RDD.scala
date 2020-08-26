@@ -3,14 +3,14 @@ package spark
 import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet}
 import java.util
 
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.rdd.{JdbcRDD, RDD}
-import org.apache.spark.util.{AccumulatorV2, LongAccumulator}
 import org.apache.spark.{HashPartitioner, Partitioner, SparkConf, SparkContext}
+import org.apache.spark.rdd.{JdbcRDD, RDD}
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.util.{AccumulatorV2, LongAccumulator}
 
 object S01_RDD {
   def main(args: Array[String]): Unit = {
-    /**
+    /*
      * Spark是基于内存的快速,通用,可扩展的大数据分析引擎
      * Spark Core 实现了Spark的基本功能,包含任务调度、内存管理、错误恢复、与存储系统交互等模块,以及RDD的相关api
      * Spark Sql 通过类Sql方式查询结构化数据,支持hive/parquet/json等多种数据源
@@ -374,6 +374,8 @@ object S01_RDD {
       // 遍历每个分区中的所有元素
       datas.foreach{
         case (name, age) =>
+          // 关闭自动提交
+          conn.setAutoCommit(false)
           // 插入sql,包含一个或多个?占位符
           val sql = "insert into user values(null,?,?)"
           /**
@@ -383,13 +385,18 @@ object S01_RDD {
            * 普通拼接 -> sql经过解析器编译并执行,传递的参数也会参与编译,select * from user where name = 'tom' or '1=1'; 这里的 or '1=1' 会被当成sql指令运行,or被当成关键字了
            * 预编译 -> sql预先编译好等待传参执行,传递的参数就只是变量值,select * from user where name = "tom' or '1=1"; 这里的 tom' or '1=1 是一个变量整体,or也就失效了
            */
-          val statement: PreparedStatement = conn.prepareStatement(sql)
-          statement.setString(1, name)
-          statement.setInt(2, age)
-          statement.executeUpdate()
+          // 创建PreparedStatement对象
+          val ps: PreparedStatement = conn.prepareStatement(sql)
+          // 给参数赋值
+          ps.setString(1, name)
+          ps.setInt(2, age)
+          // 执行更新操做
+          ps.executeUpdate()
           // 查看在数据库中具体执行的sql
-//          println(statement.toString)  // com.mysql.jdbc.JDBC4PreparedStatement@3973462d: insert into user values(null,'grubby',18)
-          statement.close()
+//          println(ps.toString)  // com.mysql.jdbc.JDBC4PreparedStatement@3973462d: insert into user values(null,'grubby',18)
+          // 手动提交
+          conn.commit()
+          ps.close()
       }
       conn.close()
     })
