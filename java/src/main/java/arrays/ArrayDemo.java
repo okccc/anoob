@@ -1,32 +1,117 @@
 package arrays;
 
+import java.util.Arrays;
+
 public class ArrayDemo {
     public static void main(String[] args) {
-        /**
-         * java程序运行时要在内存中分配空间,为了提高效率对空间划分了不同区域,每片区域的数据处理方式不一样
-         * jvm内存结构
-         * 栈：每个线程包含一个栈区,用于存放基本类型的变量(int,long,double..)和对象的引用,栈区中的数据是私有的别的栈不能访问
-         *    方法执行结束系统会自动释放内存,生命周期短运行速度快
-         * 堆：jvm只有一个堆区,用于存放new创建的对象和数组,堆区被所有线程共享
-         *    垃圾回收器会不定时查看这个对象,如果没有引用指向该对象就回收,生命周期不确定运行速度慢(因为堆区是动态分配内存大小)
-         * 方法区：jvm只有一个方法区,用于存放类、静态变量、全局变量等持久不变的数据,方法区被所有线程共享
+        /*
+         * 数组是引用数据类型,数组的元素可以是基本数据类型也可以是引用数据类型
+         * 数组长度是固定的,一旦初始化长度不可更改
+         * 数组中的元素是在内存空间中连续存储的
+         * 不同类型数组默认初始化值：整型 0 | 浮点型 0.0 | 字符型 '\u0000' | 布尔型 false | 引用类型 null
          */
 
-        // 元素类型[] 数组名 = new 元素类型[元素个数或数组长度];
+        // 动态初始化：数组初始化和元素赋值分开进行
+        int[] arr1 = new int[3];
+        arr1[0] = 11;
+        arr1[1] = 22;
+        arr1[2] = 33;
 
-        // 格式一：需要一个容器,但是不明确具体元素
-//        int[] arr = new int[3];
-//        arr[0] = 22;
-//        System.out.println(arr[0]);
+        // 静态初始化：数组初始化和元素赋值同时进行,可简写
+//        int[] arr2 = new int[]{12,23,34,45,56};
+        int[] arr2 = {12,23,34,45,56};
 
-        // 格式二：需要一个容器,存储已知的具体数据
-        // int[] arr = new int[] {12,23,34,45,56};
-        int[] arr = {12,23,34,45,56};
-        // 打印引用变量arr在堆内存中指向的实体的地址值
-        System.out.println(arr);  // [I@c17164    @后面是十进制的地址值,前面[表示数组,I表示元素是int类型
+        // java中的数组是对象但是没有定义成具体的类,也就没有覆盖toString()方法的机会,println()只能调用根类Object的toString()方法
+        System.out.println(arr2);  // [I@c17164  @后面是十六进制的hashcode,前面[表示数组,I表示元素是int类型
+        // 通过Arrays工具类转换,Arrays类重写了各种toString()方法
+        // 注意：Arrays类的方法都是静态的,不需要创建对象直接类名调用,于是它将构造函数私有化了
+        System.out.println(Arrays.toString(arr2));  // [12, 23, 34, 45, 56]
         // 遍历数组
-        for (int i : arr) {
+        for (int i : arr2) {
             System.out.println(i);
+        }
+
+        int max = getMax(arr2);
+        System.out.println(max);
+        int i = search(arr2, 56);
+        System.out.println(i);
+        int i1 = binarySearch(arr2, 56);
+        System.out.println(i1);
+        int[] arr3 = {11, 33, 99, 22, 66, 44, 88, 55};
+        System.out.println(Arrays.toString(arr3));
+//        bubbleSort(arr3);
+        selectSort(arr3);
+        System.out.println(Arrays.toString(arr3));
+    }
+
+    // 二分查找：数组必须是有序的
+    public static int binarySearch(int[] arr, int key) {
+        int min = 0;
+        int max = arr.length - 1;
+        int mid;
+        while (min <= max) {
+            mid = (min + max) / 2;
+            if (arr[mid] < key) {
+                min = mid +1;
+            } else if (arr[mid] > key) {
+                max = mid - 1;
+            } else {
+                return mid;
+            }
+        }
+        return -1;
+    }
+
+    // 查找数组元素
+    public static int search(int[] arr, int key) {
+        for (int i = 0; i < arr.length; i++) {
+            if(arr[i] == key) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // 求数组最大值
+    private static int getMax(int[] arr) {
+        int max = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] > max) {
+                max = arr[i];
+            }
+        }
+        return max;
+    }
+
+    // 选择排序：第一个依次与后面的比较,小的放左边,先确定最小的,如此反复
+    public static void selectSort(int[] arr){
+        // 外循环：遍历数组获取每一个元素,最后一个不用和自己比
+        for(int x = 0; x < arr.length - 1; x++){
+            // 内循环：将第一个元素依次与后面的比较大小
+            for(int y = x + 1; y < arr.length; y++){
+                // 位置转换
+                if (arr[x] > arr[y]) {
+                    int temp = arr[x];
+                    arr[x] = arr[y];
+                    arr[y] = temp;
+                }
+            }
+        }
+    }
+
+    // 冒泡排序：两两之间比较,大的放右边,先确定最大的,如此反复
+    public static void bubbleSort(int[] arr){
+        // 外循环：遍历数组获取每一个元素
+        for(int x = 0;x < arr.length; x++){
+            // 内循环：参与比较大小的元素两两比较
+            for(int y = 0;y < arr.length - 1 - x; y++){   //     -1防止索引越界;-x是随着外循环增加内循环参与比较的元素递减
+                // 位置转换
+                if(arr[y] > arr[y + 1]){
+                    int temp = arr[y];
+                    arr[y] = arr[y + 1];
+                    arr[y + 1] = temp;
+                }
+            }
         }
     }
 
