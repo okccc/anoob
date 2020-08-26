@@ -20,6 +20,10 @@ Alt + 数字
 File - Settings - Editor - Inspections - General - Duplicated Code fragment
 # remove dangling comment
 File - Settings - Editor - Inspections - General - dangling javadoc comment
+# Edit Configurations
+Run - Edit Configurations - Templates - Temporary configurations limit
+# idea删除文件恢复
+Project/Module - 右键 - Local History - Show History - 找到删除文件 - Revert Selection
 ```
 
 ### idea-scala
