@@ -45,9 +45,10 @@ public class CollectionDemo {
          * 对象实例化时不指定泛型默认是Object,泛型<T>限定具体引用类型,可以用在方法、类和接口中
          * 1.编译时会检查添加元素的类型,确保类型安全
          * 2.避免向下转型(强制类型转换) String - Object - String | String - String - String
-         * ?表示通配符,比如List<?>是List<String|Integer>等各种泛型的父类,所以读取元素是安全的,但是写入不行因为不确定具体类型
-         * addAll(Collection<? extends E> c)表示传递的参数类型只能是E类型及其子类
-         * forEach(Consumer<? super E> action)表示传递的参数类型只能是E类型及其父类
+         * 泛型不具备继承性
+         * <?>表示任意类型的泛型,使用该通配符做泛型的集合只能读不能写除了null,因为不确定具体类型
+         * <? extends E> 限定传递的参数类型只能是E类型及其子类,使用该通配符做泛型的集合只能读不能写除了null
+         * <? super E> 限定传递的参数类型只能是E类型及其父类,使用该通配符做泛型的集合只能读不能写除了null和自身
          */
 
         // ArrayList
@@ -109,7 +110,7 @@ public class CollectionDemo {
         ts.add("aaa");
         ts.add("aaa");
         System.out.println("ts = " + ts);  // ts = [aaa, bbb, ccc]
-        // 往构造函数传入实现Comparator接口的子类对象
+        // 往构造函数传入实现了Comparator接口的子类对象
         TreeSet<Person> ts2 = new TreeSet<>(new Comparator<Person>() {
             @Override
             public int compare(Person o1, Person o2) {
@@ -155,6 +156,7 @@ public class CollectionDemo {
         tm.put(new Person("moon", 19), "ne");
         tm.put(new Person("grubby", 18), "orc");
         System.out.println("tm = " + tm);  // tm = {grubby: 18=orc, moon: 19=ne, sky: 20=hum}
+        // 遍历entrySet
         for (Map.Entry<Person, String> entry : tm.entrySet()) {
             Person key = entry.getKey();
             String value = entry.getValue();
