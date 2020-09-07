@@ -24,6 +24,9 @@ File - Settings - Editor - Inspections - General - dangling javadoc comment
 Run - Edit Configurations - Templates - Temporary configurations limit
 # idea删除文件恢复
 Project/Module - 右键 - Local History - Show History - 找到删除文件 - Revert Selection
+# idea查看变量/方法/构造器的Structure时,开着的绿色锁表示public权限,关闭的红色锁表示private权限
+# 增强for循环快捷键 xxx.for
+# 对于一些被重新分配地址的变量或者参数,IDEA默认给它们加上下划线,因为有些代码很长,你很难知道变量是否被重新分配过地址值
 ```
 
 ### idea-scala

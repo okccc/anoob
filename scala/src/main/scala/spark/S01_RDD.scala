@@ -36,7 +36,7 @@ object S01_RDD {
      * 分布式：数据来源 & 计算 & 数据存储
      * 不可变：RDD本身不可变,transform操作会生成新的RDD
      * 可分区：每个partition的数据会发送给一个executor执行达到并行计算目的,增加分区数可以增大任务并行度充分利用集群资源
-     * 数据集：1.分区的集合 2.基于分区计算的函数(算子) 3.依赖的集合 4.针对key-value类型RDD的Partitioner(可选) 5.读取hdfs数据块时会计算每个分片的地址集合(可选)
+     * 数据集：1.分区的集合 2.基于分区计算的算子 3.依赖的集合 4.针对k-v类型RDD的Partitioner(可选) 5.读取hdfs数据块时会计算每个分片的地址集合(可选)
      *
      * RDD两种算子
      * transform：转换新的数据集,lazy模式调用action算子才触发计算,可以根据DAG做相应优化,合并窄依赖的转换算子减少executor与driver之间的通信
@@ -380,7 +380,7 @@ object S01_RDD {
           val sql = "insert into user values(null,?,?)"
           /**
            * PreparedStatement优点
-           * 1.预编译sql放入缓冲区提高效率,且下次执行相同sql时直接使用数据库缓冲区
+           * 1.预编译sql放入缓冲   区提高效率,且下次执行相同sql时直接使用数据库缓冲区
            * 2.预编译sql可以防止sql注入
            * 普通拼接 -> sql经过解析器编译并执行,传递的参数也会参与编译,select * from user where name = 'tom' or '1=1'; 这里的 or '1=1' 会被当成sql指令运行,or被当成关键字了
            * 预编译 -> sql预先编译好等待传参执行,传递的参数就只是变量值,select * from user where name = "tom' or '1=1"; 这里的 tom' or '1=1 是一个变量整体,or也就失效了
@@ -414,18 +414,18 @@ object S01_RDD {
 
   // 自定义累加器
   class MyAccumulator extends AccumulatorV2[String, util.ArrayList[String]] {
-    // 创建集合对象
+    // 创建保存数据的集合
     private val list = new util.ArrayList[String]()
     // 判断当前累加器是否为初始状态
     override def isZero: Boolean = list.isEmpty
     // 复制累加器对象
     override def copy(): AccumulatorV2[String, util.ArrayList[String]] = {
-      val myAcc: MyAccumulator = new MyAccumulator()
+      val myAcc: MyAccumulator = new MyAccumulator
       myAcc
     }
     // 重置累加器对象
     override def reset(): Unit = list.clear()
-    // 向累加器添加数据
+    // 往累加器添加数据
     override def add(v: String): Unit = {
       if (v.contains("h")) list.add(v)
     }

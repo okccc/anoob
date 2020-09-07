@@ -170,15 +170,11 @@ object S01_function {
     // 需求：将名单中的单字符删除,将首字母大写,拼成一个用逗号分隔的字符串
     // 命令式编程实现(python版)
 //    names = ["grubby", "moon", "c", "ted"]
-//    names_new = []
-//    for i in range(len(names)):
-//      name = names[i]
-//      if len(name) > 1:
-//        names_new.append(name.capitalize())
+//    names_new = [i.capitalize() for i in names if len(i) > 1]
     // 函数式编程实现(scala版)
     val names: List[String] = List("grubby", "moon", "c", "ted")
-    val str: String = names.filter((i: String) => i.length > 1).map((f: String) => f.capitalize).reduce((a, b) => a + "," + b)
-    println(str)
+    val names_new: List[String] = names.filter((i: String) => i.length > 1).map((f: String) => f.capitalize)
+    println(names_new)
     // 代码解析：命令式编程只执行了1次循环,函数式编程执行了filter、map、reduce 3次循环,每次循环只完成一种逻辑即用户编写的匿名函数
     // 性能上命令式编程更好,说明在硬件性能羸弱时函数式编程缺点会被放大,但是函数式编程不需要维护外部变量i,对于并行计算场景非常友好
   }

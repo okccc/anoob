@@ -1,8 +1,8 @@
 package spark
 
-import org.apache.spark.SparkConf
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Encoders, Row, SparkSession, TypedColumn}
+import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Encoders, Row, SaveMode, SparkSession, TypedColumn}
 import org.apache.spark.sql.functions.{col, when}
 import org.apache.spark.sql.expressions.Aggregator
 
@@ -53,14 +53,16 @@ object S02_DataFrame {
     // 创建SparkSession,查看源码发现SparkSession类的构造器都是private,只能通过其伴生对象创建
     //    val session: SparkSession = new SparkSession(conf)
     val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
+    // SparkSession包含Spark上下文对象
+    val sc: SparkContext = spark.sparkContext
     // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
     import spark.implicits._
 
     // 创建DataFrame/Dataset三种方式：读取文件,从RDD转换,查询hive
     // a.Spark可以读写json/csv/parquet/orc/text/jdbc等多种格式数据源,返回DataFrame对象
-    // 通用读数据方法：read.format("").load(path),可简写如下格式
+    // 通用读数据方法：spark.read.format("").load(path),可简写如下格式
     val df: DataFrame = spark.read.json("scala/input/people.json")
-    // 通用写数据方法：write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
+    // 通用写数据方法：df.write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
     df.write.mode("append").json("scala/output/people.json")
     df.write.mode("overwrite").saveAsTable("people")  // overwrite模式下第一次写入数据会报错路径不存在
     // 通过jdbc读取外部数据源数据
@@ -127,7 +129,7 @@ object S02_DataFrame {
 //    spark.sql("select avg(age) from user").as("avg").explain(true)
 
     // b.从RDD转换
-    val rdd: RDD[Array[String]] = spark.sparkContext.textFile("scala/input/people.txt").map((row: String) => row.split(","))
+    val rdd: RDD[Array[String]] = sc.textFile("scala/input/people.txt").map((row: String) => row.split(","))
     // 1).先通过样例类反射schema,将RDD[Array]映射成RDD[Person],再隐式转换成DataFrame/Dataset
     val personRDD: RDD[Person] = rdd.map[Person]((arr: Array[String]) => Person(arr(0), arr(1).trim.toInt))
     val df1: DataFrame = personRDD.toDF()

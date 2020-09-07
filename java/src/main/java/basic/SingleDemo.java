@@ -7,6 +7,9 @@ public class SingleDemo {
          * 1.在该类使用new创建一个本类对象
          * 2.私有化构造函数不允许其它程序创建对象
          * 3.对外提供静态get方法让其它程序可以获取该对象
+         *
+         * Arrays/Collections/Math/System等工具类将构造函数私有化,类中全部是静态方法,类名直接调用
+         * Runtime类将构造函数私有化,对外提供getRuntime()方法获取单例对象,访问类中的非静态方法
          */
 
         Single01 s1 = Single01.getInstance();

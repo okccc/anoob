@@ -53,18 +53,19 @@ object S04_collection {
     println(ab.toArray)  // [I@ea1a8d5
 
 
-    // 2.列表：不可变,存放相同类型元素
+    // 2.列表
     val list: List[Int] = List(1,2,3,4)
     println(list)  // List(1, 2, 3, 4)
-    // 索引,长度,转换成字符串
-    println(list.head, list.length, list.mkString(","))
     // 遍历
     list.foreach(println)
-    // 添加元素
+    // 索引,长度,转换成字符串
+    println(list.head, list.length, list.mkString(","))
+    // 添加
     val list1: List[Int] = list:+5  // 尾部添加
     val list2: List[Int] = 5+:list  // 头部添加
     // ++可以合并两个list
     val list3: List[Int] = list++list1
+    println(list3)  // List(1, 2, 3, 4, 1, 2, 3, 4, 5)
     // ::从右往左运算
     val list4: List[Int] = 7::8::9::list
     println(list4)  // List(7, 8, 9, 1, 2, 3, 4)
@@ -119,23 +120,24 @@ object S04_collection {
     // 4.map集合
     val map: Map[String, Int] = Map("a" -> 1, "b" -> 2, "c" -> 3)
     println(map)  // Map(a -> 1, b -> 2, c -> 3)
+    // 遍历
+    map.foreach((t: (String, Int)) => println(t._1 + "=" + t._2))
     // 取值
-    println(map("a"))  // 1
-    // 如果空指针就取默认值
-    println(map.getOrElse("f", 0))  // 0
-    // 添加元素
+    val v1: Option[Int] = map.get("a")
+    val v2: Option[Int] = map.get("d")
+    val v3: Int = map.getOrElse("d", 0)
+    println(v1, v2, v3)  // Some(1), None, 0
+    // 添加
     val map1: Map[String, Int] = map+("d"->4)
     println(map1)  // Map(a -> 1, b -> 2, c -> 3, d -> 4)
     // ++可以合并两个map,键相同值覆盖
-    println(map ++ map1)
-    // 删除元素
-    val map2: Map[String, Int] = map-"b"
-    println(map2)  // Map(a -> 1, c -> 3)
-    // 修改元素
-    val map3: Map[String, Int] = map.updated("a", 5)
-    println(map3)  // Map(a -> 5, b -> 2, c -> 3)
-    // 遍历,输出kv对
-    map.foreach((t: (String, Int)) => println(t._1 +"="+ t._2))
+    println(map++map1)  // Map(a -> 1, b -> 2, c -> 3, d -> 4)
+    // 修改
+    val map2: Map[String, Int] = map.updated("a", 5)
+    println(map2)  // Map(a -> 5, b -> 2, c -> 3)
+    // 删除
+    val map3: Map[String, Int] = map-"b"
+    println(map3)  // Map(a -> 1, c -> 3)
 
     // 5.元组,不可变,可以容纳不同类型元素
     val tuple: (String, Int, String) = ("grubby", 18, "orc")

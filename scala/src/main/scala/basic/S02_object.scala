@@ -17,13 +17,12 @@ object S02_object {
      * java基本数据类型：byte/short/int/long/float/double/char/boolean,为了方便操作基本数据类型的数值java将其封装成了对象,在对象中
      * 定义了更加丰富的属性和行为,对应的包装类 Byte/Short/Integer/Long/Double/Character/Boolean
      * scala没有基本数据类型,一切数据皆是对象,都是Any的子类,包括AnyVal(值类型)和AnyRef(引用类型)
-     * 在程序中复制和运算时精度小的数值类型会自动隐式转换成精度大的数值类型
      * Unit：是不带任何意义的值类型,所有函数必须有返回,所以Unit也是有用的返回类型
      * Nothing：是所有数据类型的子类型,是程序抛异常或者不能正常返回的信号
      * Null：是所有AnyRef类型的子类型,主要满足scala和其它jvm语言的互通性,scala本身几乎不用.
      * java中的null是关键字不是对象,对它调用任何方法都是非法的,因此在调用方法时要经常做null值检查以避免NullPointerException
-     * 当变量或函数返回值可能不会引用任何值的时候,scala强烈建议使用Option[T]类型,包含Some[T]和None两个子类
-     * 静态语言会在编译器做类型检查,当你尝试在一个可能为null的值上调用方法时编译是不通过的,也就不会在运行期出现空指针异常
+     * scala中当变量或函数返回值可能为null的时候,建议使用Option[T]类型,包含Some[T]和None两个子类,这样调用者就知道此处可能存在null值
+     * 静态语言会在编译时做类型检查,当你尝试在一个可能为null的值上调用方法时编译是不通过的,避免在运行时出现空指针异常
      *
      * 构造函数
      * 主构造函数：scala面向函数编程,类的整个主体是主构造函数,可以带参数也可以不带参数
@@ -46,6 +45,13 @@ object S02_object {
      * scala完全面向对象,所以不存在接口这个概念,当多个类具有相同特征时可以将这个特征独立出来,使用trait声明
      * 特质trait可以给对象动态扩展功能  class类名 extends 父类名 with 特质1 with 特质2 with 特质3
      */
+
+    val b: Byte = 10
+    val s: Short = 20
+    val c: Char = 'a'  // char是单个字符
+    val i1: Int = b + s
+    val i2: Int = b + c
+    println(i1, i2)  // 30, 107
   }
 }
 
@@ -77,7 +83,7 @@ class User private(val name: String, var age: Int, skill: Int) {
   var gender: String = _
   // 可以在主构造函数中声明辅构造函数,用this关键字表示
   def this(name: String, age: Int, skill: Int, gender: String) = {
-    // 辅构造函数第一行必须调用主构造函数或先前定义的某个辅构造函数
+    // 辅构造函数第一行必须调用主构造函数或已存在的某个辅构造函数,初始化对象
     this(name, age, skill)
     this.gender = gender
   }
