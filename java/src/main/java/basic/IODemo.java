@@ -2,8 +2,9 @@ package basic;
 
 import java.io.*;
 
+@SuppressWarnings("unused")
 public class IODemo {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
 
         /*
          * IO是相对于内存设备而言
@@ -62,11 +63,19 @@ public class IODemo {
          *          ...
          *      }
          * }
+         *
+         * 序列化
+         * 将内存中的对象转换成字节进行持久化存储或网络传输,延长生命周期
+         * 序列化和反序列化的读写顺序要一致,因为数据类型可能不一样
+         * serialVersionUID给序列化的类添加版本号,兼容新旧版本,比如新版本加了字段反序列化时找不到旧版本的类会报错
+         * 对象序列化时默认序列化所有属性,transient关键字修饰的属性除外,生命周期仅存在于内存不会持久化到硬盘,通常用于卡号、密码等敏感信息
+         * 如果父类实现了Serializable接口,子类默认也实现了序列化
          */
 
 //        byteStream();
 //        charStream();
-        tryIOException();
+//        tryIOException();
+        objectStream();
     }
 
     public static void byteStream() throws IOException {
@@ -153,8 +162,23 @@ public class IODemo {
         }
     }
 
-    public static void objectStream(){
-
+    public static void objectStream() throws IOException, ClassNotFoundException {
+        // 创建序列化流对象
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("java/input/person.dat"));
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("java/input/person.dat"));
+        // 序列化
+        oos.writeInt(100);
+        oos.writeDouble(12.5);
+        oos.writeUTF("hello");
+        oos.writeObject(new Person("grubby", 18, "荷兰"));
+        // 反序列化
+        System.out.println(ois.readInt());  // 100
+        System.out.println(ois.readDouble());  // 12.5
+        System.out.println(ois.readUTF());  // hello
+        System.out.println(ois.readObject());  // grubby: 18  没有idcard说明transient关键字修饰的变量不会被序列化
+        // 关闭流
+        ois.close();
+        oos.close();
     }
 
 }
