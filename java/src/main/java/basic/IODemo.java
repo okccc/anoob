@@ -1,7 +1,6 @@
 package basic;
 
 import java.io.*;
-import java.security.PublicKey;
 
 public class IODemo {
     public static void main(String[] args) throws IOException {
@@ -152,6 +151,9 @@ public class IODemo {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void objectStream(){
 
     }
 
