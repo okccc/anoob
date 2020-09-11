@@ -1,52 +1,38 @@
 package basic;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class IODemo {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-
+    public static void main(String[] args) throws IOException {
         /*
          * IO是相对于内存设备而言
+         * 键盘 -> System.in/out | 硬盘 -> FileXxx | 内存 -> 数组 | 网络 -> socket
          * 输入流：将外设数据读取到内存
          * 输出流：将内存数据写入到外设
-         * 字符流：字节流读取字节数据后,先不直接操作而是查指定的编码表获取对应的文字,再对这个文字进行操作
-         * 字符流 = 字节流 + 编码表
+         * 字符流：字节流读取字节数据后,先不直接操作而是查指定的编码表获取对应的文字,再对这个文字进行操作,字符流 = 字节流 + 编码表
+         * 转换流：当字节流中的数据都是字符时,转换成字符流处理更加高效和方便,如果操作文本时涉及具体编码表也必须使用转换流
          * 字节流顶层父类：InputStream、OutputStream
          * 字符流顶层父类：Reader、Writer
          * 这些体系的子类特点：前缀表示功能,后缀是父类名
-         *
-         * 字节流
          * InputStream
          *     |--FileInputStream
-         *     |--FilterInputStream
-         *         |--BufferedInputStream
-         *         |--DataInputStream
-         *     |--SequenceInputStream
-         *     |--ObjectInputStream
-         *     |--PipedInputStream
-         *     |--ByteInputStream
+         *     |--BufferedInputStream
          * OutputStream
          *     |--FileOutputStream
-         *     |--FilterOutputStream
-         *         |--BufferedOutputStream
-         *         |--DataOutputStream
-         *     |--PrintStream
-         *     |--ObjectOutputStream
-         *     |--PipedOutputStream
-         *     |--ByteOutputStream
-         *
-         * 字符流
+         *     |--BufferedOutputStream
          * Reader
+         *     |--FileReader
          *     |--BufferedReader
-         *         |--LineNumberReader
-         *     |--InputStreamReader
-         *         |--FileReader
+         *     |--InputStreamReader  // InputStream -> Reader
          * Writer
+         *     |--FileWriter
          *     |--BufferedWriter
-         *     |--OutputStreamWriter
-         *         |--FileWriter
-         *     |--PrintWriter
+         *     |--OutputStreamWriter  // OutputStream -> Writer
          *
          * 装饰器模式
          * 装饰类用来包装原有的类,可以在不改变原先类结构的情况下动态扩展其功能,比继承更加灵活
@@ -72,10 +58,13 @@ public class IODemo {
          * 如果父类实现了Serializable接口,子类默认也实现了序列化
          */
 
+
 //        byteStream();
 //        charStream();
 //        tryIOException();
-        objectStream();
+//        objectStream();
+//        transformStream();
+        sequenceStream();
     }
 
     public static void byteStream() throws IOException {
@@ -106,8 +95,8 @@ public class IODemo {
 
     public static void charStream() throws IOException {
         // 创建字符流对象
-        FileReader fr = new FileReader("java/input/aaa.txt");
-        FileWriter fw = new FileWriter("java/output/aaa.txt", true);
+        FileReader fr = new FileReader("java/input/ccc.txt");
+        FileWriter fw = new FileWriter("java/output/ccc.txt", true);
         // 读取字符数组
         int len;
         char[] c = new char[1024];
@@ -120,8 +109,8 @@ public class IODemo {
         fr.close();
 
         // 使用缓冲字符流
-        BufferedReader br = new BufferedReader(new FileReader("java/input/aaa.txt"));
-        BufferedWriter bw = new BufferedWriter(new FileWriter("java/output/aaa.txt", true));
+        BufferedReader br = new BufferedReader(new FileReader("java/input/ccc.txt"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter("java/output/ccc.txt", true));
         // 读写数据
         String line;
         while ((line = br.readLine()) != null){
@@ -181,25 +170,76 @@ public class IODemo {
         oos.close();
     }
 
-}
+    public static void transformStream() throws IOException {
+        // 查看源码发现 System.out.println() 其实就是 PrintStream.println() | PrintStream out = System.out -> out.println()
+        InputStream in = System.in;    // 标准输入流
+        PrintStream out = System.out;  // 标准输出流
+        PrintStream err = System.err;  // 标准错误流
 
-//  被装饰类
-class Man{
-    public void eat(){
-        System.out.println("来碗大米饭!");
+        // 键盘录入 -> 控制台,System.in读取字节效率不高,可以将其封装成缓冲字符流,中间需要使用转换流转换
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        // 文件 -> 控制台
+        BufferedReader br1 = new BufferedReader(new InputStreamReader(new FileInputStream("java/input/ccc.txt")));
+        // LineNumberReader是BufferedReader子类,特点是可以获取行号
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(System.in));
+//        lnr.setLineNumber(3);
+        // 输出流
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        // 读写数据
+        String line;
+        while ((line = br.readLine()) != null){
+            if ("over".equalsIgnoreCase(line)){
+                break;
+            }
+            bw.write(line);
+//            bw.write(lnr.getLineNumber() +": "+ line);
+            bw.newLine();
+            bw.flush();
+            // 还可以重定向输出流到文件
+            System.setOut(new PrintStream(new FileOutputStream("java/output/out", true)));
+            // 查看源码发现 println() = write() + newline() + flush() 所以当输出在控制台时等价于上面三行
+            System.out.println(line);
+        }
     }
-}
 
-//  装饰类
-class DecoratorMan {
-    private Man m;
-    //  将已有对象作为装饰类的构造函数的参数传入
-    DecoratorMan(Man m){
-        this.m = m;
+    public static void sequenceStream() throws IOException {
+        // 合并小文件(字节流版本)
+        File dir = new File("java/input");
+        File merge_file = new File("java/output/merge.txt");
+        // 序列流可以将多个字节输入流合并成一个字节输入流,SequenceInputStream(Enumeration<? extends InputStream> e)
+        // 由于构造函数参数是枚举类型,而集合体系只有Vector才有枚举,但是效率低不常用,可以通过集合框架工具类Collections转换
+        // 存放输入流对象的集合
+        List<BufferedInputStream> list = new ArrayList<>();
+        // 深度遍历目录将符合条件的文件与输入流关联并添加到集合
+        digui(dir, list);
+        // 返回集合的枚举
+        Enumeration<BufferedInputStream> en = Collections.enumeration(list);
+        // 将多个输入流合并成一个输入流
+        SequenceInputStream sis = new SequenceInputStream(en);
+        // 输出流
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(merge_file));
+        // 读写数据
+        byte[] arr = new byte[1024];
+        while (sis.read(arr) != -1) {
+            bos.write(arr);
+        }
+        // 关流
+        sis.close();
+        bos.close();
     }
-    public void eat(){
-        System.out.println("先来点水果！");
-        m.eat();
-        System.out.println("再来点甜品！");
+
+    private static void digui(File dir, List<BufferedInputStream> list) throws FileNotFoundException {
+        // 获取文件(夹)路径
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            if(file.isFile()) {
+                if(file.getName().endsWith(".txt")) {
+                    list.add(new BufferedInputStream(new FileInputStream(file)));
+                }
+            } else {
+                digui(file, list);
+            }
+        }
     }
+
 }
