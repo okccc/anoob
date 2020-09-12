@@ -9,7 +9,7 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 public class FunctionDemo {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         /*
          * public：权限必须是最大的
          * static：JVM调用主函数是不需要对象的,直接用主函数所属类名调用即可
@@ -27,10 +27,12 @@ public class FunctionDemo {
          * do while和while的区别在于不管条件是否满足,do while循环体至少执行一次
          */
 
-        rectangle();
-        triangle01();
-        triangle02();
-        printCFB(9);
+//        rectangle();
+//        triangle01();
+//        triangle02();
+        printCFB();
+        dateDiff();
+        System.out.println(fibonacci(15));
     }
 
     // 求和
@@ -89,8 +91,8 @@ public class FunctionDemo {
     }
 
     // 打印乘法表
-    public static void printCFB(int num){
-        for(int x = 1; x <= num; x++){
+    public static void printCFB(){
+        for(int x = 1; x <= 9; x++){
             for(int y = 1; y <= x; y++){
                 System.out.print(y + "*" + x + "=" + y * x + "\t");
             }
@@ -99,33 +101,23 @@ public class FunctionDemo {
     }
     
     // 计算日期差值
-    public static int dateDiff(String str1, String str2) throws ParseException {
+    public static void dateDiff() throws ParseException {
+        String str1 = "2020-09-07";
+        String str2 = "2020-03-25";
         // 获取日期格式器
-        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         // 解析字符串
-        final Date date1 = format.parse(str1);
-        final Date date2 = format.parse(str2);
+        final Date date1 = sdf.parse(str1);
+        final Date date2 = sdf.parse(str2);
+        System.out.println(date1 +" | "+ date2);  // Mon Sep 07 00:00:00 CST 2020 | Wed Mar 25 00:00:00 CST 2020
         // 转换成毫秒值,只有毫秒值可以加减乘除
         final long time1 = date1.getTime();
         final long time2 = date2.getTime();
+        System.out.println(time1 +" | "+ time2);  // 1599408000000 | 1585065600000
         final long time = Math.abs(time1 - time2);
-        // 转换成天
-        return (int) time/(1000*60*60*24);
-    }
-
-    // 获取系统属性信息
-    public static void getProperty() {
-        // 获取系统当前时间
-        System.out.println(System.currentTimeMillis());
-        // 获取系统属性信息,以键值对形式存储在Properties集合中
-        Properties prop = System.getProperties();
-        // 获取属性列表中key的集合
-        Set<String> propertyNames = prop.stringPropertyNames();
-        // 遍历key获取value
-        for (String key: propertyNames) {
-            String value = prop.getProperty(key);
-            System.out.println(key + ": " + value);
-        }
+        System.out.println(time/(1000*60*60*24));
+        // 将long类型的时间戳转换成日期
+        System.out.println(sdf.format(new Date(time1)));
     }
 
     public static void calculate() {
@@ -152,6 +144,15 @@ public class FunctionDemo {
         Thread.sleep(3000);
         // 杀掉进程
         proc.destroy();
+    }
+
+    public static int fibonacci(int i) {
+        // 斐波那契额数列
+        if(i == 1 | i == 2) {
+            return 1;
+        } else {
+            return fibonacci(i - 1) + fibonacci(i - 2);
+        }
     }
 
 }

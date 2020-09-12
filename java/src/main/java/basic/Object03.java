@@ -160,7 +160,7 @@ class Outer{
     }
 }
 
-// 枚举
+// 演示枚举
 enum Season {
     // 由于构造函数、访问方法都省略了,常量必须放在第一行
     SPRING, SUMMER, AUTUMN, WINTER

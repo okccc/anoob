@@ -1,9 +1,11 @@
 package basic;
 
+import java.io.*;
 import java.util.*;
 
+@SuppressWarnings("unused")
 public class CollectionDemo {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         /*
          * 集合是存储对象的容器,只能存引用数据类型,不能存基本数据类型
          * 集合长度是可变的,集合内部数据结构不同,有多种容器,不断向上抽取形成集合框架,Collection和Map是顶层接口
@@ -51,7 +53,17 @@ public class CollectionDemo {
          * <? super E> 限定传递的参数类型只能是E类型及其父类,使用该通配符做泛型的集合只能读不能写除了null和自身
          */
 
-        // ArrayList
+//        testList();
+//        testSet();
+//        testMap();
+//        testProperties();
+        testAppCount();
+//        testCollections();
+//        wordCount();
+    }
+
+    public static void testList() {
+        // 创建ArrayList对象
         List<String> al = new ArrayList<>();
         // 添加
         al.add("aaa");
@@ -73,7 +85,7 @@ public class CollectionDemo {
             System.out.println(s);
         }
 
-        // LinkedList
+        // 创建LinkedList对象
         LinkedList<String> ll = new LinkedList<>();
         // 添加
         ll.add("aaa");
@@ -84,8 +96,10 @@ public class CollectionDemo {
         System.out.println(ll.getFirst());
         // 获取元素(然后删除)
         System.out.println(ll.removeFirst());
+    }
 
-        // HashSet
+    public static void testSet() {
+        // 创建HashSet对象
         HashSet<String> hs = new HashSet<>();
         // 添加
         hs.add("aaa");
@@ -94,7 +108,7 @@ public class CollectionDemo {
         hs.add("aaa");
         System.out.println("hs = " + hs);  // hs = [aaa, ccc, bbb]
 
-        // LinkedHashSet：在set接口哈希表的基础上添加了链表结构,所以在保证唯一性的同时还能有序
+        // 创建LinkedHashSet对象：在set接口哈希表的基础上添加了链表结构,所以在保证唯一性的同时还能有序
         LinkedHashSet<String> lhs = new LinkedHashSet<>();
         lhs.add("aaa");
         lhs.add("bbb");
@@ -102,9 +116,9 @@ public class CollectionDemo {
         lhs.add("aaa");
         System.out.println("lhs = " + lhs);  // lhs = [aaa, bbb, ccc]
 
-        // TreeSet
-        // 字符串本身具备比较大小功能
+        // 创建TreeSet对象
         TreeSet<String> ts = new TreeSet<>();
+        // 字符串本身具备比较大小功能
         ts.add("ccc");
         ts.add("bbb");
         ts.add("aaa");
@@ -124,8 +138,10 @@ public class CollectionDemo {
         ts2.add(new Person("fly", 20));
         ts2.add(new Person("grubby", 18));
         System.out.println("ts2 = " + ts2);  // ts2 = [fly: 20, grubby: 18, moon: 19]
+    }
 
-        // HashMap
+    public static void testMap() {
+        // 创建HashMap对象
         HashMap<String, Integer> hm = new HashMap<>();
         // 添加
         hm.put("grubby", 18);
@@ -150,7 +166,7 @@ public class CollectionDemo {
             System.out.println(key + ": " + value);
         }
 
-        // TreeMap
+        // 创建TreeMap对象
         TreeMap<Person, String> tm = new TreeMap<>();
         tm.put(new Person("sky", 20), "hum");
         tm.put(new Person("moon", 19), "ne");
@@ -162,18 +178,91 @@ public class CollectionDemo {
             String value = entry.getValue();
             System.out.println(key.getName() + ": " + key.getAge() + ": " + value);
         }
+    }
 
+    private static void testProperties() throws IOException {
+        // Properties是持久化的Map集合,可以将内存数据保存到本地,键和值都是String类型, 映射关系(map) + 读写(io) = Properties
+        Properties prop = new Properties();
+        // 设置属性
+        prop.setProperty("grubby", "orc");
+        prop.setProperty("moon", "ne");
+        // 遍历集合,类似keySet
+        Set<String> keys = prop.stringPropertyNames();
+        for (String key : keys) {
+            // 根据key获取value
+            String value = prop.getProperty(key);
+            System.out.println(key +": "+ value);
+        }
+
+        // 将属性写入文件
+        BufferedWriter bw = new BufferedWriter(new FileWriter("java/input/aaa.properties"));
+        // 使用输出字符流将属性列表写入文件
+        prop.store(bw, "war3");
+        bw.close();
+
+        // 从文件读取属性
+        BufferedReader br = new BufferedReader(new FileReader("java/input/aaa.properties"));
+        // 使用输入字符流读取文件的属性列表
+        prop.load(br);
+        // 将属性列表打印在控制台
+        prop.list(System.out);
+        br.close();
+
+        // System类获取系统属性信息
+        Properties properties = System.getProperties();
+        properties.list(System.out);
+        // 获取系统默认分隔符,代码中一般定义成static final常量,这样就不用区分Windows/Linux,提高代码可移植性
+        System.out.println(System.getProperty("line.separator"));
+        // 获取系统当前时间
+        System.out.println(System.currentTimeMillis());
+    }
+
+    private static void testAppCount() throws IOException {
+        // 需求：判断应用程序运行次数,超过3次就提示先去注册再使用,并终止程序
+        // 分析：要使用计数器count,但是计数器是在内存中,每次程序启动会归零,所以需要持久化,且times=?是映射关系所以选择Properties
+        File file = new File("java/input/count.properties");
+        if(!file.exists()) {
+            file.createNewFile();
+        }
+        Properties prop = new Properties();
+        prop.setProperty("times", "0");
+        FileReader fr = new FileReader(file);
+        prop.load(fr);
+        int count = 0;
+        String value = prop.getProperty("times");
+        if(value != null) {
+            count = Integer.parseInt(value);
+            count++;
+            if(count > 3) {
+                throw new RuntimeException("免费次数已达上限,请注册后继续使用~");
+            }
+        }
+        prop.setProperty("times", Integer.toString(count));
+        FileWriter fw = new FileWriter(file);
+        prop.store(fw, "modify");
+        fr.close();
+        fw.close();
+    }
+
+    public static void testCollections() {
         // Collections工具类构造函数私有化,方法都是静态,不需要创建对象直接类名调用
-        Collections.reverse(al);
-        System.out.println("reverse: " + al);  // reverse: [bbb, eee, aaa]
-        Collections.sort(al);
-        System.out.println("sort: " + al);  // sort: [aaa, bbb, eee]
-        System.out.println(Collections.binarySearch(al, "aaa"));  // 0
-        Collections.shuffle(al);
-        System.out.println("shuffle: " + al);  // shuffle: [bbb, aaa, eee]
-        System.out.println("max = " + Collections.max(al));  // max = eee
-
-        wordCount();
+        List<String> list = new ArrayList<>();
+        list.add("aaa");
+        list.add("ccc");
+        list.add("bbb");
+        // 排序
+        Collections.sort(list);
+        System.out.println("sort: " + list);  // sort: [aaa, bbb, eee]
+        // 反转
+        Collections.reverse(list);
+        System.out.println("reverse: " + list);  // reverse: [bbb, eee, aaa]
+        // 二分查找
+        System.out.println(Collections.binarySearch(list, "aaa"));  // 0
+        // 洗牌
+        Collections.shuffle(list);
+        System.out.println("shuffle: " + list);  // shuffle: [bbb, aaa, eee]
+        // 最大值
+        System.out.println("max = " + Collections.max(list));  // max = eee
     }
 
     public static void wordCount() {

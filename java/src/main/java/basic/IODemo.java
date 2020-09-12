@@ -81,7 +81,7 @@ public class IODemo {
         fos.close();
         fis.close();
 
-        // 使用缓冲字节流,查看源码发现其实就是实现了创建字节数组这一步骤
+        // 使用更加高效的缓冲字节流,查看源码发现其实就是创建了字节数组
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream("java/input/avator.jpg"));
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("java/output/avator.jpg"));
         // 读写数据
@@ -108,7 +108,7 @@ public class IODemo {
         fw.close();
         fr.close();
 
-        // 使用缓冲字符流
+        // 使用更加高效的缓冲字符流,查看源码发现其实就是创建了字符数组,并且可以一次读取一行
         BufferedReader br = new BufferedReader(new FileReader("java/input/ccc.txt"));
         BufferedWriter bw = new BufferedWriter(new FileWriter("java/output/ccc.txt", true));
         // 读写数据
