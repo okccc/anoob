@@ -1,8 +1,8 @@
 package basic;
 
 @SuppressWarnings("unused")
-public class ThreadDemo {
-    public static void main(String[] args) throws InterruptedException {
+public class Thread01 {
+    public static void main(String[] args) {
         /*
          * 并行：cpu核数 > 任务数 -> 真的多任务
          * 并发：cpu核数 < 任务数 -> 假的多任务,因为一个cpu在同一时刻只能运行一个任务,只是占用cpu的程序切换速度足够快感觉不出来
@@ -23,31 +23,38 @@ public class ThreadDemo {
          *     // 需要同步(上锁)的代码
          * }
          * public synchronized 返回类型 方法名(参数列表) {
-         *     // 需要同步(上锁)的额代码
+         *     // 需要同步(上锁)的代码
          * }
          * 非静态方法锁对象是this,静态方法锁对象是类名.class
+         * 释放锁：线程死亡和调用wait方法(上厕所没酝酿好出来等会再上)
+         * 不释放锁：调用sleep和yield方法(上厕所在打电话)
+         * 死锁：多线程相互之间需要对方释放锁,互不相让导致死锁
          *
-         * 新建：创建好线程对象,但还没有调用start方法
-         * 就绪：调用start方法,但还没有抢到cpu执行权
+         * 线程生命周期
+         * 新建：创建线程但还没开启
+         * 就绪：开启线程但还没抢到cpu执行权
          * 运行：抢到了cpu执行权
          * 消亡：线程执行结束 | 正常退出(break/return) | 异常退出(error/exception)
          * 阻塞：在运行期间调用了sleep/wait/join方法,当sleep结束或notify唤醒之后会切换到就绪状态
          *
-         * 释放锁：线程消亡和调用wait方法(上厕所没酝酿好出来等会再上)
-         * 不释放锁：调用sleep和yield方法(上厕所在打电话)
-         * 死锁：多线程相互之间需要对方释放锁,互不相让导致死锁
+         * run和start区别？
+         * run仅仅是封装自定义线程要执行的任务代码,调用run方法时并没有启动该线程
+         * start首先启动线程,然后再由jvm去调用该线程的run方法
+         *
+         * sleep和wait区别？
+         * sleep是Thread类的方法,必须指定时间,不释放锁时间到了自然醒
+         * wait是Object类的方法,不指定时间,释放锁等待notify来唤醒它
          *
          * 线程池：每启动一个新线程都涉及与OS交互,成本很高,可以使用线程池控制系统中并发线程的数量,避免因创建线程过多导致的系统性能下降
-         *
          */
 
 //        createThread();
-//        commonMethods();
-//        ticketDemo();
-        stopThread();
+//        common();
+//        saleTicket();
+//        stopThread();
     }
 
-    public static void createThread() {
+    private static void createThread() {
         // 继承Thread类
         new Thread(){
             @Override
@@ -68,7 +75,7 @@ public class ThreadDemo {
         }).start();
     }
 
-    public static void commonMethods() throws InterruptedException {
+    private static void common() throws InterruptedException {
         // 线程常用方法
         Thread t = new Thread(new Tickets02());
         // 启动线程,jvm会去调用线程的run方法,查看源码发现调用的是系统底层(native)的start0方法,直接和OS交互
@@ -89,14 +96,14 @@ public class ThreadDemo {
         t.wait();
         // 让线程插队,如果t调用了join方法,那么t后面的线程会搁置,等t和前面的线程(抢资源)都执行完,才会执行后面的线程
         t.join();
-        // 中断线程的阻塞状态,会抛异常InterruptedException
+        // 中断线程的阻塞状态(sleep/wait/join),然后抛出异常InterruptedException
         t.interrupt();
         // 线程分类：user thread任务执行完就停止 daemon thread当用户线程都执行完,不管守护线程有没有执行完都会停止
         // 标记为守护线程,在start()之前调用,垃圾回收机制就是经典的守护线程,如果当前运行的线程都是守护线程那么jvm退出
         t.setDaemon(true);
     }
 
-    public static void ticketDemo() {
+    private static void saleTicket() {
         // 3个窗口同时卖票案例,3个人同时去银行存钱同理
         // 售票方式一：创建了3个线程,每个线程都是一个tickets对象
 //        new Tickets01().start();
@@ -115,21 +122,20 @@ public class ThreadDemo {
         new Thread(b).start();
     }
 
-    public static void stopThread() throws InterruptedException {
+    private static void stopThread() {
         // 线程的停止
-        StopDemo s = new StopDemo();
-        Thread t1 = new Thread(s);
-        t1.start();
-        Thread.sleep(10);
-        for (int i = 1; i <= 10; i++) {
+        // stop方法已弃用,interrupt方法只是中断线程的阻塞状态,并没有结束线程
+        // 采用通知方式,多线程的任务代码中一般都有循环结构,可以定义flag标记来控制循环何时结束
+        Stop s = new Stop();
+        new Thread(s).start();
+        for (int i = 1; i <= 100; i++) {
+            System.out.println(Thread.currentThread().getName() + "..." + i);
             if (i == 5) {
-                t1.interrupt();
                 s.setFlag(false);
                 break;
             }
         }
     }
-
 }
 
 // 继承Thread类
@@ -147,6 +153,7 @@ class Tickets01 extends Thread {
         }
     }
 }
+
 // 实现Runnable接口
 class Tickets02 implements Runnable {
     int tickets = 100;
@@ -185,35 +192,15 @@ class Bank implements Runnable {
     }
 }
 
-
-// 演示线程的停止
-class StopDemo implements Runnable {
-    /**
-     * 当线程处于运行状态时：采用通知方式,多线程的任务代码中一般都有循环结构,可以定义flag标记来控制循环何时结束
-     * 当线程处于阻塞状态时(sleep/wait/join)：此时无法读取flag,要先interrupt将其从阻塞状态中恢复,具备cpu执行权,然后继续读取flag
-     */
+class Stop implements Runnable {
     boolean flag = true;
     public void setFlag(boolean flag) {
         this.flag = flag;
     }
     @Override
     public void run() {
-        // 1.当线程处于运行状态时
-//        while (flag) {
-//            System.out.println(Thread.currentThread().getName() + "..." + "thread is running");
-//        }
-        // 2.当线程有可能处于阻塞状态时
         while (flag) {
-            synchronized (this) {
-                try {
-                     Thread.sleep(1);
-//                    wait();
-                } catch (InterruptedException e) {
-                     e.printStackTrace();
-//                    System.out.println(Thread.currentThread().getName() + "..." + e.getMessage());
-                }
-                System.out.println(Thread.currentThread().getName() + "..." + "thread is running");
-            }
+            System.out.println(Thread.currentThread().getName() + "..." + "thread is running");
         }
     }
 }
