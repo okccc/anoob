@@ -63,7 +63,7 @@ object S02_DataFrame {
     // 通用读数据方法：spark.read.format("").load(path),可简写如下格式
     val df: DataFrame = spark.read.json("scala/input/people.json")
     // 通用写数据方法：df.write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
-    df.write.mode("append").json("scala/output/people.json")
+    df.write.option("header",value = true).mode("append").csv("scala/output/people.csv")
     df.write.mode("overwrite").saveAsTable("people")  // overwrite模式下第一次写入数据会报错路径不存在
     // 通过jdbc读取外部数据源数据
     val jdbcDF: DataFrame = spark.read.format("jdbc").option("url", "jdbc:mysql://localhost:3306/test")
