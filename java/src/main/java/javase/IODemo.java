@@ -1,4 +1,4 @@
-package basic;
+package javase;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,13 +18,14 @@ public class IODemo {
          * 转换流：当字节流中的数据都是字符时,转换成字符流处理更加高效和方便,如果操作文本时涉及具体编码表也必须使用转换流
          * 字节流顶层父类：InputStream、OutputStream
          * 字符流顶层父类：Reader、Writer
-         * 这些体系的子类特点：前缀表示功能,后缀是父类名
+         * 这些体系的子类特点：前缀表示功能,后缀是父类名,构造函数可以传入String路径/File对象
          * InputStream
          *     |--FileInputStream
          *     |--BufferedInputStream
          * OutputStream
          *     |--FileOutputStream
          *     |--BufferedOutputStream
+         *     |--PrintStream
          * Reader
          *     |--FileReader
          *     |--BufferedReader
@@ -33,6 +34,7 @@ public class IODemo {
          *     |--FileWriter
          *     |--BufferedWriter
          *     |--OutputStreamWriter  // OutputStream -> Writer
+         *     |--PrintWriter
          *
          * 装饰器模式
          * 装饰类用来包装原有的类,可以在不改变原先类结构的情况下动态扩展其功能,比继承更加灵活
@@ -58,37 +60,40 @@ public class IODemo {
          * 如果父类实现了Serializable接口,子类默认也实现了序列化
          */
 
-
-//        byteStream();
+        byteStream();
 //        charStream();
 //        tryIOException();
 //        objectStream();
 //        transformStream();
-        sequenceStream();
+//        sequenceStream();
     }
 
     public static void byteStream() throws IOException {
         // 创建字节流对象
-        FileInputStream fis = new FileInputStream("java/input/avator.jpg");
-        FileOutputStream fos = new FileOutputStream("java/output/avator.jpg", true);
+        FileInputStream fis = new FileInputStream("java/input/avatar.jpg");
+        FileOutputStream fos = new FileOutputStream("java/output/avatar.jpg");
         // 读取字节数组
         byte[] arr = new byte[1024];
         // read()方法可以读取字节或字节数组,读到文件末尾则返回-1
         while (fis.read(arr) != -1) {
+            // 输出到控制台
+//            System.out.println(new String(arr));
+            // 输出到文件
             fos.write(arr);
         }
         // 关闭流
         fos.close();
         fis.close();
 
-        // 使用更加高效的缓冲字节流,查看源码发现其实就是创建了字节数组
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("java/input/avator.jpg"));
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("java/output/avator.jpg"));
+        // 缓冲流先将数据写进缓冲区,然后再从内存中flush
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("java/input/avatar.jpg"));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("java/output/avatar.jpg"));
         // 读写数据
-        int ch;
-        while ((ch = bis.read()) != -1){
-            bos.write(ch);
+        byte[] buf = new byte[1024];
+        while (bis.read(buf) != -1){
+            bos.write(buf);
         }
+        // bos和bw的close()方法会调用flush(),所以一定要关闭流
         bos.close();
         bis.close();
     }
@@ -99,10 +104,12 @@ public class IODemo {
         FileWriter fw = new FileWriter("java/output/ccc.txt", true);
         // 读取字符数组
         int len;
-        char[] c = new char[1024];
-        while ((len = fr.read(c)) != -1){
+        char[] arr = new char[1024];
+        while ((len = fr.read(arr)) != -1){
+            // 输出到控制台
 //            System.out.print(new String(c, 0, len));
-            fw.write(c, 0, len);
+            // 输出到文件
+            fw.write(arr, 0, len);
         }
         // 关闭流
         fw.close();
@@ -116,7 +123,6 @@ public class IODemo {
         while ((line = br.readLine()) != null){
             bw.write(line);
             bw.newLine();
-//            bw.flush();
         }
         bw.close();
         br.close();
@@ -127,8 +133,8 @@ public class IODemo {
         FileOutputStream fos = null;
         try {
             // 创建字节流对象
-            fis = new FileInputStream("java/input/avator.jpg");
-            fos = new FileOutputStream("java/output/avator.jpg", true);
+            fis = new FileInputStream("java/input/avatar.jpg");
+            fos = new FileOutputStream("java/output/avatar.jpg", true);
             // 读取字节数组
             byte[] arr = new byte[1024];
             // read()方法可以读取字节或字节数组,读到文件末尾则返回-1
@@ -176,29 +182,33 @@ public class IODemo {
         PrintStream out = System.out;  // 标准输出流
         PrintStream err = System.err;  // 标准错误流
 
-        // 键盘录入 -> 控制台,System.in读取字节效率不高,可以将其封装成缓冲字符流,中间需要使用转换流转换
+        // 标准输入流：System.in读取字节效率不高,可以将其封装成缓冲字符流,中间需要使用转换流转换
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        // 文件 -> 控制台
-        BufferedReader br1 = new BufferedReader(new InputStreamReader(new FileInputStream("java/input/ccc.txt")));
         // LineNumberReader是BufferedReader子类,特点是可以获取行号
         LineNumberReader lnr = new LineNumberReader(new InputStreamReader(System.in));
 //        lnr.setLineNumber(3);
-        // 输出流
+        // 文件输入流
+        BufferedReader br1 = new BufferedReader(new InputStreamReader(new FileInputStream("java/input/aaa.txt")));
+        // 标准输出流
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        // 文件输出流
+        BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("java/output/aaa.txt",true)));
+
         // 读写数据
         String line;
         while ((line = br.readLine()) != null){
             if ("over".equalsIgnoreCase(line)){
                 break;
             }
+            // 使用System.out之前可以重定向标准输出
+            System.setOut(new PrintStream(new FileOutputStream("java/output/aaa.txt", true)));
+            // 输出到控制台,查看源码发现 println() = write() + newline() + flush() 所以当输出在控制台时等价于下面三行
+            System.out.println(line);
+            // 输出到控制台或文件
             bw.write(line);
 //            bw.write(lnr.getLineNumber() +": "+ line);
             bw.newLine();
             bw.flush();
-            // 还可以重定向输出流到文件
-            System.setOut(new PrintStream(new FileOutputStream("java/output/out", true)));
-            // 查看源码发现 println() = write() + newline() + flush() 所以当输出在控制台时等价于上面三行
-            System.out.println(line);
         }
     }
 

@@ -1,11 +1,11 @@
-package basic;
+package javase;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @SuppressWarnings("all")
-public class FileDemo {
+public class IOFileDemo {
     public static void main(String[] args) throws IOException {
         /*
          * File：文件和路径名的抽象表示
@@ -27,7 +27,7 @@ public class FileDemo {
     }
 
     public static void common() throws IOException {
-        // 创建File对象,可以是文件也可以是目录
+        // 将文件(夹)封装成File对象
         File file = new File("java/input/ccc.txt");
         File dir = new File("java/input/aaa");
         // 获取
@@ -135,7 +135,7 @@ public class FileDemo {
     }
 
     public static void mergeSmallFile(File dir, File merge_file) throws IOException {
-        // 合并小文件(字符流版本),读写数据要使用IO流
+        // 需求：合并小文件(字符流版本),读写数据要使用IO流
         // 方式一：深度遍历目录,将符合条件的文件逐一通过IO流写入
         File[] files = dir.listFiles();
         for (File file : files) {
@@ -160,7 +160,7 @@ public class FileDemo {
     }
 
     public static void checkList() throws IOException {
-        // 目标文件夹
+        // 需求：列出目录下的文件清单
         File dir = new File("java/input");
         // 存放File对象的集合
         List<File> list = new ArrayList<>();
@@ -192,7 +192,7 @@ public class FileDemo {
     }
 
     public static void splitBigFile() throws IOException {
-        // 切割大文件
+        // 需求：切割大文件
         File file = new File("D://aaa.avi");
         File dir = new File("D://test");
         // 输入流
