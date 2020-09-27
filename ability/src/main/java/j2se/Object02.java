@@ -239,7 +239,8 @@ class Person implements Serializable, Comparable<Person> {
     @Override
     public String toString() {
         // 重写toString方法,返回该对象的字符串表现形式(通常会写的简单易懂)
-        return name + ": " + age + ": " + idcard;
+//        return name + ": " + age + ": " + idcard;
+        return "Person[" + "name: " + name + ", age: " + age + ", idcard: " + idcard + "]";
     }
 
     @Override
