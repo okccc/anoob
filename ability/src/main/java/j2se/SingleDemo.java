@@ -28,7 +28,6 @@ public class SingleDemo {
     }
 }
 
-
 class Single01 {
     // 饿汉式：类一加载,对象就已经创建好
     private static final Single01 s = new Single01();
@@ -37,7 +36,6 @@ class Single01 {
         return s;
     }
 }
-
 
 class Single02 {
     // 懒汉式：类加载时没有对象,要用的时候才创建(延迟加载)
@@ -57,7 +55,6 @@ class Single02 {
     }
 }
 
-
 class SingleTest {
     private int num;
     private static final SingleTest t = new SingleTest();
@@ -72,4 +69,3 @@ class SingleTest {
         return num;
     }
 }
-

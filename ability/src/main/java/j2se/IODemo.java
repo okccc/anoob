@@ -68,7 +68,7 @@ public class IODemo {
 //        sequenceStream();
     }
 
-    public static void byteStream() throws IOException {
+    private static void byteStream() throws IOException {
         // 创建字节流对象
         FileInputStream fis = new FileInputStream("ability/input/avatar.jpg");
         FileOutputStream fos = new FileOutputStream("ability/output/avatar.jpg");
@@ -98,7 +98,7 @@ public class IODemo {
         bis.close();
     }
 
-    public static void charStream() throws IOException {
+    private static void charStream() throws IOException {
         // 创建字符流对象
         FileReader fr = new FileReader("ability/input/ccc.txt");
         FileWriter fw = new FileWriter("ability/output/ccc.txt", true);
@@ -128,7 +128,7 @@ public class IODemo {
         br.close();
     }
 
-    public static void tryIOException(){
+    private static void tryIOException(){
         FileInputStream fis = null;
         FileOutputStream fos = null;
         try {
@@ -157,7 +157,7 @@ public class IODemo {
         }
     }
 
-    public static void objectStream() throws IOException, ClassNotFoundException {
+    private static void objectStream() throws IOException, ClassNotFoundException {
         // 创建序列化流对象
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("ability/input/person.dat"));
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream("ability/input/person.dat"));
@@ -176,7 +176,7 @@ public class IODemo {
         oos.close();
     }
 
-    public static void transformStream() throws IOException {
+    private static void transformStream() throws IOException {
         // 查看源码发现 System.out.println() 其实就是 PrintStream.println() | PrintStream out = System.out -> out.println()
         InputStream in = System.in;    // 标准输入流
         PrintStream out = System.out;  // 标准输出流
@@ -212,7 +212,7 @@ public class IODemo {
         }
     }
 
-    public static void sequenceStream() throws IOException {
+    private static void sequenceStream() throws IOException {
         // 合并小文件(字节流版本)
         File dir = new File("ability/input");
         File merge_file = new File("ability/output/merge.txt");

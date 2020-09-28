@@ -39,11 +39,11 @@ object S03_DStream {
 //    官方案例：nc -lk 9999 & run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
 
     // scala中的滑动窗口函数
-//    val ints: List[Int] = List(1,2,3,4,5,6)
-//    val ints1: Iterator[List[Int]] = ints.sliding(size = 3)
-//    val ints2: Iterator[List[Int]] = ints.sliding(size = 3, step = 3)
-//    println(ints1.mkString(","))  // List(1, 2, 3),List(2, 3, 4),List(3, 4, 5),List(4, 5, 6)
-//    println(ints2.mkString(","))  // List(1, 2, 3),List(4, 5, 6)
+    val ints: List[Int] = List(1,2,3,4,5,6)
+    val ints1: Iterator[List[Int]] = ints.sliding(size = 3)
+    val ints2: Iterator[List[Int]] = ints.sliding(size = 3, step = 3)
+    println(ints1.mkString(","))  // List(1, 2, 3),List(2, 3, 4),List(3, 4, 5),List(4, 5, 6)
+    println(ints2.mkString(","))  // List(1, 2, 3),List(4, 5, 6)
 
     // 创建spark配置信息,local[n]模式n要大于1,因为基于receiver的DStream(socket/flume/kafka)运行Receiver对象要单独占一个线程,
     // 处理接收的数据在另一个线程,cluster模式分配给application的cores也要大于receivers

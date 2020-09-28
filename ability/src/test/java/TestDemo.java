@@ -1,7 +1,5 @@
 import org.junit.Test;
 
-import java.io.ObjectInputStream;
-
 public class TestDemo {
     @Test
     public void test01(){

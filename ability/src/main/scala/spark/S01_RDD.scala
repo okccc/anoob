@@ -6,9 +6,10 @@ import java.util
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.{JdbcRDD, RDD}
 import org.apache.spark.util.{AccumulatorV2, LongAccumulator}
-import org.apache.spark.{HashPartitioner, Partitioner, SparkConf, SparkContext}
+import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}
 
 object S01_RDD {
+
   def main(args: Array[String]): Unit = {
     /*
      * Spark是基于内存的快速,通用,可扩展的大数据分析引擎
@@ -87,25 +88,33 @@ object S01_RDD {
      */
 
     // 创建Spark配置信息
-    // "local": 单线程  "local[4]": 4个线程  "local[*]": 线程数=CPU最大核数,最大化CPU计算能力 cat /proc/cpuinfo | grep 'cores'
+    // "local": 单线程  "local[4]": 4个线程  "local[*]": 线程数=cpu最大核数,最大化cpu计算能力 cat /proc/cpuinfo | grep 'cores'
     // "spark://master:7077": standalone   "yarn": yarn集群,client/cluster模式
     // 配置参数优先级：SparkConf > spark-submit > spark-defaults.conf
     val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("RDD")
     // SparkContext是Spark所有功能的入口,可以创建RDD,Accumulator,Broadcast
     val sc: SparkContext = new SparkContext(conf)
+    // 创建RDD两种方式：内存创建(测试),读取文件(常用)
 
-    // 创建RDD两种方式：读取文件,内存创建
-    // a.从内存中创建RDD(测试)并指定分片数,如果不指定分片数默认=totalCores,makeRDD调用的就是parallelize
+//    transform01(sc)
+//    transform02(sc)
+    transform03(sc)
+//    action(sc)
+//    fileRDD(sc)
+//    jdbcRDD(sc)
+  }
+
+  def transform01(sc: SparkContext): Unit = {
+    // a.从内存中创建RDD并指定分片数,如果不指定分片数默认=totalCores,makeRDD调用的就是parallelize
+    // 算子(operator)：定义某种新的运算
+    // RDD的通用类transform操作
     val rdd1: RDD[Int] = sc.makeRDD(1 to 10, 2)
     val rdd2: RDD[String] = sc.makeRDD(Array("scala spark", "python pandas"))
-    val rdd3: RDD[(String, Int)] = sc.makeRDD(List(("a", 1), ("c", 3), ("b", 2), ("c", 4), ("b", 5)), numSlices = 2)
 
-    // RDD的transform操作：通用类、数学类、集合类、重新分区类
-    // 算子(operator)：定义某种新的运算
     // map算子：将RDD的每个元素经过func转换后形成新的RDD,通常用于转换数据结构
     val mapRDD: RDD[Int] = rdd1.map((i: Int) => i * 2)
-    // mapPartitions算子：map针对元素操作而mapPartitions针对分区操作,比如有N个元素M个分区,map会被调用N次,mapPartitions会被调用M次
-    // mapPartitions效率会优于map,因为减少了发送到执行器的交互次数,但是一次发送一个分区的数据可能会导致内存溢出(OOM)
+    // mapPartitions算子：map针对元素操作而mapPartitions针对分区操作,比如有10个元素2个分区,map调用10次而mapPartitions调用2次
+    // mapPartitions效率会优于map,因为减少了发送到执行器的交互次数,但是一次发送一个分区的数据可能会OOM
     val mapRDD02: RDD[Int] = rdd1.mapPartitions((datas: Iterator[Int]) => {
       // mapPartitions是spark算子,会调用executor执行有几个分区就调用几次,此处的map是scala函数不会调用executor
       datas.map((data: Int) => data * 2)
@@ -128,23 +137,30 @@ object S01_RDD {
     // distinct算子：去重后数据减少,相应的可以减少默认分区数
     val distinctRDD: RDD[Int] = sc.makeRDD(List(1, 3, 5, 9, 3, 1)).distinct(2)
     // sortBy算子：既是transform也是action,可通过4040端口jobs查看,jobs是action操作才会触发
-    val sortByRDD: RDD[Int] = rdd1.sortBy((x: Int) => x, ascending=false, 1)
-    // sample算子：对大数据集以指定随机种子seed(所以其实并不随机)随机抽样出数量为fraction的数据,withReplacement表示抽出的数据是否放回
+    val sortByRDD: RDD[Int] = rdd1.sortBy((x: Int) => x, ascending = false, 1)
+    // sample算子：对大数据集以指定随机种子seed(所以其实并不随机)抽样出数量为fraction的数据,withReplacement表示抽出的数据是否放回
     val sampleRDD: RDD[Int] = rdd1.sample(withReplacement = false, 0.5, 10)
+  }
+
+  def transform02(sc: SparkContext): Unit = {
+    // RDD的集合类transform操作
+    val rdd1: RDD[Int] = sc.makeRDD(1 to 3)
+    val rdd2: RDD[Int] = sc.makeRDD(3 to 5)
+
     // 交集、并集(不去重)、差集、笛卡尔积(慎用)、拉链
-    val int01: RDD[Int] = sc.makeRDD(1 to 3)
-    val int02: RDD[Int] = sc.makeRDD(3 to 5)
-    int01.intersection(int02).collect().mkString(",")  // 3
-    int01.union(int02).collect().mkString(",")  // 1,2,3,3,4,5
-    int01.subtract(int02).collect().mkString(",")  // 1,2
-    int01.cartesian(int02).collect().mkString(",")  // (1,3),(1,4),(1,5),(2,3),(2,4),(2,5),(3,3),(3,4),(3,5)
-    int01.zip(int02).collect().mkString(",")  // (1,3),(2,4),(3,5)
+    rdd1.intersection(rdd2).collect().mkString(",")  // 3
+    rdd1.union(rdd2).collect().mkString(",")  // 1,2,3,3,4,5
+    rdd1.subtract(rdd2).collect().mkString(",")  // 1,2
+    rdd1.cartesian(rdd2).collect().mkString(",")  // (1,3),(1,4),(1,5),(2,3),(2,4),(2,5),(3,3),(3,4),(3,5)
+    rdd1.zip(rdd2).collect().mkString(",")  // (1,3),(2,4),(3,5)
+
     // cogroup算子：(K,V)+(K,W) -> (K,(Iterable<V>,Iterable<W>))
     // join算子：(K,V)+(K,W) -> (K,(V,W))
     val t1: RDD[(String, String)] = sc.makeRDD(List(("grubby", "orc"), ("moon", "ne"), ("ted", "ud")))
     val t2: RDD[(String, Int)] = sc.makeRDD(List(("grubby", 18), ("moon", 19), ("ted", 20)))
     t1.cogroup(t2).collect().foreach(println)  // (moon,(CompactBuffer(ne),CompactBuffer(19)))...
     t1.join(t2).collect().foreach(println)  // (moon,(ne,19)) (ted,(ud,20)) (grubby,(orc,18))
+
     // 广播变量案例：join操作有shuffle过程性能较差,可以考虑将小表作为broadcast
     val broadcast: Broadcast[List[(String, Int)]] = sc.broadcast(List(("grubby", 18), ("moon", 19), ("ted", 20)))
     println(broadcast.value)  // List((grubby,18), (moon,19), (ted,20))
@@ -156,21 +172,22 @@ object S01_RDD {
       (t._1, (t._2, v2))
     })
     res.collect().foreach(println)  // (moon,(ne,19)) (ted,(ud,20)) (grubby,(orc,18))
+
     // 累加器案例
     val intRDD: RDD[Int] = sc.makeRDD(List(1,2,3,4),numSlices = 2)
     val stringRDD: RDD[String] = sc.makeRDD(List("hadoop", "hive", "spark", "kafka", "flume"))
-    // 在driver中创建计数器counter,对于executor来说就是闭包内的变量,是不可见的
-    var counter: Int = 0
+    // 在driver中创建计数器cnt,对于executor来说就是闭包内的变量,是不可见的
+    var cnt: Int = 0
     // spark将job分解成多个task,每个task对应一个executor,执行之前spark会计算task的closure(闭包)并将其序列化发送到每个executor
     // closure is those variables and methods which must be visible for the executor to perform its computations on the RDD. This closure is serialized and sent to each executor.
-    // executor操作的是发送过来的序列化的counter副本,所以driver中的counter始终=0
-    intRDD.foreach((i: Int) => counter += i)
-    println("counter = " + counter)  // counter = 0
-    // 使用累加器求和,driver将数据传给executor,executor还能将数据回传给driver(分布式共享只写变量)
+    // executor操作的是发送过来的序列化的counter副本,所以driver中的cnt始终为0
+    intRDD.foreach((i: Int) => cnt += i)
+    println("cnt = " + cnt)  // cnt = 0
+    // 使用累加器,driver将数据传给executor,executor还能将数据回传给driver(分布式共享只写变量)
     val accumulator: LongAccumulator = sc.longAccumulator
-    // 执行累加器累加功能
+    // 执行累加功能
     intRDD.foreach((i: Int) => accumulator.add(i))
-    println("counter = " + accumulator.value)  // counter = 10
+    println("cnt = " + accumulator.value)  // cnt = 10
     // 创建自定义累加器对象
     val myAccumulator = new MyAccumulator
     // 向SparkContext注册该累加器
@@ -178,22 +195,27 @@ object S01_RDD {
     // 执行累计功能
     stringRDD.foreach((i: String) => myAccumulator.add(i))
     println(myAccumulator.value)  // [hadoop, hive]
+  }
+
+  def transform03(sc: SparkContext): Unit = {
+    // RDD的shuffle类transform操作
+    val rdd1: RDD[Int] = sc.makeRDD(1 to 10, 2)
+    val rdd2: RDD[(String, Int)] = sc.makeRDD(List(("a", 1), ("c", 3), ("b", 2), ("c", 4), ("b", 5)), numSlices = 2)
 
     // coalesce算子：合并分区默认关闭shuffle
     val coalesceRDD: RDD[Int] = rdd1.coalesce(1)
     // repartition算子：简单封装了coalesce并开启shuffle
     val repartitionRDD: RDD[Int] = rdd1.repartition(1)
-    // partitionBy算子：传入分片器对pairRDD按照key重新分区,数据跨节点移动称为shuffle,可以默认HashPartitioner也可以自定义partitioner
-    val partitionByRDD: RDD[(String, Int)] = rdd3.partitionBy(new HashPartitioner(3))
-    val myPartitionByRDD: RDD[(String, Int)] = rdd3.partitionBy(MyPartitioner(2))
+    // partitionBy算子：传入分片器对pairRDD按照key重新分区,数据跨节点移动称为shuffle,默认HashPartitioner也可以自定义partitioner
+    val partitionByRDD: RDD[(String, Int)] = rdd2.partitionBy(new HashPartitioner(3))
 
     // groupByKey算子：按照key分组直接shuffle
-    val groupByKeyRDD: RDD[(String, Iterable[Int])] = rdd3.groupByKey()
+    val groupByKeyRDD: RDD[(String, Iterable[Int])] = rdd2.groupByKey()
     groupByKeyRDD.collect().foreach(println)  // (a,CompactBuffer(1)) (b,CompactBuffer(2, 5)) (c,CompactBuffer(3, 4))
-                  groupByKeyRDD.map((t: (String, Iterable[Int])) => {(t._1, t._2.sum)}).collect().foreach(println)  // (a,1) (b,7) (c,7)
+    groupByKeyRDD.map((t: (String, Iterable[Int])) => {(t._1, t._2.sum)}).collect().foreach(println)  // (a,1) (b,7) (c,7)
 
     // reduceByKey算子：按照key分组并且在shuffle之前有combine预聚合操作提高效率,性能优于groupByKey
-    val reduceByKeyRDD: RDD[(String, Int)] = rdd3.reduceByKey((x: Int, y: Int) => x + y)
+    val reduceByKeyRDD: RDD[(String, Int)] = rdd2.reduceByKey((x: Int, y: Int) => x + y)
     reduceByKeyRDD.collect().foreach(println)  // (a,1) (b,7) (c,7)
 
     // aggregateByKey算子：按照key分组,先在分区内对zeroValue和value聚合,再在分区间聚合
@@ -201,33 +223,35 @@ object S01_RDD {
     // zeroValue：给每个分区中的每一个key一个初始值,比如 0 或者 ""
     // seqOp：在每个分区内用初始值逐步迭代value
     // combOp：在分区间合并结果
-    rdd3.glom().collect().foreach((i: Array[(String, Int)]) => println(i.mkString(",")))  // (a,1),(b,2)  (c,3),(c,4),(b,5)
+    rdd2.glom().collect().foreach((i: Array[(String, Int)]) => println(i.mkString(",")))  // (a,1),(b,2)  (c,3),(c,4),(b,5)
     // 需求：取出每个分区相同key的最大值,然后相加
-    val aggregateByKeyRDD: RDD[(String, Int)] = rdd3.aggregateByKey(0)(seqOp = math.max, combOp = (_: Int)+(_: Int))
+    val aggregateByKeyRDD: RDD[(String, Int)] = rdd2.aggregateByKey(0)(seqOp = math.max, combOp = (_: Int)+(_: Int))
     aggregateByKeyRDD.collect().foreach(println)  // (a,1) (b,7) (c,4)
     // 需求：先在分区内累加,再在分区间累加(aggregateByKey版WordCount)
-    val aggregateByKeyRDD2: RDD[(String, Int)] = rdd3.aggregateByKey(0)(seqOp = (_: Int)+(_: Int), combOp = (_: Int)+(_: Int))
+    val aggregateByKeyRDD2: RDD[(String, Int)] = rdd2.aggregateByKey(0)(seqOp = (_: Int)+(_: Int), combOp = (_: Int)+(_: Int))
     aggregateByKeyRDD2.collect().foreach(println)  // (a,1) (b,7) (c,7)
     // foldByKey算子：是aggregateByKey的简化,seqOp和combOp相同
-    val foldByKeyRDD: RDD[(String, Int)] = rdd3.foldByKey(0)(func = (_: Int)+(_: Int))
+    val foldByKeyRDD: RDD[(String, Int)] = rdd2.foldByKey(0)(func = (_: Int)+(_: Int))
     foldByKeyRDD.collect().foreach(println)  // (a,1) (b,7) (c,7)
 
     // combineByKey算子：按照key分组,先在分区内聚合,再在分区间聚合,并统计聚合次数(累加器)
     // createCombiner: 创建key对应的累加器的初始值
     // mergeValue: 将key的累加器对应的当前值与新的值进行合并
     // mergeCombiners: 将各个分区之间同一个key的累加器对应的结果进行合并
-    val combineByKeyRDD: RDD[(String, (Int, Int))] = rdd3.combineByKey((i: Int) => (i,1), (acc:(Int,Int), v: Int) => (acc._1 + v, acc._2 + 1), (acc1:(Int,Int), acc2:(Int,Int))=>(acc1._1 + acc2._1, acc1._2 + acc2._2))
+    val combineByKeyRDD: RDD[(String, (Int, Int))] = rdd2.combineByKey((i: Int) => (i,1), (acc:(Int,Int), v: Int) => (acc._1 + v, acc._2 + 1), (acc1:(Int,Int), acc2:(Int,Int))=>(acc1._1 + acc2._1, acc1._2 + acc2._2))
     combineByKeyRDD.collect().foreach(println)  // (b,(7,2)) (a,(1,1)) (c,(7,2))
     val average: RDD[(String, Int)] = combineByKeyRDD.map((t: (String, (Int, Int))) => {(t._1, t._2._1/t._2._2)})
     average.collect().foreach(println)  // (b,3) (a,1) (c,3)
 
     // sortByKey算子：按照key排序,key本身必须实现Ordered接口
-    rdd3.sortByKey().collect().mkString(",")  // (a,1),(b,2),(b,5),(c,3),(c,4)
+    rdd2.sortByKey().collect().mkString(",")  // (a,1),(b,2),(b,5),(c,3),(c,4)
     // mapValues算子：key不变只操作value
-    println(rdd3.mapValues((i: Int) => i + 1).collect().mkString(","))  // (a,2),(c,4),(b,3),(c,5),(b,6)
+    println(rdd2.mapValues((i: Int) => i + 1).collect().mkString(","))  // (a,2),(c,4),(b,3),(c,5),(b,6)
+  }
 
+  def action(sc: SparkContext): Unit = {
     // RDD的action操作：driver类、executor类
-    // driver类：返回值通常是driver端的内存变量,collect/count/foreach,远端executor计算完成后会回传数据给driver展示,数据太大可能会OOM
+    // driver类：返回值通常是driver端的内存变量,collect/count/foreach,远端executor计算完成后会回传数据给driver展示,数据太大可能OOM
     // collect算子：返回包含RDD所有元素的数组,所有数据都会被加载到driver节点有可能导致OOM,建议使用take(n)
     // foreach算子：遍历元素
     // foreachPartition算子：遍历分区
@@ -238,6 +262,8 @@ object S01_RDD {
     // count算子：统计元素个数
     // countByKey算子：统计每个key的元素个数返回Map集合
     // reduce算子：归约,化简
+    val rdd1: RDD[Int] = sc.makeRDD(1 to 10, 2)
+    val rdd3: RDD[(String, Int)] = sc.makeRDD(List(("a", 1), ("c", 3), ("b", 2), ("c", 4), ("b", 5)), numSlices = 2)
     val res1: Int = rdd1.reduce((x: Int, y: Int) => x + y)
     val res2: (String, Int) = rdd3.reduce((x: (String, Int), y: (String, Int)) => (x._1 + y._1, x._2 + y._2))
     // aggregate算子：先在分区内对zeroValue和value聚合,再在分区间聚合
@@ -255,14 +281,16 @@ object S01_RDD {
     // saveAsTextFile()：将元素以文本格式保存到文件,spark会对元素调用toString方法,output目录下.crc文件是验证,生成的文件是part-0000*
     // saveAsSequenceFile()：将元素以Hadoop sequenceFile格式保存,只针对PairRDD
     // saveAsObjectFile()：将元素序列化成对象保存到文件
+  }
 
-    // b.从本地/hdfs等文件系统创建RDD(常用),spark会为文件的每个block创建partition,所以分片数不能小于文件的分块数
-    // local/standalone模式 -> file:///input/aaa.txt
-    // yarn模式 -> hdfs://cdh1:9000/user/spark/input/aaa.txt 或者 hdfs:///user/spark/input/aaa.txt
+  def fileRDD(sc: SparkContext): Unit = {
+    // b.从本地或hdfs等文件系统创建RDD(常用),spark会为文件的每个block创建partition,所以分片数不能小于文件的分块数
+    // local或standalone模式 -> file:///input/aaa.txt
+    // yarn模式 -> hdfs://cdh1:9000/user/spark/input/aaa.txt 或 hdfs:///user/spark/input/aaa.txt
     val lines: RDD[String] = sc.textFile("ability/input/aaa.txt", minPartitions=2)
     // 设置检查点保存目录,通常存hdfs有副本更安全
 //    sc.setCheckpointDir("hdfs://cdh1:9000/checkpoint")
-    sc.setCheckpointDir("scala/cp")
+    sc.setCheckpointDir("ability/cp")
     // 扁平化
     val words: RDD[String] = lines.flatMap((line: String) => line.split(" "))
     // 结构转换
@@ -322,11 +350,13 @@ object S01_RDD {
       val tuples: List[(String, Int)] = t.toList.sortWith((x:(String, Int), y: (String, Int)) => {x._2 > y._2}).take(3)
       tuples
     })
-    //    pro_ad_sort.collect().foreach(println)  // (4,List((12,25), (2,22), (16,22)))...
+    pro_ad_sort.collect().foreach(println)  // (4,List((12,25), (2,22), (16,22)))...
+  }
 
-    // c.通过jdbc读取外部数据源mysql数据,和sqoop类似
+  def jdbcRDD(sc: SparkContext): Unit = {
+    // c.通过jdbc读取外部数据源mysql数据,类似sqoop
     // mysql配置信息
-//    val driver = "com.mysql.jdbc.Driver"
+    //    val driver = "com.mysql.jdbc.Driver"
     val url = "jdbc:mysql://localhost:3306/test"
     val user = "root"
     val password = "root"
@@ -352,20 +382,20 @@ object S01_RDD {
     // 保存数据
     val dataRDD: RDD[(String, Int)] = sc.makeRDD(List(("grubby",18),("moon",19),("fly",20)),2)
     // 1).在driver端预先创建好连接对象,但是driver端变量传递到executor端需要序列化,而Connection没有实现Serializable接口 org.apache.spark.SparkException: Task not serializable
-//    val conn: Connection = DriverManager.getConnection(url, user, password)
-//    // 遍历RDD所有元素
-//    dataRDD.foreach{
-//      case (name, age) =>
-//        // 执行sql
-//    }
+    //    val conn: Connection = DriverManager.getConnection(url, user, password)
+    //    // 遍历RDD所有元素
+    //    dataRDD.foreach{
+    //      case (name, age) =>
+    //        // 执行sql
+    //    }
 
     // 2).遍历RDD所有元素,foreach算子是action操作,以下代码是在executor端执行
-//    dataRDD.foreach{
-//      case (name, age) =>
-//        // 每次执行sql都会创建连接对象,java连接mysql是JVM和Mysql两个进程之间的交互,性能较差,并且mysql的连接数也是有限制的
-//        val conn: Connection = DriverManager.getConnection(url, user, password)
-//        // 执行sql
-//    }
+    //    dataRDD.foreach{
+    //      case (name, age) =>
+    //        // 每次执行sql都会创建连接对象,java连接mysql是JVM和Mysql两个进程之间的交互,性能较差,并且mysql的连接数也是有限制的
+    //        val conn: Connection = DriverManager.getConnection(url, user, password)
+    //        // 执行sql
+    //    }
 
     // 3).遍历RDD所有分区,foreachPartition算子是action操作,以下代码是在executor端执行
     dataRDD.foreachPartition((datas: Iterator[(String, Int)]) => {
@@ -378,9 +408,9 @@ object S01_RDD {
           conn.setAutoCommit(false)
           // 插入sql,包含一个或多个?占位符
           val sql = "insert into user values(null,?,?)"
-          /**
+          /*
            * PreparedStatement优点
-           * 1.预编译sql放入缓冲   区提高效率,且下次执行相同sql时直接使用数据库缓冲区
+           * 1.预编译sql放入缓冲区提高效率,且下次执行相同sql时直接使用数据库缓冲区
            * 2.预编译sql可以防止sql注入
            * 普通拼接 -> sql经过解析器编译并执行,传递的参数也会参与编译,select * from user where name = 'tom' or '1=1'; 这里的 or '1=1' 会被当成sql指令运行,or被当成关键字了
            * 预编译 -> sql预先编译好等待传参执行,传递的参数就只是变量值,select * from user where name = "tom' or '1=1"; 这里的 tom' or '1=1 是一个变量整体,or也就失效了
@@ -402,37 +432,27 @@ object S01_RDD {
     })
   }
 
-  // 自定义分片器
-  case class MyPartitioner(partitions: Int) extends Partitioner {
-    override def numPartitions: Int = partitions
-    override def getPartition(key: Any): Int = key match {
-      // 自定义逻辑
-      case null => 0
-      case _ => 1
-    }
-  }
+}
 
-  // 自定义累加器
-  class MyAccumulator extends AccumulatorV2[String, util.ArrayList[String]] {
-    // 创建保存数据的集合
-    private val list = new util.ArrayList[String]()
-    // 判断当前累加器是否为初始状态
-    override def isZero: Boolean = list.isEmpty
-    // 复制累加器对象
-    override def copy(): AccumulatorV2[String, util.ArrayList[String]] = {
-      val myAcc: MyAccumulator = new MyAccumulator
-      myAcc
-    }
-    // 重置累加器对象
-    override def reset(): Unit = list.clear()
-    // 往累加器添加数据
-    override def add(v: String): Unit = {
-      if (v.contains("h")) list.add(v)
-    }
-    // 合并累加器
-    override def merge(other: AccumulatorV2[String, util.ArrayList[String]]): Unit = list.addAll(other.value)
-    // 获取累加器结果
-    override def value: util.ArrayList[String] = list
+// 自定义累加器
+class MyAccumulator extends AccumulatorV2[String, util.ArrayList[String]] {
+  // 创建保存数据的集合
+  private val list = new util.ArrayList[String]()
+  // 判断当前累加器是否为初始状态
+  override def isZero: Boolean = list.isEmpty
+  // 复制累加器对象
+  override def copy(): AccumulatorV2[String, util.ArrayList[String]] = {
+    val myAcc: MyAccumulator = new MyAccumulator
+    myAcc
   }
-
+  // 重置累加器对象
+  override def reset(): Unit = list.clear()
+  // 往累加器添加数据
+  override def add(v: String): Unit = {
+    if (v.contains("h")) list.add(v)
+  }
+  // 合并累加器
+  override def merge(other: AccumulatorV2[String, util.ArrayList[String]]): Unit = list.addAll(other.value)
+  // 获取累加器结果
+  override def value: util.ArrayList[String] = list
 }

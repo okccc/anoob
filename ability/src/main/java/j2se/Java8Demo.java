@@ -1,13 +1,8 @@
 package j2se;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.function.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -15,7 +10,6 @@ public class Java8Demo {
     public static void main(String[] args) {
         /*
          * java8新特性
-         * java.util.function
          *
          * lambda表达式
          * 只有一个抽象方法的接口叫函数式接口,接口上方会添加@FunctionalInterface注解
@@ -25,17 +19,25 @@ public class Java8Demo {
          * 如果lambda体中只有一行代码,这行代码为方法的调用,且调用方法的参数列表和返回值与实现的抽象方法的参数列表和返回值保持一致
          * 那么可以继续简化为lambda的语法糖形式  方法引用(对象/类::方法名) | 构造器引用(类::new) | 数组引用(数组类型[]::new)
          *
-         * Stream
+         * Stream Api
          * 对数组和集合生成的元素序列进行一系列的流式操作
          * 创建流：可以通过数组/集合等数据源生成Stream对象
-         * 转换流：transform数据源生成新的Stream对象,直到action操作才会触发计算(懒加载)
+         * 转换流：数据源transform操作会生成新的Stream对象,直到action操作才会触发计算(懒加载)
          * 终止流：只执行一次,执行完流就关闭,继续执行后续代码会报错 java.lang.IllegalStateException: stream has already been operated upon or closed
+         * Optional是一个容器类,代表一个值存在或不存在,可以替换null值避免空指针异常
          */
 
-//        testLambda();
-//        testMethodRef();
-//        createStream();
-        transformStream();
+        testLambda();
+        testMethodRef();
+
+        // 通过集合创建Stream(常用)
+        ArrayList<Person> list = new ArrayList<>();
+        list.add(new Person("grubby", 18));
+        list.add(new Person("moon", 19));
+        list.add(new Person("sky", 20));
+//        createStream(list);
+//        transformStream(list);
+        actionStream(list);
     }
 
     private static void testLambda() {
@@ -119,7 +121,6 @@ public class Java8Demo {
         System.out.println(com2.compare(10, 20));
         System.out.println(com3.compare(10, 20));
 
-
         // 匿名内部类
         Comparator<String> com01 = new Comparator<String>() {
             @Override
@@ -166,24 +167,16 @@ public class Java8Demo {
         System.out.println(Arrays.toString(f3.apply(3)));
     }
 
-    private static void createStream() {
-        // 通过集合创建Stream(常用)
-        ArrayList<Person> al = new ArrayList<>();
-        al.add(new Person("grubby", 18));
-        al.add(new Person("moon", 19));
-        al.add(new Person("sky", 20));
-        // 获取串行流对象
-        Stream<Person> s1 = al.stream();
-        // 获取并行流对象
-        Stream<Person> s2 = al.parallelStream();
-        // 遍历
+    private static void createStream(ArrayList<Person> list) {
+        // 通过集合获取串行或并行流对象
+        Stream<Person> s1 = list.stream();
+        Stream<Person> s2 = list.parallelStream();
+        // 执行流的action操作
         s1.forEach(System.out::println);
 
         // 通过数组创建Stream
         String[] arr = {"grubby", "moon", "sky"};
-        // 获取流对象
         Stream<String> s3 = Arrays.stream(arr);
-        // 遍历
         s3.forEach(System.out::println);
 
         // 通过一组序列创建Stream
@@ -195,22 +188,17 @@ public class Java8Demo {
         s5.forEach(System.out::println);
     }
 
-    private static void transformStream() {
-        // 流的转换操作
-        ArrayList<Person> al = new ArrayList<>();
-        al.add(new Person("grubby", 18));
-        al.add(new Person("moon", 19));
-        al.add(new Person("sky", 20));
-        // 获取流对象
-        Stream<Person> s = al.stream();
+    private static void transformStream(ArrayList<Person> list) {
+        // 通过集合获取流对象
+        Stream<Person> s = list.stream();
 
-        // 过滤、去重(filter、limit、skip、distinct)
+        // 过滤、去重(filter/limit/skip/distinct)
 //        s.filter(person -> person.getAge() < 20).forEach(System.out::println);
 //        s.limit(2).forEach(System.out::println);
 //        s.skip(2).forEach(System.out::println);
 //        s.distinct().forEach(System.out::println);
 
-        // 映射(map、flatMap)
+        // 映射(map/flatMap)
 //        s.map(Person::getName).forEach(System.out::println);
 //        s.map(Person::getAge).forEach(System.out::println);
         // flatMap可以将Person中的每个元素映射成Stream对象
@@ -230,7 +218,7 @@ public class Java8Demo {
 //        }).forEach(System.out::println);
 //        s.flatMap(Java8Demo::personToStream).forEach(System.out::println);
 
-        // 排序(sorted、sorted(Comparator))
+        // 排序(sorted/sorted(Comparator))
 //        s.sorted().forEach(System.out::println);
         s.sorted(new Comparator<Person>() {
             @Override
@@ -240,7 +228,30 @@ public class Java8Demo {
                 return compareAge(o1, o2);
             }
         }).forEach(System.out::println);
+    }
 
+    private static void actionStream(ArrayList<Person> list) {
+        // 通过集合获取流对象
+        Stream<Person> s = list.stream();
+
+        // 聚合(count/max/min/reduce)
+//        System.out.println(s.count());
+//        Optional<Person> max = s.max((o1, o2) -> o1.getAge() - o2.getAge());
+//        Optional<Person> min = s.min((o1, o2) -> o1.getAge() - o2.getAge());
+//        System.out.println(min);
+        // reduce通常结合map使用进行字符串拼接,数字加减等
+        Optional<String> reduce = s.map(Person::getName).reduce((s1, s2) -> s1.concat(", ").concat(s2));
+        System.out.println(reduce);  // Optional[grubby, moon, sky]
+//        Optional<Integer> sum = s.map(Person::getAge).reduce(Integer::sum);
+//        System.out.println(sum);  // Optional[57]
+
+        // Optional类
+        Optional<Person> o1 = Optional.of(new Person("okc", 19));
+        System.out.println(o1);  // Optional[Person[name: okc, age: 19, idcard: null]]
+        Optional<Object> o2 = Optional.ofNullable(null);
+        System.out.println(o2);  // Optional.empty
+        Object o3 = o2.orElse(new Person("orc", 20));
+        System.out.println(o3);  // Person[name: orc, age: 20, idcard: null]
     }
 
     private static Stream<Object> personToStream(Person person) {
@@ -248,6 +259,6 @@ public class Java8Demo {
     }
 
     private static int compareAge(Person o1, Person o2) {
-        return Integer.compare(o1.getAge(), o2.getAge());
+        return Integer.compare(o2.getAge(), o1.getAge());
     }
 }

@@ -53,12 +53,14 @@ object S02_DataFrame {
     // 创建SparkSession,查看源码发现SparkSession类的构造器都是private,只能通过其伴生对象创建
     //    val session: SparkSession = new SparkSession(conf)
     val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
-    // SparkSession包含Spark上下文对象
-    val sc: SparkContext = spark.sparkContext
-    // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
-    import spark.implicits._
-
     // 创建DataFrame/Dataset三种方式：读取文件,从RDD转换,查询hive
+
+//    readFile(spark)
+//    convertRDD(spark)
+    selectHive(spark)
+  }
+
+  def readFile(spark: SparkSession): Unit = {
     // a.Spark可以读写json/csv/parquet/orc/text/jdbc等多种格式数据源,返回DataFrame对象
     // 通用读数据方法：spark.read.format("").load(path),可简写如下格式
     val df: DataFrame = spark.read.json("ability/input/people.json")
@@ -68,6 +70,9 @@ object S02_DataFrame {
     // 通过jdbc读取外部数据源数据
     val jdbcDF: DataFrame = spark.read.format("jdbc").option("url", "jdbc:mysql://localhost:3306/test")
       .option("user", "root").option("password", "root").option("dbtable", "user").load()
+
+    // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
+    import spark.implicits._
     // 将DataFrame转换成Dataset
     val ds: Dataset[Person] = df.as[Person]
 
@@ -127,9 +132,15 @@ object S02_DataFrame {
     ds.createOrReplaceTempView("user")
     // explain：true查看logical plan和physical plan | false只查看physical plan
 //    spark.sql("select avg(age) from user").as("avg").explain(true)
+  }
 
+  def convertRDD(spark: SparkSession): Unit = {
     // b.从RDD转换
+    // SparkSession包含Spark上下文对象
+    val sc: SparkContext = spark.sparkContext
     val rdd: RDD[Array[String]] = sc.textFile("ability/input/people.txt").map((row: String) => row.split(","))
+    // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
+    import spark.implicits._
     // 1).先通过样例类反射schema,将RDD[Array]映射成RDD[Person],再隐式转换成DataFrame/Dataset
     val personRDD: RDD[Person] = rdd.map[Person]((arr: Array[String]) => Person(arr(0), arr(1).trim.toInt))
     val df1: DataFrame = personRDD.toDF()
@@ -141,17 +152,19 @@ object S02_DataFrame {
     val rdd2: RDD[Person] = ds1.rdd
     rdd1.foreach((row: Row) => println(row.getString(0) + "," + row.getDecimal(1)))
     rdd2.foreach((person: Person) => println(person.name + "," + person.age))
-
-    // c.查询hive
-    // spark操作内置hive,会在当前工作目录创建自己的hive元数据仓库 metastore_db
-    // spark操作集群hive,需要将hive-site.xml|hdfs-site.xml|core-site.xml添加到spark的conf目录,删除metastore_db目录并重启集群
-    spark.sql("show tables").show()
-
     // 将聚合函数转换为查询列
     val avgCol: TypedColumn[Person, Double] = MyAverage.toColumn.name("avgAge")
     // 应用聚合函数
     ds1.select(avgCol).show()
   }
+
+  def selectHive(spark: SparkSession): Unit = {
+    // c.查询hive
+    // spark操作内置hive,会在当前工作目录创建自己的hive元数据仓库 metastore_db
+    // spark操作集群hive,需要将hive-site.xml添加到spark的conf目录,删除metastore_db目录并重启集群
+    spark.sql("show tables").show()
+  }
+
 }
 
 // 创建样例类
