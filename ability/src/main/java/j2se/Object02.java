@@ -199,7 +199,9 @@ class Person implements Serializable, Comparable<Person> {
     private int age;
     private transient String idcard;
 
-    public Person() {}
+    public Person() {
+        super();
+    }
 
     public Person(String name, int age) {
         this.name = name;

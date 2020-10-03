@@ -44,9 +44,9 @@ public class ReflectDemo {
 
     private static void getClassField() throws Exception {
         // 通过反射获取类的属性
-        Class<?> c = Class.forName("j2se.Person");
-//        Field[] fields = c.getFields();  // 只能获取public修饰的属性
-        Field[] fields = c.getDeclaredFields();  // 获取所有属性
+        Class<?> clazz = Class.forName("j2se.Person");
+//        Field[] fields = clazz.getFields();  // 只能获取public修饰的属性
+        Field[] fields = clazz.getDeclaredFields();  // 获取所有属性
         for (Field field : fields) {
             // 修饰符
             String modifier = Modifier.toString(field.getModifiers());
@@ -60,8 +60,8 @@ public class ReflectDemo {
 
     private static void getClassMethod() throws Exception {
         // 通过反射获取类的方法
-        Class<?> c = Class.forName("j2se.Person");
-        Method[] methods = c.getDeclaredMethods();
+        Class<?> clazz = Class.forName("j2se.Person");
+        Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             // 修饰符
             String modifier = Modifier.toString(method.getModifiers());
@@ -87,13 +87,13 @@ public class ReflectDemo {
 
     private static void getClassConstructor() throws Exception {
         // 通过反射获取类的构造器
-        Class<?> c = Class.forName("j2se.Person");
-        Constructor<?>[] constructors = c.getDeclaredConstructors();
+        Class<?> clazz = Class.forName("j2se.Person");
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
             // 修饰符
             String modifier = Modifier.toString(constructor.getModifiers());
             // 构造方法名
-            String name = c.getSimpleName();
+            String name = clazz.getSimpleName();
             // 参数列表
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             StringBuilder sb = new StringBuilder("(");
@@ -112,28 +112,28 @@ public class ReflectDemo {
 
     private static void getClassOther() throws Exception {
         // 通过反射获取类的其它结构：包、父类、接口、泛型、注解
-        Class<?> c = Class.forName("j2se.Person");
+        Class<?> clazz = Class.forName("j2se.Person");
         // 获取包
-        Package pack = c.getPackage();
+        Package pack = clazz.getPackage();
         System.out.println(pack.getName());  // basic
         // 获取父类
-        Class<?> superclass = c.getSuperclass();
+        Class<?> superclass = clazz.getSuperclass();
         System.out.println(superclass.getSimpleName());  // Object
         // 获取所有接口
-        Class<?>[] interfaces = c.getInterfaces();
+        Class<?>[] interfaces = clazz.getInterfaces();
         for (Class<?> inter :interfaces){
             System.out.println(inter.getSimpleName());  // Serializable Comparable
         }
         // 获取所有注解,只能获取 @Retention(RetentionPolicy.RUNTIME)比如@Deprecated, SOURCE只保留在源码层面
-        Annotation[] annotations = c.getAnnotations();
+        Annotation[] annotations = clazz.getAnnotations();
         for (Annotation annotation : annotations) {
             System.out.println(annotation.annotationType().getSimpleName());
         }
         // 获取泛型父类
-        Type genericSuperclass = c.getGenericSuperclass();
+        Type genericSuperclass = clazz.getGenericSuperclass();
         System.out.println(genericSuperclass.getTypeName());  // java.lang.Object
         // 获取所有泛型接口
-        Type[] genericInterfaces = c.getGenericInterfaces();
+        Type[] genericInterfaces = clazz.getGenericInterfaces();
         for (Type genericInterface : genericInterfaces) {
             System.out.println(genericInterface.getTypeName());  // java.io.Serializable  java.lang.Comparable<j2se.Person>
         }
@@ -145,32 +145,31 @@ public class ReflectDemo {
 
     private static void test01() throws Exception {
         // 通过反射创建类的对象
-        Class<?> c = Class.forName("j2se.Person");
-        System.out.println(c);  // class j2se.Person
+        Class<?> clazz = Class.forName("j2se.Person");
+        System.out.println(clazz);  // class j2se.Person
         // 1.调用Class类的newInstance()方法,实例化一个带空参构造的类(推荐)
-        Object o = c.newInstance();
-        System.out.println(o);  // null: 0: null
+        Person person = (Person) clazz.newInstance();
+        System.out.println(person);  // null: 0: null
         // 2.如果该类没有空参构造,需使用Constructor类的newInstance(Object ... initargs)方法
-        Constructor<?> constructor = c.getDeclaredConstructor(String.class, int.class, String.class);
-        // 暴力破解
-        Object o1 = constructor.newInstance("grubby", 18, "123456");
-        System.out.println(o1);  // grubby: 18: 123456
+        Constructor<?> constructor = clazz.getDeclaredConstructor(String.class, int.class, String.class);
+        Person p1 = (Person) constructor.newInstance("grubby", 18, "123456");
+        System.out.println(p1);  // grubby: 18: 123456
 
         // 获取属性
-        Field f1 = c.getDeclaredField("name");
-        Field f2 = c.getDeclaredField("SERIAL_VERSION_UID");
-        // 暴力破解,直接访问会报错 java.lang.IllegalAccessException: Class j2se.ReflectDemo can not access a member of class j2se.Person with modifiers "private"
+        Field f1 = clazz.getDeclaredField("name");
+        Field f2 = clazz.getDeclaredField("SERIAL_VERSION_UID");
+        // 由于类中字段是private的,要先获取访问权限,不然报错 java.lang.IllegalAccessException: Class j2se.ReflectDemo can not access a member of class j2se.Person with modifiers "private"
         f1.setAccessible(true);
         f2.setAccessible(true);
-        f1.set(o, "aaa");
-        System.out.println(f1.get(o));  // aaa
-        System.out.println(f2.get(o));  // 5898267155926398171
+        f1.set(person, "aaa");
+        System.out.println(f1.get(person));  // aaa
+        System.out.println(f2.get(person));  // 5898267155926398171
 
         // 调用方法
-        Method m1 = c.getDeclaredMethod("toString");
-        Method m2 = c.getDeclaredMethod("hashCode");
-        System.out.println(m1.invoke(o));  // aaa: 0: null
-        System.out.println(m2.invoke(o));  // 96321
+        Method m1 = clazz.getDeclaredMethod("toString");
+        Method m2 = clazz.getDeclaredMethod("hashCode");
+        System.out.println(m1.invoke(person));  // aaa: 0: null
+        System.out.println(m2.invoke(person));  // 96321
     }
 
     private static void test02() throws Exception {
@@ -188,16 +187,16 @@ public class ReflectDemo {
             String value = prop.getProperty(key);
             System.out.println(value);  // j2se.NetCard, j2se.SoundCard
             // 通过反射加载类
-            Class<?> c = Class.forName(value);
+            Class<?> clazz = Class.forName(value);
 //            // 创建该类对象
-//            Object o = c.newInstance();
+//            Object o = clazz.newInstance();
 //            // 获取对象方法并调用
-//            Method m1 = c.getDeclaredMethod("open");
-//            Method m2 = c.getDeclaredMethod("close");
+//            Method m1 = clazz.getDeclaredMethod("open");
+//            Method m2 = clazz.getDeclaredMethod("close");
 //            m1.invoke(o);
 //            m2.invoke(o);
             // 创建该类对象,并向上转型为接口类型
-            PCI p = (PCI) c.newInstance();
+            PCI p = (PCI) clazz.newInstance();
             // 主板调用添加接口功能
             mb.invokePCI(p);
         }
