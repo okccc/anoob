@@ -445,3 +445,57 @@ not in无法使用索引且子查询结果集不能有null否则直接返回null
 -- mysql优化器会改变sql语句中select和where字段的顺序,但是group和order字段的顺序是不能变的,否则业务逻辑就变了
 ```
 
+- log
+```bash
+# 慢查询日志
+mysql> show variables like 'slow_query_log' | select @@slow_query_log
++---------------------+------------------------------+
+| slow_query_log      | OFF                          |
+| slow_query_log_file | /var/lib/mysql/cdh1-slow.log |-- 可以监控该文件,将速度慢的sql做相应优化,但是手工查找不方便可借助工具
++---------------------+------------------------------+
+mysql> show variables like 'long_query_time' | select @@long_query_time
++-----------------+-----------+
+| long_query_time | 10.000000 |
++-----------------+-----------+
+mysql> set global slow_query_log = 1;
+mysql> set global long_query_time = 5;
+[root@cdh1 ~]# vim /etc/my.cnf && systemctl restart mysqld  # 修改配置文件后要重启mysqld服务
+[mysqld]
+slow_query_log=1
+slow_query_log_file=/var/lib/mysql/cdh1-slow.log
+long_query_time=5
+
+# mysqldumpslow日志分析工具
+-s, --sort  # 排序方式, c 访问次数 | r 返回记录数 | t 查询时间 | l 锁定时间
+-t, --top   # 返回前多少条记录
+-g, --grep  # 匹配字符串
+mysqldumpslow -s c -t 10 /var/lib/mysql/cdh1-slow.log | more                 # 获取访问次数最多的前10条sql,结合more使用防止爆屏
+mysqldumpslow -s r -t 10 /var/lib/mysql/cdh1-slow.log | more                 # 获取返回记录最多的前10条sql
+mysqldumpslow -s t -t 10 -g "left join" /var/lib/mysql/cdh1-slow.log | more  # 获取耗时最长且包含左连接的前10条sql
+
+# 查询所有用户正在干什么
+mysql> show processlist;
++----+------+-----------+------+---------+------+----------+------------------+
+| Id | User | Host      | db   | Command | Time | State    | Info             |
++----+------+-----------+------+---------+------+----------+------------------+
+| 11 | root | localhost | test | Query   |    0 | starting | show processlist |
++----+------+-----------+------+---------+------+----------+------------------+
+# 杀掉进程,重新连接Id会递增
+mysql> kill 11;
+ERROR 1317 (70100): Query execution was interrupted
+
+# binlog
+以事件形式记录除select和show以外的所有DDL和DML语句,常用于mysql的主从复制和数据恢复
+```
+
+- monitor
+```sql
+-- 查询数据库有多少张表
+select table_schema,count(*) as tables from information_schema.tables group by table_schema;
+-- 查询表中有多少字段
+select count(*) from information_schema.columns where table_schema = '数据库名' and table_name = '表名';
+-- 查询数据库中有多少字段
+select count(column_name) from information_schema.columns where table_schema = '数据库名';
+-- 查询数据库中所有表、字段、类型和注释
+select table_name,column_name,data_type,column_comment from information_schema.columns where table_schema = '数据库名';
+```
