@@ -187,7 +187,7 @@ b.一旦断开数据库连接,也会提交数据 -> 将获取conn步骤从update
 读未提交：不加锁,性能最好,但是相当于裸奔,连脏读都无法解决(不考虑)
 读已提交：事务A只能读到事务B已提交的的数据,解决脏读,但是做不到可重复读,也无法解决幻读
 可重复读：事务A读不到事务B已提交的数据,事务A开始时数据啥样在事务A提交前都不会变(mysql默认)
-串行化：加共享锁,将事务变成顺序执行,相当于单线程,性能最差(不考虑)
+序列化：加共享锁,将事务变成顺序执行,相当于单线程,性能最差(不考虑)
 -- 查看事务隔离级别
 mysql> show variables like 'tx_isolation' | select @@tx_isolation
 +-----------------------+-----------------+
@@ -203,7 +203,7 @@ mysql> select * from information_schema.innodb_trx;
 读未提交    可能    可能         可能
 读提交      不可能  可能         可能
 可重复读    不可能  不可能        可能
-串行化      不可能  不可能       不可能
+序列化      不可能  不可能       不可能
 ```
 
 - crud
@@ -250,15 +250,14 @@ rollback;
 -- 事务一旦提交就不可回滚
 commit;
 
--- 分组过滤
--- where是分组前过滤效率更高,having是分组后过滤
-select name, avg(age) age_avg from emp where age > 19 group by name;
--- where不可以接组函数和别名因为where在select之前解析,having可以使用别名因为having在select之后解析
-select name, avg(age) age_avg from emp group by name having age_avg > 19;
 -- select语句书写规则
 select - from - (join) - where - group by - having - order by - limit
 -- mysql数据库解析顺序
-from - (join) - where - group by - having - select - order by - limit
+from - (join) - where - group by - select - having - order by - limit
+-- where是分组前过滤,having是分组后过滤
+select gender, avg(age) age_avg from emp where age > 19 group by gender;
+-- where在select之前解析无法识别别名,having在select之后解析可以识别别名
+select gender, avg(age) age_avg from emp group by gender having age_avg > 19;
 -- 分页查询
 select * from emp limit 0,20;  -- 第一页
 select * from emp limit 40,20; -- 第三页
