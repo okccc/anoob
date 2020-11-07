@@ -20,7 +20,7 @@ public class CollectionDemo {
          *         |-- ArrayList    数组结构,查询快增删慢,线程不同步
          *         |-- LinkedList   链表结构,增删快查询慢,线程不同步
          *     |-- Set
-         *         |-- HashSet      哈希表,唯一性,元素重写hashCode()和equals()方法,线程不同步
+         *         |-- HashSet      哈希表(数组+链表,结合两者优点),唯一性,元素重写hashCode()和equals()方法,线程不同步
          *             |-- LinkedHashSet  可排序
          *         |-- TreeSet      二叉树,可排序,两个接口Comparable和Comparator,线程不同步
          *
@@ -40,6 +40,10 @@ public class CollectionDemo {
          * 自然排序：String/Integer/Double这些类都实现了Comparable接口重写compareTo方法,元素自身可以比较大小
          * 比较器排序：往TreeSet的构造函数传入实现了Comparator接口重写compare方法的子类对象,让集合具备比较大小功能
          *
+         * HashMap如何解决hash冲突？
+         * hash冲突：put元素时会判断key的hashCode值,值相同说明索引位置相同,再判断key是否相同,不相同就会产生hash冲突
+         * HashMao采用链表法,发生碰撞时讲对象存储到链表的下一个节点,每个链表节点存储键值对
+         *
          * 增强for循环
          * 格式：for(类型 变量 : 数组or集合){}
          * 普通for不需要遍历目标,可以定义控制循环的增量和条件
@@ -57,9 +61,9 @@ public class CollectionDemo {
          */
 
 //        testList();
-        testSet();
-//        testMap();
-        testProperties();
+//        testSet();
+        testMap();
+//        testProperties();
 //        testAppCount();
 //        testCollections();
 //        wordCount();
