@@ -2,7 +2,6 @@ package jdbc.util;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
-import org.apache.commons.dbutils.DbUtils;
 
 import javax.sql.DataSource;
 import java.io.FileInputStream;

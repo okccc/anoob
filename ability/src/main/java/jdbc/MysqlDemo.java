@@ -1,6 +1,5 @@
 package jdbc;
 
-import com.mysql.jdbc.Driver;
 import jdbc.bean.Customer;
 import jdbc.bean.Order;
 import jdbc.util.JDBCUtils;
@@ -12,8 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+@SuppressWarnings("unused")
 public class MysqlDemo {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws Exception {
         /*
          * jdbc
          * java提供了操作数据库表的api(java.sql包和javax.sql包),使用jdbc可以连接任何提供了jdbc驱动的数据库系统
@@ -36,7 +36,7 @@ public class MysqlDemo {
          *
          * 事务处理
          * 事务就是对表的更新操作,使数据从一种状态变换到另一种状态
-         * 一个事务中的所有操作要么全部失败然后回滚(rollback),要么全部成功提交(commit)并且一旦提交就不可回滚
+         * 一个事务中的所有操作要么全部失败然后回滚(rollback),要么全部成功提交(commit)并且一旦提交就无法回滚
          * 什么时候会提交数据？
          * a.执行DML操作,默认情况下一旦执行完会自动提交数据 -> set autocommit = false
          * b.一旦断开数据库连接,也会提交数据 -> 将获取conn步骤从update方法中剥离出来单独关闭
@@ -51,45 +51,38 @@ public class MysqlDemo {
          * javax.sql.DataSource会保持最小的连接数,允许程序重复使用一个现有的数据库连接,当达到最大连接数时新的请求会被放入等待队列
          */
 
-//        testConnect01();
-//        testConnect02();
-//        testConnect03();
-
-//        testUpdate();
-        testSelect();
+//        testConnect();
+        testUpdate();
+//        testSelect();
     }
 
-    private static void testConnect01() throws SQLException {
-        // 加载mysql驱动,Driver类是第三方api,可以改进为只用sun公司提供的java.sql包下的接口
-        Driver driver = new Driver();
-        // 数据库地址
-        String url = "jdbc:mysql://localhost:3306/test";
-        // 用户信息
-        Properties info = new Properties();
-        info.setProperty("user", "root");
-        info.setProperty("password", "root");
-        // 获取连接
-        Connection conn = driver.connect(url, info);
-        System.out.println(conn);  // com.mysql.jdbc.JDBC4Connection@7c0e2abd
-    }
+    private static void testConnect() throws Exception {
+//        // 加载mysql驱动,Driver类是第三方api,可以改进为只用sun公司提供的java.sql包下的接口
+//        Driver driver = new Driver();
+//        // 数据库地址
+//        String url = "jdbc:mysql://localhost:3306/test";
+//        // 用户信息
+//        Properties info = new Properties();
+//        info.setProperty("user", "root");
+//        info.setProperty("password", "root");
+//        // 获取连接
+//        Connection conn = driver.connect(url, info);
+//        System.out.println(conn);
 
-    private static void testConnect02() throws Exception {
-        // mysql连接配置信息
-        String className = "com.mysql.jdbc.Driver";
-        String url = "jdbc:mysql://localhost:3306/test";
-        String user = "root";
-        String password = "root";
-        // 通过反射创建mysql驱动,查看Driver类源码发现下面几行都已经实现了,可以继续简化
-        Class<?> c = Class.forName(className);
-        Driver driver = (Driver) c.newInstance();
-        // 注册驱动
-        DriverManager.registerDriver(driver);
-        // 获取连接
-        Connection conn = DriverManager.getConnection(url, user, password);
-        System.out.println(conn);  // com.mysql.jdbc.JDBC4Connection@3a82f6ef
-    }
+//        // mysql连接配置信息
+//        String className = "com.mysql.jdbc.Driver";
+//        String url = "jdbc:mysql://localhost:3306/test";
+//        String user = "root";
+//        String password = "root";
+//        // 通过反射创建mysql驱动,查看Driver类源码发现创建和注册Driver已通过静态代码块和构造函数实现,可以继续简化
+//        Class<?> c = Class.forName(className);
+//        Driver driver = (Driver) c.newInstance();
+//        // 注册驱动
+//        DriverManager.registerDriver(driver);
+//        // 获取连接
+//        Connection conn = DriverManager.getConnection(url, user, password);
+//        System.out.println(conn);
 
-    private static void testConnect03() throws Exception {
         // 1.读取配置文件
         Properties prop = new Properties();
         FileReader fr = new FileReader("ability/src/main/resources/jdbc.properties");
@@ -115,19 +108,33 @@ public class MysqlDemo {
 
         Connection conn = null;
         try {
-            // 演示AA给BB转账
-            String sql2 = "update user_table set balance = balance - 100 where user = ?";
-            String sql3 = "update user_table set balance = balance + 100 where user = ?";
             // 获取连接
             conn = JDBCUtils.getDBCPConnection();
             // 关闭自动提交
             conn.setAutoCommit(false);
+
+            // 1.演示更新单条记录
+            String sql2 = "update user_table set balance = balance - 100 where user = ?";
+            String sql3 = "update user_table set balance = balance + 100 where user = ?";
             // 事务操作1
             updateWithTx(conn, sql2, "AA");
             // 此处模拟异常情况
-            System.out.println(1/0);
+//            System.out.println(1/0);
             // 事务操作2
             updateWithTx(conn, sql3, "BB");
+
+            // 2.演示批量更新多条记录
+            String sql4 = "insert into `order` values (null, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql4);
+            for (int i = 1; i <= 10000; i++) {
+                ps.setObject(1, "orc" + i);
+                ps.setObject(2, "2020-01-01");
+                ps.addBatch();
+            }
+            // 执行批
+            ps.executeBatch();
+            ps.close();
+
             // 手动提交
             conn.commit();
         } catch (Exception e) {
@@ -143,13 +150,17 @@ public class MysqlDemo {
     }
 
     private static void testSelect() {
+        // 1.演示查询单条记录
         // 当表名刚好是数据库里的关键字时要加斜引号`order`
         // 当表中字段名和类中属性名不一致时,查询时要使用属性名作为字段名的别名,不然报错 java.lang.NoSuchFieldException: order_id
         String sql1 = "select order_id orderId, order_name orderName from `order` where order_id = ?";
-        String sql2 = "select id, name from customers where id < ?";
         Order order = selectOne(Order.class, sql1, 2);
-        List<Customer> list = selectMany(Customer.class, sql2, 5);
         System.out.println(order);  // Order{orderId=2, orderName='BB', orderDate=null}
+
+        // 2.演示批量查询多条记录
+        String sql2 = "select id, name from customers where id < ?";
+        List<Customer> list = selectMany(Customer.class, sql2, 5);
+        assert list != null;
         list.forEach(System.out::println);  // Customer{id=1, name='汪峰', email='null', birth=null} ...
     }
 
@@ -165,7 +176,7 @@ public class MysqlDemo {
             for (int i = 0; i < args.length; i++) {
                 ps.setObject(i + 1 , args[i]);
             }
-            // 3.执行更新操作,返回影响记录数
+            // 3.执行更新操作 execute()是否执行 | executeUpdate()返回影响记录数 | executeQuery()返回查询结果集
             int count = ps.executeUpdate();
             System.out.println("影响了 " + count + " 条记录");
         } catch (Exception e) {

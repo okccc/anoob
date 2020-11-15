@@ -61,5 +61,5 @@ public class CustomerDAO extends DAO{
         String sql = "select id, name, email, birth from customers";
         List<Customer> customers = selectMany(Customer.class, sql);
         return customers;
-    }
+    }   
 }

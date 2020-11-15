@@ -267,22 +267,22 @@ show profiles;
 
 - join
 ```sql
--- a表和b表共有数据
+-- a表和b表公共数据
 select * from t1 a inner join t2 b on a.id=b.id;
 -- a表全集
 select * from t1 a left join t2 b on a.id=b.id;
 -- b表全集
 select * from t1 a right join t2 b on a.id=b.id;
--- a表独有
+-- a表独有(在a表不在b表,hive可以写成left semi join)
 select * from t1 a left join t2 b on a.id=b.id where b.id is null;
 -- b表独有
 select * from t1 a right join t2 b on a.id=b.id where a.id is null;
--- a表和b表所有数据
+-- a表和b表全部数据
 select * from t1 a full join t2 b on a.id=b.id;  -- mysql不支持full join,使用如下方式替代
 select * from t1 a left join t2 b on a.id=b.id union select * from t1 a right join t2 b on a.id=b.id;
 -- a表独有 + b表独有
-select * from t1 a left join t2 b on a.id=b.id where b.id is null union select * from t1 a right join t2 b on a.id=b.id where a.id is null;
--- 笛卡尔积
+select * from t1 a left join t2 b on a.id=b.id where b.id is null union all select * from t1 a right join t2 b on a.id=b.id where a.id is null;
+-- 笛卡尔积,不写on条件时join/inner join/cross join是等价的
 select * from t1 a join t2 b;
 
 -- left join数据量一定和左表相等吗？
