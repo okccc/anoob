@@ -175,7 +175,7 @@ object S01_function {
     val names: List[String] = List("grubby", "moon", "c", "ted")
     val names_new: List[String] = names.filter((i: String) => i.length > 1).map((f: String) => f.capitalize)
     println(names_new)
-    // 代码解析：命令式编程只执行了1次循环,函数式编程执行了filter、map、reduce 3次循环,每次循环只完成一种逻辑即用户编写的匿名函数
+    // 代码解析：命令式编程只执行了1次循环,函数式编程执行了filter和map2次循环,每次循环只完成一种逻辑即用户编写的匿名函数
     // 性能上命令式编程更好,说明在硬件性能羸弱时函数式编程缺点会被放大,但是函数式编程不需要维护外部变量i,对于并行计算场景非常友好
   }
 }

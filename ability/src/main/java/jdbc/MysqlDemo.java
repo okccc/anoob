@@ -25,7 +25,7 @@ public class MysqlDemo {
          *
          * Statement弊端
          * a.需要拼接sql
-         * String sql = "SELECT user,password FROM user WHERE USER = '"+ user +"' AND PASSWORD = '"+ password +"'";
+         * String sql = "SELECT user,password FROM user WHERE USER = '" + user + "' AND PASSWORD = '" + password + "'";
          * b.sql注入问题(放到sql工具一看便知)
          * select user,password from user_table where user = '' and password = '';
          * select user,password from user_table where user = '' or '1' = '1' and password = '';
