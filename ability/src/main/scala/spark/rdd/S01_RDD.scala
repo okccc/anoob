@@ -1,4 +1,4 @@
-package spark
+package spark.rdd
 
 import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet}
 import java.util
@@ -9,7 +9,6 @@ import org.apache.spark.util.{AccumulatorV2, LongAccumulator}
 import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}
 
 object S01_RDD {
-
   def main(args: Array[String]): Unit = {
     /*
      * Spark是基于内存的快速,通用,可扩展的大数据分析引擎
@@ -128,14 +127,14 @@ object S01_RDD {
       val words: Array[String] = i.split(" ")
       words
     })
+    // distinct算子：去重后数据减少,相应的可以减少默认分区数
+    val distinctRDD: RDD[Int] = sc.makeRDD(List(1, 3, 5, 9, 3, 1)).distinct(2)
     // filter算子：返回func函数结果值为true的元素
     val filterRDD: RDD[Int] = rdd1.filter((i: Int) => i % 2 == 0)
     // glom算子：查看每个分区情况
     rdd1.glom().collect().foreach((i: Array[Int]) => println(i.mkString(",")))  // 1,2,3,4,5  6,7,8,9,10
     // groupBy算子：按照func函数的结果值分组
     val groupByRDD: RDD[(Int, Iterable[Int])] = rdd1.groupBy((i: Int) => i % 2)  // (0,CompactBuffer(2,4))
-    // distinct算子：去重后数据减少,相应的可以减少默认分区数
-    val distinctRDD: RDD[Int] = sc.makeRDD(List(1, 3, 5, 9, 3, 1)).distinct(2)
     // sortBy算子：既是transform也是action,可通过4040端口jobs查看,jobs是action操作才会触发
     val sortByRDD: RDD[Int] = rdd1.sortBy((x: Int) => x, ascending = false, 1)
     // sample算子：对大数据集以指定随机种子seed(所以其实并不随机)抽样出数量为fraction的数据,withReplacement表示抽出的数据是否放回

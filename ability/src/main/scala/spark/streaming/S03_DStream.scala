@@ -1,15 +1,10 @@
-package spark
+package spark.streaming
 
-import java.sql.{Connection, DriverManager, PreparedStatement}
-
-import org.apache.hadoop.io.{IntWritable, Text}
-import org.apache.hadoop.mapred.TextOutputFormat
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-//import org.apache.spark.streaming.kafka.KafkaUtils
 
 object S03_DStream {
   def main(args: Array[String]): Unit = {
@@ -34,6 +29,14 @@ object S03_DStream {
      * 1.减小窗口长度 -> 防止每个DStream耗时太长导致DStream任务堆积,无法充分利用集群资源
      * 2.增大滑动间隔 -> 保证数据处理能跟上数据摄取的步伐
      * 3.设置checkpoint保存上一个窗口统计结果的状态,上一个窗口统计结果 + 头部新的滑动间隔的值 - 尾部旧的滑动间隔的值 = 当前窗口统计结果,减少重复计算
+     *
+     * SparkStreaming为什么要通过Kafka连接Flume
+     * 缓冲：flume采集数据存在峰值问题,比如双11期间日志特别多,spark处理不完接收的数据导致崩溃,需要消息队列来缓冲一下,kafka本身吞吐量很大并且将数据落地到磁盘,可以向spark提供稳定的流数据
+     * 解耦：flume只管采集数据,spark只管处理数据,两者互不影响
+     *
+     * SparkStreaming整合Kafka
+     * spark1.6 + kafka0.8  -> 包含receiver模式和direct模式
+     * spark2.3 + kafka0.11 -> 只有direct模式
      */
 
 //    if (args.length < 2) {
@@ -53,7 +56,7 @@ object S03_DStream {
     System.setProperty("HADOOP_USER_NAME", "root")
 
     // 创建spark配置信息
-    // local[n]模式n要大于1,因为基于receiver的DStream(socket/flume/kafka高阶)运行Receiver对象要单独占一个线程,处理接收的数据在另一个线程,cluster模式分配给application的cores也要大于receivers
+    // receiver模式的DStream(socket/flume/kafka高阶)接收器要单独占一个线程,"local[n>1]",direct模式没有接收器"local"即可
     val conf: SparkConf = new SparkConf().setMaster("local[2]").setAppName("Spark Streaming")
     // 创建StreamingContext对象,指定批处理时间间隔(采集周期)
     val ssc: StreamingContext = new StreamingContext(conf, batchDuration=Seconds(2))
@@ -189,36 +192,3 @@ object S03_DStream {
   }
 
 }
-
-// 模仿socketTextStream写一个自定义采集器(???)
-//class MyReceiver(host: String, port: Int) extends Receiver[String](StorageLevel.MEMORY_ONLY) {
-//  var socket: java.net.Socket = _
-//  def receive(): Unit = {
-//    socket = new java.net.Socket(host, port)
-//    val reader: BufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream, "utf8"))
-//    var line: String = null
-//    while ((line = reader.readLine()) != null) {
-//      // 将采集的数据放到采集器内部进行转换
-//      if ("END".equals(line)) {
-//        return
-//      } else {
-//        this.store(line)
-//      }
-//    }
-//  }
-//
-//  override def onStart(): Unit = {
-//    new Thread(new Runnable {
-//      override def run(): Unit = {
-//        receive()
-//      }
-//    }).start()
-//  }
-//
-//  override def onStop(): Unit = {
-//    if (socket != null) {
-//      socket.close()
-//      socket = null
-//    }
-//  }
-//}

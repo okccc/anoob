@@ -1,9 +1,9 @@
-package spark
+package spark.sql
 
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql._
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.functions.{col, when}
-import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
 
 object S02_DataFrame {
@@ -48,28 +48,34 @@ object S02_DataFrame {
      */
 
     // 创建Spark配置信息
-    val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("SparkSql")
+    val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("Spark Sql")
     // Spark2.0以后使用SparkSession代替SqlContext作为SparkSql所有功能的入口,可以创建DataFrame,注册临时视图,执行sql,缓存表...
     // 创建SparkSession,查看源码发现SparkSession类的构造器都是private,只能通过其伴生对象创建
     //    val session: SparkSession = new SparkSession(conf)
     val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
     // 创建DataFrame/Dataset三种方式：读取文件,从RDD转换,查询hive
 
-//    readFile(spark)
+    readFile(spark)
 //    convertRDD(spark)
-    selectHive(spark)
+//    selectHive(spark)
   }
 
   def readFile(spark: SparkSession): Unit = {
     // a.Spark可以读写json/csv/parquet/orc/text/jdbc等多种格式数据源,返回DataFrame对象
     // 通用读数据方法：spark.read.format("").load(path),可简写如下格式
     val df: DataFrame = spark.read.json("ability/input/people.json")
-    // 通用写数据方法：df.write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
-    df.write.option("header",value = true).mode("append").csv("ability/output/people.csv")
-    df.write.mode("overwrite").saveAsTable("people")  // overwrite模式下第一次写入数据会报错路径不存在
     // 通过jdbc读取外部数据源数据
-    val jdbcDF: DataFrame = spark.read.format("jdbc").option("url", "jdbc:mysql://localhost:3306/test")
-      .option("user", "root").option("password", "root").option("dbtable", "user").load()
+    val jdbcDF: DataFrame = spark.read
+      .format("jdbc")
+      .option("url", "jdbc:mysql://localhost:3306/test")
+      .option("user", "root")
+      .option("password", "root")
+      .option("dbtable", "user")
+      .load()
+    // 通用写数据方法：df.write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
+    df.write.mode(SaveMode.Append).option("header",value = true).csv("ability/output/people.csv")
+    df.write.mode(SaveMode.Overwrite).saveAsTable("people")  // overwrite模式下第一次写入数据会报错路径不存在
+    df.write.mode(SaveMode.Append).insertInto("ods.people")
 
     // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
     import spark.implicits._
