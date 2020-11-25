@@ -75,7 +75,7 @@ primary key|primary key|MongoDB自动将_id字段设置为主键
 - db.createCollection(name, options)：创建集合  
 - db.createCollection("position")  
 - db.createCollection("sub", {capped : true, size : 10})  // capped默认false不设置上限,true要指定size,文档达到上限会覆盖之前数据 
-- db.集合.drop()：删除集合 
+- db.集合.drop()：删除集合 ¢
 - db.help()：数据库相关帮助命令
 - db.集合.help()：集合相关帮助命令 
 ## crud 
