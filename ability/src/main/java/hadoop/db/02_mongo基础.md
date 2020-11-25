@@ -41,19 +41,19 @@ MongoDB server version: 3.4.16
 ```
 
 ### type
-- Object ID：文档ID保证唯一性,是一个12字节的十六进制数：当前时间戳(4) + 机器ID(3) + mongodb服务进程id(2) + 增量值(3)  
-- String：字符串  
-- Boolean：true/false  
-- Integer：32/64位整数(取决于服务器)  
-- Double：双精度浮点值  
-- Arrays：数组/列表  
-- Object：嵌入式文档,一个值即一个文档  
-- Null：空值 
-- Timestamp：时间戳  
-- Date：存储当前日期或时间的UNIX格式  
+- Object ID：文档ID保证唯一性,是一个12字节的十六进制数：当前时间戳(4) + 机器ID(3) + mongodb服务进程id(2) + 增量值(3)
+- String：字符串
+- Boolean：true/false
+- Integer：32/64位整数(取决于服务器)
+- Double：双精度浮点值
+- Arrays：数组/列表
+- Object：嵌入式文档,一个值即一个文档
+- Null：空值
+- Timestamp：时间戳
+- Date：存储当前日期或时间的UNIX格式
 
 SQL术语|MongoDB术语|说明
- :---: | :---: | :---: 
+ :---: | :---: | :---:
 database|db|数据库
 table|collection|表/集合(存储多个文档且结构不固定)
 row|document|行/文档
@@ -62,37 +62,37 @@ index|index|索引
 joins|/|nosql数据库不维护表之间的关系
 primary key|primary key|MongoDB自动将_id字段设置为主键
 
-### db  
-- db：当前数据库名称  
-- show dbs：查看所有数据库  
-- use test：切换数据库(如果数据库不存在则指向数据库但不创建,直到插入数据或创建集合时数据库才被创建)  
-- db.version()：当前数据库版本  
-- <font color=red>db.stats()</font>：当前数据库信息  
-- db.dropDatabase()：删除当前数据库  
-- db._adminCommand("connPoolStats")：当前正在使用的链接  
-## collection  
-- show collections：查看当前数据库所有集合  
-- db.createCollection(name, options)：创建集合  
-- db.createCollection("position")  
-- db.createCollection("sub", {capped : true, size : 10})  // capped默认false不设置上限,true要指定size,文档达到上限会覆盖之前数据 
-- db.集合.drop()：删除集合 ¢
+### db
+- db：当前数据库名称
+- show dbs：查看所有数据库
+- use test：切换数据库(如果数据库不存在则指向数据库但不创建,直到插入数据或创建集合时数据库才被创建)
+- db.version()：当前数据库版本
+- <font color=red>db.stats()</font>：当前数据库信息
+- db.dropDatabase()：删除当前数据库
+- db._adminCommand("connPoolStats")：当前正在使用的链接
+## collection
+- show collections：查看当前数据库所有集合
+- db.createCollection(name, options)：创建集合
+- db.createCollection("position")
+- db.createCollection("sub", {capped : true, size : 10})  // capped默认false不设置上限,true要指定size,文档达到上限会覆盖之前数据
+- db.集合.drop()：删除集合
 - db.help()：数据库相关帮助命令
-- db.集合.help()：集合相关帮助命令 
-## crud 
+- db.集合.help()：集合相关帮助命令
+## crud
 #### <font color=gray>增</font>
 - <font color=red>db.集合.insert({})</font>  // insert：_id存在会报错 save：_id存在会更新
-- 造数据：for(i=1;i<=100;i++){db.position.insert({name:"test"+i,age:i})}  
+- 造数据：for(i=1;i<=100;i++){db.position.insert({name:"test"+i,age:i})}
 #### <font color=gray>删(慎用!)</font>
-- <font color=red>db.集合.remove({query}, {justOne:true})</font>  // justOne默认false删除所有,true只删除第一条  
-- db.position.remove({gender:0}, {justOne:true})  
+- <font color=red>db.集合.remove({query}, {justOne:true})</font>  // justOne默认false删除所有,true只删除第一条
+- db.position.remove({gender:0}, {justOne:true})
 - db.position.remove({})  # 清空集合
 #### <font color=gray>改</font>
-- <font color=red>db.集合.update({query}, {update}, {multi:true})</font>  // query相当于where、update相当于set、multi默认false只更新第一条,true更新所有  
+- <font color=red>db.集合.update({query}, {update}, {multi:true})</font>  // query相当于where、update相当于set、multi默认false只更新第一条,true更新所有
 - db.position.update({category:"技术"},{$set:{location:"上海"}},{multi:true})  // 将所有category为"技术"的文档的location改成"上海"
-- db.position.update({},{$set:{category:"研发"}},{multi:true})  // 将所有文档的category改成"研发"  
+- db.position.update({},{$set:{category:"研发"}},{multi:true})  // 将所有文档的category改成"研发"
 #### <font color=gray>查</font>
-- <font color=red>db.集合.find({query})</font>  
-- db.集合.findOne({query})  
+- <font color=red>db.集合.find({query})</font>
+- db.集合.findOne({query})
 - db.集合.find({query}).pretty()
 - db.集合.find({query}).explain()
 ## mongodb高级查询
@@ -108,32 +108,32 @@ primary key|primary key|MongoDB自动将_id字段设置为主键
 - <font color=red>默认=, $lt < | $lte <= | $gt > | $gte >= | $ne !=</font>  
 db.position.find({category:"技术"})  // category=技术  
 db.position.find({update_time:{$gte:"2019年05月08日"}})  // 更新时间>=20190508  
-db.position.find({location:{$ne:null}})  // 地址非空  
-#### <font color=gray>逻辑运算符</font> 
+db.position.find({location:{$ne:null}})  // 地址非空
+#### <font color=gray>逻辑运算符</font>
 - <font color=red>默认$and逻辑与,$or表示逻辑或</font>  
 db.position.find({category:"技术",location:"上海"})  // 类别是技术并且地址在上海  
-db.position.find({$or:[{category:"技术"},{location:"上海"}]})  // 类别是技术或者地址在上海  
-db.position.find({$or:[{category:"技术"},{location:"上海"}],update_time:{$gte:"2019年05月08日"}})  // 类别是技术或者地址在上海,并且更新时间>=20190508
+db.position.find({$or:{category:"技术"},{location:"上海"}})  // 类别是技术或者地址在上海  
+db.position.find({$or:{category:"技术"},{location:"上海"},update_time:{$gte:"2019年05月08日"}})  // 类别是技术或者地址在上海,并且更新时间>=20190508
 #### <font color=gray>范围运算符</font>
 - <font color=red>使用$in和$nin判断是否在某个范围内</font>  
-db.position.find({category:{$in:["技术","产品"]}})  // 类别属于技术或产品  
-#### <font color=gray>正则表达式</font> 
+db.position.find({category:{$in:"技术","产品"}})  // 类别属于技术或产品
+#### <font color=gray>正则表达式</font>
 - <font color=red>使用//或$regex查找</font>  
 db.position.find({title:/算法/})  // 标题中包含"算法"  
-db.position.find({title:{$regex:'专家$'}})  // 标题以专家结尾  
+db.position.find({title:{$regex:'专家$'}})  // 标题以专家结尾
 #### <font color=gray>自定义查询</font>
-- db.position.find().limit(4).skip(5)  // limit和skip不分先后  
-#### <font color=gray>投影(指定字段查询)</font>  
+- db.position.find().limit(4).skip(5)  // limit和skip不分先后
+#### <font color=gray>投影(指定字段查询)</font>
 - <font color=red>db.集合.find({query},{field:1/0})</font>  // 1显示0不显示,_id字段默认显示  
 db.position.find({},{category:1,location:1})  // 如果要选取的字段很少就将需要的字段指定为1  
-db.position.find({},{_id:0,responsibility:0})  // 如果要选取的字段很多就将不需要的字段设为0  
+db.position.find({},{_id:0,responsibility:0})  // 如果要选取的字段很多就将不需要的字段设为0
 #### <font color=gray>排序</font>
 - <font color=red>db.集合.find().sort({field:1/-1})</font>  # 1升序-1降序  
-db.position.find().sort({update_time:-1})    
-#### <font color=gray>统计</font>  
+db.position.find().sort({update_time:-1})
+#### <font color=gray>统计</font>
 - <font color=red>db.集合.find({query}).count() | db.集合.count({query})</font>  
 db.position.find({location:"北京"}).count()  
-db.position.count({location:"北京"})  
+db.position.count({location:"北京"})
 #### <font color=gray>去重</font>
 - <font color=red>db.集合.distinct('去重字段',{query})</font>  
 db.position.distinct('category')  
