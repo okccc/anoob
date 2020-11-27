@@ -70,7 +70,7 @@ e-r模型：当前物理数据库都是按照e-r模型(entry-relationship)进行
 数据库：按照数据结构存储和管理数据的仓库
 RDBMS：关系型数据库管理系统
 表：按列和行排列的一组数据,列表示特征行表示条目
-三大范式：列不可拆分(比如地址)、唯一标识(引用主键)、字段没有冗余(不能由其它字段衍生出来)
+三大范式：列不可拆分(比如地址)、不能有部分函数依赖、不能有传递函数依赖
 五大约束：primary key、unique、not null、default、foreign key
 逻辑删除：对于重要数据并不希望物理删除,删除后无法恢复,可以设置isdelete列,类型为bit默认值0,要逻辑删除的写1,查询的时候查值为0的即可
 sql：structured query language
@@ -423,14 +423,11 @@ select * from emp where name like '陈%' and age=20;
 left join 左表是主(驱动)表,右表是从(被驱动)表,左连接特点是左表数据全表扫描,关联条件用来确定右表搜索的行,所以尽量将小表放左边
 驱动表会全表扫描加索引虽然能用上但扫描行数不变,应当给被驱动表的关联字段建索引,如果是inner join mysql会自动将小表作为驱动表 
 select * from a left join b on a.id=b.id;  -- create index idx_id on b (id)
--- 子查询优化
-尽量避免使用not in/not exists
-select * from a where id not in (select id from b);  -- 改进为 select * from a left join b on a.id=b.id where b.id is null;
 -- 排序分组优化
 尽量避免Extra出现Using filesort,但是当排序之前有过滤操作时优先给过滤字段加索引
 create index idx_a_b_c on emp (a,b,c);    -- 是否出现filesort
 select * from emp order by d;             -- Y 排序字段没有索引
-select * from emp order by a;             -- Y 排序字段有索引但不是覆盖索引,所以尽量减少select *
+select * from emp order by a;             -- Y 排序字段有索引但不是覆盖索引,所以尽量减少使用select *
 select a,b,c from emp order by a,b;       -- N 排序字段有索引且是覆盖索引,很合理
 select a,b,c from emp order by a,c;       -- Y 排序字段有索引但跳过了中间列
 select a,b,c from emp order by a,b desc;  -- Y 排序字段中同时存在升序(默认)和降序,而索引都是升序的
@@ -441,16 +438,17 @@ select a,b,c from emp where a<100 order by b;  -- Y 过滤条件是范围查询,
 select * from t1 where id in (select id from t2);
 select * from t1 where exists (select 1 from t2 where t1.id=t2.id);
 not in无法使用索引且子查询结果集不能有null否则直接返回null,而not exists会使用索引性能更高,所以应尽量避免使用not in
+select * from a where id not in (select id from b);  -- 改进为 select * from a left join b on a.id=b.id where b.id is null
 -- mysql优化器会改变sql语句中select和where字段的顺序,但是group和order字段的顺序是不能变的,否则业务逻辑就变了
 ```
 
 - log
-```bash
+```sql
 # 慢查询日志
 mysql> show variables like 'slow_query_log' | select @@slow_query_log
 +---------------------+------------------------------+
 | slow_query_log      | OFF                          |
-| slow_query_log_file | /var/lib/mysql/cdh1-slow.log |-- 可以监控该文件,将速度慢的sql做相应优化,但是手工查找不方便可借助工具
+| slow_query_log_file | /var/lib/mysql/cdh1-slow.log | # 可以监控该文件优化速度慢的sql,但是手工查找不方便可借助工具
 +---------------------+------------------------------+
 mysql> show variables like 'long_query_time' | select @@long_query_time
 +-----------------+-----------+
@@ -458,7 +456,8 @@ mysql> show variables like 'long_query_time' | select @@long_query_time
 +-----------------+-----------+
 mysql> set global slow_query_log = 1;
 mysql> set global long_query_time = 5;
-[root@cdh1 ~]# vim /etc/my.cnf && systemctl restart mysqld  # 修改配置文件后要重启mysqld服务
+# 修改配置文件后重启mysqld服务
+[root@cdh1 ~]# vim /etc/my.cnf && systemctl restart mysqld
 [mysqld]
 slow_query_log=1
 slow_query_log_file=/var/lib/mysql/cdh1-slow.log
