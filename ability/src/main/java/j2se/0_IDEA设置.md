@@ -29,6 +29,8 @@ Project/Module - 右键 - Local History - Show History - 找到删除文件 - Re
 # 对于一些被重新分配地址的变量或者参数,IDEA默认给它们加上下划线,因为有些代码很长,你很难知道变量是否被重新分配过地址值
 # 快速生成同步代码块
 选中代码 - Code - Surround With - try/catch | synchronized ...
+# idea设置代码模板
+File - Settings - Editor - File and Code Templates - Class - 给类添加author/date/version信息
 ```
 
 ### idea-scala
