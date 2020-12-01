@@ -127,7 +127,7 @@ java提供了HashMap存储key-value数据,但是很多时候还是会用到Redis
 # 分区策略
 a.指定partition
 b.没有指定partition但是有key,将key的hash值与partition数进行取余决定往哪个partition写数据
-c.没有指定partition也没有key,将递增的随机数与partition数进行取余决定往哪个partition写数据,这就是round-robin算法(轮询)
+c.没有指定partition也没有key,将递增的随机数与partition数进行取余决定往哪个partition写数据,这就是round-robin轮询算法
 
 # 数据可靠性保证
 为了保证producer往topic发送数据的可靠性,每个partition收到数据后都要向producer发送ack确认,producer收到ack才会进行下一轮发送,否则重新发送数据
@@ -137,7 +137,7 @@ c.没有指定partition也没有key,将递增的随机数与partition数进行�
 kafka采用的是第二种,因为网络延迟对kafka的影响相较于数据冗余要小很多
 # 2).Isr
 既然是所有follower同步完成才会发送ack,如果有一个follower故障导致迟迟不能与leader同步,也要一直等它同步结束才发送ack吗?
-leader维护了一个动态的Isr(in-sync replica set),存放和leader保持同步的follower集合,当Isr中的follower全部同步完成之后,leader就会向producer发送ack
+leader维护了一个动态的Isr(in-sync replica,是all replica子集),存放的是和leader保持同步的follower集合,当Isr全部同步完成后,leader就会向producer发送ack
 如果follower长时间没有向leader同步数据就会被Isr剔除,该时间阈值由replica.lag.time.max.ms参数设定,当leader故障时会从Isr中选举新的leader
 # 3).ack应答机制
 有些不是很重要的数据对可靠性要求不高,允许有少量数据丢失,所以没必要等到Isr中的follower全部同步完成
@@ -157,23 +157,23 @@ kafka0.11版本引入了幂等性机制(idempotent),配合ack=-1时的at least o
 # kafka消费者
 # 消费方式
 push模式难以适应消费速率不同的消费者,因为发送速率由broker决定,消费者来不及处理会导致网络堵塞甚至程序崩溃
-consumer采用pull模式从broker读取数据,根据自身消费能力消费数据,缺点是broker中没有数据时会陷入循环返回空数据,所以consumer在消费数据时会传入超时参数timeout,没有数据时会等待timeout时长
+consumer采用pull模式从broker读取数据,根据自身能力消费,缺点是broker没数据时会陷入空循环,需要指定超时参数timeout
 # 分区分配策略
-partition和consumer之间有两种分区分配策略,round-robin轮询分配(默认)和range分配(可能出现分区分配不均的情况)
+partition和consumer之间有两种分区分配策略,round-robin和range(默认)
 # offset维护
 consumer默认将offset保存在kafka的内置topic __consumer_offsets
 
 # kafka高效读写数据
 1.顺序写磁盘：producer往partition写数据是按照顺序追加到log文件的末端,顺序写速度快是因为省去了大量的磁头寻址时间,比如往一个大文件写比往多个小文件写速度快得多
-2.零拷贝技术：
+2.零拷贝技术：减少文件的复制次数
 
-# zk在kafka中的作用
+# ZK和Controller
 kafka集群启动时会向zookeeper注册信息,最先注册的broker节点就是Controller
 Controller会监控zookeeper上节点的变化情况,负责管理broker上下线/leader选举/topic的分区副本分配,zk辅助Controller进行管理工作
 
-# partition的分配策略：确定哪个partition由哪个consumer消费
-roundrobin：先按照每个partition的hash值排序,然后轮询分配给consumer
-range：针对partition和consumer的个数按照范围分配
+# 消息丢失和重复消费
+消息丢失场景：生产者端ack=0/1,消费者端先提交后消费
+重复消费场景：生产者端ack=-1,消费者端先消费后提交
 
 # kafka高低阶消费者？
 基于receiver的方式,使用kafka高阶api在zk中保存消费过的offset,配合wa机制可以保证数据零丢失,但是数据可能不止一次被消费,因为spark和zk可能是不同步的
@@ -256,22 +256,3 @@ public class ConsumerDemo {
     }  
 }  
 ```
-
-### zookeeper监控
-kafka启动时会在zookeeper上创建brokers节点和consumers节点。  
-![](images/zk01.png)    
-ids：监控broker是否存活     格式: /brokers/ids/[0...N]    
-![](images/zk02.png)  
-topics：查找partition在哪台broker上     格式: /brokers/topics/[topic]/partitions/[0...N]   
-![](images/zk03.png)  
-![](images/zk04.png)  
-owners：标记partition被组内哪个consumer消费.临时znode。  
-格式: /consumers/[group_id]/owners/[topic]/[broker_id-partition_id]  
-![](images/zk05.png)    
-![](images/zk06.png)    
-ids：记录该组中的consumer消费的topic的partition个数  
-格式: /consumers/[group_id]/ids/[consumer_id]  
-![](images/zk07.png)  
-offsets：跟踪每个consumer组目前所消费的partition中最大的offset。    
-格式: /consumers/[group_id]/offsets/[topic]/[broker_id-partition_id]  
-![](images/zk08.png)  
