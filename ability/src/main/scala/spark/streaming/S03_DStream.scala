@@ -37,6 +37,14 @@ object S03_DStream {
      * SparkStreaming整合Kafka
      * spark1.6 + kafka0.8  -> 包含receiver模式和direct模式
      * spark2.3 + kafka0.11 -> 只有direct模式
+     *
+     * kafka高低阶消费者？
+     * 基于receiver的方式,使用kafka高阶api在zk中保存消费过的offset,配合wa机制可以保证数据零丢失,但是数据可能不止一次被消费,因为spark和zk可能是不同步的
+     * 基于direct的方式,使用kafka低阶api由SparkStreaming自己追踪消费的offset并保存在checkpoint,保证数据只消费一次(常用)
+     *
+     * spark streaming接收数据两种方式
+     * receiver模式：offset存储在zookeeper,由receiver维护,spark获取数据存入executor中,调用kafka高阶api
+     * direct模式：offset存储在zookeeper,由spark维护,且可以从每个分区读取数据,调用kafka低阶api
      */
 
 //    if (args.length < 2) {

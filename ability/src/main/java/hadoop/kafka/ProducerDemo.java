@@ -1,6 +1,9 @@
 package hadoop.kafka;
 
-import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.ArrayList;
@@ -13,7 +16,7 @@ import java.util.Properties;
  * @date 2020/11/29 18:22
  */
 public class ProducerDemo {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         /*
          * kafka生产者采用异步发送方式
          * producer发送数据过程包含main线程,线程共享变量RecordAccumulator以及sender线程
