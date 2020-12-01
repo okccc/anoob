@@ -145,7 +145,7 @@ public class FunctionDemo {
     }
 
     public static int fibonacci(int i) {
-        // 斐波那契额数列
+        // 斐波那契数列
         if(i == 1 | i == 2) {
             return 1;
         } else {

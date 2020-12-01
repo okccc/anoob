@@ -81,3 +81,24 @@ pip install django==1.8.2
 - python项目一键导入所有安装包  
 将当前环境依赖包生成到文件：pip freeze > requirements.txt  
 在新环境安装文件中的所有包：pip install -r requirements.txt
+
+## centos安装nginx
+- 安装依赖  
+yum install gcc pcre-devel zlib zlib-devel openssl openssl-devel
+- 下载压缩包  
+wget http://nginx.org/download/nginx-1.8.0.tar.gz
+- 解压  
+tar -xvf nginx-1.8.0.tar.gz
+- 切换到nginx目录  
+cd /usr/local/nginx-1.8.0
+- 编译安装  
+./configure  
+make && make install  --> 安装完后/nginx/sbin目录多了nginx执行命令
+- 测试配置文件  
+/usr/local/nginx/sbin/nginx -t
+- 启动,停止,重启  
+/usr/local/nginx/sbin/nginx  
+/usr/local/nginx/sbin/nginx -s stop  
+/usr/local/nginx/sbin/nginx -s reload
+- 浏览器访问(默认80端口)  
+http://192.168.152.11
