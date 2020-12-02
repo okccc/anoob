@@ -1,5 +1,5 @@
 ### shortcut
-```bash
+```shell script
 # idea快捷键设置
 File - Settings - Keymap
 # 查找某个类
@@ -34,7 +34,7 @@ File - Settings - Editor - File and Code Templates - Class - 给类添加author/
 ```
 
 ### idea-scala
-```bash
+```shell script
 # idea永久激活
 install - Evaluate for free - Help - Edit Custom VM Options - 添加-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA 2020.1.1\bin\jetbrains-agent.jar - 保存后重启 - Help - Register - Activation code - 输入激活码 - Activate
 # idea安装Scala插件
@@ -55,7 +55,7 @@ download scala-sources-2.11.x.tar.gz - File - Project Structure - Global Librari
 ```
 
 ### maven
-```bash
+```shell script
 # maven是一款自动化构建工具,用于项目的构建和依赖管理
 # maven常用命令
 mvn -v            # 查看maven版本

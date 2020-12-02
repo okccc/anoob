@@ -1,5 +1,5 @@
 ### $
-```bash
+```shell script
 $#       # 这个程序的参数个数  
 $?       # 执行上一个指令的返回值(0表示正常)  
 $0       # 这个程序的执行名字  
@@ -12,7 +12,7 @@ $-       # 显示shell使用的当前选项,与set命令功能相同
 ```
 
 ### iconv  
-```bash
+```shell script
 -l, --list                  # 所有字符集  
 -f, --from                  # 修改前编码  
 -t, --to                    # 修改后编码  
@@ -28,7 +28,7 @@ iconv -f utf-8 -c -t gbk aaa.csv > bbb.csv
 ```
 
 ### xargs
-```bash
+```shell script
 # linux命令可以从两个地方读取内容：标准输入和命令行参数
 # 管道：将|左侧命令的标准输出转换为标准输入,提供给右侧命令作为参数
 cat a.txt | grep 'mysql' 等价于 grep 'mysql' a.txt  
@@ -48,7 +48,7 @@ ps -ef | awk '{print $1}' | sort | uniq
 ```
 
 ### cut
-```bash
+```shell script
 # cut 作用于行数据的选取命令  
 -b        # 以字节为单位进行分割  
 -c        # 以字符为单位进行分割(处理中文)  
@@ -65,7 +65,7 @@ cat /etc/passwd | head -5 | cut -d ':' -f -2     # 按冒号切割取前两个�
 ```
 
 ### sort
-```bash
+```shell script
 # sort 作用于行数据的排序命令  
 -b        # 忽略最前面的空格符  
 -f        # 忽略大小写  
@@ -84,7 +84,7 @@ cat /etc/passwd | sort -t: -k7 -u | head -5           # 先将数据以冒号分
 ```
 
 ### uniq  
-```bash
+```shell script
 # uniq 对排序过的行数据去重,结合sort使用
 -i        # 忽略大小写  
 -c        # 计数  
@@ -102,7 +102,7 @@ cat access.log | grep "23/Jan/2019" | awk '{print $2}' | cut -c 1-2 | sort | uni
 ```
 
 ### grep
-```bash
+```shell script
 # grep(global search re print) - print lines matching a pattern 基于行的文本搜索工具 
 # 格式: grep -option 'str/re' file  
 -c           # 统计符合要求的行数  
@@ -133,7 +133,7 @@ grep -vxf a.log b.log
 ```
 
 ### find
-```bash
+```shell script
 # find - search for files in a directory hierarchy 在指定目录下按匹配规则查找文件(夹)  
 # 格式：find path -option [-print] [-exec command] {} \  
 -type                                      # 按类型查找(b块设备/c字符设备文件/d目录/f普通文件/l符号链接文件/p管道文件)  
@@ -160,7 +160,7 @@ find . -type f -mtime +180 -name "*.log" -exec rm -rf {} \;
 ```
 
 ### sed
-```bash
+```shell script
 # sed(stream editor) - stream editor for filtering and transforming text 基于行的流编辑器
 # 格式：sed -option 'command' file  
 -n        # 安静模式,不输出全部行而只输出sed操作选中的行  
@@ -199,7 +199,7 @@ echo aa BB | sed 's/\([a-z]\+\) \([A-Z]\+\)/\2 \1/'  # 交换子串顺序
 ```
 
 ### awk
-```bash
+```shell script
 # awk - pattern scanning and processing language 擅长列操作的文本分析处理工具
 # 格式：awk [-F | -f | -v] 'BEGIN{} /.../{command1;command2} END{}' file  
 -F          # 字段分隔符,默认空格  

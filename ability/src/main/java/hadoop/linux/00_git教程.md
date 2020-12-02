@@ -1,5 +1,5 @@
 ### basic
-```bash
+```shell script
 # 安装
 yum install git
 # 查看配置列表
@@ -8,7 +8,7 @@ git config --global -l/--list
 --system(系统) < --global(用户) < --local(当前仓库,可单独指定用户邮箱)
 # 打开配置文件
 git config -e --system(/etc/gitconfig ) --global(~/.gitconfig) --local(/project/.git/config)
-# 配置用户和邮箱：  
+# 配置用户和邮箱
 git config --global user.name "okccc"  # 这样就不用每次同步到github都输密码
 git config --global user.email "1573976179@qq.com"  # 此处email要和github保持一致,不然github上没有小绿块
 # 解决中文乱码
@@ -64,7 +64,7 @@ add .idea/ to .gitignore & git rm -r --cached .idea/ & git commit -am 'delete...
 ```
 
 ### branch
-```bash
+```shell script
 # 查看当前分支/远程分支/所有分支
 git branch (-r/-a)
 # 创建分支并切换分支
@@ -89,7 +89,7 @@ git push origin :dev
 ```
 
 ### tag
-```bash
+```shell script
 # 查看所有标签：git tag
 # 新建标签,默认打在最新提交也可以打在指定提交,指定标签信息
 git tag v0.1 (f52c633) (-m '...')
@@ -112,7 +112,7 @@ git tag -d v0.1 & git push origin :refs/tags/v0.1
 
 ![](images/03_git操作流程.png)
 ### fetch/pull/push/remote
-```bash
+```shell script
 # fetch
 git fetch <远程主机> <远程分支>:<本地分支>  # 取回远程主机指定分支的更新到本地,不加分支名表示取回所有分支的更新
 git fetch origin master  # 取回origin主机的master分支的更新到本地

@@ -1,6 +1,6 @@
 - [cdh各组件端口](https://docs.cloudera.com/documentation/enterprise/6/6.2/topics/cdh_ports.html)
 ### HDFS
-```bash
+```shell script
 # Client：客户端
 1.将文件按block块切分
 2.与NameNode交互,获取文件的位置信息
@@ -49,7 +49,7 @@ namenode会等待datanode向它发送块报告,接收到的datanode blocks和tot
 ```
 
 ### HIVE
-```bash
+```shell script
 # hive、hiveserver2、beeline
 hive和beeline都是hive客户端,hiveserver和hivesrver2都是hive服务端
 hiveserver是本地模式,只能处理单个请求,已废弃
@@ -142,7 +142,7 @@ from temp.tickets_order;
 ```
 
 ### IMPALA
-```bash
+```shell script
 # d(daemon)表示守护进程,是运行在linux后台的一种服务程序,周期性地执行某种任务或等待处理某些事件,linux的大多数服务就是用守护进程实现的
 # impala是基于hive的实时分析查询引擎,直接使用hive的元数据库metadata
 # hive和impala对比
@@ -162,7 +162,7 @@ impala daemon会不间断地和statestore通信以确认哪些节点是健康的
 ```
 
 ### shell
-```bash
+```shell script
 # hive shell
 -d,--define<key=value>         # 定义变量 -d num=10 
 -e,<quoted-query-string>       # 执行一段sql

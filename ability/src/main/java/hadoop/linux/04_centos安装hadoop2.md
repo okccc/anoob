@@ -1,6 +1,6 @@
-[hadoop官网](http://hadoop.apache.org/)  
-[scala官网](http://www.scala-lang.org/)  
-[spark官网](http://spark.apache.org/)
+- [hadoop官网](http://hadoop.apache.org/)
+- [scala官网](http://www.scala-lang.org/)
+- [spark官网](http://spark.apache.org/)
 
 ### zookeeper3.6
 ```shell script
@@ -472,7 +472,7 @@ do
 done
 ```
 
-```bash
+```shell script
 # 集群命令
 /opt/cloudera/parcels/CDH/bin目录存放了hadoop/hdfs/yarn/zookeeper等一系列集群命令
 # 查看hadoop版本
@@ -557,7 +557,7 @@ http://cdh1:19888    # job history
 ```
 
 ### spark2.1
-```bash
+```shell script
 # 解压安装包
 [root@cdh1 ~]# tar -xvf spark-2.1.1-bin-hadoop2.7.tgz -C /opt/module
 # 添加到环境变量
@@ -652,7 +652,7 @@ http://cdh1:18080   # history server
 ```
 
 ### hue
-```bash
+```shell script
 # 解决hue10万行下载限制
 # 以管理员账号admin登录查看配置信息
 Hue Administration - Configuration - beeswax - download_cell_limit(默认100000行*100列=10000000)

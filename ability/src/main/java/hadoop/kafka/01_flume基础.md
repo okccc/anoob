@@ -1,5 +1,5 @@
 ### flume
-```bash
+```shell script
 # flume是基于流式架构的分布式日志采集系统,实时读取本地磁盘数据然后写入hdfs
 
 # 修改配置文件
@@ -25,7 +25,7 @@ sink：不断轮询channel中的事件并将其移除到存储系统或下一个
 ```
 
 #### nginx-hdfs.conf
-```bash
+```shell script
 # 命名agent组件
 a1.sources = r1
 a1.channels = c1
@@ -77,7 +77,7 @@ a1.sources.r1.channels = c1
 a1.sinks.k1.channel = c1
 
 # 启动flume
-bin/flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1
+[root@cdh1 ~]$ bin/flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1
 -c  # flume配置文件目录
 -f  # 要执行的文件
 -n  # agent的名字
@@ -85,7 +85,7 @@ bin/flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1
 ```
 
 #### nginx-kafka-spark-redis.conf
-```bash
+```shell script
 # 下载flume整合kafka插件flumeng-kafka-plugin.jar放入flume/lib,启动flume-ng时需要用到的kafka的jar包
 # zkclient-0.3.jar、kafka_2.10-0.8.2.2.jar、kafka-clients-0.8.2.2.jar、scala-library-2.10.4.jar、metrics-core-2.2.0.jar也放入flume/lib
 # 命名agent组件
@@ -119,14 +119,14 @@ a1.sinks.k1.custom.topic.name = test                                      # topi
 a1.sources.r1.channels = c1
 a1.sinks.k1.channel = c1
 
-# 先启动kafka：
-kafka-server-start.sh config/server.properties &
-kafka-topics.sh --create --zookeeper cdh1:2181 --replication-factor 1 --partitions 1 --topic test
-kafka-console-consumer.sh --zookeeper cdh1:2181 --from-beginning --topic test
-# 再启动flume-ng：
-flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=INFO,console
+# 先启动kafka
+[root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
+[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic test --partitions 1 --replication-factor 1
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic test
+# 再启动flume-ng
+[root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=INFO,console
 # 往监测文件写数据,kafka的consumer接收到消息说明成功
-for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
+[root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
 ```
 
 ```java

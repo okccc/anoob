@@ -1,6 +1,6 @@
 ## centos安装python3
 [参考文档](http://www.cnblogs.com/JahanGu/p/7452527.html)
-```bash
+```shell script
 # 查看已有版本和安装路径
 python -V && which python
 # 安装依赖  

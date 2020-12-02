@@ -1,5 +1,5 @@
 ### os
-```bash
+```shell script
 # RHEL(Red Hat Enterprise Linux)：红帽公司发布的面向企业的linux操作系统,收费
 # CentOS(Community enterprise Operating System)：基于RHEL的源代码二次编译而成,功能基本一样,免费
 # 32位和64位操作系统
@@ -57,7 +57,7 @@ hwclock --systohc
 ```
 
 ### disk
-```bash
+```shell script
 # / 根目录  
 # /bin 可执行命令  
 # /boot 内核以及启动所需的文件  
@@ -113,7 +113,7 @@ vdb       3.77     1.53     176.28   92265837 10631566714
 ```
 
 ### memory
-```bash
+```shell script
 # free
 [root@master1 ~]# free -h -s 3  # 每隔3秒查看内存使用情况  
         total    used    free    shared  buff/cache   available
@@ -151,7 +151,7 @@ procs  ----------memory----------  --swap--  ---io---  --system--  -----cpu-----
 ```
 
 ### lsof
-```bash
+```shell script
 # lsof (list open files) 列出当前系统所有进程打开的所有文件
 [root@master1 ~]# lsof | head -5
 # 进程名称 进程号 用户 文件描述符 文件类型 磁盘名称   文件大小   索引节点 文件名称
@@ -184,7 +184,7 @@ lsof -d 4
 ```
 
 ### netstat
-```bash
+```shell script
 # netstat 监控tcp/ip网络,可以检验本机各端口的网络连接情况
 [root@master1 ~]# netstat | head -5
 # 有源TCP连接
@@ -231,7 +231,7 @@ ifconfig eth0 up/down  # 启用/停用eth0网卡
 ```
 
 ### process 
-```bash
+```shell script
 # ps (process status) 当前时刻进程快照
 [root@master1 ~]# ps -ef | head  # e所有进程, f全格式
 # UID用户id, PID进程id, PPID父进程id, C进程占用CPU百分比, STIME进程启动时间, 
@@ -305,7 +305,7 @@ root     pts/0    10.9.6.148       11:08    3.00s  0.03s  0.00s w
 
 ### auth
 ![](images/权限.png) 
-```bash
+```shell script
 # linux用户
 [root@master1 ~]# cat /etc/passwd | head -3
 # 用户名:密码(x表示密码保存在/etc/shadow):用户id(0root,1~99系统用户,100~999其它账户):组id:用户信息:主目录:命令解释程序
@@ -341,7 +341,7 @@ hdfs : hdfs hadoop
 ```
 
 ### file
-```bash
+```shell script
 ln  # 硬链接：只能针对文件,和源文件指向同一个inode,相当于文件的副本可以防止重要文件误删除
 ln -s  # 软链接：可以针对文件或目录,和源文件指向不同的inode,相当于windows的快捷方式
 ll -a/-h/-i/-n  # 查看隐藏内容/自动适应文件大小/显示索引节点/显示文件uid和gid  
@@ -418,7 +418,7 @@ yum install/remove/update/clean
 ```
 
 ### rpm
-```bash
+```shell script
 # .rpm和.tar.gz区别
 .rpm是已经编译好的二进制软件包,是RedHat公司发布的软件包管理工具,可使用rpm命令轻松安装/升级/卸载
 .tar.gz是用tar打包用gzip压缩的二进制软件包,解压后需手动编译源码且无法升级

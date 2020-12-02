@@ -6,7 +6,7 @@
 - [cdh6.2官方安装文档](https://docs.cloudera.com/documentation/enterprise/6/6.2/topics/installation.html)
 
 ### CentOs7
-```bash
+```shell script
 # 安装虚拟机 - 手动分区 - 挂载点/ - 期望容量20GB
 
 # yum安装 -y表示不询问安装 Is this ok [y/d/N]: y
@@ -87,7 +87,7 @@ SHA256:/Mn1qHwR9YqRt98GwwI4Rxhyb+pjPGYjM2x7NRVViOs root@cdh1
 ```
 
 ### CM
-```bash
+```shell script
 # 安装Cloudera-Manager-Server
 # 方式一：构建本地仓库源使用yum安装
 [root@cdh1 ~]# vim /etc/yum.repos.d/cloudera-manager.repo
@@ -240,7 +240,7 @@ hue=# update auth_user set password=md5('admin@123') where username='admin';
 ```
 
 ### hive authorization(?)
-```bash
+```shell script
 # hive的权限管理是通过用户(User)、组(Group)、角色(Role)来定义,用户归属于组,角色定义了权限然后赋予给用户或组
 # hive和hadoop一样只能做权限控制,用户和用户组都是linux创建的
 # 在CM中配置hive-site.xml的Hive客户端高级配置代码段(安全阀)和HiveServer2高级配置代码段(安全阀)
@@ -274,7 +274,7 @@ mysql> select * from ROLES/ROLE_MAP/DB_PRIVS/TBL_PRIVS/TBL_COL_PRIVS;
 ```
 
 ### cdh运维
-```bash
+```shell script
 # CDH安装成功后,hadoop/hdfs/hive/impala/java/mapred/spark/sqoop/yarn/zookeeper等组件的命令在/etc/alternatives目录
 # 在CM界面重启yarn后,8088页面的applications也会清零
 ```

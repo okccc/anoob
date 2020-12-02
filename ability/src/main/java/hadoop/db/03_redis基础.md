@@ -1,6 +1,6 @@
 [参考文档](https://www.cnblogs.com/freeweb/p/5276558.html)
 ## redis
-```bash
+```shell script
 # redis是一个高性能的key-value数据库
 
 # redis三大特点  
