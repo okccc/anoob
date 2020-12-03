@@ -21,10 +21,15 @@ channel：数据缓冲区,相当于消息队列,允许source和sink运行在不�
 channel selectors：包括replicating(将source过来的events发往所有channel)和multiplexing(将source过来的events发往指定channel)
 sink：不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger等
 
+flume保证单次跳转可靠性的方式:传送完成后，该事件斗才会从通道中移除
+• Flume使用事务性的方法来保证事件交互的可靠性。
+• 整个处理过程中，如果因为网络中断或者其他原因，在某一步被迫结束了，这个数据会在下一次重新传输。
+• Flume可靠性还体现在数据可暂存上面，当目标不可访问后，数据会暂存在Channel中，等目标可访问之后，再 进行传输
+
 # web应用通常分布在多台服务器,可以部署多个flume采集日志然后集中到一个flume,再输出到hdfs进行日志分析
 ```
 
-#### nginx-hdfs.conf
+#### nginx-flume-hdfs.conf
 ```shell script
 # 命名agent组件
 a1.sources = r1
@@ -39,14 +44,12 @@ a1.sources.r1.interceptors = regex
 a1.sources.r1.interceptors.regex.type=REGEX_FILTER
 a1.sources.r1.interceptors.regex.regex=^.+uid=.+&uname=.+spuId=.+$
 a1.sources.r1.interceptors.regex.excludeEvents=false
-
 # source是目录
 a2.sources.r2.type = spooldir
 a2.sources.r2.spoolDir = /opt/module/flume/upload
 a2.sources.r2.fileSuffix = .COMPLETED
 a2.sources.r2.fileHeader = true
 a2.sources.r2.ignorePattern = ([^ ]*\.tmp)  # 忽略所有以.tmp结尾的文件2
-
 # source是kafka
 a3.sources.r3.type = org.apache.flume.source.kafka.KafkaSource
 a3.sources.r3.zookeeperConnect = cdh1:2181
@@ -59,6 +62,7 @@ a3.sources.r3.kafka.consumer.timeout.ms = 100
 a1.channels.c1.type = memory
 a1.channels.c1.capacity = 1000             # 表示channel总容量是1000个event
 a1.channels.c1.transactionCapacity = 100   # 表示channel收集到100个event才会提交事务
+
 # 配置sink
 a1.sinks.k1.type = hdfs
 a1.sinks.k1.hdfs.path = hdfs://nameservice1/user/flume/qbsite-events/%y-%m-%d/%H
@@ -72,6 +76,7 @@ a1.sinks.k1.hdfs.fileType = DataStream     # 文件类型,默认SequenceFile
 a1.sinks.k1.hdfs.rollInterval = 60         # 多久生成一个新的文件
 a1.sinks.k1.hdfs.rollSize = 134217728      # 设置每个文件的字节数
 a1.sinks.k1.hdfs.rollCount = 0             # 文件的滚动与event数量无关
+
 # 给source和sink绑定channel
 a1.sources.r1.channels = c1
 a1.sinks.k1.channel = c1
@@ -84,7 +89,7 @@ a1.sinks.k1.channel = c1
 -Dflume.root.logger=INFO,console  # 测试监听端口时使用
 ```
 
-#### nginx-kafka-spark-redis.conf
+#### nginx-flume-kafka.conf
 ```shell script
 # 下载flume整合kafka插件flumeng-kafka-plugin.jar放入flume/lib,启动flume-ng时需要用到的kafka的jar包
 # zkclient-0.3.jar、kafka_2.10-0.8.2.2.jar、kafka-clients-0.8.2.2.jar、scala-library-2.10.4.jar、metrics-core-2.2.0.jar也放入flume/lib
