@@ -95,17 +95,21 @@ WARNING: If partitions are increased for a topic that has a key, the partition l
 Adding partitions succeeded!
 # 删除topic
 [root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --delete --topic t01
-# 在zk中查看/删除,kafka0.8版本是zk保存offset,kafka0.10版本是自己保存offset,数据是放在broker节点
-[zk: localhost:2181(CONNECTED) 0] ls /brokers/topics/t01 | rmr /brokers/topics/t01
+Topic t01 is marked for deletion.
+Note: This will have no impact if delete.topic.enable is not set to true.
+# 在zk中删除
+[zk: localhost:2181(CONNECTED) 0] rmr /brokers/topics/t01 & rmr /admin/delete_topics/t01
 # 生产者
 [root@cdh1 ~]$ bin/kafka-console-producer.sh --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic t01
 >java hadoop
 # 消费者,--from-beginning表示读取主题中以往所有数据
 [root@cdh1 ~]$ bin/kafka-console-consumer.sh --bootstrap-server cdh1:9092 [--from-beginning] --topic t01
 java hadoop
-# 查看consumer group列表/详细信息
+# 查看consumer-group列表/详细信息
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
+# 重置消费者组的offset
+[root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
 ```
 
 ### Q & A
