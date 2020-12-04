@@ -65,7 +65,7 @@ a1.channels.c1.transactionCapacity = 100   # 表示channel收集到100个event�
 
 # 配置sink
 a1.sinks.k1.type = hdfs
-a1.sinks.k1.hdfs.path = hdfs://nameservice1/user/flume/qbsite-events/%y-%m-%d/%H
+a1.sinks.k1.hdfs.path = hdfs://ns1/user/flume/qbsite-events/%y-%m-%d/%H
 a1.sinks.k1.hdfs.filePrefix = logs-        # 文件前缀
 a1.sinks.k1.hdfs.round = true              # 是否按照时间滚动文件夹
 a1.sinks.k1.hdfs.roundUnit = hour          # 定义时间单位

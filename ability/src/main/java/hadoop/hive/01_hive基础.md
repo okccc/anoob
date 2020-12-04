@@ -111,7 +111,7 @@ lines terminated by '\n'  -- 行分隔符
 -- orc将数据按行分块按列存储,保证同一条记录在一个块上,snappy压缩率能达到1:10左右
 stored as orc tblproperties ("orc.compress"="snappy")
 -- 外部表(推荐)：手动指定location,数据由HDFS管理,删表只会删除metadata而HDFS文件还在
-location 'HDFS://nameservice1/user/flume/qbao_goods_stuff_log';
+location 'HDFS://ns1/user/flume/qbao_goods_stuff_log';
 
 hive> load data local inpath '/home/hive/log.txt' overwrite into table t1 partition(dt=20200101);
 hive> select * from t1;
