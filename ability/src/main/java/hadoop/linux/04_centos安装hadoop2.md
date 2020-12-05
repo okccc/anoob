@@ -6,24 +6,47 @@
 ```shell script
 # 每次都要先启动zookeeper,因为hdfs和yarn都依赖zk管理
 # 解压安装包并添加到环境变量
-[root@cdh1 opt]# tar -xvf zookeeper-3.6.1.tar.gz -C /opt/module
+[root@cdh1 opt]$ tar -xvf zookeeper-3.6.1.tar.gz -C /opt/module
 # 添加到环境变量
-[root@cdh1 ~]# vim /etc/profile
+[root@cdh1 ~]$ vim /etc/profile
 export ZK_HOME=/opt/module/zookeeper-3.6.1
 export PATH=$PATH:$ZK_HOME/bin
 # 在data目录下创建myid文件
-echo '1' > myid
+[root@cdh1 ~]$ echo '1' > myid
 # 拷贝到其它节点(要先创建/opt/module目录,不然传输的文件都会存放在module目录而不是zookeeper目录)并修改myid
-[root@cdh1 module]# scp -r zookeeper-3.6.1/ cdh2:/opt/module
-[root@cdh1 module]# scp -r zookeeper-3.6.1/ cdh3:/opt/module
+[root@cdh1 module]$ scp -r zookeeper-3.6.1/ cdh2:/opt/module
+[root@cdh1 module]$ scp -r zookeeper-3.6.1/ cdh3:/opt/module
 # 启动/停止/状态
-[root@cdh1 ~]# zkServer.sh start-foreground/stop/status
+[root@cdh1 ~]$ zkServer.sh start-foreground/stop/status
+# 一键启动/停止脚本
+[root@cdh1 ~]$ vim zk.sh
+#!/bin/bash
+case $1 in
+"start"){
+    for i in cdh1 cdh2 cdh3
+    do
+        ssh $i "source /etc/profile && zkServer.sh start"
+    done
+};;
+"stop"){
+    for i in cdh1 cdh2 cdh3
+    do
+        ssh $i "source /etc/profile && zkServer.sh stop"
+    done
+};;
+"status"){
+    for i in cdh1 cdh2 cdh3
+    do
+        ssh $i "source /etc/profile && zkServer.sh status"
+    done
+};;
+esac
 # 打开客户端
-[root@cdh1 ~]# zkCli.sh -server host:port
+[root@cdh1 ~]$ zkCli.sh -server host:port
 # 查看事务日志
-[root@cdh1 version-2]# zkTxnLogToolkit.sh log.100000001
+[root@cdh1 version-2]$ zkTxnLogToolkit.sh log.100000001
 # 查看快照文件
-[root@cdh1 version-2]# zkSnapShotToolkit.sh snapshot.0
+[root@cdh1 version-2]$ zkSnapShotToolkit.sh snapshot.0
 ```
 
 ```shell script
@@ -122,7 +145,7 @@ Cannot open channel to 3 at election address cdh3/192.168.152.13:3888
 # sbi目录是一些服务(启动/停止)命令  start/stop
 
 # 添加到环境变量
-[root@cdh1 ~]# vim /etc/profile
+[root@cdh1 ~]$ vim /etc/profile
 export HADOOP_HOME=/opt/module/hadoop-2.7.2
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 export HIVE_HOME=/opt/module/hive-1.2.1
@@ -141,7 +164,7 @@ export HADOOP_HOME=/opt/module/hadoop-2.7.2
 export HIVE_CONF_DIR=/opt/module/hive-1.2.1/conf
 
 # 配置hive元数据到mysql,在hive的conf目录新增hive-site.xml
-[root@cdh1 ~]# cp /usr/share/java/mysql-connector-java-5.1.46.jar /opt/module/hive-1.2.1/lib/
+[root@cdh1 ~]$ cp /usr/share/java/mysql-connector-java-5.1.46.jar /opt/module/hive-1.2.1/lib/
 
 # 修改完全部配置文件后拷贝到其它节点
 [root@cdh1 module]# scp -r hadoop-2.7.2/ cdh2:/opt/module/
@@ -382,24 +405,24 @@ export HIVE_CONF_DIR=/opt/module/hive-1.2.1/conf
 ```shell script
 # 手动启动集群
 # 启动zk
-[root@cdh1 ~]# zkServer.sh start
+[root@cdh1 ~]$ zkServer.sh start
 # 格式化namenode
-[root@cdh1 ~]# hdfs namenode -format
+[root@cdh1 ~]$ hdfs namenode -format
 # 把tmp拷到nn2下面
 [root@cdh1 hadoop-2.7.2]# scp -r hadoop-2.7.2/tmp cdh2:/opt/module/hadoop-2.7.2
 # 格式化ZKFC
-[root@cdh1 ~]# hdfs zkfc -formatZK
+[root@cdh1 ~]$ hdfs zkfc -formatZK
 # 启动hdfs
-[root@cdh1 ~]# start-dfs.sh
+[root@cdh1 ~]$ start-dfs.sh
 # 启动yarn
-[root@cdh1 ~]# start-yarn.sh
+[root@cdh1 ~]$ start-yarn.sh
 # cdh2要手动启
 [root@cdh2 ~]# yarn-daemon.sh start resourcemanager
 # 启动mr历史日志
-[root@cdh1 ~]# mr-jobhistory-daemon.sh start historyserver
+[root@cdh1 ~]$ mr-jobhistory-daemon.sh start historyserver
 
 # 一键启动集群
-[root@cdh1 ~]# cd /usr/bin -> vim start-cluster -> chmod +x start-cluster
+[root@cdh1 ~]$ cd /usr/bin -> vim start-cluster -> chmod +x start-cluster
 #!/bin/bash
 # 启动zookeeper
 for i in cdh1 cdh2 cdh3
@@ -430,7 +453,7 @@ do
 done
 
 # 一键查看进程
-[root@cdh1 ~]# cd /usr/bin --> vim jpsall --> chmod +x jpsall
+[root@cdh1 ~]$ cd /usr/bin --> vim jpsall --> chmod +x jpsall
 #!/bin/bash
 for i in cdh1 cdh2 cdh3
 do
@@ -440,7 +463,7 @@ do
 done
 
 # 一键关闭集群
-[root@cdh1 ~]# cd /usr/bin -> vim stop-cluster -> chmod +x stop-cluster
+[root@cdh1 ~]$ cd /usr/bin -> vim stop-cluster -> chmod +x stop-cluster
 #!/bin/bash
 # 关闭kafka
 for i in cdh1 cdh2 cdh3
@@ -559,14 +582,14 @@ http://cdh1:19888    # job history
 ### spark2.1
 ```shell script
 # 解压安装包
-[root@cdh1 ~]# tar -xvf spark-2.1.1-bin-hadoop2.7.tgz -C /opt/module
+[root@cdh1 ~]$ tar -xvf spark-2.1.1-bin-hadoop2.7.tgz -C /opt/module
 # 添加到环境变量
-[root@cdh1 ~]# vim /etc/profile
+[root@cdh1 ~]$ vim /etc/profile
 export SPARK_HOME=/opt/module/spark-2.1.1-bin-hadoop2.7
 export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 
 # This file is sourced when running various Spark programs.
-[root@cdh1 ~]# vim spark-env.sh
+[root@cdh1 ~]$ vim spark-env.sh
 # java环境
 JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
 # on yarn模式,只能从hdfs读数据,通过yarn管理资源和任务监控(8088端口)
@@ -590,7 +613,7 @@ SPARK_DAEMON_JAVA_OPTS="
 SPARK_HISTORY_OPTS="-Dspark.history.fs.logDirectory=hdfs://cdh1:9000/user/spark/history"
 
 # Default system properties included when running spark-submit.
-[root@cdh1 ~]# vim spark-defaults.conf
+[root@cdh1 ~]$ vim spark-defaults.conf
 spark.eventLog.enabled     true
 # 日志目录需提前创建好
 spark.eventLog.dir         hdfs://cdh1:9000/user/spark/history
@@ -600,12 +623,12 @@ spark.eventLog.dir         hdfs://cdh1:9000/user/spark/history
 [root@cdh1 opt]# scp -r spark-2.1.1/ cdh3:/opt/module
 
 # 一键启动/关闭集群
-[root@cdh1 ~]# start-cluster
+[root@cdh1 ~]$ start-cluster
 
 # 本地测试(日志格式：local-timestamp)
-[root@cdh1 ~]# run-example org.apache.spark.examples.SparkPi
-[root@cdh1 ~]# run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
-[root@cdh1 ~]# spark-shell
+[root@cdh1 ~]$ run-example org.apache.spark.examples.SparkPi
+[root@cdh1 ~]$ run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
+[root@cdh1 ~]$ spark-shell
 Spark context Web UI available at http://192.168.152.11:4040
 Spark context available as 'sc' (master = local[*], app id = local-1594958655022).
 Spark session available as 'spark'.
