@@ -17,7 +17,7 @@
 
     <!-- 声明子项目公用配置属性 -->
     <properties>
-        <spark.version>2.4.5</spark.version>
+        <spark.version>2.1.1</spark.version>
         <scala.version>2.11.8</scala.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j.version>1.7.22</slf4j.version>
@@ -142,13 +142,14 @@
 
     <!-- 声明构建信息 -->
     <build>
-        <!-- 声明并引入子项目共有的插件(插件就是附着到Maven各个声明周期的具体实现) -->
+        <!-- plugins下的插件会被maven加载(插件就是附着到Maven各个声明周期的具体实现) -->
         <plugins>
             <plugin>
+                <!-- 编译java源码插件 -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
-                <!-- 所有的编译都依照JDK1.8来搞 -->
+                <!-- 设置编译的jdk版本 -->
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -156,10 +157,40 @@
             </plugin>
         </plugins>
 
-        <!-- 仅声明子项目共有的插件,如果子项目需要此插件,那么子项目需要声明 -->
+        <!-- pluginManagement下的插件不会被maven加载,用来在父项目中统一管理子项目的插件,子项目可以继承也可以定制化 -->
         <pluginManagement>
             <plugins>
-                <!-- 该插件用于将Scala代码编译成class文件 -->
+                <!-- maven打jar包插件 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+                            <!-- 绑定到package生命周期 -->
+                            <phase>package</phase>
+                            <goals>
+                                <!-- 只执行一次 -->
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <descriptorRefs>
+                            <!-- 会额外生成一个带所有依赖的jar包,防止生产环境没有程序运行需要的相关依赖 -->
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+<!--                        <archive>-->
+<!--                            <manifest>-->
+<!--                                &lt;!&ndash; 要运行的类 &ndash;&gt;-->
+<!--                                <mainClass>包名.类名</mainClass>-->
+<!--                            </manifest>-->
+<!--                        </archive>-->
+                    </configuration>
+                </plugin>
+
+                <!-- 编译scala源码插件 -->
                 <plugin>
                     <groupId>net.alchim31.maven</groupId>
                     <artifactId>scala-maven-plugin</artifactId>
@@ -170,22 +201,6 @@
                             <goals>
                                 <goal>compile</goal>
                                 <goal>testCompile</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <!-- maven打jar包插件 -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.0.0</version>
-                    <executions>
-                        <execution>
-                            <id>make-assembly</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
                             </goals>
                         </execution>
                     </executions>

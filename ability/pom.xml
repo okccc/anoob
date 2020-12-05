@@ -94,17 +94,13 @@
     <build>
         <!-- 插件 -->
         <plugins>
-            <!-- maven项目对scala代码进行编译/测试/运行/文档化的插件 -->
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.2</version>
             </plugin>
-            <!-- maven打jar包插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.0.0</version>
             </plugin>
         </plugins>
     </build>

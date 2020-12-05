@@ -47,7 +47,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.okccc.analyse.session.SessionAnalyze</mainClass>
+                            <mainClass>session.SessionAnalyze</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
