@@ -1,17 +1,44 @@
+### nginx
+```shell script
+# nginx三大功能：反向代理、负载均衡、动静分离
+# 安装依赖  
+[root@cdh1 ~]$ yum -y install gcc pcre-devel zlib zlib-devel openssl openssl-devel net-tools
+# 下载压缩包  
+[root@cdh1 ~]$ wget http://nginx.org/download/nginx-1.12.2.tar.gz
+# 解压  
+[root@cdh1 ~]$ tar -xvf nginx-1.21.2.tar.gz -C /usr/local
+# 切换到nginx目录  
+[root@cdh1 ~]$ cd /usr/local/nginx-1.21.2
+# 编译安装  
+[root@cdh1 ~]$ ./configure
+[root@cdh1 ~]$ make && make install  # 安装完后/nginx/sbin目录多了nginx执行命令
+# 测试配置文件  
+[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -t
+# 启动/停止/重启  
+[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx  
+[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s stop  
+[root@cdh1 ~] /usr/local/nginx/sbin/nginx -s reload
+# 查看nginx进程,jps显示的是java进程,nginx是c++写的
+[root@cdh1 ~]$ ps -ef | grep nginx
+# 浏览器访问(默认80端口)  
+http://192.168.152.11
+Welcome to nginx!
+```
+
 ### flume
 ```shell script
-# flume是基于流式架构的分布式日志采集系统,实时读取本地磁盘数据然后写入hdfs
-
 # 修改配置文件
-[root@master1 ~]# vim flume-env.sh
+[root@master1 ~]$ vim flume-env.sh
 export JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
 
-# flume优点
-1.可以和任意存储进程集成
-2.输入数据速率大于写入存储速率,flume会进行缓冲减轻hdfs压力
-3.flume使用receiver和sender两个独立事务模型来确保消息能可靠发送
-receiver：事务中所有数据全部成功提交到channel之后source才认为该数据读取完成
-sender：事务中所有数据全部被sink写出去才会从channel中移除,否则会回滚,所有事件回到channel等待重新传输
+# 集群生成日志启动脚本
+# java -jar和java -cp区别：打包时已指定主类名java -jar a.jar,未指定主类名java -cp a.jar 包名.类名
+[root@master1 ~]$ vim log.sh
+#!/bin/bash
+for i in cdh1 cdh2 cdh3
+do
+    ssh $i "source /etc/profile && java -jar mock-1.0-SNAPSHOT-jar-with-dependencies.jar $1 $2 > a.log &"
+done
 
 # flume组件
 event：flume传输数据的基本单元
@@ -25,11 +52,9 @@ flume保证单次跳转可靠性的方式:传送完成后，该事件斗才会�
 • Flume使用事务性的方法来保证事件交互的可靠性。
 • 整个处理过程中，如果因为网络中断或者其他原因，在某一步被迫结束了，这个数据会在下一次重新传输。
 • Flume可靠性还体现在数据可暂存上面，当目标不可访问后，数据会暂存在Channel中，等目标可访问之后，再 进行传输
-
-# web应用通常分布在多台服务器,可以部署多个flume采集日志然后集中到一个flume,再输出到hdfs进行日志分析
 ```
 
-#### nginx-flume-hdfs.conf
+#### nginx-hdfs.conf
 ```shell script
 # 命名agent组件
 a1.sources = r1
@@ -82,14 +107,14 @@ a1.sources.r1.channels = c1
 a1.sinks.k1.channel = c1
 
 # 启动flume
-[root@cdh1 ~]$ bin/flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1
 -c  # flume配置文件目录
 -f  # 要执行的文件
 -n  # agent的名字
 -Dflume.root.logger=INFO,console  # 测试监听端口时使用
 ```
 
-#### nginx-flume-kafka.conf
+#### nginx-kafka.conf
 ```shell script
 # 下载flume整合kafka插件flumeng-kafka-plugin.jar放入flume/lib,启动flume-ng时需要用到的kafka的jar包
 # zkclient-0.3.jar、kafka_2.10-0.8.2.2.jar、kafka-clients-0.8.2.2.jar、scala-library-2.10.4.jar、metrics-core-2.2.0.jar也放入flume/lib
@@ -110,7 +135,7 @@ a1.channels.c1.type = memory
 a1.channels.c1.capacity = 1000
 a1.channels.c1.transactionCapacity = 100
 # 配置sink
-a1.sinks.k1.type = org.apache.flume.plugins.KafkaSink
+a1.sinks.k1.type = org.apache.flume.sink.kafka.KafkaSink
 a1.sinks.k1.metadata.broker.list = cdh1:9092                              # kafka地址
 a1.sinks.k1.partition.key = 0
 a1.sinks.k1.partitioner.class = org.apache.flume.plugins.SinglePartition  # kafka分区
