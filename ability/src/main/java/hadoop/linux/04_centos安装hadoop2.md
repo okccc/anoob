@@ -50,7 +50,7 @@ esac
 ```
 
 ```shell script
-[root@cdh1 conf]# vim zoo.cfg
+[root@cdh1 conf]$ vim zoo.cfg
 # The number of milliseconds of each tick
 # ZK服务器或客户端与服务器之间维持心跳的时间间隔,每隔tickTime发送一个心跳,以毫秒为单位  
 tickTime=2000  
@@ -138,37 +138,55 @@ Cannot open channel to 3 at election address cdh3/192.168.152.13:3888
 ### hadoop2.7
 ```shell script
 # 解压安装包
-[root@cdh1 opt]# tar -xvf hadoop-2.7.2.tar.gz -C /opt/module
-[root@cdh1 opt]# tar -xvf apache-hive-1.2.1-bin.tar.gz -C /opt/module
-
+[root@cdh1 opt]$ tar -xvf hadoop-2.7.2.tar.gz -C /opt/module
+[root@cdh1 opt]$ tar -xvf apache-hive-1.2.1-bin.tar.gz -C /opt/module
 # bin目录是一些原始命令  hadoop/hdfs/yarn/mapred/run-eample/spark-shell/spark-submit/spark-sql
-# sbi目录是一些服务(启动/停止)命令  start/stop
-
+# sbin目录是一些服务(启动/停止)命令  start/stop
 # 添加到环境变量
 [root@cdh1 ~]$ vim /etc/profile
 export HADOOP_HOME=/opt/module/hadoop-2.7.2
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 export HIVE_HOME=/opt/module/hive-1.2.1
 export PATH=$PATH:$HIVE_HOME/bin:$HIVE_HOME/sbin
-
-[root@cdh1 hadoop]# vim hadoop-env.sh
+# 修改hadoop-env
+[root@cdh1 hadoop]$ vim hadoop-env.sh
 export JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
-
-[root@cdh1 hadoop]# vim slaves
+# 修改slaves
+[root@cdh1 hadoop]$ vim slaves
 cdh1
 cdh2
 cdh3
-
-[root@cdh1 conf]# vim hive-env.sh
+# 修改hive-env
+[root@cdh1 conf]$ vim hive-env.sh
 export HADOOP_HOME=/opt/module/hadoop-2.7.2
 export HIVE_CONF_DIR=/opt/module/hive-1.2.1/conf
-
 # 配置hive元数据到mysql,在hive的conf目录新增hive-site.xml
 [root@cdh1 ~]$ cp /usr/share/java/mysql-connector-java-5.1.46.jar /opt/module/hive-1.2.1/lib/
-
 # 修改完全部配置文件后拷贝到其它节点
-[root@cdh1 module]# scp -r hadoop-2.7.2/ cdh2:/opt/module/
-[root@cdh1 module]# scp -r hadoop-2.7.2/ cdh3:/opt/module/
+[root@cdh1 module]$ scp -r hadoop-2.7.2/ cdh2:/opt/module/
+[root@cdh1 module]$ scp -r hadoop-2.7.2/ cdh3:/opt/module/
+# 一键分发脚本
+[root@cdh1 ~]$ cd /usr/bin & vim xsync & chmod +x xsync
+#!/bin/bash
+# 获取参数
+if [ $# == 1 ]; then
+    path=$1
+else
+    echo "Usage: <file>"
+    exit
+fi
+# 获取文件(夹)绝对路径
+file=$(basename ${path})
+# 获取文件(夹)所在目录
+dir=$(dirname ${path})
+# 获取当前用户
+user=$(whoami)
+# 遍历节点分发
+for ((i=2;i<=10;i++)); 
+do
+    echo ======================== cdh${i} ===========================
+    rsync -rv ${dir}/${file} ${user}@cdh${i}:${dir}
+done
 ```
 
 - hive-site.xml
@@ -409,7 +427,7 @@ export HIVE_CONF_DIR=/opt/module/hive-1.2.1/conf
 # 格式化namenode
 [root@cdh1 ~]$ hdfs namenode -format
 # 把tmp拷到nn2下面
-[root@cdh1 hadoop-2.7.2]# scp -r hadoop-2.7.2/tmp cdh2:/opt/module/hadoop-2.7.2
+[root@cdh1 hadoop-2.7.2]$ scp -r hadoop-2.7.2/tmp cdh2:/opt/module/hadoop-2.7.2
 # 格式化ZKFC
 [root@cdh1 ~]$ hdfs zkfc -formatZK
 # 启动hdfs
@@ -417,7 +435,7 @@ export HIVE_CONF_DIR=/opt/module/hive-1.2.1/conf
 # 启动yarn
 [root@cdh1 ~]$ start-yarn.sh
 # cdh2要手动启
-[root@cdh2 ~]# yarn-daemon.sh start resourcemanager
+[root@cdh2 ~]$ yarn-daemon.sh start resourcemanager
 # 启动mr历史日志
 [root@cdh1 ~]$ mr-jobhistory-daemon.sh start historyserver
 
@@ -497,68 +515,68 @@ done
 
 ```shell script
 # 集群命令
-/opt/cloudera/parcels/CDH/bin目录存放了hadoop/hdfs/yarn/zookeeper等一系列集群命令
+[root@cdh1 ~]$ /opt/cloudera/parcels/CDH/bin目录存放了hadoop/hdfs/yarn/zookeeper等一系列集群命令
 # 查看hadoop版本
-hadoop version
+[root@cdh1 ~]$ hadoop version
 # 查看hdfs的各节点状态信息
-hdfs dfsadmin -report
+[root@cdh1 ~]$ hdfs dfsadmin -report
 # 刷新节点
-hdfs dfsadmin -refreshNodes
+[root@cdh1 ~]$ hdfs dfsadmin -refreshNodes
 # 查看hdfs是否是安全模式(read-only)
-hdfs dfsadmin -safemode [enter/leave]
+[root@cdh1 ~]$ hdfs dfsadmin -safemode [enter/leave]
 # 获取namenode节点的HA状态
-hdfs haadmin -getServiceState nn1
+[root@cdh1 ~]$ hdfs haadmin -getServiceState nn1
 # 切换状态(将nn2变为active)
-hdfs haadmin -failover nn1 nn2
+[root@cdh1 ~]$ hdfs haadmin -failover nn1 nn2
 # 检测节点健康状况
-hdfs haadmin -checkHealth nn1
+[root@cdh1 ~]$ hdfs haadmin -checkHealth nn1
 # 单独启动一个zkfc进程
-hadoop-daemon.sh start zkfc
+[root@cdh1 ~]$ hadoop-daemon.sh start zkfc
 
 # yarn
 # 查看yarn应用列表
-yarn application -list
+[root@cdh1 ~]$ yarn application -list
 # 杀掉指定yarn应用
-yarn application -kill application_id
+[root@cdh1 ~]$ yarn application -kill application_id
 # 查看yarn应用状态
-yarn application -status application_id
+[root@cdh1 ~]$ yarn application -status application_id
 
 # hdfs
 # 修改目录权限
-hadoop fs -chmod 777 /user
+[root@cdh1 ~]$ hadoop fs -chmod 777 /user
 # 查看文件列表以时间倒序排序
-hadoop fs -ls -t -r /
+[root@cdh1 ~]$ hadoop fs -ls -t -r /
 # 查看文件内容
-hadoop fs -cat <hdfs文件>
+[root@cdh1 ~]$ hadoop fs -cat <hdfs文件>
 # 上传下载
-hadoop fs -put <Linux文件> <hdfs路径>
-hadoop fs -get <hdfs路径> <Linux文件>
+[root@cdh1 ~]$ hadoop fs -put <Linux文件> <hdfs路径>
+[root@cdh1 ~]$ hadoop fs -get <hdfs路径> <Linux文件>
 # 创建文件夹(级联)
-hadoop fs -mkdir -p <path>  
+[root@cdh1 ~]$ hadoop fs -mkdir -p <path>  
 # 设置/取消该文件夹上传文件数限制
-hdfs dfsadmin -setQuota | -clrQuota 3 /test
+[root@cdh1 ~]$ hdfs dfsadmin -setQuota | -clrQuota 3 /test
 # 设置/取消该文件夹大小
-hdfs dfsadmin -setSpaceQuota | -clrSpaceQuota 1g /test
+[root@cdh1 ~]$ hdfs dfsadmin -setSpaceQuota | -clrSpaceQuota 1g /test
 # 在hdfs上移动文件
-hadoop fs -mv /aaa/* /bbb/  
+[root@cdh1 ~]$ hadoop fs -mv /aaa/* /bbb/  
 # 删除hdfs文件
-hadoop fs -rm /aaa/angela.txt  
+[root@cdh1 ~]$ hadoop fs -rm /aaa/angela.txt  
 # 删除hdfs文件夹
-hadoop fs -rm -r /aaa  
+[root@cdh1 ~]$ hadoop fs -rm -r /aaa  
 # hdfs总空间大小
-hadoop fs -df -h /
+[root@cdh1 ~]$ hadoop fs -df -h /
 Filesystem    Size   Used  Available  Use%
 hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 # hdfs某个目录大小
-hadoop fs -du -s -h /user/hive/warehouse
+[root@cdh1 ~]$ hadoop fs -du -s -h /user/hive/warehouse
 31.6T  64.7T  /user/hive/warehouse  # 说明是2个副本,小文件也会被当成128m切块大小,所以不是刚刚好2倍关系 
 # hdfs某个目录下所有文件大小
-hadoop fs -du -h /user/hive/warehouse
+[root@cdh1 ~]$ hadoop fs -du -h /user/hive/warehouse
 5.2 G    12.7 G   /user/hive/warehouse/dm.db
 104.5 G  240.2 G  /user/hive/warehouse/dw.db
 320.7 G  671.3 G  /user/hive/warehouse/ods.db
 # hdfs文件大小排序
-hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="  " | sort -nr  
+[root@cdh1 ~]$ hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="  " | sort -nr  
 72G  167G  /user/hive/warehouse/ods.db/debit_detail
 54G  110G  /user/hive/warehouse/ods.db/urge_record
 51G  105G  /user/hive/warehouse/ods.db/pay_repayment_detail
@@ -570,7 +588,7 @@ hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "
 # hdfs内部实现是在namenode开启一个后台线程Emptier专门管理和监控系统回收站,将超过生命周期的数据删除并释放关联的数据块
 # 防止误删数据,删除的文件不会立即清除而是转移到/user/当前用户/.Trash/Current并保留一段时间(fs.trash.interval),所以hdfs磁盘空间不会立即增加
 # 手动清空回收站
-hadoop fs -expunge  # 会将当前目录/user/用户名/.Trash/current重命名为/user/用户名/.Trash/yyMMddHHmmSS,再次执行就彻底删除了
+[root@cdh1 ~]$ hadoop fs -expunge  # 会将当前目录/user/用户名/.Trash/current重命名为/user/用户名/.Trash/yyMMddHHmmSS,再次执行就彻底删除了
 
 # web页面监控
 http://cdh1:50070    # active
@@ -599,7 +617,6 @@ SPARK_EXECUTOR_CORES=1
 SPARK_EXECUTOR_INSTANCES=2
 SPARK_EXECUTOR_MEMORY=512M
 SPARK_HISTORY_OPTS="-Dspark.history.fs.logDirectory=hdfs://cdh1:9000/user/spark/history"
-
 # standalone模式,只能从本地读数据,spark自己管理资源和任务监控(8080端口)
 SPARK_MASTER_HOST=cdh1
 SPARK_MASTER_PORT=7077
@@ -619,8 +636,8 @@ spark.eventLog.enabled     true
 spark.eventLog.dir         hdfs://cdh1:9000/user/spark/history
 
 # 拷贝到其它节点
-[root@cdh1 opt]# scp -r spark-2.1.1/ cdh2:/opt/module  
-[root@cdh1 opt]# scp -r spark-2.1.1/ cdh3:/opt/module
+[root@cdh1 opt]$ scp -r spark-2.1.1/ cdh2:/opt/module  
+[root@cdh1 opt]$ scp -r spark-2.1.1/ cdh3:/opt/module
 
 # 一键启动/关闭集群
 [root@cdh1 ~]$ start-cluster
@@ -649,8 +666,8 @@ scala> spark.sql("show databases").show()
 +------------+
 
 # 提交任务到yarn(日志格式：application_timestamp_0001)
-[root@cdh1 spark-2.1.1-bin-hadoop2.7]# spark-submit --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode client ./examples/jars/spark-examples_2.11-2.1.1.jar
-[root@cdh1 spark-2.1.1-bin-hadoop2.7]# spark-submit --class org.apache.spark.examples.mllib.LinearRegression --master yarn --deploy-mode cluster --jars ./examples/jars/*  hdfs://cdh1:9000/data/sample_linear_regression_data.txt
+[root@cdh1 spark-2.1.1-bin-hadoop2.7]$ spark-submit --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode client ./examples/jars/spark-examples_2.11-2.1.1.jar
+[root@cdh1 spark-2.1.1-bin-hadoop2.7]$ spark-submit --class org.apache.spark.examples.mllib.LinearRegression --master yarn --deploy-mode cluster --jars ./examples/jars/*  hdfs://cdh1:9000/data/sample_linear_regression_data.txt
 # 参数解析
 --class <main-class>           # application的启动类
 --master <master-url>          # master地址,local/yarn
@@ -679,12 +696,12 @@ http://cdh1:18080   # history server
 # 解决hue10万行下载限制
 # 以管理员账号admin登录查看配置信息
 Hue Administration - Configuration - beeswax - download_cell_limit(默认100000行*100列=10000000)
-[root@master1 ~]# find / -name beeswax
+[root@master1 ~]$ find / -name beeswax
 /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax
 /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax/src/beeswax
 /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax/src/beeswax/static/beeswax
 /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/build/static/beeswax
-[root@master1 ~]# vim /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax/src/beeswax/conf.py
+[root@master1 ~]$ vim /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax/src/beeswax/conf.py
 DOWNLOAD_CELL_LIMIT = Config(
   key='download_cell_limit',
   default=100000000,
@@ -733,14 +750,14 @@ CM - Hue - 配置 - safe - hue_safety_valve.ini的Hue服务高级配置代码段
 # 安装spark的REST服务livy
 # REST是一种服务架构,将web服务视为资源由url唯一标识,明确使用http方法来表示不同操作的调用,get检索/post新增/put修改/delete删除
 # REST服务是跨平台的(java/ios/android)且高度可重用,因为它们都依赖基本的http协议
-[root@master1 ~]# unzip livy-0.5.0-incubating-bin.zip
+[root@master1 ~]$ unzip livy-0.5.0-incubating-bin.zip
 # 修改配置
-[root@master1 conf]# vim livy-env.sh
+[root@master1 conf]$ vim livy-env.sh
 export JAVA_HOME=/usr/java/jdk1.8.0_151/
 export SPARK_HOME=/opt/cloudera/parcels/CDH/lib/spark
 export SPARK_CONF_DIR=/etc/spark/conf
 export HADOOP_CONF_DIR=/etc/hadoop/conf
-[root@master1 conf]# vim livy.conf
+[root@master1 conf]$ vim livy.conf
 # What host address to start the server on. By default, Livy will bind to all network interfaces.
 livy.server.host = master1.meihaofenqi.net
 # What port to start the server on.
@@ -756,9 +773,9 @@ livy.server.session.timeout = 1h
 # How long a finished session state should be kept in LivyServer for query.
 livy.server.session.state-retain.sec = 600s
 # 创建存放日志目录
-[root@master1 livy]# mkdir logs
+[root@master1 livy]$ mkdir logs
 # 启动livy-server
-[root@master1 bin]# ./livy-server (start/stop/status)
+[root@master1 bin]$ ./livy-server (start/stop/status)
 # hue打开Scala报错：The Spark session could not be created in the cluster
 # 查看livy日志发现错误：Permission denied: user=root, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
 sudo -u hdfs hadoop fs -chmod 777 /user

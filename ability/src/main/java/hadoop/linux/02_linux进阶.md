@@ -149,14 +149,14 @@ find . -type f -mtime -5/+5                   # 在当前目录查找5天内/5�
 find . -type f -newer a.txt                   # 在当前目录下查找修改时间比a.txt新的文件  
 find . -type f -size +10M                     # 查找当前目录大于10M的文件  
 find . -empty                                 # 查找当前目录下的空文件  
-# 找到当前目录下的文件夹并删掉  
-find . -type d -exec rm -rf {} \;
+# 删除当前目录下除了module目录以外的所有目录(删目录是递归删除,慎用!)
+find . -type d -not -name 'module' -exec rm -rf {} \;
+# 删除当前目录下半年前的日志文件                        
+find . -type f -mtime +180 -name "*.log" -exec rm -rf {} \;               
 # 合并小文件
-find . -maxdepth 3 -type f -name "*.txt" -exec cat > ./merge.txt {} \;
+find . -type f -maxdepth 3 -name "*.txt" -exec cat > ./merge.txt {} \;
 # 将当前目录下root用户文件改成hdfs用户
 find . -type f -user root -exec chown hdfs {} \;
-# 将当前目录下半年前的日志文件删除                        
-find . -type f -mtime +180 -name "*.log" -exec rm -rf {} \;               
 ```
 
 ### sed

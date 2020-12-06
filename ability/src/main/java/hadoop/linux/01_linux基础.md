@@ -2,58 +2,56 @@
 ```shell script
 # RHEL(Red Hat Enterprise Linux)：红帽公司发布的面向企业的linux操作系统,收费
 # CentOS(Community enterprise Operating System)：基于RHEL的源代码二次编译而成,功能基本一样,免费
-# 32位和64位操作系统
-位指的是CPU一次能执行的二进制数据的位数  
-32位  # 2^32 = 4,294,967,296bit = 4g 理论上32位操作系统只能使用4g内存
+# 32位和64位操作系统：位指的是CPU一次能执行的二进制数据的位数,2^32bit=4g 理论上32位操作系统只能使用4g内存
 # 现在/5分钟后 关机/重启 
-shutdown -h/-r now/5  
+[root@cdh1 ~]$ shutdown -h/-r now/5  
 # 自杀
-rm -rf /*
+[root@cdh1 ~]$ rm -rf /*
 # 日历
-cal (2019)  
+[root@cdh1 ~]$ cal (2019)  
 # 使用httpd(Apache HTTP Server)作为Web server,通过ip访问linux的/var/www/html目录下的文件
-yum install httpd && systemctl start httpd && systemctl enable httpd
+[root@cdh1 ~]$ yum install httpd && systemctl start httpd && systemctl enable httpd
 http://192.168.152.11/a.txt
 # 显示当前用户登陆时间
-who
+[root@cdh1 ~]$ who
 # 显示本机信息
-uname -a  
+[root@cdh1 ~]$ uname -a  
 # 查看操作系统
-cat /etc/redhat-release
+[root@cdh1 ~]$ cat /etc/redhat-release
 # 查看系统位数
-getconf LONG_BIT
-# 查看某个命令功能
-whatis xxx
+[root@cdh1 ~]$ getconf LONG_BIT
+# 查看命令功能|路径
+[root@cdh1 ~]$ whatis cat | whereis cat
 # 显示命令行全路径
-which java
+[root@cdh1 ~]$ which java
 # 显示当前环境变量
-echo $SHELL | echo $JAVA_HOME
+[root@cdh1 ~]$ echo $SHELL | echo $JAVA_HOME
 # 查看cpu信息
-lscpu
+[root@cdh1 ~]$ lscpu
 # 查看物理cpu个数
-cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l
+[root@cdh1 ~]$ cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l
 # 查看每个cpu核数
-cat /proc/cpuinfo | grep "cpu cores" | uniq
+[root@cdh1 ~]$ cat /proc/cpuinfo | grep "cpu cores" | uniq
 # 系统负载：在特定时间间隔内运行队列中的平均进程数
-cat /proc/loadavg  # 最近1,5,15分钟的系统负载, 正在运行进程数/系统总进程数, 最近运行的进程id
+[root@cdh1 ~]$ cat /proc/loadavg  # 最近1,5,15分钟的系统负载, 正在运行进程数/系统总进程数, 最近运行的进程id
 # 查看系统运行时长
-uptime  # -s,--since系统启动时间  -p,--pretty友好格式输出  -V版本号
+[root@cdh1 ~]$ uptime  # -s,--since系统启动时间  -p,--pretty友好格式输出  -V版本号
 # 显示系统环境变量后10行
-set | tail -10  
+[root@cdh1 ~]$ set | tail -10  
 
 # ntp(network time protocol)
 # 硬件时钟：由主板电池驱动,关机后依然运行
 # 系统时钟：关机时不存在,开机后系统时钟从硬件时钟同步时间,关机时将系统时间写回硬件时钟
 # 查看系统时间
-date  # -R 显示时区
+[root@cdh1 ~]$ date  # -R 显示时区
 # 查看硬件时间
-hwclock
+[root@cdh1 ~]$ hwclock
 # 同步系统时钟到ntp服务器
-ntpdate -u <ntp_server>
+[root@cdh1 ~]$ ntpdate -u <ntp_server>
 # 同步系统时钟到北京时间
-ntpdate cn.pool.ntp.org
+[root@cdh1 ~]$ ntpdate cn.pool.ntp.org
 # 同步硬件时钟到系统时钟
-hwclock --systohc
+[root@cdh1 ~]$ hwclock --systohc
 ```
 
 ### disk
@@ -75,10 +73,10 @@ hwclock --systohc
 # /var 系统默认日志存放目录,会不断变大
 
 # fdisk
-fdisk -l  # 显示磁盘信息  
+[root@cdh1 ~]$ fdisk -l  # 显示磁盘信息  
 
 # df (disk free)
-[root@master1 ~]# df -hT  # 显示系统盘类型
+[root@cdh1 ~]$ df -hT  # 显示系统盘类型
 # xfs 是业界最先进最具可升级性的文件系统,centos7默认xfs,centos6是ext4
 # tmpfs 是不存在于实体硬盘的特殊文件系统,驻守在内存里,速度极快
 Filesystem     Type      Size  Used Avail Use% Mounted on
@@ -86,7 +84,7 @@ Filesystem     Type      Size  Used Avail Use% Mounted on
 tmpfs          tmpfs      16G     0   16G   0% /dev/shm
 /dev/vdb       xfs       500G   63G  438G  13% /data
 
-[root@master1 ~]# df -ht xfs  # 显示指定类型磁盘的使用情况
+[root@cdh1 ~]$ df -ht xfs  # 显示指定类型磁盘的使用情况
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/vda1        20G   13G  7.3G  64% /
 /dev/vdb        500G   63G  438G  13% /data
@@ -102,7 +100,7 @@ du -h  # 查看当前目录下所有文件大小
 du -h -d0,d1,d2 或者 du -h --max-depth=0,1,2  # 查看不同深度目录大小,d0就相当于du -sh  
 
 # iostat cpu和磁盘统计
-[root@master1 ~]# iostat
+[root@cdh1 ~]$ iostat
 # %user用户模式,%nice带nice值的用户模式,%system系统模式,%iowait等待模式,%steal虚拟模式,%idle空闲模式
 avg-cpu:  %user  %nice  %system  %iowait  %steal  %idle
            1.97   0.00    0.71    0.01    0.00   97.31
@@ -115,13 +113,13 @@ vdb       3.77     1.53     176.28   92265837 10631566714
 ### memory
 ```shell script
 # free
-[root@master1 ~]# free -h -s 3  # 每隔3秒查看内存使用情况  
+[root@cdh1 ~]$ free -h -s 3  # 每隔3秒查看内存使用情况  
         total    used    free    shared  buff/cache   available
 Mem:      31G     13G    4.6G      2.4G         12G         14G
 Swap:    2.0G    481M    1.5G
 
 # swap
-[root@master1 ~]# swapon  # 查看交换空间使用情况 
+[root@cdh1 ~]$ swapon  # 查看交换空间使用情况 
 NAME               TYPE    SIZE    USED    PRIO
 /swapfile     file      2G    481M    -1
 # 重新设置swap空间
@@ -136,7 +134,7 @@ swapon /data/swapfile
 swapoff /swapfile
 
 # vmstat 虚拟内存统计,监控整体的内存、cpu、进程等信息
-[root@master1 ~]# vmstat 3 3  # 每隔3秒显示刷新3次
+[root@cdh1 ~]$ vmstat 3 3  # 每隔3秒显示刷新3次
 procs  ----------memory----------  --swap--  ---io---  --system--  -----cpu-----
  r  b   swpd   free   buff  cache   si  so    bi  bo    in   cs   us sy id wa st
  1  0 483280 5978592  112 11092964   0   0     2  29     0    0    2  1 97  0  0
@@ -153,7 +151,7 @@ procs  ----------memory----------  --swap--  ---io---  --system--  -----cpu-----
 ### lsof
 ```shell script
 # lsof (list open files) 列出当前系统所有进程打开的所有文件
-[root@master1 ~]# lsof | head -5
+[root@cdh1 ~]$ lsof | head -5
 # 进程名称 进程号 用户 文件描述符 文件类型 磁盘名称   文件大小   索引节点 文件名称
 COMMAND   PID   USER     FD  TYPE   DEVICE    SIZE/OFF   NODE    NAME
 bash      3208  root    rtd   DIR    253,0      4096       2     /
@@ -186,7 +184,7 @@ lsof -d 4
 ### netstat
 ```shell script
 # netstat 监控tcp/ip网络,可以检验本机各端口的网络连接情况
-[root@master1 ~]# netstat | head -5
+[root@cdh1 ~]$ netstat | head -5
 # 有源TCP连接
 Active Internet connections (w/o servers)
 # 协议 接收但未处理 发送但未确认 本机地址:端口              外部地址:端口              tcp连接的socket状态
@@ -233,21 +231,21 @@ ifconfig eth0 up/down  # 启用/停用eth0网卡
 ### process 
 ```shell script
 # ps (process status) 当前时刻进程快照
-[root@master1 ~]# ps -ef | head  # e所有进程, f全格式
+[root@cdh1 ~]$ ps -ef | head  # e所有进程, f全格式
 # UID用户id, PID进程id, PPID父进程id, C进程占用CPU百分比, STIME进程启动时间, 
 # TTY进程在那个终端运行 ?表示与终端无关 pts/0表示由网络连接主机进程, TIME进程运行时间, CMD进程完整命令行
 UID      PID   PPID   C   STIME   TTY       TIME   CMD
 root       1      0   0   Apr21   ?     00:00:04   /sbin/init
 root       2      0   0   Apr21   ?     00:00:00   [kthreadd]
 
-[root@master1 ~]# ps -aux | head  # a所有进程, u以用户为主的格式, x不区分终端  
+[root@cdh1 ~]$ ps -aux | head  # a所有进程, u以用户为主的格式, x不区分终端  
 # %CPU进程占用CPU百分比, %MEM进程占用内存百分比, VSZ进程占用的虚拟内存, RSS进程占用的固定内存, STAT进程状态
 USER     PID  %CPU  %MEM   VSZ  RSS  TTY  STAT  START  TIME  COMMAND
 root       1   0.0   0.0 19364 1540  ?    Ss    Apr21  0:04  /sbin/init
 root       2   0.0   0.0     0    0  ?    S     Apr21  0:00  [kthreadd] 
 
 # top 动态显示进程信息
-[root@master1 ~]# top
+[root@cdh1 ~]$ top
 # 系统时间 + 系统运行时间 + 用户数 + 1/5/15分钟系统平均负载
 top - 16:05:31 up 692 days, 37 min,  1 user,  load average: 0.20, 0.38, 0.32
 # 总进程数(total) + 正在运行进程数(running) + 睡眠进程数(sleeping) + 停止的进程数(stopped) + 僵尸进程数(zombie)
@@ -279,25 +277,25 @@ top -c -p 1956,2042  # 每隔3秒显示指定进程的资源使用情况
 # nohup输出结果默认重定向到当前目录下的nohup.out文件,Ctrl + C结束,关闭Shell session免疫
 # &将程序转入后台运行,输出结果到终端,Ctrl + C免疫,关闭Shell session结束
 # nohup和&组合使用,不受Ctrl + C和关闭Shell session影响
-[root@master1 ~]$ nohup /data/hive/scripts/call_sql.sh dw_debit_info &  
+[root@cdh1 ~]$ nohup /data/hive/scripts/call_sql.sh dw_debit_info &  
 # 查看当前终端后台任务jobnum,包括running/stopped/Terminated,+是当前任务 -是后一个任务
-[root@master1 ~]$ jobs -l    
+[root@cdh1 ~]$ jobs -l    
 [1]+ 14423 Running    nohup /data/hive/scripts/call_sql.sh dw_debit_info &
 # 将后台程序调至前台运行
-[root@master1 ~]$ fg %jobnum
+[root@cdh1 ~]$ fg %jobnum
 nohup /data/hive/scripts/call_sql.sh dw_debit_info
 ctrl + z 暂停前台运行的命令并放到后台
 [1]+  Stopped    nohup /data/hive/scripts/call_sql.sh dw_debit_info
 # 调出暂停的后台命令继续执行
-[root@master1 ~]$ bg %jobnum
+[root@cdh1 ~]$ bg %jobnum
 [1]+ nohup /data/hive/scripts/call_sql.sh dw_debit_info &
 # 杀掉job
-[root@master1 ~]$ kill %jobnum
-[root@master1 ~]$ jobs -l
+[root@cdh1 ~]$ kill %jobnum
+[root@cdh1 ~]$ jobs -l
 [1]+ 14423 Terminated(很快会消失)    nohup /data/hive/scripts/call_sql.sh dw_debit_info
 
 # w
-[root@master1 ~]# w  # 查看当前活跃用户
+[root@cdh1 ~]$ w  # 查看当前活跃用户
  11:32:35 up 692 days, 20:04,  1 user,  load average: 0.43, 0.21, 0.21
 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
 root     pts/0    10.9.6.148       11:08    3.00s  0.03s  0.00s w
@@ -307,105 +305,107 @@ root     pts/0    10.9.6.148       11:08    3.00s  0.03s  0.00s w
 ![](images/权限.png) 
 ```shell script
 # linux用户
-[root@master1 ~]# cat /etc/passwd | head -3
+[root@cdh1 ~]$ cat /etc/passwd | head -3
 # 用户名:密码(x表示密码保存在/etc/shadow):用户id(0root,1~99系统用户,100~999其它账户):组id:用户信息:主目录:命令解释程序
 root:x:0:0:root:/root:/bin/bash
 bin:x:1:1:bin:/bin:/sbin/nologin
 daemon:x:2:2:daemon:/sbin:/sbin/nologin
 
 # linux组
-[root@cdh1 ~]# cat /etc/group | head -3
+[root@cdh1 ~]$ cat /etc/group | head -3
 # 组名:密码(x表示密码保存在/etc/gshadow):组id:组成员
 root:x:0:
 bin:x:1:bin,daemon
 daemon:x:2:bin,daemon
 
 # 添加新用户(组),只有root有这个权限
-[root@cdh1 ~]# groupadd g1         # 创建组  
-[root@cdh1 ~]# useradd u1 -g g1    # 创建用户并指定组,默认主目录/home/xxx
-[root@cdh1 ~]# passwd u1           # 设置密码
-[root@cdh1 ~]# su u1               # 切换用户 
-[root@cdh1 ~]# groupdel g1         # 删除组,如果组内有用户要先删用户  
-[root@cdh1 ~]# userdel -r u1       # 删除用户及主目录  
-[root@cdh1 ~]# id hdfs             # 查看hdfs用户的uid、gid、groups 
+[root@cdh1 ~]$ groupadd g1         # 创建组  
+[root@cdh1 ~]$ useradd u1 -g g1    # 创建用户并指定组,默认主目录/home/xxx
+[root@cdh1 ~]$ passwd u1           # 设置密码
+[root@cdh1 ~]$ su u1               # 切换用户 
+[root@cdh1 ~]$ groupdel g1         # 删除组,如果组内有用户要先删用户  
+[root@cdh1 ~]$ userdel -r u1       # 删除用户及主目录  
+[root@cdh1 ~]$ id hdfs             # 查看hdfs用户的uid、gid、groups 
 uid=993(hdfs) gid=991(hdfs) groups=991(hdfs),993(hadoop)
-[root@cdh1 ~]# groups hdfs         # 显示用户所属的组 
+[root@cdh1 ~]$ groups hdfs         # 显示用户所属的组 
 hdfs : hdfs hadoop
 
 # 修改权限
-[root@cdh1 ~]# chmod 755 a.txt         # 更改对文件的读写执行权限  
-[root@cdh1 ~]# chmod +x roll.sh        # 给脚本赋予执行权限  
-[root@cdh1 ~]# chown root data         # 将data目录所属用户改为root,组不变  
-[root@cdh1 ~]# chown root:root data    # 将data目录所属用户和组都改为root  
-[root@cdh1 ~]# chown -R root data      # 将data及其下所有子目录所属用户都改为root(-r表示级联)   
+[root@cdh1 ~]$ chmod 755 a.txt         # 更改对文件的读写执行权限  
+[root@cdh1 ~]$ chmod +x roll.sh        # 给脚本赋予执行权限  
+[root@cdh1 ~]$ chown root data         # 将data目录所属用户改为root,组不变  
+[root@cdh1 ~]$ chown root:root data    # 将data目录所属用户和组都改为root  
+[root@cdh1 ~]$ chown -R root data      # 将data及其下所有子目录所属用户都改为root(-r表示级联)   
 ```
 
 ### file
 ```shell script
-ln  # 硬链接：只能针对文件,和源文件指向同一个inode,相当于文件的副本可以防止重要文件误删除
-ln -s  # 软链接：可以针对文件或目录,和源文件指向不同的inode,相当于windows的快捷方式
-ll -a/-h/-i/-n  # 查看隐藏内容/自动适应文件大小/显示索引节点/显示文件uid和gid  
-ls -ltrh  # 按最后修改时间升序排列  
-ls | wc -l  # 查看某个目录下有多少文件  
-history n  # 查看最近n条历史操作记录  !478 重新执行第478条记录
-mkdir/rmdir -p a/b/c  # 递归创建/删除  
-echo '' > a.txt  # 清空文件  
-touch a.txt  # 新建一个空文件  
-type ls  # 查看命令的类型  
-alias  # 给命令设置别名,先用type查看一下是否被占用  type foo显示没被占用,alias foo='cd /usr;ls;'再看type foo已被占用,unalias foo解绑  
-{}展开  # echo number{1..100}、echo {a..z}、mkdir {2005..2015}-{01..12}  
-more  # 显示内容超过一个屏幕  # 空格翻页,回车下一行,q退出
-less  # 和more类似,并且可以用j向下移,k向上移  
-more或less状态下,/word 向下搜索,?word向上搜索,多个word用n显示下一个
-head/tail a.txt  # 显示文件前/后10行  
-tail -n +10  # 显示文件前面10行以后的
-tail -f catalina.log  # 动态显示文件后10行
-wc a.txt  # 显示文件的行数(-l)、单词数(-w)、字符数(-c)  
-find ./ -inum 123 -delete  # 可以删除rm删不掉的文件(i是文件的索引节点)  
-cp a.txt b.txt  # 复制文件 
-cp -r dir1 dir2  # 复制目录,-r表示递归  
-scp -r conf/ root@python:/home/conf/  # 远程拷贝(复制所有)  
-rsync -av conf/ root@python:/home/conf/  # 远程拷贝(只对差异文件更新,所以比scp速度快)  
-mv a.txt ../  # 将a.txt移动到上一层目录  
-mv a.txt b.txt  # 将a.txt重命名为b.txt  
-vim -o a.txt b.txt  # 分屏显示  
-dd  # 编辑文件时删除当前行, :2,5 d 删除第2~5行的内容  
-:set nu  # 编辑文件时显示行号,PgUp/PgDn可以向上向下翻页  
-gg/Shift + g  # 顶部/底部  
-ctrl + b/f  # 上一页/下一页  
-cat access.log | grep '01/Jun/2016:10' > test.log  # 提取某个时间段的日志记录  
-sh startup.sh && tail -f ../logs/catalina.out  # 启动tomcat后立刻查看日志  
-sh -x test.sh  # 执行shell脚本时,启动跟踪模式 
+[root@cdh1 ~]$ ln  # 硬链接：只能针对文件,和源文件指向同一个inode,相当于文件的副本可以防止重要文件误删除
+[root@cdh1 ~]$ ln -s  # 软链接：可以针对文件或目录,和源文件指向不同的inode,相当于windows的快捷方式
+[root@cdh1 ~]$ ll -a/-h/-i/-n  # 查看隐藏内容/自动适应文件大小/显示索引节点/显示文件uid和gid  
+[root@cdh1 ~]$ ls -ltrh  # 按最后修改时间升序排列  
+[root@cdh1 ~]$ ls | wc -l  # 查看某个目录下有多少文件  
+[root@cdh1 ~]$ history n  # 查看最近n条历史操作记录  !478 重新执行第478条记录
+[root@cdh1 ~]$ mkdir/rmdir -p a/b/c  # 递归创建/删除  
+[root@cdh1 ~]$ echo '' > a.txt  # 清空文件  
+[root@cdh1 ~]$ touch a.txt  # 新建一个空文件  
+[root@cdh1 ~]$ type ls  # 查看命令的类型  
+[root@cdh1 ~]$ alias  # 给命令设置别名,先用type查看一下是否被占用  type foo显示没被占用,alias foo='cd /usr;ls;'再看type foo已被占用,unalias foo解绑  
+[root@cdh1 ~]$ {}展开  # echo number{1..100} | echo {a..z} | mkdir {2005..2015}-{01..12}  
+[root@cdh1 ~]$ more  # 显示内容超过一个屏幕  # 空格翻页,回车下一行,q退出
+[root@cdh1 ~]$ less  # 和more类似,并且可以用j向下移,k向上移  
+[root@cdh1 ~]$ more或less状态下,/word 向下搜索,?word向上搜索,多个word用n显示下一个
+[root@cdh1 ~]$ head/tail a.txt  # 显示文件前/后10行  
+[root@cdh1 ~]$ tail -n +10  # 显示文件前面10行以后的
+[root@cdh1 ~]$ tail -f catalina.log  # 动态显示文件后10行
+[root@cdh1 ~]$ wc a.txt  # 显示文件的行数(-l)、单词数(-w)、字符数(-c)  
+[root@cdh1 ~]$ find ./ -inum 123 -delete  # 可以删除rm删不掉的文件(i是文件的索引节点)  
+[root@cdh1 ~]$ cp a.txt b.txt  # 复制文件 
+[root@cdh1 ~]$ cp -r dir1 dir2  # 复制目录,-r表示递归  
+[root@cdh1 ~]$ scp -r conf/ root@python:/home/conf/  # 远程拷贝(复制所有)
+[root@cdh1 ~]$ rsync -rv conf/ root@python:/home/conf/  # 远程拷贝(只对差异文件更新,所以比scp速度快)
+[root@cdh1 ~]$ dirname /opt/module/a.txt  # 获取文件(夹)所在目录
+[root@cdh1 ~]$ basename /opt/module/a.txt | /opt/module/a.txt .txt # 删掉文件(夹)的前缀,如果指定了后缀也会删除
+[root@cdh1 ~]$ mv a.txt ../  # 将a.txt移动到上一层目录  
+[root@cdh1 ~]$ mv a.txt b.txt  # 将a.txt重命名为b.txt  
+[root@cdh1 ~]$ vim -o a.txt b.txt  # 分屏显示  
+[root@cdh1 ~]$ dd  # 编辑文件时删除当前行, :2,5 d 删除第2~5行的内容  
+[root@cdh1 ~]$ :set nu  # 编辑文件时显示行号,PgUp/PgDn可以向上向下翻页  
+[root@cdh1 ~]$ gg/Shift + g  # 顶部/底部  
+[root@cdh1 ~]$ ctrl + b/f  # 上一页/下一页  
+[root@cdh1 ~]$ cat access.log | grep '01/Jun/2016:10' > test.log  # 提取某个时间段的日志记录  
+[root@cdh1 ~]$ sh startup.sh && tail -f ../logs/catalina.out  # 启动tomcat后立刻查看日志  
+[root@cdh1 ~]$ sh -x test.sh  # 执行shell脚本时,启动跟踪模式 
 
 # stat a.txt  文件的3个时间戳  
-Access time(atime)  # 读取操作 cat、cp、grep、sed、more、less、tail、head 会改变此时间  
-Modify time(mtime)  # 修改操作 vim、ll 会改变此时间  
-Change time(ctime)  # 修改文件属性或位置 chmod、chown、mv 会改变此时间  
-
+[root@cdh1 ~]$ Access time(atime)  # 读取操作 cat、cp、grep、sed、more、less、tail、head 会改变此时间  
+[root@cdh1 ~]$ Modify time(mtime)  # 修改操作 vim、ll 会改变此时间  
+[root@cdh1 ~]$ Change time(ctime)  # 修改文件属性或位置 chmod、chown、mv 会改变此时间  
+ 
 # 重定向(>覆盖 >>追加)
 # linux上所有东西都对应操作系统的文件描述符fd,操作系统默认0/1/2对应标准输入(stdin)/标准输出(stdout)/标准错误(stderr),应用程序的fd从3开始
 cmd < file | cmd 0 < file      # 将标准输入重定向到file
 cmd > file | cmd 1 > file      # 将标准输出重定向到file
 cmd > file 2>&1 | cmd &> file  # 将标准输出重定向到file,并且将标准错误合并到标准输出
 cmd > /dev/null                # /dev/null是黑洞文件,写入到这里的文件都会被丢弃,如果输出日志太长了就可以重定向到这里
-[root@master1 ~]# who > a.txt
-[root@master1 ~]# cat a.txt 
+[root@cdh1 ~]$ who > a.txt
+[root@cdh1 ~]$ cat a.txt 
 root     pts/0        2020-09-18 14:23 (10.9.6.148)
 root     pts/1        2020-09-18 14:38 (10.9.6.148)
-[root@master1 ~]# wc -l a.txt 
+[root@cdh1 ~]$ wc -l a.txt 
 2 a.txt
-[root@master1 ~]# wc -l < a.txt 
+[root@cdh1 ~]$ wc -l < a.txt 
 2
-[root@master1 ~]# wc -l < a.txt > b.txt  # 从a.txt读取内容写入b.txt
-[root@master1 ~]# cat out.txt 
+[root@cdh1 ~]$ wc -l < a.txt > b.txt  # 从a.txt读取内容写入b.txt
+[root@cdh1 ~]$ cat out.txt 
 2
 
 # tr读取标准输入数据,翻译后输出到标准输出或重定向到文件
-cat a.txt | tr a-z A-Z        # 将小写转换成大写
-cat a.txt | tr '\t' ','       # 将tab制表符转换成逗号
-cat a.txt | tr -s '\n'        # 删除多余的空行
-cat a.txt | tr -s '[a-zA-Z]'  # 字符串去重,比如moon变成mon
-cat a.txt | tr -d 0-9         # 删除数字
+[root@cdh1 ~]$ cat a.txt | tr a-z A-Z        # 将小写转换成大写
+[root@cdh1 ~]$ cat a.txt | tr '\t' ','       # 将tab制表符转换成逗号
+[root@cdh1 ~]$ cat a.txt | tr -s '\n'        # 删除多余的空行
+[root@cdh1 ~]$ cat a.txt | tr -s '[a-zA-Z]'  # 字符串去重,比如moon变成mon
+[root@cdh1 ~]$ cat a.txt | tr -d 0-9         # 删除数字
 ```
 
 ### yum
@@ -446,9 +446,9 @@ gunzip aaa.gz aaa           # 解压.gz格式的文件
 --force                     # 忽略软件包及文件的冲突  
 
 # 案例
-rpm -qa | grep -i mysql                            # 查询
-rpm -ev MySQL-server-5.6.21-1.el6.x86_64           # 删除
-rpm -ev --nodeps mysql-libs-5.1.71-1.el6.x86_64    # 忽略依赖关系强行删除
-rpm -ivh file.rpm                                  # 显示安装进度
-rpm -Uvh file.rpm                                  # 升级安装包
+[root@cdh1 ~]$ rpm -qa | grep -i mysql                            # 查询
+[root@cdh1 ~]$ rpm -ev MySQL-server-5.6.21-1.el6.x86_64           # 删除
+[root@cdh1 ~]$ rpm -ev --nodeps mysql-libs-5.1.71-1.el6.x86_64    # 忽略依赖关系强行删除
+[root@cdh1 ~]$ rpm -ivh file.rpm                                  # 显示安装进度
+[root@cdh1 ~]$ rpm -Uvh file.rpm                                  # 升级安装包
 ```
