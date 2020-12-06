@@ -37,7 +37,7 @@ public class ConsumerDemo {
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
         prop.put("group.id", "g01");  // 消费者组
         // 可选参数
-        prop.put("enable.auto.commit", "false");  // 是否自动提交offset
+        prop.put("enable.auto.commit", "false");  // true先提交后消费,false先消费后提交
         prop.put("auto.offset.reset", "earliest");  // 没有offset时从哪里开始消费,earliest/latest/none
 
         // 创建消费者对象

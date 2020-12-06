@@ -77,8 +77,8 @@ offset
 
 # 启动kafka,默认是前台进程,可以在后台启动
 [root@cdh1 ~]$ bin/kafka-server-start.sh -daemon /config/server.properties | nohup bin/kafka-server-start.sh config/server.properties > (logs/kafka.log | /dev/null) 2>&1 &
-# 查找kafka进程
-[root@cdh1 bin]$ ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}'
+# 杀掉kafka进程
+[root@cdh1 bin]$ ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
 # 创建topic,指定分区数和副本数
 [root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2
 Created topic "t01".

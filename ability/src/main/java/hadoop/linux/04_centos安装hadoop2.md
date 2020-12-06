@@ -25,18 +25,21 @@ case $1 in
 "start"){
     for i in cdh1 cdh2 cdh3
     do
+        echo "==================${i}启动zk================"
         ssh $i "source /etc/profile && zkServer.sh start"
     done
 };;
 "stop"){
     for i in cdh1 cdh2 cdh3
     do
+        echo "==================${i}停止zk================"
         ssh $i "source /etc/profile && zkServer.sh stop"
     done
 };;
 "status"){
     for i in cdh1 cdh2 cdh3
     do
+        echo "=================${i}查看zk状态==============="
         ssh $i "source /etc/profile && zkServer.sh status"
     done
 };;

@@ -75,7 +75,7 @@ object S02_DataFrame {
     // 通用写数据方法：df.write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
     df.write.mode(SaveMode.Append).option("header",value = true).csv("ability/output/people.csv")
     df.write.mode(SaveMode.Overwrite).saveAsTable("people")  // overwrite模式下第一次写入数据会报错路径不存在
-    df.write.mode(SaveMode.Append).insertInto("ods.people")
+//    df.write.mode(SaveMode.Append).insertInto("ods.people")
 
     // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
     import spark.implicits._

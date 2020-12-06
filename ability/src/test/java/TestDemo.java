@@ -14,10 +14,4 @@ public class TestDemo {
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
     }
 
-    @Test
-    public void testWait() throws InterruptedException {
-        new Object().wait();
-    }
-
-
 }
