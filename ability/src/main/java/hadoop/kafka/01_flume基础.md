@@ -28,17 +28,37 @@ Welcome to nginx!
 ### flume
 ```shell script
 # 修改配置文件
-[root@master1 ~]$ vim flume-env.sh
+[root@cdh1 ~]$ vim flume-env.sh
 export JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
 
 # 集群生成日志启动脚本
 # java -jar和java -cp区别：打包时已指定主类名java -jar a.jar,未指定主类名java -cp a.jar 包名.类名
-[root@master1 ~]$ vim log.sh
+[root@cdh1 ~]$ vim log.sh
 #!/bin/bash
 for i in cdh1 cdh2 cdh3
 do
     ssh $i "source /etc/profile && java -jar mock-1.0-SNAPSHOT-jar-with-dependencies.jar $1 $2 > a.log &"
 done
+
+# 集群一键启动flume脚本
+[root@cdh1 ~]$ vim flume.sh
+#!/bin/bash
+case $1 in
+"start"){
+    for i in cdh1 cdh2 cdh3
+    do
+        echo "==================${i}启动flume================="
+        ssh ${i} "source /etc/profile && cd /opt/module/flume-1.7.0 && nohup flume-ng agent -c conf -f conf/nginx-flume-kafka.conf -n a1 -Dflume.root.logger=INFO,LOGFILE > /dev/null 2>&1 &"
+    done
+};;
+"stop"){
+    for i in cdh1 cdh2 cdh3
+    do
+        echo "====================${i}停止flume===================="
+        ssh ${i} "ps -ef | grep 'nginx-flume-kafka' | grep -v grep | awk '{print \$2}' | xargs kill"  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
+    done
+};;
+esac
 
 # flume组件
 event：flume传输数据的基本单元
