@@ -64,4 +64,7 @@ mvn test-compile  # 编译测试源代码(查看target目录变化)
 mvn test          # 运行测试类,测试代码不会被打包或部署(查看target目录变化)  
 mvn package       # 将编译好的代码打包成可发布的格式,比如jar(查看target目录变化)  
 mvn install       # 将打好的包安装到本地仓库,可以让其它工程依赖(查看本地仓库目录变化)
+
+# [WARNING] The POM for com.okccc:commons:jar:1.0-SNAPSHOT is missing, no dependency information available
+https://www.cnblogs.com/li150dan/p/11114773.html
 ```
