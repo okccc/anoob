@@ -26,10 +26,13 @@ Welcome to nginx!
 ```
 
 ### flume
+[flume官方文档](http://flume.apache.org/releases/content/1.7.0/FlumeUserGuide.html)
 ```shell script
 # 修改配置文件
 [root@cdh1 ~]$ vim flume-env.sh
 export JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
+# flume内存优化,将JVM heap设置为4g防止OOM,-Xms和-Xmx尽量保持一致减少内存抖动带来的性能影响
+export JAVA_OPTS="-Xms4096m -Xmx4096m -Dcom.sun.management.jmxremote"
 
 # 集群生成日志启动脚本
 # java -jar和java -cp区别：打包时已指定主类名java -jar a.jar,未指定主类名java -cp a.jar 包名.类名
@@ -54,27 +57,71 @@ case $1 in
 "stop"){
     for i in cdh1 cdh2 cdh3
     do
-        echo "====================${i}停止flume===================="
+        echo "==================${i}停止flume================="
         ssh ${i} "ps -ef | grep 'nginx-flume-kafka' | grep -v grep | awk '{print \$2}' | xargs kill"  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
     done
 };;
 esac
 
-# flume组件
-event：flume传输数据的基本单元
-agent：jvm运行flume的最小独立单元,由source-channel-sink组成
-source：接收数据,包括avro/exec/syslog/http/spool dir等各种格式的日志数据
-channel：数据缓冲区,相当于消息队列,允许source和sink运行在不同的速率上,包括memory channel(不关心数据丢失)和file channel(落地到磁盘)
-channel selectors：包括replicating(将source过来的events发往所有channel)和multiplexing(将source过来的events发往指定channel)
-sink：不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger等
-
-flume保证单次跳转可靠性的方式:传送完成后，该事件斗才会从通道中移除
-• Flume使用事务性的方法来保证事件交互的可靠性。
-• 整个处理过程中，如果因为网络中断或者其他原因，在某一步被迫结束了，这个数据会在下一次重新传输。
-• Flume可靠性还体现在数据可暂存上面，当目标不可访问后，数据会暂存在Channel中，等目标可访问之后，再 进行传输
+# event
+flume传输数据的基本单元,由header和body组成 Event: {headers:{} body: 61 61 61  aaa}
+# agent
+jvm运行flume的最小单元,由source-channel-sink组成
+# source
+flume1.7版本使用TailDir可以监控多目录,且会记录日志文件读取位置,故障重启后重新采集就从该位置开始,解决断点续传问题
+# channel
+file channel：数据存到磁盘,速度慢,可靠性高,默认100万个event
+memory channel：数据存到内存,速度快,可靠性低,默认100个event
+kafka channel：数据存到kafka也是磁盘,可靠性高,且省去sink阶段速度更快,kafka channel > memory channel + sink
+channel selectors：replicating将events发往所有channel,multiplexing将events发往指定channel
+# sink
+不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger/kafka
 ```
 
-#### nginx-hdfs.conf
+#### nginx-flume-kafka.conf
+```shell script
+# 命名agent组件
+a1.sources = r1
+a1.channels = c1 c2
+# 配置source
+a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
+a1.sources.r1.positionFile = /opt/module/flume-1.7.0-bin/test/log_position.json  # 记录日志文件读取位置,重新采集就从该位置开始,解决断点续传问题
+a1.sources.r1.filegroups = f1  # 监控的是一组文件
+a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件可以以空格分隔,也支持正则表达式
+a1.sources.r1.fileHeader = true
+a1.sources.r1.channels = c1 c2
+# 拦截器
+a1.sources.r1.interceptors = i1 i2
+a1.sources.r1.interceptors.i1.type = flume.LogETLInterceptor$Builder    # etl拦截器
+a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志类型拦截器
+# channel选择器
+a1.sources.r1.selector.type = multiplexing                              # 根据event类型发往不同channel
+a1.sources.r1.selector.header = topic                                   # event的header的key
+a1.sources.r1.selector.mapping.topic_start = c1                         # event的header的value
+a1.sources.r1.selector.mapping.topic_event = c2
+# 配置channel
+a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
+a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
+a1.channels.c1.kafka.topic = topic_start                                # start类型的日志发往channel1,对应kafka的topic_start
+a1.channels.c1.parseAsFlumeEvent = false
+a1.channels.c1.kafka.consumer.group.id = flume-consumer
+a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
+a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
+a1.channels.c2.kafka.topic = topic_event                                # event类型的日志发往channel2,对应kafka的topic_event
+a1.channels.c2.parseAsFlumeEvent = false
+a1.channels.c2.kafka.consumer.group.id = flume-consumer
+
+# 先启动kafka
+[root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
+[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic test --partitions 1 --replication-factor 1
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic test
+# 再启动flume-ng
+[root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=INFO,console
+# 往监测文件写数据,kafka的consumer接收到消息说明成功
+[root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
+```
+
+#### nginx-flume-hdfs.conf
 ```shell script
 # 命名agent组件
 a1.sources = r1
@@ -97,33 +144,34 @@ a2.sources.r2.fileHeader = true
 a2.sources.r2.ignorePattern = ([^ ]*\.tmp)  # 忽略所有以.tmp结尾的文件2
 # source是kafka
 a3.sources.r3.type = org.apache.flume.source.kafka.KafkaSource
-a3.sources.r3.zookeeperConnect = cdh1:2181
-a3.sources.r3.topic = test
-a3.sources.r3.groupId = flume
-a3.sources.r3.kafka.consumer.auto.offset.reset = earliest
-a3.sources.r3.kafka.consumer.timeout.ms = 100
+a3.sources.r3.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
+a3.sources.r3.kafka.topics = topic_start, topic_event                  # topic列表,用逗号分隔,也可以用正则表达式匹配
+a1.sources.r1.batchSize = 1000                                         # 每个批次写往channel的消息数
+a1.sources.r1.batchDurationMillis = 1000                               # 批次时间间隔
 
-# 配置channel
+# memory channel
 a1.channels.c1.type = memory
-a1.channels.c1.capacity = 1000             # 表示channel总容量是1000个event
-a1.channels.c1.transactionCapacity = 100   # 表示channel收集到100个event才会提交事务
+a1.channels.c1.capacity = 1000             # channel最多存储1000个event
+a1.channels.c1.transactionCapacity = 100   # channel收集到100个event才会提交事务
+a1.channels.c1.keep-alive = 3              # 添加或移除一个event的超时时间(秒)
+# file channel
+a1.channels.c1.type = file
+a1.channels.c1.checkpointDir = /opt/module/flume/cp     # 存储checkpoint的文件
+a1.channels.c1.dataDirs = /opt/module/flume/data/logs/  # 存储日志文件的目录列表,用逗号分隔,指向不同硬盘的多个路径增大flume吞吐量
+a1.channels.c1.maxFileSize = 2146435071                 # 单个log文件的最大字节数
+a1.channels.c1.capacity = 1000000                       # channel的最大容量
+a1.channels.c1.keep-alive = 6                           # 等待put操作的超时时间(秒)
 
 # 配置sink
 a1.sinks.k1.type = hdfs
-a1.sinks.k1.hdfs.path = hdfs://ns1/user/flume/qbsite-events/%y-%m-%d/%H
-a1.sinks.k1.hdfs.filePrefix = logs-        # 文件前缀
-a1.sinks.k1.hdfs.round = true              # 是否按照时间滚动文件夹
-a1.sinks.k1.hdfs.roundUnit = hour          # 定义时间单位
-a1.sinks.k1.hdfs.roundValue = 1            # 多久创建一个新的文件夹
-a1.sinks.k1.hdfs.useLocalTimeStamp = true  # 是否使用本地时间戳
-a1.sinks.k1.hdfs.batchSize = 1000          # 积攒多少个event才flush到hdfs
-a1.sinks.k1.hdfs.fileType = DataStream     # 文件类型,默认SequenceFile
-a1.sinks.k1.hdfs.rollInterval = 60         # 多久生成一个新的文件
-a1.sinks.k1.hdfs.rollSize = 134217728      # 设置每个文件的字节数
-a1.sinks.k1.hdfs.rollCount = 0             # 文件的滚动与event数量无关
+a1.sinks.k1.hdfs.path = hdfs://ns1/user/flume/qb-events/%y-%m-%d/%H
+a1.sinks.k1.hdfs.filePrefix = log-                      # 指定文件前缀
+a1.sinks.k1.hdfs.useLocalTimeStamp = true               # 是否使用本地时间戳代替event header的时间戳
+a1.sinks.k1.hdfs.batchSize = 1000                       # 有100个event写入文件就flush到hdfs
+
 
 # 给source和sink绑定channel
-a1.sources.r1.channels = c1
+a1.sources.r1.channels = c1  # ### # ##
 a1.sinks.k1.channel = c1
 
 # 启动flume
@@ -132,51 +180,6 @@ a1.sinks.k1.channel = c1
 -f  # 要执行的文件
 -n  # agent的名字
 -Dflume.root.logger=INFO,console  # 测试监听端口时使用
-```
-
-#### nginx-kafka.conf
-```shell script
-# 下载flume整合kafka插件flumeng-kafka-plugin.jar放入flume/lib,启动flume-ng时需要用到的kafka的jar包
-# zkclient-0.3.jar、kafka_2.10-0.8.2.2.jar、kafka-clients-0.8.2.2.jar、scala-library-2.10.4.jar、metrics-core-2.2.0.jar也放入flume/lib
-# 命名agent组件
-a1.sources = r1
-a1.channels = c1
-a1.sinks = k1
-# 配置source
-a1.sources.r1.type = exec
-a1.sources.r1.command = tail -f /opt/test.log
-# 添加拦截器
-a1.sources.r1.interceptors = regex
-a1.sources.r1.interceptors.regex.type=REGEX_FILTER
-a1.sources.r1.interceptors.regex.regex=^.+uid=.+&uname=.+spuId=.+$
-a1.sources.r1.interceptors.regex.excludeEvents=false
-# 配置channel
-a1.channels.c1.type = memory
-a1.channels.c1.capacity = 1000
-a1.channels.c1.transactionCapacity = 100
-# 配置sink
-a1.sinks.k1.type = org.apache.flume.sink.kafka.KafkaSink
-a1.sinks.k1.metadata.broker.list = cdh1:9092                              # kafka地址
-a1.sinks.k1.partition.key = 0
-a1.sinks.k1.partitioner.class = org.apache.flume.plugins.SinglePartition  # kafka分区
-a1.sinks.k1.serializer.class = kafka.serializer.StringEncoder             # 序列化
-a1.sinks.k1.request.required.acks = 0                                     # 设置ack
-a1.sinks.k1.max.message.size = 1000000                                    # message最大尺寸
-a1.sinks.k1.producer.type = sync                                          # 同步
-a1.sinks.k1.custom.encoding = UTF-8                                       # 编码
-a1.sinks.k1.custom.topic.name = test                                      # topic名称
-# 给source和sink绑定channel
-a1.sources.r1.channels = c1
-a1.sinks.k1.channel = c1
-
-# 先启动kafka
-[root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
-[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic test --partitions 1 --replication-factor 1
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic test
-# 再启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=INFO,console
-# 往监测文件写数据,kafka的consumer接收到消息说明成功
-[root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
 ```
 
 ```java
