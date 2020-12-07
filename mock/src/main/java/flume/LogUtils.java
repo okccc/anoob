@@ -14,10 +14,7 @@ public class LogUtils {
             return false;
         }
         // 校验日志格式 {json}
-        if (!log.trim().startsWith("{") || !log.trim().endsWith("}")) {
-            return false;
-        }
-        return true;
+        return log.trim().startsWith("{") && log.trim().endsWith("}");
     }
 
     public static boolean validateEvent(String log) {
@@ -31,14 +28,11 @@ public class LogUtils {
         if (content.length != 2) {
             return false;
         }
-        // 校验服务器时间格式
+        // 校验时间戳格式
         if (content[0].length() != 13 || !NumberUtils.isDigits(content[0])) {
             return false;
         }
         // 校验日志格式 {json}
-        if (!content[1].trim().startsWith("{") || !content[1].trim().endsWith("}")) {
-            return false;
-        }
-        return true;
+        return content[1].trim().startsWith("{") && content[1].trim().endsWith("}");
     }
 }

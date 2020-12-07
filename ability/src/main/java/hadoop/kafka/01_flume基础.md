@@ -50,14 +50,14 @@ case $1 in
 "start"){
     for i in cdh1 cdh2 cdh3
     do
-        echo "==================${i}启动flume================="
+        echo "================= ${i}启动flume ================"
         ssh ${i} "source /etc/profile && cd /opt/module/flume-1.7.0 && nohup flume-ng agent -c conf -f conf/nginx-flume-kafka.conf -n a1 -Dflume.root.logger=INFO,LOGFILE > /dev/null 2>&1 &"
     done
 };;
 "stop"){
     for i in cdh1 cdh2 cdh3
     do
-        echo "==================${i}停止flume================="
+        echo "================= ${i}停止flume ================"
         ssh ${i} "ps -ef | grep 'nginx-flume-kafka' | grep -v grep | awk '{print \$2}' | xargs kill"  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
     done
 };;
@@ -83,9 +83,10 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 # 命名agent组件
 a1.sources = r1
 a1.channels = c1 c2
+
 # 配置source
 a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
-a1.sources.r1.positionFile = /opt/module/flume-1.7.0-bin/test/log_position.json  # 记录日志文件读取位置,重新采集就从该位置开始,解决断点续传问题
+a1.sources.r1.positionFile = /opt/module/flume-1.7.0-bin/test/log_position.json  # 记录日志文件读取位置
 a1.sources.r1.filegroups = f1  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件可以以空格分隔,也支持正则表达式
 a1.sources.r1.fileHeader = true
@@ -99,12 +100,14 @@ a1.sources.r1.selector.type = multiplexing                              # 根据
 a1.sources.r1.selector.header = topic                                   # event的header的key
 a1.sources.r1.selector.mapping.topic_start = c1                         # event的header的value
 a1.sources.r1.selector.mapping.topic_event = c2
+
 # 配置channel
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
 a1.channels.c1.kafka.topic = topic_start                                # start类型的日志发往channel1,对应kafka的topic_start
 a1.channels.c1.parseAsFlumeEvent = false
 a1.channels.c1.kafka.consumer.group.id = flume-consumer
+
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
 a1.channels.c2.kafka.topic = topic_event                                # event类型的日志发往channel2,对应kafka的topic_event
@@ -179,8 +182,8 @@ a1.sinks.k1.hdfs.roundUnit = second                     # 滚动时间单位
 a1.sinks.k1.hdfs.roundValue = 10                        # 10秒滚动一次文件
 
 # 给source和sink绑定channel
-a1.sources.r1.channels = c1  # ### # ##
-a1.sinks.k1.channel = c1
+a1.sources.r1.channels = c1  # 一个source可以接多个channel
+a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 
 # 启动flume
 [root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1
