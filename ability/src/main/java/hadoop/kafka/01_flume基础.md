@@ -168,7 +168,15 @@ a1.sinks.k1.hdfs.path = hdfs://ns1/user/flume/qb-events/%y-%m-%d/%H
 a1.sinks.k1.hdfs.filePrefix = log-                      # 指定文件前缀
 a1.sinks.k1.hdfs.useLocalTimeStamp = true               # 是否使用本地时间戳代替event header的时间戳
 a1.sinks.k1.hdfs.batchSize = 1000                       # 有100个event写入文件就flush到hdfs
-
+# 数据压缩
+a1.sinks.k1.hdfs.fileType = CompressedStream            # 文件类型,默认SequenceFile
+a1.sinks.k1.hdfs.codeC = lzop                           # 指定压缩方式
+# 控制hdfs文件大小,默认参数会生成大量小文件
+a1.sinks.k1.hdfs.rollInterval = 3600                    # tmp文件达到3600秒时会滚动生成正式文件
+a1.sinks.k1.hdfs.rollSize = 134217728                   # tmp文件达到128M时会滚动生成正式文件
+a1.sinks.k1.hdfs.rollCount = 0                          # tmp文件的滚动与写入的event数量无关
+a1.sinks.k1.hdfs.roundUnit = second                     # 滚动时间单位
+a1.sinks.k1.hdfs.roundValue = 10                        # 10秒滚动一次文件
 
 # 给source和sink绑定channel
 a1.sources.r1.channels = c1  # ### # ##
