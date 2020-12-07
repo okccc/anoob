@@ -22,10 +22,16 @@ http://192.168.152.11/a.txt
 [root@cdh1 ~]$ getconf LONG_BIT
 # 查看命令功能|路径
 [root@cdh1 ~]$ whatis cat | whereis cat
-# 显示命令行全路径
+# 显示可执行命令的全路径
 [root@cdh1 ~]$ which java
-# 显示当前环境变量
+# 显示某个环境变量
 [root@cdh1 ~]$ echo $SHELL | echo $JAVA_HOME
+# 显示系统环境变量后10行
+[root@cdh1 ~]$ set | tail -10  
+# 将系统环境变量追加到特定用户环境变量
+[root@cdh1 ~]$ cat /etc/profile >> ~/.bashrc
+# 跳转到当前用户主目录
+[root@cdh1 ~]$ cd | cd ~
 # 查看cpu信息
 [root@cdh1 ~]$ lscpu
 # 查看物理cpu个数
@@ -36,8 +42,6 @@ http://192.168.152.11/a.txt
 [root@cdh1 ~]$ cat /proc/loadavg  # 最近1,5,15分钟的系统负载, 正在运行进程数/系统总进程数, 最近运行的进程id
 # 查看系统运行时长
 [root@cdh1 ~]$ uptime  # -s,--since系统启动时间  -p,--pretty友好格式输出  -V版本号
-# 显示系统环境变量后10行
-[root@cdh1 ~]$ set | tail -10  
 
 # ntp(network time protocol)
 # 硬件时钟：由主板电池驱动,关机后依然运行
