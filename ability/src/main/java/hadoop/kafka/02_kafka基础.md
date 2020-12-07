@@ -110,6 +110,26 @@ java hadoop
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 # 重置消费者组的offset
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
+# 一键启动/停止kafka
+[root@cdh1 ~]$ vim kafka.sh
+#!/bin/bash
+case $1 in
+"start"){
+    for i in cdh1 cdh2 cdh3
+    do
+        echo "============ ${i}启动kafka ============"
+        # 启动kafka时开启JMX端口,用于KafkaManager监控
+        ssh ${i} "source /etc/profile && cd /opt/module/kafka_2.11-0.11.0.2/bin && export JMX_PORT=9988 && kafka-server-start.sh -daemon ../config/server.properties"
+    done
+};;
+"stop"){
+    for i in cdh1 cdh2 cdh3
+    do
+        echo "============ ${i}停止kafka ============"
+        ssh ${i} "source /etc/profile && cd /opt/module/kafka_2.11-0.11.0.2/bin && kafka-server-stop.sh"
+    done
+};;
+esac
 ```
 
 ### Q & A
