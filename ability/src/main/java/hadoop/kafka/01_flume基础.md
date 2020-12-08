@@ -87,18 +87,18 @@ a1.channels = c1 c2
 # 配置source
 a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
 a1.sources.r1.positionFile = /opt/module/flume-1.7.0-bin/test/log_position.json  # 记录日志文件读取位置
-a1.sources.r1.filegroups = f1  # 监控的是一组文件
+a1.sources.r1.filegroups = f1                  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件可以以空格分隔,也支持正则表达式
 a1.sources.r1.fileHeader = true
 a1.sources.r1.channels = c1 c2
-# 拦截器
+# 拦截器(要将拦截器代码打成jar包放到flume的lib目录下)
 a1.sources.r1.interceptors = i1 i2
 a1.sources.r1.interceptors.i1.type = flume.LogETLInterceptor$Builder    # etl拦截器
 a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志类型拦截器
-# channel选择器
-a1.sources.r1.selector.type = multiplexing                              # 根据event类型发往不同channel
-a1.sources.r1.selector.header = topic                                   # event的header的key
-a1.sources.r1.selector.mapping.topic_start = c1                         # event的header的value
+# 选择器
+a1.sources.r1.selector.type = multiplexing         # 根据日志类型发往指定channel
+a1.sources.r1.selector.header = topic              # event的header的key
+a1.sources.r1.selector.mapping.topic_start = c1
 a1.sources.r1.selector.mapping.topic_event = c2
 
 # 配置channel
@@ -120,8 +120,8 @@ a1.channels.c2.kafka.consumer.group.id = flume-consumer
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic test
 # 再启动flume-ng
 [root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=INFO,console
-# 往监测文件写数据,kafka的consumer接收到消息说明成功
-[root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
+# 最后启动生成日志脚本,消费者能收到数据说明ok
+[root@cdh1 ~]$ nohup java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > /dev/null 2>&1 &
 ```
 
 #### nginx-flume-hdfs.conf
@@ -160,7 +160,7 @@ a1.channels.c1.keep-alive = 3              # 添加或移除一个event的超时
 # file channel
 a1.channels.c1.type = file
 a1.channels.c1.checkpointDir = /opt/module/flume/cp     # 存储checkpoint的文件
-a1.channels.c1.dataDirs = /opt/module/flume/data/logs/  # 存储日志文件的目录列表,用逗号分隔,指向不同硬盘的多个路径增大flume吞吐量
+a1.channels.c1.dataDirs = /opt/module/flume/data/logs/  # 存储日志的目录列表,用逗号分隔,优化：指向不同硬盘的多个路径提高flume吞吐量
 a1.channels.c1.maxFileSize = 2146435071                 # 单个log文件的最大字节数
 a1.channels.c1.capacity = 1000000                       # channel的最大容量
 a1.channels.c1.keep-alive = 6                           # 等待put操作的超时时间(秒)
@@ -186,11 +186,9 @@ a1.sources.r1.channels = c1  # 一个source可以接多个channel
 a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 
 # 启动flume
-[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1
--c  # flume配置文件目录
--f  # 要执行的文件
--n  # agent的名字
--Dflume.root.logger=INFO,console  # 测试监听端口时使用
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=INFO,console  # 测试监听端口时使用
+# 往监测文件写数据
+[root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
 ```
 
 ```java

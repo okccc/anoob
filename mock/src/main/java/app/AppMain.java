@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Random;
 
 /**
@@ -747,7 +747,7 @@ public class AppMain {
         byte[] b = new byte[2];
         b[0] = (Integer.valueOf(hightPos)).byteValue();
         b[1] = (Integer.valueOf(lowPos)).byteValue();
-        str = new String(b, StandardCharsets.UTF_8);
+        str = new String(b, Charset.forName("gbk"));
 
         return str.charAt(0);
     }

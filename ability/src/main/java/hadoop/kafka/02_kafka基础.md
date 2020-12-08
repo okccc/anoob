@@ -118,7 +118,7 @@ case $1 in
     for i in cdh1 cdh2 cdh3
     do
         echo "============ ${i}启动kafka ============"
-        # 启动kafka时开启JMX端口,用于KafkaManager监控
+        # 启动kafka时开启JMX端口,用于后续KafkaManager监控
         ssh ${i} "source /etc/profile && cd /opt/module/kafka_2.11-0.11.0.2/bin && export JMX_PORT=9988 && kafka-server-start.sh -daemon ../config/server.properties"
     done
 };;

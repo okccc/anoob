@@ -1,4 +1,4 @@
-package flume;
+package hadoop.kafka;
 
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -7,7 +7,7 @@ import org.apache.commons.lang.math.NumberUtils;
  * @version 1.0
  * @date 2020/12/6 19:34
  */
-public class LogUtils {
+public class F_LogUtils {
     public static boolean validateStart(String log) {
         // 校验日志是否为空
         if (log == null) {

@@ -14,7 +14,7 @@ import java.util.Properties;
  * @version 1.0
  * @date 2020/11/29 22:04
  */
-public class ConsumerDemo {
+public class K_ConsumerDemo {
     public static void main(String[] args) {
         /*
          * producer生产的数据在kafka中会持久化,不用担心数据丢失问题
