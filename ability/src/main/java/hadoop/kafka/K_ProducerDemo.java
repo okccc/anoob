@@ -27,7 +27,7 @@ public class K_ProducerDemo {
         // 生产者属性配置
         Properties prop = new Properties();
         // 必选参数
-        prop.put("bootstrap.servers", "cdh1:9092");  // kafka集群地址
+        prop.put("bootstrap.servers", "localhost:9092");  // kafka集群地址
         prop.put("key.serializer", StringSerializer.class.getName());  // key的序列化器
         prop.put("value.serializer", StringSerializer.class.getName());  // value的序列化器
         // 可选参数
@@ -39,7 +39,7 @@ public class K_ProducerDemo {
 
         // 添加拦截器集合
         List<String> interceptors = new ArrayList<>();
-        interceptors.add("hadoop.kafka.InterceptorDemo");
+        interceptors.add("hadoop.kafka.K_InterceptorDemo");
         prop.put("interceptor.classes", interceptors);
 
         // 创建生产者对象
@@ -47,7 +47,7 @@ public class K_ProducerDemo {
 
         // 往kafka发送数据,topic中的数据全局无序,分区内部有序
         for (int i = 0; i < 1000; i++) {
-            // 将每条数据都封装成ProducerRecord对象发送,并且可以添加回调函数,在producer收到ack时调用
+            // 将数据封装成ProducerRecord对象发送,并且可以添加回调函数,在producer收到ack时调用
             producer.send(new ProducerRecord<>("t01", i + "", "message-" + i), new Callback() {
                 @Override
                 public void onCompletion(RecordMetadata metadata, Exception exception) {
