@@ -1,13 +1,33 @@
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
 
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class TestFuture {
+public class Test01 {
     @Test
-    public void test() throws ExecutionException, InterruptedException {
+    public void testDate() {
+        // Date
+        System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd")));
+        // DateTime
+        System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
+    }
+
+    @Test
+    public void testRandom() {
+        Random random = new Random();
+        // 小于指定值的任意整数
+        System.out.println(random.nextInt(10));
+        // 0~1之间的任意小数
+        System.out.println(random.nextDouble());
+    }
+
+    @Test
+    public void testFuture() throws ExecutionException, InterruptedException {
         // 创建线程池
         ExecutorService executor = Executors.newCachedThreadPool();
         // 提交要执行的任务,返回Future对象
@@ -26,4 +46,5 @@ public class TestFuture {
         // 之前的任务已执行,且没有新的任务就关闭
         executor.shutdown();
     }
+
 }

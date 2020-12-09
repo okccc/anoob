@@ -1,26 +1,26 @@
 ### nginx
 ```shell script
 # nginx三大功能：反向代理、负载均衡、动静分离
-# 安装依赖  
+# 安装依赖
 [root@cdh1 ~]$ yum -y install gcc pcre-devel zlib zlib-devel openssl openssl-devel net-tools
-# 下载压缩包  
+# 下载压缩包
 [root@cdh1 ~]$ wget http://nginx.org/download/nginx-1.12.2.tar.gz
-# 解压  
+# 解压
 [root@cdh1 ~]$ tar -xvf nginx-1.21.2.tar.gz -C /usr/local
-# 切换到nginx目录  
+# 切换到nginx目录
 [root@cdh1 ~]$ cd /usr/local/nginx-1.21.2
-# 编译安装  
+# 编译安装
 [root@cdh1 ~]$ ./configure
 [root@cdh1 ~]$ make && make install  # 安装完后/nginx/sbin目录多了nginx执行命令
-# 测试配置文件  
+# 测试配置文件
 [root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -t
-# 启动/停止/重启  
-[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx  
-[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s stop  
-[root@cdh1 ~] /usr/local/nginx/sbin/nginx -s reload
+# 启动/停止/重启
+[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx
+[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s stop
+[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s reload
 # 查看nginx进程,jps显示的是java进程,nginx是c++写的
 [root@cdh1 ~]$ ps -ef | grep nginx
-# 浏览器访问(默认80端口)  
+# 浏览器访问(默认80端口)
 http://192.168.152.11
 Welcome to nginx!
 ```
@@ -35,7 +35,7 @@ export JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
 export JAVA_OPTS="-Xms4096m -Xmx4096m -Dcom.sun.management.jmxremote"
 
 # 集群生成日志启动脚本
-# java -jar和java -cp区别：打包时已指定主类名java -jar a.jar,未指定主类名java -cp a.jar 包名.类名
+# java -jar/-cp区别：打包时mainClass已指定类名 java -jar a.jar,未指定类名 java -cp a.jar 包名.类名
 [root@cdh1 ~]$ vim log.sh
 #!/bin/bash
 for i in cdh1 cdh2 cdh3
@@ -68,10 +68,10 @@ flume传输数据的基本单元,由header和body组成 Event: {headers:{} body:
 # agent
 jvm运行flume的最小单元,由source-channel-sink组成
 # source
-flume1.7版本使用TailDir可以监控多目录,且会记录日志文件读取位置,故障重启后重新采集就从该位置开始,解决断点续传问题
+flume1.7版本使用TailDir可以监控多目录,且会记录日志文件读取位置,故障重启后就从该位置开始,解决断点续传问题
 # channel
-file channel：数据存到磁盘,速度慢,可靠性高,默认100万个event
-memory channel：数据存到内存,速度快,可靠性低,默认100个event
+file channel：数据存到磁盘,速度慢,可靠性高,默认100万个event,适用于涉及钱的数据
+memory channel：数据存到内存,速度快,可靠性低,默认100个event,适用于普通日志
 kafka channel：数据存到kafka也是磁盘,可靠性高,且省去sink阶段速度更快,kafka channel > memory channel + sink
 channel selectors：replicating将events发往所有channel,multiplexing将events发往指定channel
 # sink
@@ -107,20 +107,19 @@ a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka�
 a1.channels.c1.kafka.topic = topic_start                                # start类型的日志发往channel1,对应kafka的topic_start
 a1.channels.c1.parseAsFlumeEvent = false
 a1.channels.c1.kafka.consumer.group.id = flume-consumer
-
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
 a1.channels.c2.kafka.topic = topic_event                                # event类型的日志发往channel2,对应kafka的topic_event
 a1.channels.c2.parseAsFlumeEvent = false
 a1.channels.c2.kafka.consumer.group.id = flume-consumer
 
-# 先启动kafka
+# 启动kafka
 [root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
 [root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic test --partitions 1 --replication-factor 1
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic test
-# 再启动flume-ng
+# 启动flume-ng
 [root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=INFO,console
-# 最后启动生成日志脚本,消费者能收到数据说明ok
+# 启动log,消费者能收到数据说明ok
 [root@cdh1 ~]$ nohup java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > /dev/null 2>&1 &
 ```
 
@@ -185,10 +184,38 @@ a1.sinks.k1.hdfs.roundValue = 10                        # 10秒滚动一次文�
 a1.sources.r1.channels = c1  # 一个source可以接多个channel
 a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 
-# 启动flume
+# 启动flume-ng
 [root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=INFO,console  # 测试监听端口时使用
 # 往监测文件写数据
 [root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
+```
+
+#### netcat-flume-console.conf
+```shell script
+# 命名agent组件
+a1.sources = r1
+a1.sinks = k1
+a1.channels = c1
+# 配置source
+a1.sources.r1.type = netcat
+a1.sources.r1.bind = localhost
+a1.sources.r1.port = 44444
+# 配置sink
+a1.sinks.k1.type = logger
+# 配置channel
+a1.channels.c1.type = memory
+a1.channels.c1.capacity = 1000
+a1.channels.c1.transactionCapacity = 100
+# 将source和sink绑定到channel
+a1.sources.r1.channels = c1
+a1.sinks.k1.channel = c1
+
+# 启动flume-ng
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/netcat-flume-console.conf -n a1 -Dflume.root.logger=INFO,console
+Event: { headers:{} body: 6A 61 76 61    java }
+# 往监听端口写数据
+[root@cdh1 ~]$ nc localhost 44444
+java
 ```
 
 ```java

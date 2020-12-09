@@ -18,10 +18,10 @@ public class K_ConsumerDemo {
     public static void main(String[] args) {
         /*
          * producer生产的数据在kafka中会持久化,不用担心数据丢失问题
-         * consumer在消费过程中可能出现宕机等故障,恢复后要从故障前的位置继续消费,所以consumer需要实时提交offset,分为自动和手动2种方式
+         * consumer在消费过程中可能出现宕机等故障,恢复后要从故障前的位置继续消费,所以consumer需要实时提交offset
          *
-         * 消息的消费和提交offset必须是原子性的,消费完了才能提交offset,没消费完就得回滚,这样才能保证exactly once精准消费
-         * 所以不管是自动提交还是手动提交offset都不能保证消息的精准消费,因为消费消息和提交offset这两件事不在同一个事务中
+         * 消费数据和提交offset必须是原子性的,消费完了才能提交offset,没消费完就得回滚,这样才能保证exactly once精准消费
+         * 所以不管是自动提交还是手动提交offset都不能保证消息的精准消费,因为消费数据和提交offset这两件事不在同一个事务中
          * 实际场景中消费者通常是SparkStreaming这样的实时处理系统,可以将offset提交到redis
          *
          * 消费者提交的offset是消费的最后一个offset + 1
@@ -32,7 +32,7 @@ public class K_ConsumerDemo {
         // 消费者属性配置
         Properties prop = new Properties();
         // 必选参数
-        prop.put("bootstrap.servers", "cdh1:9092");  // kafka集群地址
+        prop.put("bootstrap.servers", "localhost:9092");  // kafka集群地址
         prop.put("key.deserializer", StringDeserializer.class.getName());  // key的反序列化器
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
         prop.put("group.id", "g01");  // 消费者组
@@ -45,7 +45,7 @@ public class K_ConsumerDemo {
         // 订阅topic集合
         List<String> list = new ArrayList<>();
         list.add("t01");
-        // 自动提交offset方式
+        // 默认是自动提交offset方式
         consumer.subscribe(list);
 //        // 手动提交offset方式
 //        consumer.subscribe(list, new ConsumerRebalanceListener() {
