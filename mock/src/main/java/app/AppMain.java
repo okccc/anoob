@@ -15,8 +15,9 @@ import java.util.Random;
  */
 public class AppMain {
 
+    // 日志
     private final static Logger logger = LoggerFactory.getLogger(AppMain.class);
-    private static Random rand = new Random();
+    private static final Random rand = new Random();
 
     // 设备id
     private static int s_mid = 0;
@@ -40,10 +41,10 @@ public class AppMain {
             int flag = rand.nextInt(2);
             switch (flag) {
                 case (0):
-                    //应用启动
+                    // 应用启动
                     AppStart appStart = generateStart();
                     String jsonString = JSON.toJSONString(appStart);
-                    //控制台打印
+                    // 控制台打印
                     logger.info(jsonString);
                     break;
                 case (1):
@@ -87,7 +88,7 @@ public class AppMain {
                         eventsArray.add(generateBackground());
                         json.put("et", eventsArray);
                     }
-                    //故障日志
+                    // 故障日志
                     if (rand.nextBoolean()) {
                         eventsArray.add(generateError());
                         json.put("et", eventsArray);
@@ -107,9 +108,9 @@ public class AppMain {
                         eventsArray.add(generatePraise());
                         json.put("et", eventsArray);
                     }
-                    //时间
+                    // 时间
                     long millis = System.currentTimeMillis();
-                    //控制台打印
+                    // 控制台打印
                     logger.info(millis + "|" + json.toJSONString());
                     break;
             }
@@ -272,7 +273,7 @@ public class AppMain {
         appNewsDetail.setAction("" + (rand.nextInt(4) + 1));
         // 商品id
         appNewsDetail.setGoodsid(s_goodsid + "");
-        // 商品来源类型
+        // 商品来源类型ß
         flag = 1 + rand.nextInt(3);
         appNewsDetail.setShowtype(flag + "");
         // 商品样式

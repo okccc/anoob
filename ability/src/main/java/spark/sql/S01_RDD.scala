@@ -1,4 +1,4 @@
-package spark.rdd
+package spark.sql
 
 import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet}
 import java.util

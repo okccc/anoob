@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package spark.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -14,7 +14,7 @@ import java.util.Properties;
  * @version 1.0
  * @date 2020/11/29 22:04
  */
-public class K_ConsumerDemo {
+public class ConsumerDemo {
     public static void main(String[] args) {
         /*
          * producer生产的数据在kafka中会持久化,不用担心数据丢失问题

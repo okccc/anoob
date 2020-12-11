@@ -219,6 +219,8 @@ java
 ```
 
 ```java
+```java
+```java
 package org.com.qbao.dc.spark.streaming;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -251,7 +253,7 @@ import redis.clients.jedis.Jedis;
 import scala.Tuple2;
 public final class KafkaToRedis {
 //    private static final Pattern SPACE = Pattern.compile(" ");
-    private static Logger logger = Logger.getLogger(KafkaToRedis.class);
+    private staticfinal Logger logger = Logger.getLogger(KafkaToRedis.class)
     private static IRedisService iRedisService= null;
     private static boolean isInitXml = true;
     @SuppressWarnings({ "deprecation", "serial" })

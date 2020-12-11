@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package spark.flume;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -13,7 +13,7 @@ import java.util.List;
  * @version 1.0
  * @date 2020/12/6 19:57
  */
-public class F_ETLInterceptor implements Interceptor {
+public class ETLInterceptor implements Interceptor {
     @Override
     public void initialize() {
 
@@ -28,12 +28,12 @@ public class F_ETLInterceptor implements Interceptor {
         // 校验日志
         if (body.contains("start")) {
             // 启动日志
-            if (F_LogUtils.validateStart(body)) {
+            if (LogUtils.validateStart(body)) {
                 return event;
             }
         } else {
             // 事件日志
-            if (F_LogUtils.validateEvent(body)) {
+            if (LogUtils.validateEvent(body)) {
                 return event;
             }
         }
@@ -67,7 +67,7 @@ public class F_ETLInterceptor implements Interceptor {
 
         @Override
         public Interceptor build() {
-            return new F_ETLInterceptor();
+            return new ETLInterceptor();
         }
 
         @Override

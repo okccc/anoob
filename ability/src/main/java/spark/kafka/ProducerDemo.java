@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package spark.kafka;
 
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -15,7 +15,7 @@ import java.util.Properties;
  * @version 1.0
  * @date 2020/11/29 18:22
  */
-public class K_ProducerDemo {
+public class ProducerDemo {
     public static void main(String[] args) {
         /*
          * kafka生产者采用异步发送方式

@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package spark.flume;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -14,7 +14,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2020/12/6 19:47
  */
-public class F_TypeInterceptor implements Interceptor {
+public class TypeInterceptor implements Interceptor {
     @Override
     public void initialize() {
 
@@ -63,7 +63,7 @@ public class F_TypeInterceptor implements Interceptor {
 
         @Override
         public Interceptor build() {
-            return new F_TypeInterceptor();
+            return new TypeInterceptor();
         }
 
         @Override

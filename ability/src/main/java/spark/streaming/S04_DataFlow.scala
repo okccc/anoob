@@ -42,20 +42,20 @@ object S04_DataFlow {
     query.awaitTermination()
 
     // 2).从kafka采集数据
-//    val kafkaDF: DataFrame = spark.readStream
-//      .format("kafka")
-//      .option("kafka.bootstrap.servers", "cdh1:9092")
-//      .option("subscribe", "topic01")
-//      .load()
-//    val lines: Dataset[String] = kafkaDF.selectExpr( "CAST(value AS STRING)").as[String]
-//    val words: Dataset[String] = lines.flatMap((s: String) => s.split(" "))
-//    val wc: DataFrame = words.groupBy("value").count()
-//    // 输出结果
-//    val query: StreamingQuery = wc.writeStream
-//      .outputMode("complete")
-//      .format("console")
-//      .start()
-//    query.awaitTermination()
+    //    val kafkaDF: DataFrame = spark.readStream
+    //      .format("kafka")
+    //      .option("kafka.bootstrap.servers", "cdh1:9092")
+    //      .option("subscribe", "topic01")
+    //      .load()
+    //    val lines: Dataset[String] = kafkaDF.selectExpr( "CAST(value AS STRING)").as[String]
+    //    val words: Dataset[String] = lines.flatMap((s: String) => s.split(" "))
+    //    val wc: DataFrame = words.groupBy("value").count()
+    //    // 输出结果
+    //    val query: StreamingQuery = wc.writeStream
+    //      .outputMode("complete")
+    //      .format("console")
+    //      .start()
+    //    query.awaitTermination()
 
   }
 

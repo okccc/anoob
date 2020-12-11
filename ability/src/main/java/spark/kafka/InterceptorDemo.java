@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package spark.kafka;
 
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -13,7 +13,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2020/11/30 22:17
  */
-public class K_InterceptorDemo implements ProducerInterceptor<String, String> {
+public class InterceptorDemo implements ProducerInterceptor<String, String> {
     private int successNum = 0;
     private int errorNum = 0;
 
