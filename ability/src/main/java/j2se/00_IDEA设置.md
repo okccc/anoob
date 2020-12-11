@@ -1,7 +1,7 @@
 ### shortcut
 ```shell script
 # idea快捷键设置
-File - Settings - Keymap
+File - Settings - Keymap - Main menu - Edit/Navigate/Run
 # 查找某个类
 Ctrl + Shift + Alt + N
 # 重构代码
@@ -13,7 +13,7 @@ Alt + <- | ->
 # 查看类的继承体系
 F4
 # 查看方法调用树(被调/主调)
-Ctrl + Alt + H
+Ctrl + Alt + *H*
 # 快速跳转
 Alt + 数字
 # duplicated code fragment
