@@ -346,7 +346,8 @@ hadoop fs -chmod -R 755 /data
 
 # org.apache.hadoop.ipc.StandbyException: Operation category READ is not supported in state standby
 原因：主节点是standby状态  
-解决：hdfs haadmin -failover nn2 nn1 将nn1切换成active状态
+命令行：hdfs haadmin -failover nn2 nn1 将nn1切换成active状态
+CM界面：hdfs - 实例 - NameNode(备用) - Federation与High Availability - 操作 - 手动故障转移
 
 # Initial job has not accepted any resources; check your cluster UI to ensure that workers are registered and have sufficient resources
 原因：内存不足导致spark运行失败  
