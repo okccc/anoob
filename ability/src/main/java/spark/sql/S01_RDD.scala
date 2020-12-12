@@ -36,7 +36,7 @@ object S01_RDD {
      * 分布式：数据来源 & 计算 & 数据存储
      * 不可变：RDD本身不可变,transform操作会生成新的RDD
      * 可分区：每个partition的数据会发送给一个executor执行达到并行计算目的,增加分区数可以增大任务并行度充分利用集群资源
-     * 数据集：1.分区的集合 2.基于分区计算的算子 3.依赖的集合 4.针对k-v类型RDD的Partitioner(可选) 5.读取hdfs数据块时会计算每个分片的地址集合(可选)
+     * 5大特性：1.分区 2.基于分区计算的算子 3.依赖 4.K-V类型RDD的分区器(可选) 5.存储每个分区的preferred location使计算本地化(可选)
      *
      * RDD两种算子
      * transform：转换新的数据集,lazy模式调用action算子才触发计算,可以根据DAG做相应优化,合并窄依赖的转换算子减少executor与driver之间的通信
