@@ -13,7 +13,7 @@ import scala.util.Random
  * @date 2020/12/9 3:38 下午
  * @version 1.0
  */
-object ProducerDemo {
+object ProduceToKafka {
   /**
    * 模拟生产者往kafka写数据
    */
@@ -53,7 +53,7 @@ object ProducerDemo {
         }
       })
       // 发送间隔
-      Thread.sleep(10)
+      Thread.sleep(50)
     }
 
     // 关闭生产者

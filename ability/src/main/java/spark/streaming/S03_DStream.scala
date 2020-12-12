@@ -87,9 +87,9 @@ object S03_DStream {
 
     // 创建DStream两种方式：接收输入数据流,从其他DStream转换
     // 1).socket套接字, yum -y install nc 开启nc -lk 9999写入数据
-    val socketDStream: ReceiverInputDStream[String] = ssc.socketTextStream("cdh1", 9999)
+    val socketDStream: ReceiverInputDStream[String] = ssc.socketTextStream("localhost", 9999)
     // 2).监控文件或目录,没有采用Receiver接收器模式,所以local[n]不需要设置n > 1
-    val hdfsDStream: DStream[String] = ssc.textFileStream("hdfs://cdh1:9000/test")
+    //    val hdfsDStream: DStream[String] = ssc.textFileStream("hdfs://cdh1:9000/test")
     // 3).从kafka采集数据
     //    val kafkaDStream: ReceiverInputDStream[(String, String)] = KafkaUtils.createStream(ssc, "cdh1:2181", "spark", topics = Map("spark" -> 3))
 

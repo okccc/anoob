@@ -39,7 +39,7 @@ public class ProducerDemo {
 
         // 添加拦截器集合
         List<String> interceptors = new ArrayList<>();
-        interceptors.add("hadoop.kafka.K_InterceptorDemo");
+        interceptors.add("spark.kafka.InterceptorDemo");
         prop.put("interceptor.classes", interceptors);
 
         // 创建生产者对象
