@@ -40,10 +40,10 @@ export JAVA_OPTS="-Xms4096m -Xmx4096m -Dcom.sun.management.jmxremote"
 #!/bin/bash
 for i in cdh1 cdh2 cdh3
 do
-    ssh $i "source /etc/profile && java -jar mock-1.0-SNAPSHOT-jar-with-dependencies.jar $1 $2 > a.log &"
+    ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
 done
 
-# 集群一键启动flume脚本
+# 一键启动flume脚本
 [root@cdh1 ~]$ vim flume.sh
 #!/bin/bash
 case $1 in
@@ -51,7 +51,7 @@ case $1 in
     for i in cdh1 cdh2 cdh3
     do
         echo "================= ${i}启动flume ================"
-        ssh ${i} "source /etc/profile && cd /opt/module/flume-1.7.0 && nohup flume-ng agent -c conf -f conf/nginx-flume-kafka.conf -n a1 -Dflume.root.logger=INFO,LOGFILE > /dev/null 2>&1 &"
+        ssh ${i} "source /etc/profile && cd /opt/module/flume-1.7.0 && flume-ng agent -c conf -f conf/nginx-flume-kafka.conf -n a1 -Dflume.root.logger=info,logfile > /dev/null 2>&1 &"
     done
 };;
 "stop"){
@@ -80,15 +80,16 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 
 #### nginx-flume-kafka.conf
 ```shell script
+# 注意：生产环境上编写conf文件时不要在行的后面加#注释,会被当成类名
 # 命名agent组件
 a1.sources = r1
 a1.channels = c1 c2
 
 # 配置source
 a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
-a1.sources.r1.positionFile = /opt/module/flume-1.7.0-bin/test/log_position.json  # 记录日志文件读取位置
+a1.sources.r1.positionFile = /opt/module/flume-1.7.0/test/log_position.json  # 记录日志文件读取位置
 a1.sources.r1.filegroups = f1                  # 监控的是一组文件
-a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件可以以空格分隔,也支持正则表达式
+a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也支持正则表达式,目录必须存在不然报错
 a1.sources.r1.fileHeader = true
 a1.sources.r1.channels = c1 c2
 # 拦截器(要将拦截器代码打成jar包放到flume的lib目录下)
@@ -98,28 +99,29 @@ a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志
 # 选择器
 a1.sources.r1.selector.type = multiplexing         # 根据日志类型发往指定channel
 a1.sources.r1.selector.header = topic              # event的header的key
-a1.sources.r1.selector.mapping.topic_start = c1
-a1.sources.r1.selector.mapping.topic_event = c2
+a1.sources.r1.selector.mapping.topic_start = c1    # start日志发往c1
+a1.sources.r1.selector.mapping.topic_event = c2    # event日志发往c2
 
 # 配置channel
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
-a1.channels.c1.kafka.topic = topic_start                                # start类型的日志发往channel1,对应kafka的topic_start
-a1.channels.c1.parseAsFlumeEvent = false
-a1.channels.c1.kafka.consumer.group.id = flume-consumer
+a1.channels.c1.kafka.topic = topic_start                                # 如果topic不存在会自动创建
+a1.channels.c1.kafka.consumer.group.id = flume-consumer                 # 消费者的groupId
+a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不需要,不然往表里存还要再截掉
+
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
 a1.channels.c2.kafka.topic = topic_event                                # event类型的日志发往channel2,对应kafka的topic_event
-a1.channels.c2.parseAsFlumeEvent = false
 a1.channels.c2.kafka.consumer.group.id = flume-consumer
+a1.channels.c2.parseAsFlumeEvent = false
 
-# 启动kafka
+# 先启动kafka
 [root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
-[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic test --partitions 1 --replication-factor 1
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic test
-# 启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=INFO,console
-# 启动log,消费者能收到数据说明ok
+[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic topic_start --partitions 1 --replication-factor 1
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic topic_start
+# 再启动flume-ng
+[root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=info,console
+# 然后启动log,消费者能收到数据说明ok
 [root@cdh1 ~]$ nohup java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > /dev/null 2>&1 &
 ```
 

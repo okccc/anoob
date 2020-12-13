@@ -85,7 +85,7 @@ public class MysqlDemo {
 
         // 1.读取配置文件
         Properties prop = new Properties();
-        FileReader fr = new FileReader("ability/src/main/resources/jdbc.properties");
+        FileReader fr = new FileReader("ability/src/main/resources/config.properties");
         prop.load(fr);
         // 2.获取连接信息
         String driver = prop.getProperty("driver");

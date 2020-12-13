@@ -32,7 +32,7 @@ object MyKafkaUtil {
     "group.id" -> group, // 消费者组
     // 可选参数
     "auto.offset.reset" -> "latest", // 偏移量位置 latest(默认)/earliest/none
-    "enable.auto.commit" -> false // true(默认)自动提交,false手动提交
+    "enable.auto.commit" -> (false: java.lang.Boolean) // true(默认)自动提交,false手动提交
   )
 
   // 创建从kafka获取数据的DStream,指定topic

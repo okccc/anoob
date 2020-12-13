@@ -27,7 +27,7 @@ public class JDBCUtils {
     public static Connection getConnection() throws Exception {
         // 1.读取配置文件
         Properties prop = new Properties();
-        FileReader fr = new FileReader("ability/src/main/resources/jdbc.properties");
+        FileReader fr = new FileReader("ability/src/main/resources/config.properties");
         prop.load(fr);
         // 2.获取连接信息
         String driver = prop.getProperty("driver");
@@ -62,7 +62,7 @@ public class JDBCUtils {
             // 1.加载配置文件
             Properties prop = new Properties();
             FileInputStream is = new FileInputStream("ability/src/main/resources/dbcp.properties");
-//            InputStream is = JDBCUtils.class.getClassLoader().getResourceAsStream("jdbc.properties");
+//            InputStream is = JDBCUtils.class.getClassLoader().getResourceAsStream("config.properties");
             prop.load(is);
             // 2.创建数据源
             source = BasicDataSourceFactory.createDataSource(prop);

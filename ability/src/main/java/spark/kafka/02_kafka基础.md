@@ -20,7 +20,7 @@ socket.receive.buffer.bytes=102400
 socket.request.max.bytes=104857600
 ############################# Log Basics #############################
 # kafka运行日志存放路径
-log.dirs=/opt/module/kafka/logs
+log.dirs=/opt/module/kafka_2.11-0.11.0.2/logs
 # topic在当前broker上的分区个数
 num.partitions=1
 # 恢复和清理data下数据的线程数
