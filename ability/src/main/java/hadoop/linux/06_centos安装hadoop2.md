@@ -25,22 +25,22 @@ case $1 in
 "start"){
     for i in cdh1 cdh2 cdh3
     do
-        echo "==================${i}启动zk================"
-        ssh $i "source /etc/profile && zkServer.sh start"
+        echo "================== ${i}启动zk ================"
+        ssh ${i} "source /etc/profile && zkServer.sh start"
     done
 };;
 "stop"){
     for i in cdh1 cdh2 cdh3
     do
-        echo "==================${i}停止zk================"
-        ssh $i "source /etc/profile && zkServer.sh stop"
+        echo "================== ${i}停止zk ================"
+        ssh ${i} "source /etc/profile && zkServer.sh stop"
     done
 };;
 "status"){
     for i in cdh1 cdh2 cdh3
     do
-        echo "=================${i}查看zk状态==============="
-        ssh $i "source /etc/profile && zkServer.sh status"
+        echo "================= ${i}查看zk状态 ==============="
+        ssh ${i} "source /etc/profile && zkServer.sh status"
     done
 };;
 esac
@@ -173,7 +173,7 @@ export HIVE_CONF_DIR=/opt/module/hive-1.2.1/conf
 #!/bin/bash
 # 获取参数
 if [ $# == 1 ]; then
-    path=$1
+    path=$1  # 文件要写全路径
 else
     echo "Usage: <file>"
     exit
@@ -443,7 +443,7 @@ done
 [root@cdh1 ~]$ mr-jobhistory-daemon.sh start historyserver
 
 # 一键启动集群
-[root@cdh1 ~]$ cd /usr/bin -> vim start-cluster -> chmod +x start-cluster
+[root@cdh1 ~]$ cd /usr/bin & vim start-cluster & chmod +x start-cluster
 #!/bin/bash
 # 启动zookeeper
 for i in cdh1 cdh2 cdh3
@@ -473,18 +473,19 @@ do
     echo ${?}
 done
 
-# 一键查看进程
-[root@cdh1 ~]$ cd /usr/bin --> vim jpsall --> chmod +x jpsall
+# 在所有节点执行某个命令
+[root@cdh1 ~]$ cd /usr/bin & vim xcall.sh & chmod +x xcall.sh
+[root@cdh1 ~]$ xcall.sh jps | xcall.sh "cd /tmp/logs && rm -rf *"
 #!/bin/bash
 for i in cdh1 cdh2 cdh3
 do
     echo ==================== ${i} ====================
-    # ssh后面的命令是未登录执行,需要先刷新系统环境变量
-    ssh ${i} "source /etc/profile && jps | grep -v Jps"
+    # ssh后面的命令是未登录执行,需要先刷新系统环境变量,$*表示输入的所有参数
+    ssh ${i} "source /etc/profile && $*"
 done
 
 # 一键关闭集群
-[root@cdh1 ~]$ cd /usr/bin -> vim stop-cluster -> chmod +x stop-cluster
+[root@cdh1 ~]$ cd /usr/bin & vim stop-cluster & chmod +x stop-cluster
 #!/bin/bash
 # 关闭kafka
 for i in cdh1 cdh2 cdh3
