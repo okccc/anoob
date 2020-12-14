@@ -48,7 +48,7 @@ public class ProducerDemo {
         // 往kafka发送数据,topic中的数据全局无序,分区内部有序
         for (int i = 0; i < 1000; i++) {
             // 将数据封装成ProducerRecord对象发送,并且可以添加回调函数,在producer收到ack时调用
-            producer.send(new ProducerRecord<>("t01", i + "", "message-" + i), new Callback() {
+            producer.send(new ProducerRecord<>("topic_start", i + "", "message-" + i), new Callback() {
                 @Override
                 public void onCompletion(RecordMetadata metadata, Exception exception) {
                     // 没有异常说明发送成功

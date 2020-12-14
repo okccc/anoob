@@ -96,7 +96,7 @@ a1.sources.r1.channels = c1 c2
 a1.sources.r1.interceptors = i1 i2
 a1.sources.r1.interceptors.i1.type = flume.LogETLInterceptor$Builder    # etl拦截器
 a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志类型拦截器
-# 选择器
+# 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing         # 根据日志类型发往指定channel
 a1.sources.r1.selector.header = topic              # event的header的key
 a1.sources.r1.selector.mapping.topic_start = c1    # start日志发往c1
