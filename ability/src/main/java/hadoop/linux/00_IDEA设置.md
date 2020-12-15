@@ -43,13 +43,11 @@ File - Settings - Plugins - Scala
 File - Settings - Build - Build Tools - Maven
 # 创建maven工程
 File - New - Project - Maven Next - GroupId(公司名)/ArtifactId(项目名) - Finish
-# 给Project/Module添加scala支持,不然无法创建scala类
-a.Project/Module - Add Framework Support - Scala - Use library scala-sdk-2.11.8/Create
-b.File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
+# 给工程添加scala支持,不然无法创建scala类,查看scala源码会出现Decompile to java和Choose Sources
+Project/Module - Add Framework Support - Scala - Use library scala-sdk-2.11.8/Create
+File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
 # Project和Module
 Intellij IDEA中Project是顶级结构单元,一个Project由一个或多个Module组成
 # 管理Project中的Module
 File - Project Structure - Modules - add/delete module
-# 查看scala源码出现Decompile to java和Choose Sources
-download scala-sources-2.11.x.tar.gz - File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add Sources
 ```
