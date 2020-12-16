@@ -582,7 +582,7 @@ hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 104.5 G  240.2 G  /user/hive/warehouse/dw.db
 320.7 G  671.3 G  /user/hive/warehouse/ods.db
 # hdfs文件大小排序
-[root@cdh1 ~]$ hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="  " | sort -nr  
+[root@cdh1 ~]$ hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="  " | sort -nr
 72G  167G  /user/hive/warehouse/ods.db/debit_detail
 54G  110G  /user/hive/warehouse/ods.db/urge_record
 51G  105G  /user/hive/warehouse/ods.db/pay_repayment_detail

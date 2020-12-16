@@ -39,7 +39,7 @@ hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'HOST');		    
 hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'PATH');		         -- /path/p1.php​  
 hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'QUERY');		         -- query=1  
 hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'QUERY','query');	     --  1  
-hive> ​select parse_url('http://facebook.com/path/p1.php?query=1', 'FILE');			     -- /path/p1.php?query=1​  
+hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'FILE');			     -- /path/p1.php?query=1​  
 -- 解析json字符串
 hive> select nvl(get_json_object(t.json,'$.timestamp'),'-');  
 -- 使用java类中的方法

@@ -36,38 +36,38 @@ object MyKafkaUtil {
   )
 
   // 创建从kafka获取数据的DStream,指定topic
-  def getKafkaStream(ssc: StreamingContext, topic: String): InputDStream[ConsumerRecord[String, String]] = {
-    // 从kafka读取数据
-    val kafkaStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream[String, String](
+  def getKafkaDStream(ssc: StreamingContext, topic: String): InputDStream[ConsumerRecord[String, String]] = {
+    // kafka将每条消息都封装成ConsumerRecord对象
+    val kafkaDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream[String, String](
       ssc,
       LocationStrategies.PreferConsistent,  // 位置策略
       ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams)  // 消费策略
     )
-    kafkaStream
+    kafkaDStream
   }
 
   // 创建从kafka获取数据的DStream,指定topic/groupId
-  def getKafkaStream(ssc: StreamingContext, topic: String, groupId: String): InputDStream[ConsumerRecord[String, String]] = {
+  def getKafkaDStream(ssc: StreamingContext, topic: String, groupId: String): InputDStream[ConsumerRecord[String, String]] = {
     // 手动传入groupId
     kafkaParams("group.id") = groupId
-    val kafkaStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
+    val kafkaDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
       ssc,
       LocationStrategies.PreferConsistent,
       ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams)
     )
-    kafkaStream
+    kafkaDStream
   }
 
   // 创建从kafka获取数据的DStream,指定topic/groupId/offset
-  def getKafkaStream(ssc: StreamingContext, topic: String, groupId: String, offset: Map[TopicPartition, Long]): InputDStream[ConsumerRecord[String, String]] = {
+  def getKafkaDStream(ssc: StreamingContext, topic: String, groupId: String, offset: Map[TopicPartition, Long]): InputDStream[ConsumerRecord[String, String]] = {
     // 手动传入groupId
     kafkaParams("group.id") = groupId
-    val kafkaStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
+    val kafkaDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
       ssc,
       LocationStrategies.PreferConsistent,
       // 手动传入offset替换默认的latest
       ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams, offset)
     )
-    kafkaStream
+    kafkaDStream
   }
 }

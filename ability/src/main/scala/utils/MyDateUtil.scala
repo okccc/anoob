@@ -47,7 +47,7 @@ object MyDateUtil {
   }
 
   // 判断一个时间是否在另一个时间之前 "yyyy-MM-dd HH:mm:ss"
-  def before(time1: String, time2: String): Boolean = {
+  def isBefore(time1: String, time2: String): Boolean = {
     if(DATETIME_FORMATTER.parseDateTime(time1).isBefore(DATETIME_FORMATTER.parseDateTime(time2))) {
       return true
     }
