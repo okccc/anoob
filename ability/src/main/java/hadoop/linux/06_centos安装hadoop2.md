@@ -546,7 +546,9 @@ done
 [root@cdh1 ~]$ yarn application -status application_id
 
 # hdfs
-# 修改目录权限
+# 修改目录所属用户
+[root@cdh1 ~]$ hadoop fs -chown dev /crm
+# 修改目录读写权限
 [root@cdh1 ~]$ hadoop fs -chmod 777 /user
 # 查看文件列表以时间倒序排序
 [root@cdh1 ~]$ hadoop fs -ls -t -r /
