@@ -5,13 +5,21 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 
 object S04_collection {
+
   def main(args: Array[String]): Unit = {
-    /**
+    /*
      * 所有集合类都在这三个包 scala.collection | scala.collection.immutable | scala.collection.mutable
-     * Scala默认选择不可变集合,想要获取可变集合需要显式写出collection.mutable.{ArrayBuffer, ListBuffer, Set}
+     * Scala默认不可变集合,可变集合需要显示指定collection.mutable.{ArrayBuffer, ListBuffer}
      */
 
-    // 1.数组：是Scala的一种特殊集合,对应Java数组并且支持泛型,Scala数组和Scala序列兼容(可以在要求Seq[T]的地方传入Array[T])
+    testArray()
+    testList()
+    testMap()
+    testOther()
+  }
+
+  def testArray(): Unit = {
+    // 数组(不可变)：是Scala的一种特殊集合,对应Java数组并且支持泛型,Scala数组和序列兼容(可以在要求Seq[T]的地方传入Array[T])
     val arr: Array[Int] = Array(1,2,3,4)
     println(arr, arr.toSeq, arr.toList)  // [I@ea4a92b, WrappedArray(1, 2, 3, 4), List(1, 2, 3, 4)
     // Array可以隐式转换成WrappedArray
@@ -36,7 +44,7 @@ object S04_collection {
     val array3: Array[Int] = arr.drop(10)
     println(array3.length)  // 空数组
 
-    // 数组缓冲：可以在尾部高效添加元素,常用于往尾部添加新元素来构建大的集合
+    // 数组缓冲(可变)
     val ab: ArrayBuffer[Int] = ArrayBuffer(1,2,3,4)
     println(ab)  // ArrayBuffer(1, 2, 3, 4)
     // 添加元素,返回buffer本身
@@ -51,9 +59,10 @@ object S04_collection {
     ab.clone()  // 和buffer拥有相同元素的新缓冲
     // 转换为数组
     println(ab.toArray)  // [I@ea1a8d5
+  }
 
-
-    // 2.列表
+  def testList(): Unit = {
+    // 列表(不可变)
     val list: List[Int] = List(1,2,3,4)
     println(list)  // List(1, 2, 3, 4)
     // 遍历
@@ -94,30 +103,25 @@ object S04_collection {
     // 求和,乘积,最值,反转
     println(l2.sum, l2.product, l2.max, l2.reverse)  // 12,60,5
 
-    // 列表缓冲：和数组缓冲类似
+    // 列表缓冲(可变)
     val lb: ListBuffer[Int] = ListBuffer(1,2,3,4)
-    println(lb)  // ListBuffer(1, 2, 3, 4)
+    lb.append(5)
+    println(lb)  // ListBuffer(1, 2, 3, 4, 5)
     // 头部
     println(lb.head)  // 1
     // 去掉头部,tail.tail可以递归
-    println(lb.tail)  // ListBuffer(2, 3, 4)
-    println(lb.tail.tail)  // ListBuffer(3, 4)
+    println(lb.tail)  // ListBuffer(2, 3, 4, 5)
+    println(lb.tail.tail)  // ListBuffer(3, 4, 5)
     // 尾部
-    println(lb.last)  // 4
+    println(lb.last)  // 5
     // 去掉尾部
-    println(lb.init)  // ListBuffer(1, 2, 3)
+    println(lb.init)  // ListBuffer(1, 2, 3, 4)
     // 转换为列表
-    println(lb.toList)  // List(1,2,3,4)
-    
-    // 3.set集合
-    val s1: Set[Int] = Set(1, 2, 3, 3, 4)
-    val s2: mutable.Set[Int] = mutable.Set(1, 2, 3, 3, 4)
-    println(s1, s2)  // Set(1, 2, 3, 4) Set(1, 2, 3, 4)
-    val s11: Set[Int] = s1 + 5
-    val s21: mutable.Set[Int] = s2 += 5
-    println(s11, s21)  // Set(5, 1, 2, 3, 4) Set(1, 5, 2, 3, 4)
+    println(lb.toList)  // List(1, 2, 3, 4, 5)
+  }
 
-    // 4.map集合
+  def testMap(): Unit = {
+    // map集合
     val map: Map[String, Int] = Map("a" -> 1, "b" -> 2, "c" -> 3)
     println(map)  // Map(a -> 1, b -> 2, c -> 3)
     // 遍历
@@ -138,13 +142,23 @@ object S04_collection {
     // 删除
     val map3: Map[String, Int] = map-"b"
     println(map3)  // Map(a -> 1, c -> 3)
+  }
 
-    // 5.元组,不可变,可以容纳不同类型元素
+  def testOther(): Unit = {
+    // set集合
+    val s1: Set[Int] = Set(1, 2, 3, 3, 4)
+    val s2: mutable.Set[Int] = mutable.Set(1, 2, 3, 3, 4)
+    println(s1, s2)  // Set(1, 2, 3, 4) Set(1, 2, 3, 4)
+    val s11: Set[Int] = s1 + 5
+    val s21: mutable.Set[Int] = s2 += 5
+    println(s11, s21)  // Set(5, 1, 2, 3, 4) Set(1, 5, 2, 3, 4)
+
+    // 元组(不可变)可以容纳不同类型元素
     val tuple: (String, Int, String) = ("grubby", 18, "orc")
     println(tuple)  // (grubby,18,orc)
     println(tuple._1 +" "+ tuple._2 +" "+ tuple._3)  // grubby 18 orc
 
-    // 6.队列(一定可变)
+    // 队列(一定可变)
     val queue: mutable.Queue[Int] = mutable.Queue(1,2,3)
     println(queue)  // Queue(1, 2, 3)
     // 进队列
@@ -155,4 +169,5 @@ object S04_collection {
     println(q)  // 1
     println(queue)  // Queue(2,3,4)
   }
+
 }

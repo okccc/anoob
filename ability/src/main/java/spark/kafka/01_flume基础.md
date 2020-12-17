@@ -106,13 +106,12 @@ a1.sources.r1.selector.mapping.topic_event = c2    # event日志发往c2
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
 a1.channels.c1.kafka.topic = topic_start                                # 如果topic不存在会自动创建
-a1.channels.c1.kafka.consumer.group.id = flume-consumer                 # 消费者的groupId
-a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不需要,不然往表里存还要再截掉
+#a1.channels.c1.kafka.consumer.group.id = flume-consumer                 # 消费者的groupId
+a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不加,不然往表里存还要再截掉
 
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
 a1.channels.c2.kafka.topic = topic_event                                # event类型的日志发往channel2,对应kafka的topic_event
-a1.channels.c2.kafka.consumer.group.id = flume-consumer
 a1.channels.c2.parseAsFlumeEvent = false
 
 # 先启动kafka
