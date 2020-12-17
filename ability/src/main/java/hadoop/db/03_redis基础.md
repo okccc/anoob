@@ -26,50 +26,51 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 3.分布式集群
 
 # db
-flushdb        # 清空当前数据库  
-flushall       # 清空所有数据库  
-select 0       # 选择第一个数据库  
-del key_name   # 删除键值对  
-keys *         # 查看所有key
-type key_name  # 查看key的类型
+127.0.0.1:6379> flushdb                  # 清空当前数据库
+127.0.0.1:6379> flushall                 # 清空所有数据库
+127.0.0.1:6379> select 0                 # 选择第一个数据库
+127.0.0.1:6379> keys *                   # 查看所有key
+127.0.0.1:6379> type name                # 查看key类型
+127.0.0.1:6379> ttl name                 # 查看key生命周期
+127.0.0.1:6379> exists name              # 判断key是否存在,1表示true,0表示false
+127.0.0.1:6379> del name                 # 删除键值对
 
 # string
-set uname grubby ex 60  # 设置键值对,ex是过期时间  
-get uname               # 根据key获取value
-ttl uname               # 查看生命周期
+127.0.0.1:6379> set name grubby ex 3600  # 添加键值对,设置过期时间
+127.0.0.1:6379> get name                 # 根据key获取value
 
 # list  
-llen websites             # 求list长度  
-lpush websites baidu.com  # 往列表左边插入值  
-rpush websites hupu.com   # 往列表右边插入值  
-lrange websites 0 -1      # 遍历list  
-lpop websites             # 从左边删除列表值  
-rpop websites             # 从右边删除列表值  
-lrem websites 2 qq.com    # 删除指定值(count>0从上往下删,count<0从下往上删,count=0删除所有)  
-lindex websites 1         # 根据索引求值
+127.0.0.1:6379> lpush names grubby  # 往列表左边插入值
+127.0.0.1:6379> rpush names moon    # 往列表右边插入值
+127.0.0.1:6379> lrange names 0 -1   # 遍历list
+127.0.0.1:6379> lindex names 1      # 根据索引求值
+127.0.0.1:6379> llen names          # 求list长度
+127.0.0.1:6379> lpop names          # 从左边删除列表值
+127.0.0.1:6379> rpop names          # 从右边删除列表值
+127.0.0.1:6379> lrem names 2 sky    # 删除指定值(count>0从上往下数,count<0从下往上数,count=0删除所有该值)
 
 # set(无序)  
-scard team1         # 求set长度  
-sadd team1 kobe     # 往集合添加元素  
-smembers team1      # 遍历set  
-srem team1 kobe     # 删除集合元素  
-sinter team1 team2  # 求两个集合交集  
-sunion team1 team2  # 求两个集合并集  
-sdiff team1 team2   # 求两个集合差集
-
+127.0.0.1:6379> sadd names grubby   # 往集合添加元素
+127.0.0.1:6379> smembers names      # 遍历set
+127.0.0.1:6379> scard names         # 求set长度
+127.0.0.1:6379> srem names grubby   # 删除集合元素
+127.0.0.1:6379> sinter s1 s2        # 求两个集合交集
+127.0.0.1:6379> sunion s1 s2        # 求两个集合并集
+127.0.0.1:6379> sdiff s1 s2         # 求两个集合差集
+ 
 # zset(有序)  
-zcard myzset                   # 求zset长度  
-zadd myzset 10 a 11 b 12 c     # 往zset添加值和分数,值存在就更新分数,分数可以相同  
-zrange myzset 0 -1             # 遍历zset不带分数  
-zrange myzset 0 -1 withscores  # 遍历zset带分数
+127.0.0.1:6379> zadd z1 10 a 11 b 12 c     # 往zset添加值和分数,值存在就更新分数,分数可以相同
+127.0.0.1:6379> zrange z1 0 -1             # 遍历zset不带分数
+127.0.0.1:6379> zrange z1 0 -1 withscores  # 遍历zset带分数
+127.0.0.1:6379> zcard z1                   # 求zset长度
 
 # hash(字典)  
-hlen website                  # 求hash长度
-hset website baidu baidu.com  # 往字典存键值对
-hget website baidu            # 根据键获取值
-hgetall website               # 遍历
-hkeys website                 # 获取所有键
-hvals website                 # 获取所有值
-hdel website baidu            # 删除指定键值对
-hexists website baidu         # 判断键是否存在 0不存在,1存在
+127.0.0.1:6379> hset names orc grubby  # 往字典存键值对
+127.0.0.1:6379> hget names orc         # 根据键获取值
+127.0.0.1:6379> hlen names             # 求hash长度
+127.0.0.1:6379> hgetall names          # 遍历
+127.0.0.1:6379> hkeys names            # 获取所有键
+127.0.0.1:6379> hvals names            # 获取所有值
+127.0.0.1:6379> hexists names orc      # 判断键是否存在,1表示true,0表示false
+127.0.0.1:6379> hdel names baidu       # 删除指定键值对
 ```
