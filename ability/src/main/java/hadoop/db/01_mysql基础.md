@@ -2,34 +2,34 @@
 ### install
 ```shell script
 # 查看现有版本
-rpm -qa | grep -i mysql
+[root@cdh1 ~]$ rpm -qa | grep -i mysql
 # 删掉一切(没有就跳过)
-rpm -ev --nodeps mysql-libs-5.1.71-1.el6.x86_64
+[root@cdh1 ~]$ rpm -ev --nodeps mysql-libs-5.1.71-1.el6.x86_64
 # 下载rpm包
-wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+[root@cdh1 ~]$ wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
 # 安装rpm包,执行成功后会在/etc/yum.repos.d/目录下生成两个repo文件mysql-community.repo及mysql-community-source.repo
-rpm -ivh mysql57-community-release-el7-11.noarch.rpm
+[root@cdh1 ~]$ rpm -ivh mysql57-community-release-el7-11.noarch.rpm
 # 确认mysql仓库添加成功
-[root@cdh1 ~]# yum repolist enabled | grep mysql
+[root@cdh1 ~]$ yum repolist enabled | grep mysql
 mysql-connectors-community/x86_64       MySQL Connectors Community           153
 mysql-tools-community/x86_64            MySQL Tools Community                110
 mysql57-community/x86_64                MySQL 5.7 Community Server           424
 # 切换mysql版本(如有必要)
-[root@cdh1 ~]# vim /etc/yum.repos.d/mysql-community.repo
+[root@cdh1 ~]$ vim /etc/yum.repos.d/mysql-community.repo
 enabled=1
 # 安装mysql服务器及所有依赖(包括mysql-community-client、mysql-community-common、mysql-community-libs)
-yum -y install mysql-community-server
+[root@cdh1 ~]$ yum -y install mysql-community-server
 # 安装mysql驱动
-[root@cdh1 ~]# wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz
-[root@cdh1 ~]# tar -xvf mysql-connector-java-5.1.46.tar.gz
-[root@cdh1 ~]# mkdir -p /usr/share/java/
-[root@cdh1 ~]# cp mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar
+[root@cdh1 ~]$ wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz
+[root@cdh1 ~]$ tar -xvf mysql-connector-java-5.1.46.tar.gz
+[root@cdh1 ~]$ mkdir -p /usr/share/java/
+[root@cdh1 ~]$ cp mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar
 # 启动mysql
-systemctl start mysqld && systemctl enable mysqld
+[root@cdh1 ~]$ systemctl start mysqld && systemctl enable mysqld
 # 第一次启动会创建超级管理员账号root@localhost,初始密码存储在日志文件中
-grep -i 'temporary password' /var/log/mysqld.log
+[root@cdh1 ~]$ grep -i 'temporary password' /var/log/mysqld.log
 # 首次登陆先修改密码
-mysql -u root -p
+[root@cdh1 ~]$ mysql -u root -p
 # mysql5.6.6版本后增加了密码强度验证插件validate_password
 mysql> show variables like 'validate_password%';
 # 降低密码强度验证等级(和hive一样set设置是暂时的只对本次连接有效,修改/etc/my.cnf才能永久生效)
@@ -45,7 +45,7 @@ mysql> flush privileges;
 # 查看编码
 mysql> show variables like 'character%';
 # 修改数据库编码
-[root@cdh1 ~]# vim /etc/my.cnf && systemctl restart mysqld  # 修改配置文件后要重启mysqld服务
+[root@cdh1 ~]$ vim /etc/my.cnf && systemctl restart mysqld  # 修改配置文件后要重启mysqld服务
 [mysqld]
 character-set-server=utf8
 init-connect='SET NAMES utf8'
@@ -62,8 +62,7 @@ mysql> show status like 'Thread%';
 mysql> source area.sql;
 ```
 
-## mysql
-- basic
+### basic
 ```sql
 /*
 e-r模型：当前物理数据库都是按照e-r模型(entry-relationship)进行设计的,关系包括一对一/一对多/多对多
@@ -83,7 +82,7 @@ sql和nosql区别？
 关联：sql可以做join操作,nosql不存在
 事务：sql支持事务操作,nosql没有事务概念,每个数据集的操作都是原子级的
 性能：nosql不需要维护复杂的表关系,性能更好
- */
+*/
 
 -- 查看当前用户/当前数据库/数据库版本
 select user()/database()/version();
@@ -131,7 +130,7 @@ alter table scores drop foreign key stuid;
 alter table scores add constraint stu_sco foreign key(stuid) references students(id) on delete cascade;
 ```
 
-- engine
+### engine
 ```sql
 -- 查看所有存储引擎
 mysql> show engines;
@@ -168,7 +167,7 @@ Innodb：1.支持事务和外键 2.行级锁,只锁定操作的行,适合高并�
 排它锁(写锁)：事务A加排它锁后,其它事务不能加任何锁,只能等排它锁释放,innodb会在insert/update/delete数据时加排它锁,select不会加任何锁
 ```
 
-- 事务
+### tx
 ```sql
 -- 事务就是对表的更新操作(insert/delete/update),使数据从一种状态变换到另一种状态,有acid四大特性
 atomicity   -- 原子性：一组事务中的所有操作要么全部成功(commit),要么全部失败(rollback),并且一旦提交就无法回滚
@@ -206,7 +205,7 @@ mysql> select * from information_schema.innodb_trx;
 序列化      不可能  不可能       不可能
 ```
 
-- crud
+### crud
 ```sql
 -- 创建表5大约束 PRIMARY KEY | UNIQUE | NOT NULL | DEFAULT | FOREIGN KEY 外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 create table if not exists `emp` (
@@ -263,9 +262,29 @@ select * from emp limit 0,20;  -- 第一页
 select * from emp limit 40,20; -- 第三页
 -- 显示最近几次查询
 show profiles;
+
+-- 视图：将复杂的查询sql封装成虚拟表
+-- 优点：sql语句重用,简化复杂sql(解耦),定制用户数据,安全(read-only)
+create view view_name as select * from emp where email is not null;
+-- 查看视图
+select * from view_name;
+-- 更新视图
+create or replace view view_name as select * from emp where email is not null;
+-- 删除视图
+drop view view_name;
+
+-- 表结构监控
+-- 查询数据库有多少张表
+select table_schema,count(*) as tables from information_schema.tables group by table_schema;
+-- 查询表中有多少字段
+select count(*) from information_schema.columns where table_schema = '数据库名' and table_name = '表名';
+-- 查询数据库中有多少字段
+select count(column_name) from information_schema.columns where table_schema = '数据库名';
+-- 查询数据库中所有表、字段、类型和注释
+select table_name,column_name,data_type,column_comment from information_schema.columns where table_schema = '数据库名';
 ```
 
-- join
+### join
 ```sql
 -- a表和b表公共数据
 select * from t1 a inner join t2 b on a.id=b.id;
@@ -305,20 +324,7 @@ mysql> select * from a left join b on a.id=b.id where a.name='李四' and b.age=
 +----+------+------+------+
 ```
 
-- view
-```sql
--- 视图：将复杂的查询sql封装成虚拟表
--- 优点：sql语句重用,简化复杂sql(解耦),定制用户数据,安全(read-only)
-create view view_name as select * from emp where email is not null;
--- 查看视图
-select * from view_name;
--- 更新视图
-create or replace view view_name as select * from emp where email is not null;
--- 删除视图
-drop view view_name;
-```
-
-- explain
+### explain
 ```sql
 -- 执行计划：可以查看表的读取顺序,索引使用情况,扫描行数等
 -- 结合type/key/key_len/rows这些指标判断是否要建索引,如果涉及排序则主要分析Extra指标的Using filesort
@@ -371,7 +377,7 @@ Using filesort(重点) 表示排序字段没有通过索引访问,mysql中无法
 Using temporary 表示对查询结果排序或分组时使用了临时表
 ```
 
-- index
+### index
 ```sql
 -- 除了数据以外,数据库还维护着满足特定查找算法的数据结构,以某种方式指向物理数据,从而实现高级查找算法,这种数据结构就是索引
 优点：索引是一种排好序的快速查找数据结构,B+树(多路平衡查找树)存储,类似字典目录,可以提高数据检索效率降低IO成本和数据排序成本
@@ -442,9 +448,9 @@ select * from a where id not in (select id from b);  -- 改进为 select * from 
 -- mysql优化器会改变sql语句中select和where字段的顺序,但是group和order字段的顺序是不能变的,否则业务逻辑就变了
 ```
 
-- log
+### log
 ```sql
-# 慢查询日志
+-- 慢查询日志
 mysql> show variables like 'slow_query_log' | select @@slow_query_log
 +---------------------+------------------------------+
 | slow_query_log      | OFF                          |
@@ -456,14 +462,14 @@ mysql> show variables like 'long_query_time' | select @@long_query_time
 +-----------------+-----------+
 mysql> set global slow_query_log = 1;
 mysql> set global long_query_time = 5;
-# 修改配置文件后重启mysqld服务
-[root@cdh1 ~]# vim /etc/my.cnf && systemctl restart mysqld
+-- 修改配置文件后重启mysqld服务
+[root@cdh1 ~]$ vim /etc/my.cnf && systemctl restart mysqld
 [mysqld]
 slow_query_log=1
 slow_query_log_file=/var/lib/mysql/cdh1-slow.log
 long_query_time=5
 
-# mysqldumpslow日志分析工具
+-- mysqldumpslow日志分析工具
 -s, --sort  # 排序方式, c 访问次数 | r 返回记录数 | t 查询时间 | l 锁定时间
 -t, --top   # 返回前多少条记录
 -g, --grep  # 匹配字符串
@@ -471,29 +477,75 @@ mysqldumpslow -s c -t 10 /var/lib/mysql/cdh1-slow.log | more                 # �
 mysqldumpslow -s r -t 10 /var/lib/mysql/cdh1-slow.log | more                 # 获取返回记录最多的前10条sql
 mysqldumpslow -s t -t 10 -g "left join" /var/lib/mysql/cdh1-slow.log | more  # 获取耗时最长且包含左连接的前10条sql
 
-# 查询所有用户正在干什么
+-- 查询所有用户正在干什么
 mysql> show processlist;
 +----+------+-----------+------+---------+------+----------+------------------+
 | Id | User | Host      | db   | Command | Time | State    | Info             |
 +----+------+-----------+------+---------+------+----------+------------------+
 | 11 | root | localhost | test | Query   |    0 | starting | show processlist |
 +----+------+-----------+------+---------+------+----------+------------------+
-# 杀掉进程,重新连接Id会递增
+-- 杀掉进程,重新连接Id会递增
 mysql> kill 11;
 ERROR 1317 (70100): Query execution was interrupted
-
-# binlog
-以事件形式记录除select和show以外的所有DDL和DML语句,常用于mysql的主从复制和数据恢复
 ```
 
-- monitor
-```sql
--- 查询数据库有多少张表
-select table_schema,count(*) as tables from information_schema.tables group by table_schema;
--- 查询表中有多少字段
-select count(*) from information_schema.columns where table_schema = '数据库名' and table_name = '表名';
--- 查询数据库中有多少字段
-select count(column_name) from information_schema.columns where table_schema = '数据库名';
--- 查询数据库中所有表、字段、类型和注释
-select table_name,column_name,data_type,column_comment from information_schema.columns where table_schema = '数据库名';
+### binlog & canal
+```shell script
+binlog以事件形式记录除select和show以外的所有DDL和DML语句,binlog日志是事务安全的,常用于mysql的主从复制和数据恢复
+# 开启binlog
+[root@cdh1 ~]$ vim /etc/my.cnf && systemctl restart mysqld
+[mysqld]
+server_id=1        # 不能和canal的slaveId重复
+log-bin=mysql-bin  # binlog日志前缀
+binlog_format=row  # binlog格式为row,只记录行记录变化后的结果,保证数据绝对一致性
+binlog-do-db=test  # 指定要监控的库(可选)
+# 查看是否开启
+mysql> show variables like '%log_bin%' \g  # sql语句结尾加上\g表示界定符相当于分号,加上\G表示将查询结果按列打印字段数过多时使用
++---------------------------------+---------------------------------------+
+| Variable_name                   | Value                                 |
++---------------------------------+---------------------------------------+
+| log_bin                         | ON                                    |
+| log_bin_basename                | /usr/local/mysql/data/mysql-bin       |
+| log_bin_index                   | /usr/local/mysql/data/mysql-bin.index |
+| log_bin_trust_function_creators | OFF                                   |
+| log_bin_use_v1_row_events       | OFF                                   |
+| sql_log_bin                     | ON                                    |
++---------------------------------+---------------------------------------+
+# 查看binlog日志的工具,如果data目录进不去就 chmod -R a+rwx /usr/local/mysql/data 
+[root@cdh1 ~]$ cd /usr/local/mysql/data && mysqlbinlog mysql-bin.000001
+# 查看binlog日志列表
+mysql> show binary logs;
++------------------+-----------+
+| Log_name         | File_size |
++------------------+-----------+
+| mysql-bin.000001 |       201 |
+| mysql-bin.000002 |       201 |
+| mysql-bin.000003 |       154 |
++------------------+-----------+
+# 查看当前正在写入的binlog日志状态
+mysql> show master status;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |      154 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+# 刷新日志,会生成新的binlog
+mysql> flush logs;
+# 查看binlog文件内容,默认第一个也可以手动指定
+mysql> show binlog events [in 'mysql-bin.000002'];
++------------------+-----+----------------+-----------+-------------+---------------------------------------+
+| Log_name         | Pos | Event_type     | Server_id | End_log_pos | Info                                  |
++------------------+-----+----------------+-----------+-------------+---------------------------------------+
+| mysql-bin.000001 |   4 | Format_desc    |         1 |         123 | Server ver: 5.7.30-log, Binlog ver: 4 |
+| mysql-bin.000001 | 123 | Previous_gtids |         1 |         154 |                                       |
+| mysql-bin.000001 | 154 | Rotate         |         1 |         201 | mysql-bin.000002;pos=4                |
++------------------+-----+----------------+-----------+-------------+---------------------------------------+
+# 清空binlog,只剩mysql-bin.000001
+mysql> reset master;
+
+
+# 赋予权限
+grant all privileges on *.* to canal@'%' identified by 'canal';
+select * from mysql.user;
+# 
 ```
