@@ -335,11 +335,11 @@ uid=993(hdfs) gid=991(hdfs) groups=991(hdfs),993(hadoop)
 hdfs : hdfs hadoop
 
 # 修改权限
-[root@cdh1 ~]$ chmod 755 a.txt         # 更改对文件的读写执行权限  
-[root@cdh1 ~]$ chmod +x roll.sh        # 给脚本赋予执行权限  
-[root@cdh1 ~]$ chown root data         # 将data目录所属用户改为root,组不变  
-[root@cdh1 ~]$ chown root:root data    # 将data目录所属用户和组都改为root  
-[root@cdh1 ~]$ chown -R root data      # 将data及其下所有子目录所属用户都改为root(-r表示级联)   
+[root@cdh1 ~]$ chmod 755 a.txt                       # 修改文件的rwx权限
+[root@cdh1 ~]$ chmod +x roll.sh                      # 给脚本添加x权限
+[root@cdh1 ~]$ chmod -R a+rwx /usr/local/mysql/data  # 给所有用户添加rwx权限 
+[root@cdh1 ~]$ chown -R root data                    # 将data及其所有子目录所属用户都改为root(-r表示级联)
+[root@cdh1 ~]$ chown -R root:root data               # 将data目录所属用户和组都改为root
 ```
 
 ### file
