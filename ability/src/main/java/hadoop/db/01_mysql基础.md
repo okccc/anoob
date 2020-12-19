@@ -489,9 +489,10 @@ mysql> kill 11;
 ERROR 1317 (70100): Query execution was interrupted
 ```
 
-### binlog & canal
+### binlog
 ```shell script
-binlog以事件形式记录除select和show以外的所有DDL和DML语句,binlog日志是事务安全的,常用于mysql的主从复制和数据恢复
+# binlog以事件形式记录除select和show以外的所有DDL和DML语句,binlog日志是事务安全的,常用于mysql的主从复制和数据恢复
+# mysql主从复制原理：master主库将更新记录写进binary log中,slave从库拷贝binary log并重做其中的事件,canal就是伪装成slave
 # 开启binlog
 [root@cdh1 ~]$ vim /etc/my.cnf && systemctl restart mysqld
 [mysqld]
@@ -500,7 +501,7 @@ log-bin=mysql-bin  # binlog日志前缀
 binlog_format=row  # binlog格式为row,只记录行记录变化后的结果,保证数据绝对一致性
 binlog-do-db=test  # 指定要监控的库(可选)
 # 查看是否开启
-mysql> show variables like '%log_bin%' \g  # sql语句结尾加上\g表示界定符相当于分号,加上\G表示将查询结果按列打印字段数过多时使用
+mysql> show variables like '%log_bin%' \g  # sql语句结尾加上\g表示界定符相当于分号,加上\G表示将查询结果按列打印输出内容过多时使用
 +---------------------------------+---------------------------------------+
 | Variable_name                   | Value                                 |
 +---------------------------------+---------------------------------------+
@@ -519,10 +520,8 @@ mysql> show binary logs;
 | Log_name         | File_size |
 +------------------+-----------+
 | mysql-bin.000001 |       201 |
-| mysql-bin.000002 |       201 |
-| mysql-bin.000003 |       154 |
 +------------------+-----------+
-# 查看当前正在写入的binlog日志状态
+# 查看当前正在写入的binlog日志状态,初始大小是154,此时还没有记录更新
 mysql> show master status;
 +------------------+----------+--------------+------------------+-------------------+
 | File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
@@ -532,20 +531,76 @@ mysql> show master status;
 # 刷新日志,会生成新的binlog
 mysql> flush logs;
 # 查看binlog文件内容,默认第一个也可以手动指定
-mysql> show binlog events [in 'mysql-bin.000002'];
-+------------------+-----+----------------+-----------+-------------+---------------------------------------+
-| Log_name         | Pos | Event_type     | Server_id | End_log_pos | Info                                  |
-+------------------+-----+----------------+-----------+-------------+---------------------------------------+
-| mysql-bin.000001 |   4 | Format_desc    |         1 |         123 | Server ver: 5.7.30-log, Binlog ver: 4 |
-| mysql-bin.000001 | 123 | Previous_gtids |         1 |         154 |                                       |
-| mysql-bin.000001 | 154 | Rotate         |         1 |         201 | mysql-bin.000002;pos=4                |
-+------------------+-----+----------------+-----------+-------------+---------------------------------------+
-# 清空binlog,只剩mysql-bin.000001
+mysql> show binlog events [in 'mysql-bin.000002'] \G
+# 清空binlog
 mysql> reset master;
+# 导入测试数据
+mysql> create database canal charset=utf8;
+mysql> source mock.sql 
+# 模拟更新数据
+[root@cdh1 ~]$ vim application.properties
+[root@cdh1 ~]$ java -jar mock-db.jar
+# 给canal账号赋予权限
+grant all privileges on *.* to 'canal'@'%' identified by 'canal';
+```
 
-
-# 赋予权限
-grant all privileges on *.* to canal@'%' identified by 'canal';
-select * from mysql.user;
-# 
+### canal
+```shell script
+# 安装canal(单机版,canal很少宕机且单节点足够用所以不需要HA)
+# 集群：多台服务器干相同的活,分布式：多台服务器干不同的活,高可用：多台服务器一个干活别的当备份
+[root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules/canal.deployer-1.1.4
+# 修改canal配置
+[root@cdh1 ~]$ vim conf/canal.properties
+canal.serverMode = kafka           # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
+canal.mq.servers = localhost:9092  # kafka地址
+canal.destinations = example       # canal默认只有一个instance,对应一个example目录,如果需要多个实例就拷贝example并重命名
+# 修改实例配置
+[root@cdh1 ~]$ vim conf/example/instance.properties
+canal.instance.master.address=localhost:3306  # mysql地址
+canal.instance.dbUsername=canal    # 连接mysql的用户名/密码,就是之前授权的canal/canal
+canal.instance.dbPassword=canal
+canal.mq.topic=t_canal             # 指定kafka的topic
+canal.mq.partition=0               # 默认输出到一个partition,多个分区并行可能会打乱binlog顺序
+# 启动canal
+[root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题t_canal
+# 启动kafka消费者
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t_canal
+{
+    "data": [
+        {
+            "id": "9",
+            "user_name": "zhang3",
+            "tel": "13810001010"
+        },
+        {
+            "id": "10",
+            "user_name": "zhang3",
+            "tel": "13810001010"
+        }
+    ],
+    "database": "canal",
+    "es": 1608384750000,
+    "id": 21,
+    "isDdl": false,
+    "mysqlType": {
+        "id": "bigint(20)",
+        "user_name": "varchar(20)",
+        "tel": "varchar(20)"
+    },
+    "old": null,
+    "pkNames": [
+        "id"
+    ],
+    "sql": "",
+    "sqlType": {
+        "id": -5,
+        "user_name": 12,
+        "tel": 12
+    },
+    "table": "z_user_info",
+    "ts": 1608384750686,
+    "type": "INSERT"
+}
+# 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
+mysql> INSERT INTO z_user_info VALUES(9,'grubby','13812345678'),(10,'zhang3','15282163581');
 ```
