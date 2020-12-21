@@ -577,8 +577,8 @@ canal.mq.partition=0               # 默认输出到一个partition,多个分区
             "user_name": "zhang3",
             "tel": "13810001010"
         }
-    ],
-    "database": "canal",
+    ],  # 行记录
+    "database": "canal",  # 库
     "es": 1608384750000,
     "id": 21,
     "isDdl": false,
@@ -597,10 +597,13 @@ canal.mq.partition=0               # 默认输出到一个partition,多个分区
         "user_name": 12,
         "tel": 12
     },
-    "table": "z_user_info",
+    "table": "z_user_info",  # 表
     "ts": 1608384750686,
-    "type": "INSERT"
+    "type": "INSERT"  # 操作类型
 }
 # 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
 mysql> INSERT INTO z_user_info VALUES(9,'grubby','13812345678'),(10,'zhang3','15282163581');
+
+# SparkStreaming对topic分流
+# canal会追踪mysql所有数据库的变更,把所有变化数据都发到一个topic,为了方便下游处理,应该根据不同库的不同表对topic进行分流
 ```

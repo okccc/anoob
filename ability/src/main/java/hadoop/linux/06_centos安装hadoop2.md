@@ -1,143 +1,3 @@
-- [hadoop官网](http://hadoop.apache.org/)
-- [scala官网](http://www.scala-lang.org/)
-- [spark官网](http://spark.apache.org/)
-
-### zookeeper3.6
-```shell script
-# 每次都要先启动zookeeper,因为hdfs和yarn都依赖zk管理
-# 解压安装包并添加到环境变量
-[root@cdh1 opt]$ tar -xvf zookeeper-3.6.1.tar.gz -C /opt/module
-# 添加到环境变量
-[root@cdh1 ~]$ vim /etc/profile
-export ZK_HOME=/opt/module/zookeeper-3.6.1
-export PATH=$PATH:$ZK_HOME/bin
-# 在data目录下创建myid文件
-[root@cdh1 ~]$ echo '1' > myid
-# 拷贝到其它节点(要先创建/opt/module目录,不然传输的文件都会存放在module目录而不是zookeeper目录)并修改myid
-[root@cdh1 module]$ scp -r zookeeper-3.6.1/ cdh2:/opt/module
-[root@cdh1 module]$ scp -r zookeeper-3.6.1/ cdh3:/opt/module
-# 启动/停止/状态
-[root@cdh1 ~]$ zkServer.sh start-foreground/stop/status
-# 一键启动/停止脚本
-[root@cdh1 ~]$ vim zk.sh
-#!/bin/bash
-case $1 in
-"start"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "================== ${i}启动zk ================"
-        ssh ${i} "source /etc/profile && zkServer.sh start"
-    done
-};;
-"stop"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "================== ${i}停止zk ================"
-        ssh ${i} "source /etc/profile && zkServer.sh stop"
-    done
-};;
-"status"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "================= ${i}查看zk状态 ==============="
-        ssh ${i} "source /etc/profile && zkServer.sh status"
-    done
-};;
-esac
-# 打开客户端
-[root@cdh1 ~]$ zkCli.sh -server host:port
-# 查看事务日志
-[root@cdh1 version-2]$ zkTxnLogToolkit.sh log.100000001
-# 查看快照文件
-[root@cdh1 version-2]$ zkSnapShotToolkit.sh snapshot.0
-```
-
-```shell script
-[root@cdh1 conf]$ vim zoo.cfg
-# The number of milliseconds of each tick
-# ZK服务器或客户端与服务器之间维持心跳的时间间隔,每隔tickTime发送一个心跳,以毫秒为单位  
-tickTime=2000  
-# leader与follower之间初始连接能容忍的最多心跳数(tickTime数量)  
-initLimit=10  
-# leader与follower之间请求应答能容忍的最多心跳数(tickTime数量) 
-syncLimit=5
-# 存储快照
-dataDir=/opt/module/zookeeper-3.6.1/data
-# 存储事务日志
-dataLogDir=/opt/module/zookeeper-3.6.1/logs
-# the port at which the clients will connect  
-clientPort=2181  
-# 服务器名称与地址：集群信息(服务器编号,服务器地址,LF通信端口,选举端口)  
-server.1=cdh1:2888:3888
-server.2=cdh2:2888:3888
-server.3=cdh3:2888:3888
-```
-
-```shell script
-# zookeeper是一个分布式应用程序协调服务,zk=文件系统+通知机制
-# 分布式系统：利用更多机器处理更多数据,协调就是让各个节点的信息能够同步和共享
-# 应用场景
-1.统一命名服务
-2.统一配置管理
-工程中的很多配置信息比如数据库连接一般写在配置文件中,单节点机器没啥问题
-分布式集群还是需要一个集中管理配置的地方,可以将配置信息写进znode,相关应用程序监听这个znode,zk依赖ZAB协议可以保证主从数据一致性
-Hadoop使用zk做namenode的高可用
-Hbase的客户端就是连接zk获取集群配置信息再进行后续操作
-Kafka也是用zk维护broker信息
-3.统一集群管理
-# zk数据结构
-数据结构通常是K-V或者树形结构两种,ZK是类似linux的树形结构,每个节点叫znode,可通过其路径唯一标识
-znode并不存储大规模业务数据,而是存储不少量状态和配置信息,每个znode默认能存储1M数据,适用于读多写少场景
-# zk三个状态
-Looking(选举状态): 当前节点不知道谁是leader,正在搜寻
-Leading(主节点): 当前节点即选出来的leader
-Following(从节点): leader已经选好,当前节点与之同步
-# ZAB协议(Zookeeper Atomic Broadcast)
-恢复模式(选leader): 当启动服务或leader出现异常时会通过半数机制选举新的leader并同步状态到follower,然后退出恢复模式
-广播模式(干活): 保证主从节点数据一致
-# zk事务操作
-zxid: 当zookeeper服务器状态发生变化时(insert/update/delete znode)会对应一个事务请求,zk会为其分配一个全局的事务id,编号越大说明事务越新
-# zk选举机制
-全新集群: 比较myid(半数机制)  
-非全新集群(有机器中途宕机): 先比较zxid再比较myid 
-# znode两种类型
-持久的(persistent): 即使zk集群宕机也不会丢失
-临时的(ephemeral): 断开连接就会丢失
-# znode四种目录节点(默认持久非序列化)  
-PERSISTENT  
-PERSISTENT_SEQUENTIAL(持久序列化/test0000000019)  
-EPHEMERAL  
-EPHEMERAL_SEQUENTIAL 
-# Watcher
-zk允许用户在指定znode注册watcher,当触发特定事件时zk服务端会将事件通知到客户端,以此实现分布式协调服务
-
-# zk实现分布式锁: 当锁的持有者断开时锁会自动释放,zk的临时znode可以实现这个功能
-# 在cli1创建临时znode
-[zk: localhost:2181(CONNECTED) 0] create -e /lock 'lock'  # -e表示临时,此时cli2无法创建/lock会显示已存在
-# 在cli2监控该znode
-[zk: localhost:2181(CONNECTED) 0] stat -w /lock  # 当cli1断开连接时/lock自动丢失,此时cli2可以创建/lock
-
-# zk实现master-worker协同: 要求系统中只能有一个master,且master能实时监控worker情况
-# 在cli1创建临时znode
-[zk: localhost:2181(CONNECTED) 0] create -e /master 'master:8888'
-# 在cli1创建持久znode并监控该znode
-[zk: localhost:2181(CONNECTED) 0] create /workers && ls -w /workers
-# 在cli2的/workers节点下创建临时znode并观察监控变化
-[zk: localhost:2181(CONNECTED) 0] create -e /workers/w1 'w1:8888'
-```
-
-- zk启动报错
-```shell script
-org.apache.zookeeper.server.quorum.QuorumPeerConfig$ConfigException: Address unresolved: cdh1:3888
-原因：3888后面有空格导致无法识别端口号,linux复制文件时要注意空格
-
-Caused by: java.lang.IllegalArgumentException: myid file is missing
-原因：data目录下缺少myid文件
-
-Cannot open channel to 3 at election address cdh3/192.168.152.13:3888
-原因：有的节点还没启动,已经启动的节点会努力寻找其它节点进行leader选举,正常现象等节点都启动就好了
-```
-
 ### hadoop2.7
 ```shell script
 # 解压安装包
@@ -187,7 +47,7 @@ user=$(whoami)
 # 遍历节点分发
 for ((i=2;i<=10;i++)); 
 do
-    echo ======================== cdh${i} ===========================
+    echo "=============== cdh${i} ==============="
     rsync -rv ${dir}/${file} ${user}@cdh${i}:${dir}
 done
 ```
@@ -517,6 +377,7 @@ do
 done
 ```
 
+### hdfs
 ```shell script
 # 集群命令
 [root@cdh1 ~]$ /opt/cloudera/parcels/CDH/bin目录存放了hadoop/hdfs/yarn/zookeeper等一系列集群命令
@@ -575,7 +436,7 @@ Filesystem    Size   Used  Available  Use%
 hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 # hdfs某个目录大小
 [root@cdh1 ~]$ hadoop fs -du -s -h /user/hive/warehouse
-31.6T  64.7T  /user/hive/warehouse  # 说明是2个副本,小文件也会被当成128m切块大小,所以不是刚刚好2倍关系 
+31.6T  64.7T  /user/hive/warehouse  # 说明是2个副本,小文件也会被当成128m切块大小,所以不是刚刚好2倍关系
 # hdfs某个目录下所有文件大小
 [root@cdh1 ~]$ hadoop fs -du -h /user/hive/warehouse
 5.2 G    12.7 G   /user/hive/warehouse/dm.db
@@ -597,10 +458,12 @@ hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 [root@cdh1 ~]$ hadoop fs -expunge  # 会将当前目录/user/用户名/.Trash/current重命名为/user/用户名/.Trash/yyMMddHHmmSS,再次执行就彻底删除了
 
 # web页面监控
-http://cdh1:50070    # active
-http://cdh2:50070    # standby
+http://cdh1:50070    # active/standby
 http://cdh1:8088     # yarn  
-http://cdh1:19888    # job history
+http://cdh1:19888    # mr job history
+http://cdh1:8080     # master(如果8080端口被占用,MasterUI会尝试8081端口,WorkerUI会顺延到8082端口,可通过spark启动日志查看)
+http://cdh1:4040     # spark-shell
+http://cdh1:18080    # spark history server
 ```
 
 ### spark2.1
@@ -690,11 +553,6 @@ scala> spark.sql("show databases").show()
 2.if your application is submitted from a machine far from the worker machines (e.g. locally on your laptop), it is common to use cluster mode to minimize network latency between the drivers and the executors
 In client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.
 In cluster mode, the driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application. 
-
-# web页面监控
-http://cdh1:8080    # master(如果8080端口被占用,MasterUI会尝试8081端口,WorkerUI会顺延到8082端口,可通过spark启动日志查看)
-http://cdh1:4040    # spark-shell
-http://cdh1:18080   # history server
 ```
 
 ### hue
@@ -786,51 +644,4 @@ livy.server.session.state-retain.sec = 600s
 # 查看livy日志发现错误：Permission denied: user=root, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
 sudo -u hdfs hadoop fs -chmod 777 /user
 # UI监控 http://master1.meihaofenqi.net:8998
-```
-
-### mapreduce
-```java
-public class WordCount {  
-    public static class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritable>{  
-        private final static IntWritable one = new IntWritable(1);  
-        private Text text = new Text();  
-        @Override  
-        protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {  
-            // 将value(一行数据)转换成string
-            String line = value.toString();  
-            // 切分
-            String[] words = line.split(" ");  
-            // 遍历words,输出一个个<word,1>
-            for (String word : words) {  
-                text.set(word);  
-                context.write(text, one);  
-            }  
-        }  
-    }  
-    public static class WordCountReducer extends Reducer<Text, IntWritable, Text, IntWritable>{  
-        @Override  
-        protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {  
-            int count = 0;  
-            for (IntWritable value : values) {  
-                count += value.get();  
-            }  
-            context.write(key, new IntWritable(count));  
-        }  
-    }  
-    public static void main(String[] args) throws Exception {  
-        Configuration conf = new Configuration();  
-        Job job = Job.getInstance(conf);  
-        job.setMapperClass(WordCountMapper.class);  
-        job.setReducerClass(WordCountReducer.class);  
-        job.setMapOutputKeyClass(Text.class);  
-        job.setMapOutputValueClass(IntWritable.class);  
-        job.setOutputKeyClass(Text.class);  
-        job.setOutputValueClass(IntWritable.class);  
-        String input = "hdfs://ubuntu:8020/user/mapreduce/wc.txt";  
-        String output = "hdfs://ubuntu:8020/user/mapreduce/output";  
-        FileInputFormat.setInputPaths(job, new Path(input));  
-        FileOutputFormat.setOutputPath(job, new Path(output));  
-        System.exit(job.waitForCompletion(true) ? 0 : 1);  
-    }  
-}  
 ```

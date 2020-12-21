@@ -13,7 +13,7 @@ import scala.util.Random
  * @date 2020/12/9 3:38 下午
  * @version 1.0
  */
-object ProduceToKafka {
+object ProduceDemo {
   /**
    * 模拟生产者往kafka写数据
    */
@@ -36,7 +36,7 @@ object ProduceToKafka {
       // 随机生成一条用户日志
       val content: String = userlog()
       // 将日志封装成ProducerRecord对象发送,并且可以添加回调函数,在producer收到ack时调用
-      producer.send(new ProducerRecord("topic_event", "key-" + flag, content), new Callback {
+      producer.send(new ProducerRecord("t_event", "key-" + flag, content), new Callback {
         override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
           // 没有异常说明发送成功
           if (exception == null) {

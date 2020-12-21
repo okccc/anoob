@@ -99,25 +99,25 @@ a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志
 # 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing         # 根据日志类型发往指定channel
 a1.sources.r1.selector.header = topic              # event的header的key
-a1.sources.r1.selector.mapping.topic_start = c1    # start日志发往c1
-a1.sources.r1.selector.mapping.topic_event = c2    # event日志发往c2
+a1.sources.r1.selector.mapping.t_start = c1    # start日志发往c1
+a1.sources.r1.selector.mapping.t_event = c2    # event日志发往c2
 
 # 配置channel
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
-a1.channels.c1.kafka.topic = topic_start                                # 如果topic不存在会自动创建
-#a1.channels.c1.kafka.consumer.group.id = flume-consumer                 # 消费者的groupId
+a1.channels.c1.kafka.topic = t_start                                    # 如果topic不存在会自动创建
+#a1.channels.c1.kafka.consumer.group.id = flume-consumer                # 消费者的groupId
 a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不加,不然往表里存还要再截掉
 
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
-a1.channels.c2.kafka.topic = topic_event                                # event类型的日志发往channel2,对应kafka的topic_event
+a1.channels.c2.kafka.topic = t_event                                    # event类型的日志发往channel2,对应kafka的t_event
 a1.channels.c2.parseAsFlumeEvent = false
 
 # 先启动kafka
 [root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
-[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic topic_start --partitions 1 --replication-factor 1
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic topic_start
+[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic t_start --partitions 1 --replication-factor 1
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic t_start
 # 再启动flume-ng
 [root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=info,console
 # 然后启动log,消费者能收到数据说明ok
@@ -148,7 +148,7 @@ a2.sources.r2.ignorePattern = ([^ ]*\.tmp)  # 忽略所有以.tmp结尾的文件
 # source是kafka
 a3.sources.r3.type = org.apache.flume.source.kafka.KafkaSource
 a3.sources.r3.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
-a3.sources.r3.kafka.topics = topic_start, topic_event                  # topic列表,用逗号分隔,也可以用正则表达式匹配
+a3.sources.r3.kafka.topics = t_start, t_event                          # topic列表,用逗号分隔,也可以用正则表达式匹配
 a1.sources.r1.batchSize = 1000                                         # 每个批次写往channel的消息数
 a1.sources.r1.batchDurationMillis = 1000                               # 批次时间间隔
 
@@ -219,8 +219,6 @@ Event: { headers:{} body: 6A 61 76 61    java }
 java
 ```
 
-```java
-```java
 ```java
 package org.com.qbao.dc.spark.streaming;
 import java.util.ArrayList;

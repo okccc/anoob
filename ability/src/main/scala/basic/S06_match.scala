@@ -7,11 +7,9 @@ object S06_match {
      * import：导包时类似java中的*
      * class：给类起别名、隐藏类
      * match：模式匹配的默认case分支
-     * var：系统给可变变量的初始赋值
+     * var：系统给全局变量的初始赋值
      * function：替代方法中只使用一次的参数、可以让函数不执行而是作为返回值
-     */
-
-    /**
+     *
      * match模式匹配
      * 1.如果前面case都不匹配,就执行条件守卫case _ 分支,没有case _ 分支会抛异常MatchError
      * 2.每个case分支省略了break关键字,执行当前case分支后会自动中断

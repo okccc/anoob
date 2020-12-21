@@ -33,7 +33,7 @@ public class AppMain {
         int loop_len = args.length > 1 ? Integer.parseInt(args[1]) : 1000;
         // 生成日志
 //        generateLog(delay, loop_len);
-        generateLog(100L, 1000);
+        generateLog(50L, 1000);
     }
 
     private static void generateLog(Long delay, int loop_len) {

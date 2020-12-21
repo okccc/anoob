@@ -32,6 +32,7 @@ public class ProducerDemo {
         prop.put("value.serializer", StringSerializer.class.getName());  // value的序列化器
         // 可选参数
         prop.put("acks", "all");  // ack可靠性级别 0/1/-1(all)
+        prop.put("enable.idempotence", true);  // 开启幂等性机制,确保exactly once
         prop.put("retries", 1);  // 重试次数
         prop.put("batch.size", 1024*16);  // 批次大小
         prop.put("linger.ms", 10);  // 等待时间
@@ -48,7 +49,7 @@ public class ProducerDemo {
         // 往kafka发送数据,topic中的数据全局无序,分区内部有序
         for (int i = 0; i < 1000; i++) {
             // 将数据封装成ProducerRecord对象发送,并且可以添加回调函数,在producer收到ack时调用
-            producer.send(new ProducerRecord<>("topic_start", i + "", "message-" + i), new Callback() {
+            producer.send(new ProducerRecord<>("t_start", i + "", "message-" + i), new Callback() {
                 @Override
                 public void onCompletion(RecordMetadata metadata, Exception exception) {
                     // 没有异常说明发送成功

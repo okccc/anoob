@@ -31,9 +31,9 @@ public class LogTypeInterceptor implements Interceptor {
         Map<String, String> headers = event.getHeaders();
         // 填充header
         if (body.contains("start")) {
-            headers.put("topic", "topic_start");
+            headers.put("topic", "t_start");
         } else {
-            headers.put("topic", "topic_event");
+            headers.put("topic", "t_event");
         }
         // 返回填充headers后的Event
         return event;

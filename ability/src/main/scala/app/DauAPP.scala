@@ -28,11 +28,14 @@ object DauAPP {
     ssc.sparkContext.setLogLevel("warn")
 
     // 指定kafka的topic和groupId
-    val topic: String = "topic_start"
+    val topic: String = "t_start"
     val groupId: String = "aaa"
 
     // ============================== 功能1.从kafka中读取数据 ==============================
     val kafkaDStream: InputDStream[ConsumerRecord[String, String]] = MyKafkaUtil.getKafkaDStream(ssc, topic, groupId)
+    // 测试输出1
+    kafkaDStream.map((record: ConsumerRecord[String, String]) => record.value()).print(100)
+
     // 转换DStream中的数据结构
     val jsonDStream: DStream[JSONObject] = kafkaDStream.map((record: ConsumerRecord[String, String]) => {
       // 获取ConsumerRecord的value部分 {"action":"1","ba":"Huawei","detail":"433","en":"start","t":"1607982026247"...}
@@ -48,6 +51,7 @@ object DauAPP {
       jsonObj.put("hr", str.substring(11, 13))
       jsonObj
     })
+    // 测试输出2
     jsonDStream.print()
 
     // ============================== 功能2.通过redis对数据去重 ==============================
@@ -63,7 +67,7 @@ object DauAPP {
 //      val long: lang.Long = jedis.sadd(dauKey, mid)
 //      // 设置key的过期时间
 //      jedis.expire(dauKey, 3600 * 24)
-//      // 及时释放资源,不然连接池不够用 redis.clients.jedis.exceptions.JedisException: Could not get a resource from the pool
+//      // 关闭连接
 //      jedis.close()
 //      if (long == 1) true else false
 //    })
@@ -94,6 +98,7 @@ object DauAPP {
       jedis.close()
       listBuffer.toIterator
     })
+    // 测试输出3
     filterDStream.count().print()
 
     // ============================== 功能3.将日活数据保存到es ==============================
@@ -102,6 +107,5 @@ object DauAPP {
     // 启动采集
     ssc.start()
     ssc.awaitTermination()
-
   }
 }

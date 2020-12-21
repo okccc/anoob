@@ -364,6 +364,7 @@ hdfs : hdfs hadoop
 [root@cdh1 ~]$ tail -f catalina.log  # 动态显示文件后10行
 [root@cdh1 ~]$ wc a.txt  # 显示文件的行数(-l)、单词数(-w)、字符数(-c)  
 [root@cdh1 ~]$ find ./ -inum 123 -delete  # 可以删除rm删不掉的文件(i是文件的索引节点)  
+[root@cdh1 ~]$ locate my.cnf  # 可以快速定位文件  
 [root@cdh1 ~]$ cp a.txt b.txt  # 复制文件 
 [root@cdh1 ~]$ cp -r dir1 dir2  # 复制目录,-r表示递归  
 [root@cdh1 ~]$ scp -r conf/ root@python:/home/conf/  # 远程拷贝(复制所有)

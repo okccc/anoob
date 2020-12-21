@@ -356,9 +356,9 @@ object S01_RDD {
     // c.通过jdbc读取外部数据源mysql数据,类似sqoop
     // mysql配置信息
     //    val driver = "com.mysql.jdbc.Driver"
-    val url = "jdbc:mysql://localhost:3306/test"
-    val user = "root"
-    val password = "root"
+    val url: String = "jdbc:mysql://localhost:3306/test"
+    val user: String = "root"
+    val password: String = "root"
     // 创建JdbcRDD访问数据库
     val jdbcRDD: JdbcRDD[Unit] = new JdbcRDD(
       sc = sc,
@@ -406,7 +406,7 @@ object S01_RDD {
           // 关闭自动提交
           conn.setAutoCommit(false)
           // 插入sql,包含一个或多个?占位符
-          val sql = "insert into user values(null,?,?)"
+          val sql: String = "insert into user values(null,?,?)"
           /*
            * PreparedStatement优点
            * 1.预编译sql放入缓冲区提高效率,且下次执行相同sql时直接使用数据库缓冲区
@@ -436,7 +436,7 @@ object S01_RDD {
 // 自定义累加器
 class MyAccumulator extends AccumulatorV2[String, util.ArrayList[String]] {
   // 创建保存数据的集合
-  private val list = new util.ArrayList[String]()
+  private val list: util.ArrayList[String] = new util.ArrayList[String]()
   // 判断当前累加器是否为初始状态
   override def isZero: Boolean = list.isEmpty
   // 复制累加器对象

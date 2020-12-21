@@ -1,6 +1,7 @@
 [参考文档](https://www.cnblogs.com/freeweb/p/5276558.html)
 ### redis
 ```shell script
+# redis是分布式的高性能key-value数据库,数据完全基于内存读写速度极快(10万条/s),可以定期持久化到磁盘防止数据丢失,支持多种数据类型
 # 下载
 [root@cdh1 ~]$ wget http://download.redis.io/releases/redis-4.0.10.tar.gz
 # 解压,brew安装软件默认路径/usr/local/Cellar/ 安装完直接redis-server
@@ -19,11 +20,6 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 [root@cdh1 ~]$ redis-server /usr/local/redis-4.0.10/redis.conf 
 # 关闭redis
 [root@cdh1 ~]$ redis-cli shutdown
-
-# redis三大特点  
-1.高性能的key-value数据库,数据完全基于内存所以读写速度极快,每秒约10万条,定期持久化到磁盘防止数据丢失  
-2.支持string/list/set/zset/hash多种数据类型  
-3.分布式集群
 
 # db
 127.0.0.1:6379> flushdb                  # 清空当前数据库
@@ -65,12 +61,14 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> zcard z1                   # 求zset长度
 
 # hash(字典)  
-127.0.0.1:6379> hset names orc grubby  # 往字典存键值对
-127.0.0.1:6379> hget names orc         # 根据键获取值
-127.0.0.1:6379> hlen names             # 求hash长度
-127.0.0.1:6379> hgetall names          # 遍历
-127.0.0.1:6379> hkeys names            # 获取所有键
-127.0.0.1:6379> hvals names            # 获取所有值
-127.0.0.1:6379> hexists names orc      # 判断键是否存在,1表示true,0表示false
-127.0.0.1:6379> hdel names baidu       # 删除指定键值对
+127.0.0.1:6379> hset names orc grubby           # 往字典存键值对
+127.0.0.1:6379> hmset names orc grubby ne moon  # 往字典存多个键值对
+127.0.0.1:6379> hlen names                      # 求hash长度
+127.0.0.1:6379> hget names orc                  # 根据键获取值
+127.0.0.1:6379> hmget names orc ne              # 根据键获取多个值
+127.0.0.1:6379> hgetall names                   # 遍历
+127.0.0.1:6379> hkeys names                     # 获取所有键
+127.0.0.1:6379> hvals names                     # 获取所有值
+127.0.0.1:6379> hexists names orc               # 判断键是否存在,1表示true,0表示false
+127.0.0.1:6379> hdel names baidu                # 删除指定键值对
 ```
