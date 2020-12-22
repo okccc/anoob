@@ -31,6 +31,8 @@ Project/Module - 右键 - Local History - Show History - 找到删除文件 - Re
 选中代码 - Code - Surround With - try/catch | synchronized ...
 # idea设置代码模板
 File - Settings - Editor - File and Code Templates - Includes - FileHeader 添加author/date/version信息
+# idea导入导出所有设置
+File - Manage IDE Settings - Import/Export Settings
 ```
 
 ### idea-scala
