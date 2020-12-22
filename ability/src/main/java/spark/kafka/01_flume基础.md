@@ -97,8 +97,8 @@ a1.sources.r1.interceptors = i1 i2
 a1.sources.r1.interceptors.i1.type = flume.LogETLInterceptor$Builder    # etl拦截器
 a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志类型拦截器
 # 选择器(配合拦截器使用)
-a1.sources.r1.selector.type = multiplexing         # 根据日志类型发往指定channel
-a1.sources.r1.selector.header = topic              # event的header的key
+a1.sources.r1.selector.type = multiplexing     # 根据日志类型发往指定channel
+a1.sources.r1.selector.header = topic          # event的header的key
 a1.sources.r1.selector.mapping.t_start = c1    # start日志发往c1
 a1.sources.r1.selector.mapping.t_event = c2    # event日志发往c2
 
@@ -108,7 +108,7 @@ a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka�
 a1.channels.c1.kafka.topic = t_start                                    # 如果topic不存在会自动创建
 #a1.channels.c1.kafka.consumer.group.id = flume-consumer                # 消费者的groupId
 a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不加,不然往表里存还要再截掉
-
+# 将不同类型的日志由不同channel发往对应的topic
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
 a1.channels.c2.kafka.topic = t_event                                    # event类型的日志发往channel2,对应kafka的t_event

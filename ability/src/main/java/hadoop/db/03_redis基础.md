@@ -35,7 +35,7 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> set name grubby ex 3600  # 添加键值对,设置过期时间
 127.0.0.1:6379> get name                 # 根据key获取value
 
-# list  
+# list
 127.0.0.1:6379> lpush names grubby  # 往列表左边插入值
 127.0.0.1:6379> rpush names moon    # 往列表右边插入值
 127.0.0.1:6379> lrange names 0 -1   # 遍历list
@@ -45,7 +45,7 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> rpop names          # 从右边删除列表值
 127.0.0.1:6379> lrem names 2 sky    # 删除指定值(count>0从上往下数,count<0从下往上数,count=0删除所有该值)
 
-# set(无序)  
+# set(无序)
 127.0.0.1:6379> sadd names grubby   # 往集合添加元素
 127.0.0.1:6379> smembers names      # 遍历set
 127.0.0.1:6379> scard names         # 求set长度
@@ -54,21 +54,41 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> sunion s1 s2        # 求两个集合并集
 127.0.0.1:6379> sdiff s1 s2         # 求两个集合差集
  
-# zset(有序)  
+# zset(有序)
 127.0.0.1:6379> zadd z1 10 a 11 b 12 c     # 往zset添加值和分数,值存在就更新分数,分数可以相同
 127.0.0.1:6379> zrange z1 0 -1             # 遍历zset不带分数
 127.0.0.1:6379> zrange z1 0 -1 withscores  # 遍历zset带分数
 127.0.0.1:6379> zcard z1                   # 求zset长度
 
-# hash(字典)  
-127.0.0.1:6379> hset names orc grubby           # 往字典存键值对
-127.0.0.1:6379> hmset names orc grubby ne moon  # 往字典存多个键值对
-127.0.0.1:6379> hlen names                      # 求hash长度
-127.0.0.1:6379> hget names orc                  # 根据键获取值
-127.0.0.1:6379> hmget names orc ne              # 根据键获取多个值
-127.0.0.1:6379> hgetall names                   # 遍历
-127.0.0.1:6379> hkeys names                     # 获取所有键
-127.0.0.1:6379> hvals names                     # 获取所有值
-127.0.0.1:6379> hexists names orc               # 判断键是否存在,1表示true,0表示false
-127.0.0.1:6379> hdel names baidu                # 删除指定键值对
+# hash
+127.0.0.1:6379> hset offset:t01:g01 0 10           # 往hash存key field value
+(integer) 1
+127.0.0.1:6379> HMSET offset:t01:g01 1 20 2 30     # 往hash存多个key field value
+OK
+127.0.0.1:6379> hlen offset:t01:g01                # 求hash长度
+(integer) 3
+127.0.0.1:6379> hget offset:t01:g01 0              # 根据hash的key和field获取value
+"10"
+127.0.0.1:6379> hmget offset:t01:g01 0 1           # 根据hash的key和多个field获取多个value
+1) "10"
+2) "20"
+127.0.0.1:6379> hgetall offset:t01:g01             # 根据hash的key获取所有field和value
+1) "0"
+2) "10"
+3) "1"
+4) "20"
+5) "2"
+6) "30"
+127.0.0.1:6379> hkeys offset:t01:g01               # 根据hash的key获取所有field
+1) "0"
+2) "1"
+3) "2"
+127.0.0.1:6379> hvals offset:t01:g01               # 根据hash的key获取所有value
+1) "10"
+2) "20"
+3) "30"
+127.0.0.1:6379> hexists offset:t01:g01 0           # 判断hash的key和field是否存在,1表示true,0表示false
+(integer) 1
+127.0.0.1:6379> hdel offset:t01:g01 3              # 删除hash的指定key和field,1表示删除成功,0表示删除失败
+(integer) 1
 ```

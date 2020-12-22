@@ -79,10 +79,9 @@ object S03_DStream {
     // 可以设置日志级别
     ssc.sparkContext.setLogLevel("warn")
 
-    // DStream的有状态更新操作需要设置checkpoint保存状态,将数据落盘从而计算累加值,checkpoint的中间结果不可见,只能看到最终累加值
-    // 实际应用场景中,这种短时间内的数据可以存到redis,速度更快还能查看中间结果
-    // 那么多久会将内存中的状态保存到checkpoint一次呢？ max(batchDuration, 10s)
-    // checkpoint可以保存：1.conf配置信息 2.DStream处理逻辑 3.batch处理的位置信息,如果读取kafka数据可以保存offset位置
+    // DStream的有状态更新操作需要设置checkpoint将数据落盘保存内存中的状态,频率是 max(batchDuration, 10s)
+    // checkpoint可以保存：1.conf配置信息 2.DStream处理逻辑 3.batch处理的位置信息,比如kafka的offset
+    // 但是checkpoint存在小文件等问题,生产环境中通常存入redis,可以去重、记录offset等
     ssc.checkpoint("ability/cp")
 
     // 创建DStream两种方式：接收输入数据流,从其他DStream转换

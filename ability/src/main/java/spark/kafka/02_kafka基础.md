@@ -170,6 +170,7 @@ offset
 [root@cdh1 bin]$ ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
 # 创建topic,指定分区数和副本数
 [root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2
+Topic creation {"version":1,"partitions":{"1":[1,2,0],"0":[0,1,2]}}
 Created topic "t01".
 # 查看topic列表/详细信息
 [root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181,cdh2:2181,cdh3:2181 --list

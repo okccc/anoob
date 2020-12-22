@@ -15,7 +15,7 @@ object MyRedisUtil {
   private var jedisPool: JedisPool = _
 
   // 从jedisPool连接池中获取jedis
-  def getJedis: Jedis = {
+  def getJedisClient: Jedis = {
     if (jedisPool == null) {
       jedisPool = build()
     }
@@ -43,7 +43,7 @@ object MyRedisUtil {
   }
 
   def main(args: Array[String]): Unit = {
-    val jedis: Jedis = getJedis
+    val jedis: Jedis = getJedisClient
     // 测试是否能ping通
     println(jedis.ping())  // PONG
     // 释放资源

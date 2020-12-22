@@ -76,7 +76,7 @@ object DauAPP {
     // 2).遍历分区
     val filterDStream: DStream[JSONObject] = jsonDStream.mapPartitions(mapPartFunc = (jsonObjIterator: Iterator[JSONObject]) => {
       // 获取redis连接对象,有几个分区就建立几次连接,提高性能
-      val jedis: Jedis = MyRedisUtil.getJedis
+      val jedis: Jedis = MyRedisUtil.getJedisClient
       // 创建存放首次登陆对象的列表缓冲区
       val listBuffer: ListBuffer[JSONObject] = ListBuffer[JSONObject]()
       // 遍历分区中的元素
