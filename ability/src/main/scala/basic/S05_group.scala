@@ -30,7 +30,7 @@ object S05_group {
     println("res5=" + strings_sort_desc)  // List(cd, cc, ab, aa)
 
     // 3.map映射：可以改变集合的数据结构
-    val intToInt: Map[Int, Int] = intToList.map((t: (Int, List[Int])) => {(t._1, t._2.size)})
+    val intToInt: Map[Int, Int] = intToList.map((t: (Int, List[Int])) => (t._1, t._2.size))
     println("res6=" + intToInt)  // Map(2 -> 2, 4 -> 1, 1 -> 2, 3 -> 2)
     // WordCount案例1(分组 - 映射 - 排序 - top)
     val words: List[String] = List("java","python","scala","java","python","scala","java","spark")

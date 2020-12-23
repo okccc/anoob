@@ -7,19 +7,19 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 object S04_collection {
 
   def main(args: Array[String]): Unit = {
-    /*
-     * 所有集合类都在这三个包 scala.collection | scala.collection.immutable | scala.collection.mutable
-     * Scala默认不可变集合,可变集合需要显示指定collection.mutable.{ArrayBuffer, ListBuffer}
+    /**
+     * scala集合类scala.collection{immutable, mutable}
+     * Scala默认不可变集合Array/List/Map,可变集合需要显示指定mutable.{ArrayBuffer, ListBuffer, Map}
      */
 
-    testArray()
-    testList()
+//    testArray()
+//    testList()
     testMap()
-    testOther()
+//    testOther()
   }
 
   def testArray(): Unit = {
-    // 数组(不可变)：是Scala的一种特殊集合,对应Java数组并且支持泛型,Scala数组和序列兼容(可以在要求Seq[T]的地方传入Array[T])
+    // Array(不可变)：是Scala的一种特殊集合,对应Java数组并且支持泛型,Scala数组和序列兼容(可以在要求Seq[T]的地方传入Array[T])
     val arr: Array[Int] = Array(1,2,3,4)
     println(arr, arr.toSeq, arr.toList)  // [I@ea4a92b, WrappedArray(1, 2, 3, 4), List(1, 2, 3, 4)
     // Array可以隐式转换成WrappedArray
@@ -44,7 +44,7 @@ object S04_collection {
     val array3: Array[Int] = arr.drop(10)
     println(array3.length)  // 空数组
 
-    // 数组缓冲(可变)
+    // ArrayBuffer(可变)
     val ab: ArrayBuffer[Int] = ArrayBuffer(1,2,3,4)
     println(ab)  // ArrayBuffer(1, 2, 3, 4)
     // 添加元素,返回buffer本身
@@ -57,12 +57,12 @@ object S04_collection {
     ab.clear()  // 移除所有元素
     // 克隆
     ab.clone()  // 和buffer拥有相同元素的新缓冲
-    // 转换为数组
+    // 转换为Array
     println(ab.toArray)  // [I@ea1a8d5
   }
 
   def testList(): Unit = {
-    // 列表(不可变)
+    // List(不可变)
     val list: List[Int] = List(1,2,3,4)
     println(list)  // List(1, 2, 3, 4)
     // 遍历
@@ -103,7 +103,7 @@ object S04_collection {
     // 求和,乘积,最值,反转
     println(l2.sum, l2.product, l2.max, l2.reverse)  // 12,60,5
 
-    // 列表缓冲(可变)
+    // ListBuffer(可变)
     val lb: ListBuffer[Int] = ListBuffer(1,2,3,4)
     lb.append(5)
     println(lb)  // ListBuffer(1, 2, 3, 4, 5)
@@ -116,14 +116,16 @@ object S04_collection {
     println(lb.last)  // 5
     // 去掉尾部
     println(lb.init)  // ListBuffer(1, 2, 3, 4)
-    // 转换为列表
+    // 转换为List
     println(lb.toList)  // List(1, 2, 3, 4, 5)
   }
 
   def testMap(): Unit = {
-    // map集合
-    val map: Map[String, Int] = Map("a" -> 1, "b" -> 2, "c" -> 3)
-    println(map)  // Map(a -> 1, b -> 2, c -> 3)
+    // Map(不可变)：Map集合存储的元素是tuple()
+    val map: Map[String, Int] = Map(("a", 1), ("b", 2), ("c", 3))
+    val mapp: Map[String, Int] = Map("a" -> 1, "b" -> 2, "c" -> 3)
+    println(map.equals(mapp))  // true
+    println("map = " + map)  // map = Map(a -> 1, b -> 2, c -> 3)
     // 遍历
     map.foreach((t: (String, Int)) => println(t._1 + "=" + t._2))
     // 取值
@@ -133,15 +135,21 @@ object S04_collection {
     println(v1, v2, v3)  // Some(1), None, 0
     // 添加
     val map1: Map[String, Int] = map+("d"->4)
-    println(map1)  // Map(a -> 1, b -> 2, c -> 3, d -> 4)
+    println("map1 = " + map1)  // map1 = Map(a -> 1, b -> 2, c -> 3, d -> 4)
     // ++可以合并两个map,键相同值覆盖
     println(map++map1)  // Map(a -> 1, b -> 2, c -> 3, d -> 4)
     // 修改
     val map2: Map[String, Int] = map.updated("a", 5)
-    println(map2)  // Map(a -> 5, b -> 2, c -> 3)
+    println("map2 = " + map2)  // map2 = Map(a -> 5, b -> 2, c -> 3)
     // 删除
     val map3: Map[String, Int] = map-"b"
-    println(map3)  // Map(a -> 1, c -> 3)
+    println("map3 = " + map3)  // Map(a -> 1, c -> 3)
+
+    // mutable.Map(可变)
+    val map4: mutable.Map[String, Int] = mutable.Map("a" -> 1, "b" -> 2)
+    // 转换为Map
+    val map5: Map[String, Int] = map4.toMap
+    println(map4 == map5)  // true
   }
 
   def testOther(): Unit = {
