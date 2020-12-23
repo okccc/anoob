@@ -184,6 +184,7 @@ sed '4,$c\add one' a.txt                             # 将第四行以后的所�
 sed '4,$d' a.txt                                     # 删除第四行以后的所有内容  
 sed '/^$/d' a.txt                                    # 删除所有空白行  
 sed '/first/a\add one' a.txt                         # 在包含"first"字符串的行的下一行添加字符串"add one"  
+sed -i '/WARN/d;/LOCATION/d;/hdfs/d' a.txt           # 将包含"WARN" "LOCATION" "hdfs"字符串的行删除
 sed '/^ha.*day$/a\add one' a.txt                     # 在以ha开头day结尾的行的下一行添加字符串"add one"  
 sed '/^ha.*day$/c\add one' a.txt                     # 将以ha开头day结尾的行替换成字符串"add one"  
 sed '/^ha.*day$/d' a.txt                             # 删除以ha开头day结尾的行  
