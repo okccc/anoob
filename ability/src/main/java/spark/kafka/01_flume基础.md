@@ -76,6 +76,11 @@ kafka channel：数据存到kafka也是磁盘,可靠性高,且省去sink阶段�
 channel selectors：replicating将events发往所有channel,multiplexing将events发往指定channel
 # sink
 不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger/kafka
+
+# flume常见错误
+2020-12-22 15:03:15,837 ERROR org.apache.flume.source.taildir.TaildirSource: Failed writing positionFile
+java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
+# 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件,此处是flume用户,然后再修改用户即可
 ```
 
 #### nginx-flume-kafka.conf
