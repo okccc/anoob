@@ -11,6 +11,17 @@
 # 应用场景：项目中配置信息比如jdbc一般写在properties配置文件,单节点没问题但是分布式集群需要统一配置管理,可以将配置信息写进znode让应用程序监听
 # Hadoop使用zk做namenode高可用,Kafka依赖zk维护broker信息,Hbase客户端连接zk获取集群配置信息再进行后续操作
 
+# znode节点
+[zk: localhost:2181(CONNECTED) 0] ls /zookeeper             # zk信息
+[zk: localhost:2181(CONNECTED) 0] ls /hadoop-ha             # hadoop信息
+[zk: localhost:2181(CONNECTED) 0] ls /yarn-leader-election  # yarn信息
+[zk: localhost:2181(CONNECTED) 0] ls /brokers               # kafka启动时会向zk注册broker节点信息
+[zk: localhost:2181(CONNECTED) 0] ls /brokers/ids           # kafka存活节点的broker.id
+[zk: localhost:2181(CONNECTED) 0] ls /brokers/topics        # kafka的topic信息
+[zk: localhost:2181(CONNECTED) 0] get /controller           # kafka成为controller的节点
+[zk: localhost:2181(CONNECTED) 0] get /consumers            # kafka消费者信息
+[zk: localhost:2181(CONNECTED) 0] get /admin/delete_topics  # kafka删除的topic
+
 # zk实现分布式锁: 当锁的持有者断开时锁会自动释放,zk的临时znode可以实现这个功能
 # 在cli1创建临时znode
 [zk: localhost:2181(CONNECTED) 0] create -e /lock 'lock'  # -e表示临时,此时cli2无法创建/lock会显示已存在
