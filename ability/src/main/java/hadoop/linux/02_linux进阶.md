@@ -11,6 +11,18 @@ $!       # 执行上一个背景指令的PID(后台运行的最后一个进程�
 $-       # 显示shell使用的当前选项,与set命令功能相同  
 ```
 
+### curl
+```shell script
+# curl(client url) - transfer a URL 用于请求web服务器
+[root@cdh1 ~]$ curl www.baidu.com  # 不带参数默认发送get请求 
+[root@cdh1 ~]$ curl -A 'Mozilla/5.0 ... Chrome/76.0.3809.100' https://google.com  # -A 指定User-Agent
+[root@cdh1 ~]$ curl -b 'foo=bar' https://google.com                               # -b 向服务器发送Cookie
+[root@cdh1 ~]$ curl -c cookies.txt https://www.google.com                         # -c 将服务器设置的Cookie写入文件
+[root@cdh1 ~]$ curl -d 'login=aaa&password=123'-X POST https://google.com/login   # -d 发送POST请求
+[root@cdh1 ~]$ curl -F 'file=@photo.png' https://google.com/profile               # -F 向服务器上传二进制文件
+[root@cdh1 ~]$ curl -u 'bob:12345' https://google.com/login                       # -u 设置用户名和密码 
+```
+
 ### iconv  
 ```shell script
 -l, --list                  # 所有字符集  
