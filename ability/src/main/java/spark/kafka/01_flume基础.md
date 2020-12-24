@@ -80,7 +80,7 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 # flume常见错误
 2020-12-22 15:03:15,837 ERROR org.apache.flume.source.taildir.TaildirSource: Failed writing positionFile
 java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
-# 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件,此处是flume用户,然后再修改用户即可
+# 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
 ```
 
 #### nginx-flume-kafka.conf

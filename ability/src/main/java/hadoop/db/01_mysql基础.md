@@ -534,7 +534,7 @@ mysql> flush logs;
 mysql> show binlog events [in 'mysql-bin.000002'] \G
 # 清空binlog
 mysql> reset master;
-# 导入测试数据
+# 先导入初始测试数据,不然canal启动时读不到数据
 mysql> create database canal charset=utf8;
 mysql> source mock.sql 
 # 模拟更新数据
@@ -549,12 +549,13 @@ grant all privileges on *.* to 'canal'@'%' identified by 'canal';
 # 安装canal(单机版,canal很少宕机且单节点足够用所以不需要HA)
 # 集群：多台服务器干相同的活,分布式：多台服务器干不同的活,高可用：多台服务器一个干活别的当备份
 [root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules/canal.deployer-1.1.4
-# 修改canal配置
+# canal服务端配置
 [root@cdh1 ~]$ vim conf/canal.properties
-canal.serverMode = kafka           # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
-canal.mq.servers = localhost:9092  # kafka地址
-canal.destinations = example       # canal默认只有一个instance,对应一个example目录,如果需要多个实例就拷贝example并重命名
-# 修改实例配置
+canal.port = 11111             # canal端口号,默认11111
+canal.serverMode = kafka       # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
+canal.mq.servers = cdh1:9092   # kafka地址,逗号分隔
+canal.destinations = example1,example2  # canal服务可以有多个实例,conf/下的每个example都是一个独立实例,canal默认只有一个实例,如果需要多个实例处理不同mysql数据,拷贝example重命名并修改实例配置即可
+# instance实例配置,有多个实例就逐一配置即可
 [root@cdh1 ~]$ vim conf/example/instance.properties
 canal.instance.master.address=localhost:3306  # mysql地址
 canal.instance.dbUsername=canal    # 连接mysql的用户名/密码,就是之前授权的canal/canal
