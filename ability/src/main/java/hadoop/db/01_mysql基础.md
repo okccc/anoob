@@ -90,10 +90,12 @@ select user()/database()/version();
 show databases;
 -- 创建数据库
 create database java charset=utf8;
--- 选择数据库
-use java;
 -- 显示默认创建的字符集
 show create database java; -- create database `java` /*!40100 default character set utf8 */
+-- 选择数据库
+use java;
+-- 删除数据库
+drop database java;
 -- 修改数据库名(不能直接修改,可以先备份再删除原先的)
 /*
 数据备份
@@ -104,8 +106,7 @@ show create database java; -- create database `java` /*!40100 default character 
     连接mysql,先创建一个新的数据库,然后往这个新数据库里恢复数据
     退出重新连接: mysql -uroot –p 新创建的数据库 < ~/desktop/bac.sql
 */
--- 删除数据库
-drop database java;
+
 
 -- 添加外键约束(在一对多的多方添加)
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
@@ -547,7 +548,7 @@ grant all privileges on *.* to 'canal'@'%' identified by 'canal';
 ### canal
 ```shell script
 # 安装canal(单机版,canal很少宕机且单节点足够用所以不需要HA)
-# 集群：多台服务器干相同的活,分布式：多台服务器干不同的活,高可用：多台服务器一个干活别的当备份
+# 集群：多台服务器干相同的活(两个厨师炒菜) | 分布式：多台服务器干不同的活(一个厨师炒菜一个小二传菜) | 高可用：多台服务器一个干活别的备份
 [root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules/canal.deployer-1.1.4
 # canal服务端配置
 [root@cdh1 ~]$ vim conf/canal.properties
@@ -566,44 +567,11 @@ canal.mq.partition=0               # 默认输出到一个partition,多个分区
 [root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题t_canal
 # 启动kafka消费者
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t_canal
-{
-    "data": [
-        {
-            "id": "9",
-            "user_name": "zhang3",
-            "tel": "13810001010"
-        },
-        {
-            "id": "10",
-            "user_name": "zhang3",
-            "tel": "13810001010"
-        }
-    ],  # 行记录
-    "database": "canal",  # 库
-    "es": 1608384750000,
-    "id": 21,
-    "isDdl": false,
-    "mysqlType": {
-        "id": "bigint(20)",
-        "user_name": "varchar(20)",
-        "tel": "varchar(20)"
-    },
-    "old": null,
-    "pkNames": [
-        "id"
-    ],
-    "sql": "",
-    "sqlType": {
-        "id": -5,
-        "user_name": 12,
-        "tel": 12
-    },
-    "table": "z_user_info",  # 表
-    "ts": 1608384750686,
-    "type": "INSERT"  # 操作类型
-}
+{"data":[{"id":"9","name":"aaa"},{"id":"10","name":"bbb"}],"database":"canal","es":1608384750000,"id":21,"isDdl":false,
+"mysqlType":{"id":"bigint(20)","user_name":"varchar(20)","tel":"varchar(20)"},"old":null,"pkNames":["id"],"sql":"",
+"sqlType":{"id":-5,"user_name":12,"tel":12},"table":"z_user_info","ts":1608384750686,"type":"INSERT"}
 # 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
-mysql> INSERT INTO z_user_info VALUES(9,'grubby','13812345678'),(10,'zhang3','15282163581');
+mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
 
 # SparkStreaming对topic分流
 # canal会追踪mysql所有数据库的变更,把所有变化数据都发到一个topic,为了方便下游处理,应该根据不同库的不同表对topic进行分流
