@@ -497,10 +497,9 @@ ERROR 1317 (70100): Query execution was interrupted
 # 开启binlog
 [root@cdh1 ~]$ vim /etc/my.cnf && systemctl restart mysqld
 [mysqld]
-server_id=1        # 不能和canal的slaveId重复
+server_id=1        # 配置mysql replication时定义,不能和canal的slaveId重复
 log-bin=mysql-bin  # binlog日志前缀
 binlog_format=row  # binlog格式为row,只记录行记录变化后的结果,保证数据绝对一致性
-binlog-do-db=test  # 指定要监控的库(可选)
 # 查看是否开启
 mysql> show variables like '%log_bin%' \g  # sql语句结尾加上\g表示界定符相当于分号,加上\G表示将查询结果按列打印输出内容过多时使用
 +---------------------------------+---------------------------------------+
@@ -552,17 +551,19 @@ grant all privileges on *.* to 'canal'@'%' identified by 'canal';
 [root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules/canal.deployer-1.1.4
 # canal服务端配置
 [root@cdh1 ~]$ vim conf/canal.properties
-canal.port = 11111             # canal端口号,默认11111
+canal.port = 11111             # canal端口,默认11111
 canal.serverMode = kafka       # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
 canal.mq.servers = cdh1:9092   # kafka地址,逗号分隔
 canal.destinations = example1,example2  # canal服务可以有多个实例,conf/下的每个example都是一个独立实例,canal默认只有一个实例,如果需要多个实例处理不同mysql数据,拷贝example重命名并修改实例配置即可
 # instance实例配置,有多个实例就逐一配置即可
 [root@cdh1 ~]$ vim conf/example/instance.properties
 canal.instance.master.address=localhost:3306  # mysql地址
-canal.instance.dbUsername=canal    # 连接mysql的用户名/密码,就是之前授权的canal/canal
+canal.instance.dbUsername=canal               # 连接mysql的用户名和密码,需事先创建并授权
 canal.instance.dbPassword=canal
-canal.mq.topic=t_canal             # 指定kafka的topic
-canal.mq.partition=0               # 默认输出到一个partition,多个分区并行可能会打乱binlog顺序
+canal.instance.defaultDatabaseName=test       # 指定库
+canal.instance.filter.regex=.*\\..*           # 通过正则指定表 .*\\..* 所有表 | canal\\..* canal库下表 | canal\\.canal.* canal库下canal开头表 | canal.test指定表
+canal.mq.topic=t_canal                        # 指定kafka的topic
+canal.mq.partition=0                          # 默认输出到一个partition,多个分区并行可能会打乱binlog顺序
 # 启动canal
 [root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题t_canal
 # 启动kafka消费者

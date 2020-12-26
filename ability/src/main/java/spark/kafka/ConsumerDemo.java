@@ -36,7 +36,6 @@ public class ConsumerDemo {
          * kafka0.9版本以后保存在__consumer_offsets,弊端是提交偏移量的数据流必须是InputDStream[ConsumerRecord[String, String]]
          * 实际运算经常会做数据结构转换,就无法使用xxDstream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)提交offset
          * 因为offset存储于HasOffsetRanges,只有kafkaRDD继承了它,转换成别的RDD就无法再获取offset,所以生产中使用redis/mysql保存offset
-         *
          */
 
         // 消费者属性配置

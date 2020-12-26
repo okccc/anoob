@@ -234,8 +234,8 @@ esac
 
 # kafka出问题如何排查？
 # 查进程 - 查日志
-# kafka没有正常结束,但是zookeeper停了,此时/brokers/ids目录下是有注册节点的,就是当前活着的kafka的broker.id,下次再启动kafka就起不来
-# 要先把相关节点干掉,但是干掉之后可能会导致kafka的logs/meta.properties的cluster.id不一致,把这个也干掉,kafka重启之后会重新生成该文件
+# kafka关闭有延迟,如果zk先停了,/brokers/ids下的节点还在,此时kafka还存活但与zk失去连接导致无法停止,只能手动杀掉进程
+# kafka故障重启可能会导致kafka的logs/meta.properties的cluster.id不一致,把这个干掉,kafka重启之后会重新生成该文件
 ```
 
 ### Q & A

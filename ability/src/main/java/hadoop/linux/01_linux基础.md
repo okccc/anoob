@@ -97,11 +97,11 @@ Filesystem      Size  Used Avail Use% Mounted on
 df -i
 
 # du (disk usage)
-du -sh  # 查看当前目录占用空间大小
-du -sh --time *  # 查看当前目录占用空间大小以及更新时间
-du -sh * | sort -rh | head  # 查看当前目录下所有文件与目录并按大小排序
-du -h  # 查看当前目录下所有文件大小
-du -h -d0,d1,d2 或者 du -h --max-depth=0,1,2  # 查看不同深度目录大小,d0就相当于du -sh  
+du -sh               # 查看当前目录占用空间大小
+du -sh --time *      # 查看当前目录占用空间大小以及更新时间
+du -sh * | sort -nr  # 查看当前目录下所有文件与目录并按大小排序
+du -h                # 查看当前目录下所有文件大小
+du -h -d0,d1,d2      # 查看不同深度目录大小,d0就相当于du -sh  
 
 # iostat cpu和磁盘统计
 [root@cdh1 ~]$ iostat
