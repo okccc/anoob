@@ -2,7 +2,7 @@
 ```shell script
 # RHEL(Red Hat Enterprise Linux)：红帽公司发布的面向企业的linux操作系统,收费
 # CentOS(Community enterprise Operating System)：基于RHEL的源代码二次编译而成,功能基本一样,免费
-# 32位和64位操作系统：位指的是CPU一次能执行的二进制数据的位数,2^32bit=4g 理论上32位操作系统只能使用4g内存
+# 32位和64位操作系统：位指的是CPU一次能执行的二进制数据的位数,2^32bit=4g 理论上32位操作系统只能使用4g内存,getconf LONG_BIT查看系统位数
 # 现在/5分钟后 关机/重启 
 [root@cdh1 ~]$ shutdown -h/-r now/5  
 # 自杀
@@ -18,16 +18,14 @@ http://192.168.152.11/a.txt
 [root@cdh1 ~]$ uname -a  
 # 查看操作系统
 [root@cdh1 ~]$ cat /etc/redhat-release
-# 查看系统位数
-[root@cdh1 ~]$ getconf LONG_BIT
 # 查看命令功能|路径
 [root@cdh1 ~]$ whatis cat | whereis cat
 # 显示可执行命令的全路径
 [root@cdh1 ~]$ which java
+# 显示系统环境变量
+[root@cdh1 ~]$ set
 # 显示某个环境变量
-[root@cdh1 ~]$ echo $SHELL | echo $JAVA_HOME
-# 显示系统环境变量后10行
-[root@cdh1 ~]$ set | tail -10  
+[root@cdh1 ~]$ echo $PATH | echo $SHELL | echo $HOME
 # 将系统环境变量追加到特定用户环境变量
 [root@cdh1 ~]$ cat /etc/profile >> ~/.bashrc
 # 跳转到当前用户主目录
