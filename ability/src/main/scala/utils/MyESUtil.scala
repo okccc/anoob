@@ -1,9 +1,10 @@
 package utils
 
+import bean.MovieInfo
 import io.searchbox.client.config.HttpClientConfig
 import io.searchbox.client.{JestClient, JestClientFactory}
-import io.searchbox.core.{DocumentResult, Get, Index, Search, SearchResult}
-import org.elasticsearch.index.query.{BoolQueryBuilder, MatchQueryBuilder, QueryBuilder, TermQueryBuilder}
+import io.searchbox.core.{Bulk, BulkResult, DocumentResult, Get, Index, Search, SearchResult}
+import org.elasticsearch.index.query.{BoolQueryBuilder, MatchQueryBuilder, TermQueryBuilder}
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder
 import org.elasticsearch.search.sort.SortOrder
@@ -57,55 +58,106 @@ object MyESUtil {
   }
 
   /**
-   * 往index中插入document
+   * 往index中插入单个document
+   * @param indexName 索引名称
    */
-  def putIndex(): Unit = {
+  def putIndex(indexName: String): Unit = {
     // 1.获取jest客户端
     val jestClient: JestClient = getJestClient
-    // 4.创建样例类对象
+    // 3.封装Index对象,将样例类对象作为Builder的参数传入,底层会将其转换为json字符串,id可以不写会随机生成文档id
+    val index: Index = new Index.Builder(generateSource()).index(indexName).`type`("_doc").id("1").build()
+    // 2.执行index插入操作
+    // 查看源码发现execute方法需传入Action<T>接口,F4查找发现有Index/Get/Update/Delete等实现类,并且这些类都使用了Builder模式
+    jestClient.execute(index)
+    // 4.关闭连接
+    jestClient.close()
+  }
+
+  def generateSource(): Object = {
+    // 创建样例类对象
     val actorList: util.ArrayList[util.Map[String, Any]] = new util.ArrayList[util.Map[String, Any]]()
     val hashMap: util.HashMap[String, Any] = new util.HashMap[String, Any]()
     hashMap.put("id", 1)
-    hashMap.put("name", "兽王")
+    hashMap.put("name", "grubby")
     actorList.add(hashMap)
-    val movie: Movie = Movie(1, "魔兽争霸3", 9.5, actorList)
-    // 3.封装Index对象,将样例类对象作为Builder的参数传入,底层会将其转换为json字符串
-    val index: Index = new Index.Builder(movie).index("movie_cn").`type`("_doc").id("1").build()
-    // 2.执行index操作
-    // 查看源码发现execute方法需传入Action<T>接口,F4查找发现有Index/Get/Update/Delete等实现类,并且这些类都使用了Builder模式
-    jestClient.execute(index)
-    // 5.关闭连接
-    jestClient.close()
+    val movie: MovieInfo = MovieInfo(1, "war3", 9.5, actorList)
+    movie
   }
 
   /**
-   * 根据index名称和doc_id查询document
-   * @param index 索引名称
-   * @param id 文档id
+   * 往index中批量插入document
+   * @param indexName 索引名称
+   * @param docList 文档列表,Any是具体的文档,通常对应java bean
+   */
+  def bulkIndex(indexName: String, docList: List[Any]): Unit = {
+    // 1.获取jest客户端
+    if(docList != null && docList.nonEmpty) {
+      val jestClient: JestClient = getJestClient
+      // 3.封装Bulk对象
+      val builder: Bulk.Builder = new Bulk.Builder
+      // 遍历文档列表
+      for (doc <- docList) {
+        // 每个doc都是Index对象
+        val index: Index = new Index.Builder(doc).index(indexName).`type`("_doc").build()
+        // 将Index对象添加到Bulk对象中
+        builder.addAction(index)
+      }
+      val bulk: Bulk = builder.build()
+      // 2.执行bulk批量操作
+      val result: BulkResult = jestClient.execute(bulk)
+      val items: util.List[BulkResult#BulkResultItem] = result.getItems
+      println("往es的" + indexName + "索引中插入了" + items.size() + "条文档")
+      // 4.关闭连接
+      jestClient.close()
+    }
+  }
+
+  /**
+   * 根据index名称和docId查询单个document
+   * @param indexName 索引名称
+   * @param docId 文档id
    * @return 单个文档结果
    */
-  def getIndexById(index: String, id: String): String = {
+  def getIndexById(indexName: String, docId: String): String = {
     // 1.获取jest客户端
     val jestClient: JestClient = getJestClient
     // 3.封装Get对象,将index名称和文档id作为Builder的参数传入
-    val get: Get = new Get.Builder(index, id).build()
-    // 2.执行get操作
+    val get: Get = new Get.Builder(indexName, docId).build()
+    // 2.执行get查询操作
     val result: DocumentResult = jestClient.execute(get)
-    // 4.获取命中结果
-    val str: String = result.getJsonString
-    // 5.关闭连接
+    // 4.关闭连接
     jestClient.close()
-    str
+    result.getJsonString
   }
 
   /**
-   * 根据index名称和query条件查询document
-   * @param index 索引名称
+   * 根据index名称和query条件批量查询document
+   * @param indexName 索引名称
    * @return 多个文档结果组成的列表
    */
-  def getIndexByQuery(index: String): List[util.Map[String, Any]] = {
+  def getIndexByQuery(indexName: String): List[util.Map[String, Any]] = {
     // 1.获取jest客户端
     val jestClient: JestClient = getJestClient
+    // 3.封装Search对象,将条件查询字符串作为Builder的参数传入
+    val search: Search = new Search.Builder(generateQueryStr()).addIndex(indexName).build()
+    // 2.执行search查询操作
+    val result: SearchResult = jestClient.execute(search)
+    // 获取命中结果
+    val hitList: util.List[SearchResult#Hit[util.Map[String, Any], Void]] = result.getHits(classOf[util.Map[String, Any]])
+    // 只取命中结果的"_source"部分,为了方便转换数据结构,将java集合隐式转换为scala集合,scala有很多强大的函数
+    import scala.collection.JavaConverters._
+    val hit_list: mutable.Buffer[SearchResult#Hit[util.Map[String, Any], Void]] = hitList.asScala
+    val source_list: List[util.Map[String, Any]] = hit_list.map((sr: SearchResult#Hit[util.Map[String, Any], Void]) => sr.source).toList
+    // 4.关闭连接
+    jestClient.close()
+    source_list
+  }
+
+  /**
+   * 生成条件查询的字符串
+   * @return query字符串
+   */
+  def generateQueryStr(): String = {
     // kibana中编写的条件查询字符串
 //    val queryStr: String =
 //      """
@@ -131,7 +183,7 @@ object MyESUtil {
 //        |}
 //        |""".stripMargin
 
-    // 4.封装条件查询字符串,手动拼接字符串不便于维护,应该使用面向对象的方式,通过类来构建查询字符串(这块代码可以抽取出来)
+    // 手动拼接不便于维护,应该使用面向对象的方式,通过类来封装查询字符串对象
     val sourceBuilder: SearchSourceBuilder = new SearchSourceBuilder
     // 该字符串主要包含"query" "from" "size" "sort" "highlight"几个部分
     // 查看源码发现query方法需传入QueryBuilder接口,F4查找实现类,"query"下面包含"bool","must","filter"等,都有相对应的java类或方法
@@ -146,20 +198,7 @@ object MyESUtil {
       .highlighter(new HighlightBuilder().field("name"))
     // 将SearchSourceBuilder对象转换成字符串
     val queryStr: String = sourceBuilder.toString()
-
-    // 3.封装Search对象,将条件查询字符串作为Builder的参数传入
-    val search: Search = new Search.Builder(queryStr).addIndex(index).build()
-    // 2.执行search操作
-    val result: SearchResult = jestClient.execute(search)
-    // 5.获取命中结果
-    val hitList: util.List[SearchResult#Hit[util.Map[String, Any], Void]] = result.getHits(classOf[util.Map[String, Any]])
-    // 只取命中结果的"_source"部分,为了方便转换数据结构,将java集合隐式转换为scala集合,scala有着强大的函数功能
-    import scala.collection.JavaConverters._
-    val hit_list: mutable.Buffer[SearchResult#Hit[util.Map[String, Any], Void]] = hitList.asScala
-    val source_list: List[util.Map[String, Any]] = hit_list.map((sr: SearchResult#Hit[util.Map[String, Any], Void]) => sr.source).toList
-    // 6.关闭连接
-    jestClient.close()
-    source_list
+    queryStr
   }
 
   def main(args: Array[String]): Unit = {
@@ -167,18 +206,9 @@ object MyESUtil {
     // 测试连接
     println(jest)
     // 测试插入数据
-    putIndex()
+    putIndex("movie_cn")
     // 测试查询数据
     println(getIndexById("movie_cn", "2"))
     println(getIndexByQuery("movie_index"))
   }
 }
-
-// 使用样例类封装index中的source对象
-case class Movie(
-                id: Int,
-                name: String,
-                doubanScore: Double,
-                // es是java编写,所以在定义集合类型时要用java.util.*不然读不到数据,后续使用时为了方便操作数据结构可以隐式转换为scala集合类型
-                actorList: util.List[util.Map[String, Any]]
-                )
