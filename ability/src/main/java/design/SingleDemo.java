@@ -1,4 +1,4 @@
-package j2se;
+package design;
 
 public class SingleDemo {
     public static void main(String[] args) {

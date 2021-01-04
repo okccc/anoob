@@ -52,15 +52,15 @@ MongoDB server version: 3.4.16
 - Timestamp：时间戳
 - Date：存储当前日期或时间的UNIX格式
 
-SQL术语|MongoDB术语|说明
- :---: | :---: | :---:
-database|db|数据库
-table|collection|表/集合(存储多个文档且结构不固定)
-row|document|行/文档
-column|field|字段/域
-index|index|索引
-joins|/|nosql数据库不维护表之间的关系
-primary key|primary key|MongoDB自动将_id字段设置为主键
+SQL术语|MongoDB术语|ES术语|说明
+ :---: | :---: | :---: | :---:
+database|db|-|数据库
+table|collection|index|表/集合/索引
+row|document|document|行/文档
+column|field|field|列/字段
+index|index|-|索引
+join|-|-|nosql不维护表之间的关系
+primary key|primary key|-|mongo自动设置_id为主键
 
 ### db
 - db：当前数据库名称

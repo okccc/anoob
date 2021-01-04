@@ -127,7 +127,6 @@ object MyDateUtil {
   def main(args: Array[String]): Unit = {
 //    println(parseUnixToDate(1608011762573L))
     println(parseUnixToDateTime(1608791074000L))  // 2020-12-24 14:24:34
-    println(parseUnixToDateTime(1608791074205L))  // 2020-12-24 14:24:34
   }
 
 }

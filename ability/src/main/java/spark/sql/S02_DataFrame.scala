@@ -50,8 +50,7 @@ object S02_DataFrame {
     // 创建Spark配置信息
     val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("Spark Sql")
     // Spark2.0以后使用SparkSession代替SqlContext作为SparkSql所有功能的入口,可以创建DataFrame,注册临时视图,执行sql,缓存表...
-    // 创建SparkSession,查看源码发现SparkSession类的构造器都是private,只能通过其伴生对象创建
-    //    val session: SparkSession = new SparkSession(conf)
+    // 创建SparkSession,查看源码发现SparkSession类的构造器是private,只能通过其伴生对象创建,并且使用了Builder模式
     val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
     // 创建DataFrame/Dataset三种方式：读取文件,从RDD转换,查询hive
 

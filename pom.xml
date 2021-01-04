@@ -50,32 +50,53 @@
     <!-- dependencyManagement下的依赖不会被maven加载,用来统一管理各个子项目的依赖保持版本一致,切换版本在父项目中更新即可 -->
     <!-- 子项目可以声明依赖继承父项目版本,也可以自己指定别的版本 -->
     <dependencyManagement>
-        <!-- spark相关依赖 -->
         <dependencies>
+            <!-- 日志 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>2.11.0</version>
+            </dependency>
+
             <!-- scala -->
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-library</artifactId>
                 <version>${scala.version}</version>
             </dependency>
+            <!-- scala操作jdbc的工具 -->
+            <dependency>
+                <groupId>org.scalikejdbc</groupId>
+                <artifactId>scalikejdbc_2.12</artifactId>
+                <version>3.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalikejdbc</groupId>
+                <artifactId>scalikejdbc-config_2.12</artifactId>
+                <version>3.4.0</version>
+            </dependency>
+
             <!-- rdd -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-core_2.11</artifactId>
                 <version>${spark.version}</version>
             </dependency>
+
             <!-- Spark on Yarn -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-yarn_2.11</artifactId>
                 <version>${spark.version}</version>
             </dependency>
+
             <!-- SparkSql -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-sql_2.11</artifactId>
                 <version>${spark.version}</version>
             </dependency>
+
             <!-- SparkStreaming -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
@@ -92,24 +113,28 @@
                 <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
                 <version>${spark.version}</version>
             </dependency>
+
             <!-- SparkMlLib -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-mllib_2.11</artifactId>
                 <version>${spark.version}</version>
             </dependency>
+
             <!-- flume -->
             <dependency>
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-core</artifactId>
                 <version>${flume.version}</version>
             </dependency>
+
             <!-- kafka -->
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
                 <version>${kafka.version}</version>
             </dependency>
+
             <!-- hive -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
@@ -121,6 +146,7 @@
                 <artifactId>hive-exec</artifactId>
                 <version>${hive.version}</version>
             </dependency>
+
             <!-- hbase -->
             <dependency>
                 <groupId>org.apache.hbase</groupId>
@@ -132,23 +158,52 @@
                 <artifactId>hbase-client</artifactId>
                 <version>${hbase.version}</version>
             </dependency>
+
             <!-- mysql -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
             </dependency>
-            <!-- es相关 -->
+            <!-- c3p0连接池 -->
+            <dependency>
+                <groupId>com.mchange</groupId>
+                <artifactId>c3p0</artifactId>
+                <version>0.9.5.5</version>
+            </dependency>
+            <!-- dbcp连接池 -->
+            <dependency>
+                <groupId>commons-dbutils</groupId>
+                <artifactId>commons-dbutils</artifactId>
+                <version>1.7</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- java操作redis的客户端工具jedis -->
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>3.3.0</version>
+            </dependency>
+
+            <!-- elasticsearch -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>7.9.0</version>
+            </dependency>
+            <!-- java操作es的客户端工具jest -->
             <dependency>
                 <groupId>io.searchbox</groupId>
                 <artifactId>jest</artifactId>
-                <version>5.3.3</version>
+                <version>6.3.1</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-to-slf4j</artifactId>
-                <version>2.11.0</version>
-            </dependency>
+            <!-- jest需要的依赖 -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna</artifactId>
@@ -158,29 +213,6 @@
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>commons-compiler</artifactId>
                 <version>3.0.16</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>6.6.0</version>
-            </dependency>
-            <!-- scala操作JDBC小工具,方便对事务进行处理 -->
-            <dependency>
-                <groupId>org.scalikejdbc</groupId>
-                <artifactId>scalikejdbc_2.12</artifactId>
-                <version>3.4.0</version>
-            </dependency>
-            <!-- scalikejdbc-config_2.11 -->
-            <dependency>
-                <groupId>org.scalikejdbc</groupId>
-                <artifactId>scalikejdbc-config_2.12</artifactId>
-                <version>3.4.0</version>
-            </dependency>
-            <!-- redis -->
-            <dependency>
-                <groupId>redis.clients</groupId>
-                <artifactId>jedis</artifactId>
-                <version>2.9.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -4,7 +4,7 @@
 # redis是分布式的高性能key-value数据库,数据完全基于内存读写速度极快(10万条/s),可以定期持久化到磁盘防止数据丢失,支持多种数据类型
 # 下载
 [root@cdh1 ~]$ wget http://download.redis.io/releases/redis-4.0.10.tar.gz
-# 解压,brew安装软件默认路径/usr/local/Cellar/ 安装完直接redis-server
+# 安装(mac下的brew install默认安装路径/usr/local/Cellar,并且自动将可执行命令添加到$PATH的/usr/local/bin,$PATH是可执行命令的查找顺序)
 [root@cdh1 ~]$ tar -xvf redis-4.0.10.tar.gz -C /usr/local/
 # 切换到redis目录  
 [root@cdh1 ~]$ cd /usr/local/redis-4.0.10  

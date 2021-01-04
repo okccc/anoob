@@ -194,7 +194,7 @@ Topic:t01       PartitionCount:3        ReplicationFactor:2     Configs:
 [root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --alter --topic t01 --partitions 2
 WARNING: If partitions are increased for a topic that has a key, the partition logic or ordering of the messages will be affected
 Adding partitions succeeded!
-# 删除topic
+# 删除topic,对应的数据文件和zk上的节点信息也会被删除
 [root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --delete --topic t01
 Topic t01 is marked for deletion.
 Note: This will have no impact if delete.topic.enable is not set to true.
