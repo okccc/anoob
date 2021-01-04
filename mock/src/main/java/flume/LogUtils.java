@@ -3,9 +3,9 @@ package flume;
 import org.apache.commons.lang.math.NumberUtils;
 
 /**
- * @author okccc
- * @version 1.0
- * @date 2020/12/6 19:34
+ * Author: okccc
+ * Desc:
+ * Date: 2020/12/6 19:34
  */
 public class LogUtils {
     public static boolean validateStart(String log) {

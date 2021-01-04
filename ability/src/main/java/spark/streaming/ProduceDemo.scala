@@ -9,9 +9,9 @@ import org.joda.time.format.DateTimeFormat
 import scala.util.Random
 
 /**
- * @author okccc
- * @date 2020/12/9 3:38 下午
- * @version 1.0
+ * Author: okccc
+ * Date: 2020/12/9 3:38 下午
+ * Desc:
  */
 object ProduceDemo {
   /**

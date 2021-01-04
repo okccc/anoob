@@ -9,9 +9,9 @@ import org.joda.time.format.DateTimeFormat;
 import java.util.Map;
 
 /**
- * @author okccc
- * @version 1.0
- * @date 2020/11/30 22:17
+ * Author: okccc
+ * Date: 2020/11/30 22:17
+ * Desc:
  */
 public class InterceptorDemo implements ProducerInterceptor<String, String> {
     private int successNum = 0;

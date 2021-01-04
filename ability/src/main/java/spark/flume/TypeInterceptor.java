@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author okccc
- * @version 1.0
- * @date 2020/12/6 19:47
+ * Author: okccc
+ * Desc:
+ * Date: 2020/12/6 19:47
  */
 public class TypeInterceptor implements Interceptor {
     @Override

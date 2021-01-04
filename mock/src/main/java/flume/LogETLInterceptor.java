@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author okccc
- * @version 1.0
- * @date 2020/12/6 19:57
+ * Author: okccc
+ * Desc:
+ * Date: 2020/12/6 19:57
  */
 public class LogETLInterceptor implements Interceptor {
     @Override

@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author okccc
- * @version 1.0
- * @date 2020/11/29 22:04
+ * Author: okccc
+ * Date: 2020/11/29 22:04
+ * Desc: 模拟kafka消费者
  */
 public class ConsumerDemo {
     public static void main(String[] args) {

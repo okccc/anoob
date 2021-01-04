@@ -6,9 +6,9 @@ import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 /**
- * @author okccc
- * @date 2020/12/15 4:16 下午
- * @desc 获取日期时间的工具类
+ * Author: okccc
+ * Date: 2020/12/15 4:16 下午
+ * Desc: 获取日期时间的工具类
  */
 object MyDateUtil {
 

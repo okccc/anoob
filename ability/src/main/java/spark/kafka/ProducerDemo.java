@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author okccc
- * @version 1.0
- * @date 2020/11/29 18:22
+ * Author: okccc
+ * Date: 2020/11/29 18:22
+ * Desc: 模拟kafka生产者
  */
 public class ProducerDemo {
     public static void main(String[] args) {

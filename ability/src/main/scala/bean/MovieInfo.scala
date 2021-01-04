@@ -3,9 +3,9 @@ package bean
 import java.util
 
 /**
- * @author okccc
+ * Author: okccc
  * @date 2021/1/3 11:10 下午
- * @desc 使用样例类封装index中的source对象
+ * Desc: 使用样例类封装index中的source对象
  */
 case class MovieInfo(
                       id: Int,
