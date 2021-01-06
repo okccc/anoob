@@ -28,11 +28,17 @@ Welcome to nginx!
 ### flume
 [flume官方文档](http://flume.apache.org/releases/content/1.7.0/FlumeUserGuide.html)
 ```shell script
+# 下载
+[root@cdh1 ~]$ wget https://mirror.bit.edu.cn/apache/flume/1.9.0/apache-flume-1.9.0-bin.tar.gz
+# 安装
+[root@cdh1 ~]$ tar -xvf apache-flume-1.9.0-bin.tar.gz
 # 修改配置文件
 [root@cdh1 ~]$ vim flume-env.sh
 export JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
 # flume内存优化,将JVM heap设置为4g防止OOM,-Xms和-Xmx尽量保持一致减少内存抖动带来的性能影响
 export JAVA_OPTS="-Xms4096m -Xmx4096m -Dcom.sun.management.jmxremote"
+# 创建logs目录
+[root@cdh1 ~]$ mkdir logs
 
 # 集群生成日志启动脚本
 # java -jar/-cp区别：打包时mainClass已指定类名 java -jar a.jar,未指定类名 java -cp a.jar 包名.类名
@@ -43,15 +49,16 @@ do
     ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
 done
 
-# 一键启动flume脚本
+# 一键启动flume集群(一般都是在nginx所在机器安装单节点flume,如果有多个nginx地址才需要配置多个flume)
 [root@cdh1 ~]$ vim flume.sh
 #!/bin/bash
+flume_home=/opt/module/flume-1.7.0
 case $1 in
 "start"){
     for i in cdh1 cdh2 cdh3
     do
         echo "================= ${i}启动flume ================"
-        ssh ${i} "source /etc/profile && cd /opt/module/flume-1.7.0 && flume-ng agent -c conf -f conf/nginx-flume-kafka.conf -n a1 -Dflume.root.logger=info,logfile > /dev/null 2>&1 &"
+        ssh ${i} "source /etc/profile && cd ${flume_home} && nohup flume-ng agent -c conf -f conf/nginx-flume-kafka.conf -n a1 > logs/flume.log 2>&1 &"
     done
 };;
 "stop"){
@@ -81,6 +88,8 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 2020-12-22 15:03:15,837 ERROR org.apache.flume.source.taildir.TaildirSource: Failed writing positionFile
 java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
+Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.MyInterceptor$Builder
+# 如果flume没找到上传到lib目录下的自定义拦截器jar包,需要在flume-ng命令行里-C手动指定jar包
 ```
 
 #### nginx-flume-kafka.conf
@@ -92,11 +101,13 @@ a1.channels = c1 c2
 
 # 配置source
 a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
-a1.sources.r1.positionFile = /opt/module/flume-1.7.0/test/log_position.json  # 记录日志文件读取位置
+a1.sources.r1.channels = c1 c2
+# File in JSON format to record the inode, the absolute path and the last position of each tailing file
+a1.sources.r1.positionFile = ${flume}/taildir_position.json  # 如果不存在会自动创建,并且从头读取所有文件,记录每个文件的末尾位置
 a1.sources.r1.filegroups = f1                  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也支持正则表达式,目录必须存在不然报错
 a1.sources.r1.fileHeader = true
-a1.sources.r1.channels = c1 c2
+a1.sources.ri.maxBatchCount = 1000
 # 拦截器(要将拦截器代码打成jar包放到flume的lib目录下)
 a1.sources.r1.interceptors = i1 i2
 a1.sources.r1.interceptors.i1.type = flume.LogETLInterceptor$Builder    # etl拦截器
@@ -124,7 +135,7 @@ a1.channels.c2.parseAsFlumeEvent = false
 [root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic t_start --partitions 1 --replication-factor 1
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic t_start
 # 再启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 -Dflume.root.logger=info,console
+[root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 > logs/flume.log 2>&1 &  # 输出到指定日志
 # 然后启动log,消费者能收到数据说明ok
 [root@cdh1 ~]$ nohup java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > /dev/null 2>&1 &
 ```
@@ -180,8 +191,8 @@ a1.sinks.k1.hdfs.batchSize = 1000                       # 有100个event写入�
 a1.sinks.k1.hdfs.fileType = CompressedStream            # 文件类型,默认SequenceFile
 a1.sinks.k1.hdfs.codeC = lzop                           # 指定压缩方式
 # 控制hdfs文件大小,默认参数会生成大量小文件
-a1.sinks.k1.hdfs.rollInterval = 3600                    # tmp文件达到3600秒时会滚动生成正式文件
-a1.sinks.k1.hdfs.rollSize = 134217728                   # tmp文件达到128M时会滚动生成正式文件
+a1.sinks.k1.hdfs.rollInterval = 3600                    # tmp文件达到3600秒会滚动生成正式文件
+a1.sinks.k1.hdfs.rollSize = 134217728                   # tmp文件达到128M(适集群配置而定)会滚动生成正式文件
 a1.sinks.k1.hdfs.rollCount = 0                          # tmp文件的滚动与写入的event数量无关
 a1.sinks.k1.hdfs.roundUnit = second                     # 滚动时间单位
 a1.sinks.k1.hdfs.roundValue = 10                        # 10秒滚动一次文件
@@ -191,7 +202,7 @@ a1.sources.r1.channels = c1  # 一个source可以接多个channel
 a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 
 # 启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=INFO,console  # 测试监听端口时使用
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=info,console  # 输出到控制台测试用
 # 往监测文件写数据
 [root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
 ```
