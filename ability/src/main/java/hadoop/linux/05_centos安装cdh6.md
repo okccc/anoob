@@ -199,31 +199,10 @@ smon        -- service monitor
 rmon        -- report monitor
 hmon        -- host monitor
 nav         -- cloudera navigator
-
 -- 使用管理员账号cloudera-scm登录,不然查询表没有权限
 [root@master1 ~]# psql -h 127.0.0.1 -p 7432 -U cloudera-scm -d postgres
 Password for user cloudera-scm:9BQ2Ep4fYm
-postgres=> \l
-                                                List of databases
-        Name        |       Owner        | Encoding |  Collate   |   Ctype    |         Access privileges         
---------------------+--------------------+----------+------------+------------+-----------------------------------
- amon               | amon               | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- hive               | hive               | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- hue                | hue                | UTF8     | en_US.UTF8 | en_US.UTF8 | =Tc/hue                          +
-                    |                    |          |            |            | hue=CTc/hue
- nav                | nav                | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- navms              | navms              | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- oozie_oozie_server | oozie_oozie_server | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- postgres           | cloudera-scm       | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- rman               | rman               | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- scm                | scm                | UTF8     | en_US.UTF8 | en_US.UTF8 | 
- template0          | cloudera-scm       | UTF8     | en_US.UTF8 | en_US.UTF8 | =c/"cloudera-scm"                +
-                    |                    |          |            |            | "cloudera-scm"=CTc/"cloudera-scm"
- template1          | cloudera-scm       | UTF8     | en_US.UTF8 | en_US.UTF8 | =c/"cloudera-scm"                +
-                    |                    |          |            |            | "cloudera-scm"=CTc/"cloudera-scm"
-(11 rows)
 postgres=> 
-
 -- 常用指令
 \q                -- 退出psql客户端
 \l                -- 列出所有的数据库
@@ -232,7 +211,6 @@ postgres=>
 \d table_name     -- 显示指定表的结构信息
 \?                -- 列出所有sql的命令列表
 \h sql            -- 查看sql命令的解释,比如\h select 
-
 -- hive库下表名都是大写,查询时要加""不然报错
 hive=# select * from "DBS";
 -- 做crud操作时,字符串只能用'',""会被认为是column,添加新用户后要通过admin激活
@@ -277,6 +255,12 @@ mysql> select * from ROLES/ROLE_MAP/DB_PRIVS/TBL_PRIVS/TBL_COL_PRIVS;
 ```shell script
 # CDH安装成功后,hadoop/hdfs/hive/impala/java/mapred/spark/sqoop/yarn/zookeeper等组件的命令在/etc/alternatives目录
 # 在CM界面重启yarn后,8088页面的applications也会清零
+
+# Permission denied: user=root, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
+原因：root用户没有hdfs用户的/user目录权限
+解决：sudo -u更改目录所属用户改为root,或者切换到hdfs用户执行命令
+sudo -u hdfs hadoop fs -chwon root /user/flume
+sudo -u hdfs hadoop fs -rm -r /user/flume/a.txt
 
 # 运行mr涉及join操作时：container is running beyond physical memory limits
 map join：默认情况下,hive会自动将小表加到distribute cache中,然后在map扫描大表的时候,去和distribute cache中的小表做join
@@ -327,10 +311,6 @@ service cloudera-scm-agent restart
 swapon -s 查看交换空间使用情况  
 swapoff -a 关闭交换空间  
 swapon -a 开启交换空间
-
-# Permission denied: user=yarn, access=EXECUTE, inode="/data":hdfs:supergroup:d-wx------
-原因：yarn用户没有hdfs的/data目录的执行权限  
-hadoop fs -chmod -R 755 /data
 
 # master1.meihaofenqi.net: Memory Overcommit Validation Threshold
 示例：主机master1.meihaofenqi.net上的内存被调拨过度,总内存分配额是26.0G,但是RAM只有31.3G(其中6.3G是保留给系统使用的)  

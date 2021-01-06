@@ -54,8 +54,6 @@ done
 
 - hive-site.xml
 ```xml
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
 	<property>
 	  <name>javax.jdo.option.ConnectionURL</name>
@@ -283,6 +281,7 @@ done
 </configuration>  
 ```  
 
+### CMD
 ```shell script
 # 手动启动集群
 # 启动zk
@@ -325,13 +324,6 @@ mr-jobhistory-daemon.sh start historyserver
 /opt/module/spark-2.1.1-bin-hadoop2.7/sbin/start-all.sh
 # 开启spark的history-server
 /opt/module/spark-2.1.1-bin-hadoop2.7/sbin/start-history-server.sh
-# 启动kafka
-for i in cdh1 cdh2 cdh3
-do
-    echo ==================== ${i} ====================
-    ssh ${i} "source /etc/profile && cd /opt/module/kafka_2.11-0.11.0.2/bin && kafka-server-start.sh -daemon ../config/server.properties"
-    echo ${?}
-done
 
 # 在所有节点执行某个命令
 [root@cdh1 ~]$ cd /usr/bin & vim xcall.sh & chmod +x xcall.sh
@@ -410,7 +402,7 @@ done
 # 修改目录所属用户
 [root@cdh1 ~]$ hadoop fs -chown dev /crm
 # 修改目录读写权限
-[root@cdh1 ~]$ hadoop fs -chmod 777 /user
+[root@cdh1 ~]$ hadoop fs -chmod 755 /user
 # 查看文件列表以时间倒序排序
 [root@cdh1 ~]$ hadoop fs -ls -t -r /
 # 查看文件内容
@@ -562,86 +554,10 @@ In cluster mode, the driver runs inside an application master process which is m
 Hue Administration - Configuration - beeswax - download_cell_limit(默认100000行*100列=10000000)
 [root@master1 ~]$ find / -name beeswax
 /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax
-/opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax/src/beeswax
-/opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax/src/beeswax/static/beeswax
-/opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/build/static/beeswax
 [root@master1 ~]$ vim /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/lib/hue/apps/beeswax/src/beeswax/conf.py
 DOWNLOAD_CELL_LIMIT = Config(
   key='download_cell_limit',
   default=100000000,
-  
 # hue查询结果字段带有表名
 CM - Hive - 配置 - hiveserver2 - hive-site.xml的HiveServer2高级配置代码段(安全阀) - hive.resultset.use.unique.column.names=false
-
-# hue添加spark查询接口
-CM - Hue - 配置 - safe - hue_safety_valve.ini的Hue服务高级配置代码段(安全阀) - 
-[desktop]
-  app_blacklist=
-[notebook]
- show_notebooks=true
- enable_batch_execute=true
- enable_query_builder=true
-[[interpreters]]
-  [[[hive]]]
-    name=Hive
-    interface=hiveserver2
-  [[[impala]]]
-    name=Impala
-    interface=hiveserver2
-  [[[sparksql]]]
-    name=SparkSql
-    interface=hiveserver2
-  [[[spark]]]
-    name=Scala
-    interface=livy
-  [[[pyspark]]]
-    name=PySpark
-    interface=livy
-  [[[r]]]
-    name=R
-    interface=livy
-  [[[jar]]]
-    name=Spark Submit Jar
-    interface=livy-batch
-  [[[py]]]
-    name=Spark Submit Python
-    interface=livy-batch
-[spark]
-  livy_server_host=master1.meihaofenqi.net
-  livy_server_port=8998
-  livy_server_session_kind=yarn
- 
-# 安装spark的REST服务livy
-# REST是一种服务架构,将web服务视为资源由url唯一标识,明确使用http方法来表示不同操作的调用,get检索/post新增/put修改/delete删除
-# REST服务是跨平台的(java/ios/android)且高度可重用,因为它们都依赖基本的http协议
-[root@master1 ~]$ unzip livy-0.5.0-incubating-bin.zip
-# 修改配置
-[root@master1 conf]$ vim livy-env.sh
-export JAVA_HOME=/usr/java/jdk1.8.0_151/
-export SPARK_HOME=/opt/cloudera/parcels/CDH/lib/spark
-export SPARK_CONF_DIR=/etc/spark/conf
-export HADOOP_CONF_DIR=/etc/hadoop/conf
-[root@master1 conf]$ vim livy.conf
-# What host address to start the server on. By default, Livy will bind to all network interfaces.
-livy.server.host = master1.meihaofenqi.net
-# What port to start the server on.
-livy.server.port = 8998
-# What spark master Livy sessions should use.
-livy.spark.master = yarn
-# What spark deploy mode Livy sessions should use.
-livy.spark.deploy-mode = cluster
-# Enabled to check whether timeout Livy sessions should be stopped.
-livy.server.session.timeout-check = true
-# Time in milliseconds on how long Livy will wait before timing out an idle session.
-livy.server.session.timeout = 1h
-# How long a finished session state should be kept in LivyServer for query.
-livy.server.session.state-retain.sec = 600s
-# 创建存放日志目录
-[root@master1 livy]$ mkdir logs
-# 启动livy-server
-[root@master1 bin]$ ./livy-server (start/stop/status)
-# hue打开Scala报错：The Spark session could not be created in the cluster
-# 查看livy日志发现错误：Permission denied: user=root, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
-sudo -u hdfs hadoop fs -chmod 777 /user
-# UI监控 http://master1.meihaofenqi.net:8998
 ```
