@@ -3,7 +3,7 @@
 # nginx三大功能：反向代理、负载均衡、动静分离
 # 安装依赖
 [root@cdh1 ~]$ yum -y install gcc pcre-devel zlib zlib-devel openssl openssl-devel net-tools
-****# 下载压缩包
+# 下载
 [root@cdh1 ~]$ wget http://nginx.org/download/nginx-1.12.2.tar.gz
 # 解压
 [root@cdh1 ~]$ tar -xvf nginx-1.21.2.tar.gz -C /usr/local
@@ -49,7 +49,7 @@ do
     ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
 done
 
-# 启动flume(通常在nginx所在机器安装单节点flume,有多个nginx地址才需要配置多个flume)
+# 启动flume(单节点nginx配置单个flume,如果nginx做了负载均衡就配置多个flume)
 [root@cdh1 ~]$ vim flume.sh
 #!/bin/bash
 case $1 in
@@ -81,7 +81,7 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 2020-12-22 15:03:15,837 ERROR org.apache.flume.source.taildir.TaildirSource: Failed writing positionFile
 java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
-Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.MyInterceptor$Builder
+Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.InterceptorDemo$Builder
 # 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没读到这个jar包
 # 如果flume没找到上传到lib目录下的自定义拦截器jar包,需要在flume-ng命令行里-C手动指定jar包
 ```
@@ -104,8 +104,8 @@ a1.sources.r1.fileHeader = true
 a1.sources.ri.maxBatchCount = 1000
 # 拦截器(jar包放到flume的lib目录)
 a1.sources.r1.interceptors = i1 i2
-a1.sources.r1.interceptors.i1.type = flume.LogETLInterceptor$Builder    # etl拦截器
-a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志类型拦截器
+a1.sources.r1.interceptors.i1.type = flume.ETLInterceptor$Builder
+a1.sources.r1.interceptors.i2.type = flume.TypeInterceptor$Builder
 # 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing     # 根据日志类型发往指定channel
 a1.sources.r1.selector.header = topic          # event的header的key
@@ -153,7 +153,7 @@ a1.sources.r1.interceptors.regex.regex=^.+uid=.+&uname=.+spuId=.+$
 a1.sources.r1.interceptors.regex.excludeEvents=false
 # 自定义拦截器(可选)
 a1.sources.r1.interceptors = i1
-a1.sources.r1.interceptors.i1.type = com.jiliguala.interceptor.MyInterceptor$Builder
+a1.sources.r1.interceptors.i1.type = com.jiliguala.interceptor.InterceptorDemo$Builder
 
 # memory channel
 a1.channels.c1.type = memory

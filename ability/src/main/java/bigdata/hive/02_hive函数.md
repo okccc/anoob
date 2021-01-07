@@ -1,5 +1,5 @@
 ### string
-```sql
+```hiveql
 -- 长度
 hive> select length('abcedfg');
 -- 反转
