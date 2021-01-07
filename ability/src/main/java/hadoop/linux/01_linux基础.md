@@ -276,10 +276,10 @@ q 退出, W 将当前设置写入/root/.toprc
 top -c -p 1956,2042  # 每隔3秒显示指定进程的资源使用情况
 
 # nohup
-# nohup输出结果默认重定向到当前目录下的nohup.out文件,Ctrl + C结束,关闭Shell session免疫
-# &将程序转入后台运行,输出结果到终端,Ctrl + C免疫,关闭Shell session结束
+# nohup默认输出启动日志到nohup.out,可以重定向到指定日志文件,或者/dev/null丢弃日志,Ctrl + C结束,关闭Shell session免疫
+# &将程序后台运行,输出启动日志到终端,Ctrl + C免疫,关闭Shell session结束
 # nohup和&组合使用,不受Ctrl + C和关闭Shell session影响
-[root@cdh1 ~]$ nohup /data/hive/scripts/call_sql.sh dw_debit_info &  
+[root@cdh1 ~]$ nohup redis-server > /dev/null &  
 # 查看当前终端后台任务jobnum,包括running/stopped/Terminated,+是当前任务 -是后一个任务
 [root@cdh1 ~]$ jobs -l    
 [1]+ 14423 Running    nohup /data/hive/scripts/call_sql.sh dw_debit_info &

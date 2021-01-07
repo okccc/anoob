@@ -74,7 +74,7 @@ export PATH=$PATH:$ZK_HOME/bin
 [root@cdh1 module]$ xsync /opt/module/zookeeper-3.6.1
 # 启动,hdfs/yarn/kafka都依赖zk管理
 [root@cdh1 ~]$ zkServer.sh start-foreground/stop/status
-# 一键启动脚本
+# 一键启动zk集群
 [root@cdh1 ~]$ vim zk.sh
 #!/bin/bash
 case $1 in
@@ -211,7 +211,7 @@ java hadoop
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 # 重置消费者组的offset
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
-# 一键启动/停止kafka
+# 一键启动kafka集群
 [root@cdh1 ~]$ vim kafka.sh
 #!/bin/bash
 case $1 in
@@ -233,7 +233,7 @@ case $1 in
 esac
 
 # kafka出问题如何排查？
-# 查进程 - 查日志
+# 先看进程,再查日志
 # kafka关闭有延迟,如果zk先停了,/brokers/ids下的节点还在,此时kafka还存活但与zk失去连接导致无法停止,只能手动杀掉进程
 # kafka故障重启可能会导致kafka的logs/meta.properties的cluster.id不一致,把这个干掉,kafka重启之后会重新生成该文件
 ```

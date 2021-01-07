@@ -41,10 +41,10 @@ public class ConsumerDemo {
         // 消费者属性配置
         Properties prop = new Properties();
         // 必选参数
-        prop.put("bootstrap.servers", "localhost:9092");  // kafka集群地址
+        prop.put("bootstrap.servers", "dev-bigdata-cdh2:9092,dev-bigdata-cdh3:9092,dev-bigdata-cdh4:9092");  // kafka集群地址
         prop.put("key.deserializer", StringDeserializer.class.getName());  // key的反序列化器
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
-        prop.put("group.id", "g01");  // 消费者组
+        prop.put("group.id", "ttt");  // 消费者组
         // 可选参数
         prop.put("enable.auto.commit", "false");  // true自动提交(默认),false手动提交
         prop.put("auto.offset.reset", "earliest");  // 没有offset时从哪里开始消费,latest(默认)/earliest/none
@@ -53,7 +53,7 @@ public class ConsumerDemo {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
         // 订阅topic集合
         List<String> list = new ArrayList<>();
-        list.add("t01");
+        list.add("nginx");
         // 默认是自动提交offset方式
         consumer.subscribe(list);
 //        // 手动提交offset方式

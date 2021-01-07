@@ -14,9 +14,9 @@ import java.util.Properties
 import scala.collection.mutable
 
 /**
- * @author okccc
- * @date 2020/12/31 9:59 上午
- * @desc 操作es的工具类
+ * Author: okccc
+ * Date: 2020/12/31 9:59 上午
+ * Desc: 操作es的工具类
  */
 object MyESUtil {
 

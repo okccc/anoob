@@ -49,24 +49,17 @@ do
     ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
 done
 
-# 一键启动flume集群(一般都是在nginx所在机器安装单节点flume,如果有多个nginx地址才需要配置多个flume)
+# 启动flume(通常在nginx所在机器安装单节点flume,有多个nginx地址才需要配置多个flume)
 [root@cdh1 ~]$ vim flume.sh
 #!/bin/bash
-flume_home=/opt/module/flume-1.7.0
 case $1 in
 "start"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "================= ${i}启动flume ================"
-        ssh ${i} "source /etc/profile && cd ${flume_home} && nohup flume-ng agent -c conf -f conf/nginx-flume-kafka.conf -n a1 > logs/flume.log 2>&1 &"
-    done
+    echo "================= 启动flume ================"
+    nohup flume-ng agent -c conf -f conf/nginx-kafka.conf -n a1 -C lib/Interceptor.jar -Dflume.root.logger=info,console > logs/flume.log 2>&1 &
 };;
 "stop"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "================= ${i}停止flume ================"
-        ssh ${i} "ps -ef | grep 'nginx-flume-kafka' | grep -v grep | awk '{print \$2}' | xargs kill"  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
-    done
+    echo "================= 停止flume ================"
+    ps -ef | grep 'nginx-kafka' | grep -v grep | awk '{print \$2}' | xargs kill  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
 };;
 esac
 
@@ -89,10 +82,11 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
 Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.MyInterceptor$Builder
+# 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没读到这个jar包
 # 如果flume没找到上传到lib目录下的自定义拦截器jar包,需要在flume-ng命令行里-C手动指定jar包
 ```
 
-#### nginx-flume-kafka.conf
+#### nginx-kafka.conf
 ```shell script
 # 注意：生产环境上编写conf文件时不要在行的后面加#注释,会被当成类名
 # 命名agent组件
@@ -135,79 +129,71 @@ a1.channels.c2.parseAsFlumeEvent = false
 [root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic t_start --partitions 1 --replication-factor 1
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic t_start
 # 再启动flume-ng
-[root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/flume-kafka.conf -n a1 > logs/flume.log 2>&1 &  # 输出到指定日志
+[root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/nginx-kafka.conf -n a1 -Dflume.root.logger=info,console > logs/flume.log 2>&1 &  # 输出到日志
 # 然后启动log,消费者能收到数据说明ok
 [root@cdh1 ~]$ nohup java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > /dev/null 2>&1 &
 ```
 
-#### nginx-flume-hdfs.conf
+#### nginx-hdfs.conf
 ```shell script
 # 命名agent组件
 a1.sources = r1
 a1.channels = c1
 a1.sinks = k1
 
-# source是文件
-a1.sources.r1.type = exec  # execute,表示通过执行linux命令来读取文件
-a1.sources.r1.command = tail -f /var/log/hive/hadoop-cmf-hive-HIVESERVER2.log.out  # 要监控的日志文件
-# 添加拦截器
+# 配置source
+a1.sources.r1.type = TAILDIR
+a1.sources.r1.positionFile = ${flume}/position/offline_position.json  # 记录采集位置的json文件
+a1.sources.r1.filegroups = f1 
+a1.sources.r1.filegroups.f1 = /data1/logstash/logs/.*.txt  # 监控的文件,可以是单个文件,也可以是正则匹配多个文件
+# 拦截器(可选)
 a1.sources.r1.interceptors = regex
 a1.sources.r1.interceptors.regex.type=REGEX_FILTER
 a1.sources.r1.interceptors.regex.regex=^.+uid=.+&uname=.+spuId=.+$
 a1.sources.r1.interceptors.regex.excludeEvents=false
-# source是目录
-a2.sources.r2.type = spooldir
-a2.sources.r2.spoolDir = /opt/module/flume/upload
-a2.sources.r2.fileSuffix = .COMPLETED
-a2.sources.r2.fileHeader = true
-a2.sources.r2.ignorePattern = ([^ ]*\.tmp)  # 忽略所有以.tmp结尾的文件2
-# source是kafka
-a3.sources.r3.type = org.apache.flume.source.kafka.KafkaSource
-a3.sources.r3.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
-a3.sources.r3.kafka.topics = t_start, t_event                          # topic列表,用逗号分隔,也可以用正则表达式匹配
-a1.sources.r1.batchSize = 1000                                         # 每个批次写往channel的消息数
-a1.sources.r1.batchDurationMillis = 1000                               # 批次时间间隔
+# 自定义拦截器(可选)
+a1.sources.r1.interceptors = i1
+a1.sources.r1.interceptors.i1.type = com.jiliguala.interceptor.MyInterceptor$Builder
 
 # memory channel
 a1.channels.c1.type = memory
 a1.channels.c1.capacity = 1000             # channel最多存储1000个event
 a1.channels.c1.transactionCapacity = 100   # channel收集到100个event才会提交事务
-a1.channels.c1.keep-alive = 3              # 添加或移除一个event的超时时间(秒)
 # file channel
 a1.channels.c1.type = file
-a1.channels.c1.checkpointDir = /opt/module/flume/cp     # 存储checkpoint的文件
-a1.channels.c1.dataDirs = /opt/module/flume/data/logs/  # 存储日志的目录列表,用逗号分隔,优化：指向不同硬盘的多个路径提高flume吞吐量
-a1.channels.c1.maxFileSize = 2146435071                 # 单个log文件的最大字节数
-a1.channels.c1.capacity = 1000000                       # channel的最大容量
-a1.channels.c1.keep-alive = 6                           # 等待put操作的超时时间(秒)
+a1.channels.c1.checkpointDir = ${flume}/cp     # 存储checkpoint的文件
+a1.channels.c1.dataDirs = ${flume}/data        # 存储日志的目录列表,用逗号分隔,优化：指向不同硬盘的多个路径提高flume吞吐量
+a1.channels.c1.maxFileSize = 2146435071        # 单个log文件的最大字节数
+a1.channels.c1.capacity = 1000000              # channel的最大容量
+a1.channels.c1.keep-alive = 6                  # 等待put操作的超时时间(秒)
 
 # 配置sink
 a1.sinks.k1.type = hdfs
-a1.sinks.k1.hdfs.path = hdfs://ns1/user/flume/qb-events/%y-%m-%d/%H
-a1.sinks.k1.hdfs.filePrefix = log-                      # 指定文件前缀
-a1.sinks.k1.hdfs.useLocalTimeStamp = true               # 是否使用本地时间戳代替event header的时间戳
-a1.sinks.k1.hdfs.batchSize = 1000                       # 有100个event写入文件就flush到hdfs
-# 数据压缩
-a1.sinks.k1.hdfs.fileType = CompressedStream            # 文件类型,默认SequenceFile
-a1.sinks.k1.hdfs.codeC = lzop                           # 指定压缩方式
+a1.sinks.k1.hdfs.path = hdfs://dev-jiliguala/user/flume/%Y-%m-%d  # hdfs路径
+a1.sinks.k1.hdfs.filePrefix = log              # 指定文件前缀
+a1.sinks.k1.hdfs.useLocalTimeStamp = true      # 是否使用本地时间戳代替event header的时间戳
+a1.sinks.k1.hdfs.batchSize = 1000              # 有1000个event写入文件就flush到hdfs
+# 数据压缩(可选)
+a1.sinks.k1.hdfs.fileType = CompressedStream   # 文件类型,SequenceFile(默认)/DataStream(常用)/CompressedStream(压缩)
+a1.sinks.k1.hdfs.codeC = lzop                  # 指定压缩方式
 # 控制hdfs文件大小,默认参数会生成大量小文件
-a1.sinks.k1.hdfs.rollInterval = 3600                    # tmp文件达到3600秒会滚动生成正式文件
-a1.sinks.k1.hdfs.rollSize = 134217728                   # tmp文件达到128M(适集群配置而定)会滚动生成正式文件
-a1.sinks.k1.hdfs.rollCount = 0                          # tmp文件的滚动与写入的event数量无关
-a1.sinks.k1.hdfs.roundUnit = second                     # 滚动时间单位
-a1.sinks.k1.hdfs.roundValue = 10                        # 10秒滚动一次文件
+a1.sinks.k1.hdfs.rollInterval = 3600           # tmp文件达到3600秒会滚动生成正式文件
+a1.sinks.k1.hdfs.rollSize = 10737418420        # tmp文件达到10G会滚动生成正式文件
+a1.sinks.k1.hdfs.rollCount = 0                 # tmp文件的滚动与写入的event数量无关
+a1.sinks.k1.hdfs.roundUnit = second            # 滚动时间单位
+a1.sinks.k1.hdfs.roundValue = 60               # 60秒滚动一次tmp文件
 
 # 给source和sink绑定channel
 a1.sources.r1.channels = c1  # 一个source可以接多个channel
 a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 
 # 启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=info,console  # 输出到控制台测试用
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=info,console  # 输出到控制台
 # 往监测文件写数据
 [root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
 ```
 
-#### netcat-flume-console.conf
+#### netcat-console.conf
 ```shell script
 # 命名agent组件
 a1.sources = r1
@@ -228,7 +214,7 @@ a1.sources.r1.channels = c1
 a1.sinks.k1.channel = c1
 
 # 启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf -f conf/netcat-flume-console.conf -n a1 -Dflume.root.logger=INFO,console
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/netcat-console.conf -n a1 -Dflume.root.logger=info,console
 Event: { headers:{} body: 6A 61 76 61    java }
 # 往监听端口写数据
 [root@cdh1 ~]$ nc localhost 44444

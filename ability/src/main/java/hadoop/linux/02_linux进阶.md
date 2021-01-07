@@ -108,7 +108,7 @@ cat access.log | awk '{print $8}' | sort | uniq -c | sort -nr
 # 统计一天内ip访问量排行
 cat access.log | grep "21/Jan/2019" | awk '{print $5}' | sort | uniq -c | sort -nr  
 # 统计指定时间段404数量
-cat access/log | grep "21/Mar/2018 0[7-8]" | awk '{print $4}' | grep "404" | sort | uniq -c | sort -nr | wc -l  
+cat access.log | grep "21/Mar/2018 0[7-8]" | awk '{print $4}' | grep "404" | sort | uniq -c | sort -nr | wc -l  
 # 统计一天内访问最频繁的时间段
 cat access.log | grep "23/Jan/2019" | awk '{print $2}' | cut -c 1-2 | sort | uniq -c | sort -nr | head  
 ```
