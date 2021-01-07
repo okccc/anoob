@@ -197,7 +197,7 @@
 <!--  </property>-->
 <!--  <property>-->
 <!--    <name>hive.cluster.delegation.token.store.class</name>-->
-<!--    <value>org.apache.hadoop.hive.thrift.MemoryTokenStore</value>-->
+<!--    <value>org.apache.hive.thrift.MemoryTokenStore</value>-->
 <!--  </property>-->
 <!--  <property>-->
 <!--    <name>hive.server2.enable.doAs</name>-->

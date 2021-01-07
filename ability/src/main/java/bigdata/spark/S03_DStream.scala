@@ -1,4 +1,4 @@
-package spark.streaming
+package bigdata.spark
 
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
@@ -148,7 +148,7 @@ object S03_DStream {
       // saveAsHadoopFiles：将DStream内容保存到Hadoop文件
       rdd.coalesce(1, shuffle = true).saveAsTextFile("ability/output/socket")
       //      rdd.saveAsHadoopFile("hdfs://cdh1:9000/user/spark/streaming/socket", classOf[Text], classOf[IntWritable],
-      //        classOf[TextOutputFormat[Text, IntWritable]], classOf[org.apache.hadoop.io.compress.GzipCodec])
+      //        classOf[TextOutputFormat[Text, IntWritable]], classOf[org.apache.bigdata.io.compress.GzipCodec])
     })
     // 2).写入mysql数据库
     //    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {

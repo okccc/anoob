@@ -314,7 +314,7 @@ hive> select * from test distribute by id sort by id;
 -- /user/hive/warehouse/test/dt=20170101 共194个文件总大小9g,其中很多<<128m的,正常执行会占用194个map任务,消耗计算资源：slots_millis_maps=623020  
 select count(1) from test where dt=20170101;
 -- 合并小文件,再次执行只占用74个map任务,消耗计算资源：slots_millis_maps=333500
-set hive.input.format=org.apache.hadoop.hive.ql.io.combinehiveinputformat;
+set hive.input.format=org.apache.hive.ql.io.combinehiveinputformat;
 
 -- 2.增加map数
 -- 如果a表只有一个文件大小是120m,但只有两三个字段却包含几千万条数据,如果处理逻辑很复杂1个map显然不够用

@@ -1,4 +1,5 @@
 ### shortcut
+
 ```shell script
 # idea快捷键设置
 File - Settings - Keymap - Main menu - Edit/Navigate/Run
@@ -16,6 +17,8 @@ F4
 Ctrl + Alt + *H*
 # 快速跳转
 Alt + 数字
+# 折叠代码块
+Ctrl + -
 # duplicated code fragment
 File - Settings - Editor - Inspections - General - Duplicated Code fragment
 # remove dangling comment
@@ -36,6 +39,7 @@ File - Manage IDE Settings - Import/Export Settings
 ```
 
 ### idea-scala
+
 ```shell script
 # idea永久激活
 install - Evaluate for free - Help - Edit Custom VM Options - 添加-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA 2020.1.1\bin\jetbrains-agent.jar - 保存后重启 - Help - Register - Activation code - 输入激活码 - Activate

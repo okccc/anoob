@@ -33,7 +33,7 @@ object S05_group {
     val intToInt: Map[Int, Int] = intToList.map((t: (Int, List[Int])) => (t._1, t._2.size))
     println("res6=" + intToInt)  // Map(2 -> 2, 4 -> 1, 1 -> 2, 3 -> 2)
     // WordCount案例1(分组 - 映射 - 排序 - top)
-    val words: List[String] = List("java","python","scala","java","python","scala","java","spark")
+    val words: List[String] = List("java","python","scala","java","python","scala","java", "bigdata/spark")
     // 先分组
     val wordToList: Map[String, List[String]] = words.groupBy((i: String) => i)
     println(wordToList)  // Map(spark -> List(spark), scala -> List(scala, scala), java -> List(java, java, java), python -> List(python, python))

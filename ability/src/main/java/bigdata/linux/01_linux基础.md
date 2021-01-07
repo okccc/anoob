@@ -328,9 +328,9 @@ daemon:x:2:bin,daemon
 [root@cdh1 ~]$ groupdel g1         # 删除组,如果组内有用户要先删用户  
 [root@cdh1 ~]$ userdel -r u1       # 删除用户及主目录  
 [root@cdh1 ~]$ id hdfs             # 查看hdfs用户的uid、gid、groups 
-uid=993(hdfs) gid=991(hdfs) groups=991(hdfs),993(hadoop)
+uid=993(hdfs) gid=991(hdfs) groups=991(hdfs),993(bigdata)
 [root@cdh1 ~]$ groups hdfs         # 显示用户所属的组 
-hdfs : hdfs hadoop
+hdfs : hdfs bigdata
 
 # 修改权限
 [root@cdh1 ~]$ chmod 755 a.txt                       # 修改文件的rwx权限

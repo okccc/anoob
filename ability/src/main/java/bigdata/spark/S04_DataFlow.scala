@@ -1,4 +1,4 @@
-package spark.streaming
+package bigdata.spark
 
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.streaming.StreamingQuery

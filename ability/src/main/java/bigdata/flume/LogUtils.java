@@ -1,4 +1,4 @@
-package spark.flume;
+package bigdata.flume;
 
 import org.apache.commons.lang.math.NumberUtils;
 

@@ -1,4 +1,4 @@
-package spark.flume;
+package bigdata.flume;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;

@@ -13,7 +13,7 @@
 
 # znode节点
 [zk: localhost:2181(CONNECTED) 0] ls /zookeeper             # zk信息
-[zk: localhost:2181(CONNECTED) 0] ls /hadoop-ha             # hadoop信息
+[zk: localhost:2181(CONNECTED) 0] ls /bigdata-ha             # hadoop信息
 [zk: localhost:2181(CONNECTED) 0] ls /yarn-leader-election  # yarn信息
 [zk: localhost:2181(CONNECTED) 0] ls /brokers               # kafka启动时会向zk注册broker节点信息
 [zk: localhost:2181(CONNECTED) 0] ls /brokers/ids           # kafka存活节点的broker.id
@@ -202,10 +202,10 @@ Note: This will have no impact if delete.topic.enable is not set to true.
 [zk: localhost:2181(CONNECTED) 0] rmr /brokers/topics/t01 & rmr /admin/delete_topics/t01
 # 生产者
 [root@cdh1 ~]$ bin/kafka-console-producer.sh --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic t01
->java hadoop
+>java bigdata
 # 消费者,--from-beginning表示读取主题中以往所有数据
 [root@cdh1 ~]$ bin/kafka-console-consumer.sh --bootstrap-server cdh1:9092 [--from-beginning] --topic t01
-java hadoop
+java bigdata
 # 查看consumer-group列表/详细信息
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
 [root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
