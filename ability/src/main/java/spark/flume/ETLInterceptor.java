@@ -4,14 +4,16 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Author: okccc
- * Desc:
- * Date: 2020/12/6 19:57
+ * Date: 2021/1/5 3:03 下午
+ * Desc: 清洗nginx日志格式并做url解码
  */
 public class ETLInterceptor implements Interceptor {
     @Override
@@ -21,40 +23,39 @@ public class ETLInterceptor implements Interceptor {
 
     @Override
     public Event intercept(Event event) {
-        // 获取body
-        byte[] bytes = event.getBody();
-        // 转换成字符串
-        String body = new String(bytes, StandardCharsets.UTF_8);
-        // 校验日志
-        if (body.contains("start")) {
-            // 启动日志
-            if (LogUtils.validateStart(body)) {
+        if (event == null) {
+            return null;
+        }
+        String line = new String(event.getBody(), StandardCharsets.UTF_8);
+        if (line.length() > 0) {
+            // 截取字符串
+            String msg = line.split("\"")[3];
+            try {
+                // java.lang.IllegalArgumentException: URLDecoder: Incomplete trailing escape (%) pattern
+                // url解码,%在url中是特殊字符,要先将单独出现的%替换成编码后的%25,再对整个字符串解码
+                String msg_new = URLDecoder.decode(msg.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "utf-8");
+                // 返回新的event
+                event.setBody(msg_new.getBytes(StandardCharsets.UTF_8));
                 return event;
-            }
-        } else {
-            // 事件日志
-            if (LogUtils.validateEvent(body)) {
-                return event;
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
         }
-        // 校验不通过就返回null,过滤掉该条event
         return null;
     }
 
     @Override
-    public List<Event> intercept(List<Event> events) {
-        // 存放添加拦截器后的event的列表
-        List<Event> list = new ArrayList<>();
-        // 遍历
-        for (Event event : events) {
-            // 给每一条event添加拦截器处理
+    public List<Event> intercept(List<Event> list) {
+        // 拦截器处理完后的event列表
+        List<Event> events = new ArrayList<>();
+        for (Event event : list) {
+            // 给每条event都用拦截器处理
             Event event_new = intercept(event);
             if (event_new != null) {
-                list.add(event_new);
+                events.add(event_new);
             }
         }
-        // 返回event列表
-        return list;
+        return events;
     }
 
     @Override
@@ -62,9 +63,7 @@ public class ETLInterceptor implements Interceptor {
 
     }
 
-    // 按照agent配置文件中的interceptor类型,创建静态内部类生成拦截器对象
     public static class Builder implements Interceptor.Builder {
-
         @Override
         public Interceptor build() {
             return new ETLInterceptor();
@@ -75,4 +74,6 @@ public class ETLInterceptor implements Interceptor {
 
         }
     }
+
+
 }

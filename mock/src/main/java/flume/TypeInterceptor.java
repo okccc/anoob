@@ -7,13 +7,14 @@ import org.apache.flume.interceptor.Interceptor;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: okccc
+ * Date: 2020/12/6 19:47
  * Desc:
- * Date: 2020/12/6 19:57
  */
-public class LogETLInterceptor implements Interceptor {
+public class TypeInterceptor implements Interceptor {
     @Override
     public void initialize() {
 
@@ -21,39 +22,34 @@ public class LogETLInterceptor implements Interceptor {
 
     @Override
     public Event intercept(Event event) {
+        // Event: {headers:{} body: 61 61 61  aaa} headers默认是空,根据body中的日志类型填充headers
         // 获取body
         byte[] bytes = event.getBody();
-        // 转换成字符串
+        // 将数组转换成字符串
         String body = new String(bytes, StandardCharsets.UTF_8);
-        // 校验日志
+        // 获取header
+        Map<String, String> headers = event.getHeaders();
+        // 填充header
         if (body.contains("start")) {
-            // 启动日志
-            if (LogUtils.validateStart(body)) {
-                return event;
-            }
+            headers.put("topic", "t_start");
         } else {
-            // 事件日志
-            if (LogUtils.validateEvent(body)) {
-                return event;
-            }
+            headers.put("topic", "t_event");
         }
-        // 校验不通过就返回null,过滤掉该条event
-        return null;
+        // 返回填充headers后的Event
+        return event;
     }
 
     @Override
     public List<Event> intercept(List<Event> events) {
-        // 存放添加拦截器后的event的列表
+        // 创建存放添加拦截器后的event的列表
         List<Event> list = new ArrayList<>();
         // 遍历
         for (Event event : events) {
             // 给每一条event添加拦截器处理
             Event event_new = intercept(event);
-            if (event_new != null) {
-                list.add(event_new);
-            }
+            list.add(event_new);
         }
-        // 返回event列表
+        // 返回新的event列表
         return list;
     }
 
@@ -67,7 +63,7 @@ public class LogETLInterceptor implements Interceptor {
 
         @Override
         public Interceptor build() {
-            return new LogETLInterceptor();
+            return new TypeInterceptor();
         }
 
         @Override

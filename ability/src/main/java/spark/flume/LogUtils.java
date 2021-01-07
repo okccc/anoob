@@ -4,8 +4,8 @@ import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * Author: okccc
- * Desc:
  * Date: 2020/12/6 19:34
+ * Desc: 校验日志格式
  */
 public class LogUtils {
     public static boolean validateStart(String log) {

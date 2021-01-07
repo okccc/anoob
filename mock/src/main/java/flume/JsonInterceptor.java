@@ -7,14 +7,13 @@ import org.apache.flume.interceptor.Interceptor;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Author: okccc
+ * Date: 2020/12/6 19:57
  * Desc:
- * Date: 2020/12/6 19:47
  */
-public class LogTypeInterceptor implements Interceptor {
+public class JsonInterceptor implements Interceptor {
     @Override
     public void initialize() {
 
@@ -22,34 +21,39 @@ public class LogTypeInterceptor implements Interceptor {
 
     @Override
     public Event intercept(Event event) {
-        // Event: {headers:{} body: 61 61 61  aaa} headers默认是空,根据body中的日志类型填充headers
         // 获取body
         byte[] bytes = event.getBody();
-        // 将数组转换成字符串
+        // 转换成字符串
         String body = new String(bytes, StandardCharsets.UTF_8);
-        // 获取header
-        Map<String, String> headers = event.getHeaders();
-        // 填充header
+        // 校验日志
         if (body.contains("start")) {
-            headers.put("topic", "t_start");
+            // 启动日志
+            if (LogUtils.validateStart(body)) {
+                return event;
+            }
         } else {
-            headers.put("topic", "t_event");
+            // 事件日志
+            if (LogUtils.validateEvent(body)) {
+                return event;
+            }
         }
-        // 返回填充headers后的Event
-        return event;
+        // 校验不通过就返回null,过滤掉该条event
+        return null;
     }
 
     @Override
     public List<Event> intercept(List<Event> events) {
-        // 创建存放添加拦截器后的event的列表
+        // 存放添加拦截器后的event的列表
         List<Event> list = new ArrayList<>();
         // 遍历
         for (Event event : events) {
             // 给每一条event添加拦截器处理
             Event event_new = intercept(event);
-            list.add(event_new);
+            if (event_new != null) {
+                list.add(event_new);
+            }
         }
-        // 返回新的event列表
+        // 返回event列表
         return list;
     }
 
@@ -63,7 +67,7 @@ public class LogTypeInterceptor implements Interceptor {
 
         @Override
         public Interceptor build() {
-            return new LogTypeInterceptor();
+            return new JsonInterceptor();
         }
 
         @Override
