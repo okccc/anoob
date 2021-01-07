@@ -3,7 +3,7 @@
 # nginx三大功能：反向代理、负载均衡、动静分离
 # 安装依赖
 [root@cdh1 ~]$ yum -y install gcc pcre-devel zlib zlib-devel openssl openssl-devel net-tools
-# 下载压缩包
+****# 下载压缩包
 [root@cdh1 ~]$ wget http://nginx.org/download/nginx-1.12.2.tar.gz
 # 解压
 [root@cdh1 ~]$ tar -xvf nginx-1.21.2.tar.gz -C /usr/local
@@ -15,7 +15,7 @@
 # 测试配置文件
 [root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -t
 # 启动/停止/重启
-[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx
+[root@****cdh1 ~]$ /usr/local/nginx/sbin/nginx
 [root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s stop
 [root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s reload
 # 查看nginx进程,jps显示的是java进程,nginx是c++写的
@@ -102,32 +102,32 @@ a1.sources.r1.filegroups = f1                  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也支持正则表达式,目录必须存在不然报错
 a1.sources.r1.fileHeader = true
 a1.sources.ri.maxBatchCount = 1000
-# 拦截器(要将拦截器代码打成jar包放到flume的lib目录下)
+# 拦截器(jar包放到flume的lib目录)
 a1.sources.r1.interceptors = i1 i2
 a1.sources.r1.interceptors.i1.type = flume.LogETLInterceptor$Builder    # etl拦截器
 a1.sources.r1.interceptors.i2.type = flume.LogTypeInterceptor$Builder   # 日志类型拦截器
 # 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing     # 根据日志类型发往指定channel
 a1.sources.r1.selector.header = topic          # event的header的key
-a1.sources.r1.selector.mapping.t_start = c1    # start日志发往c1
-a1.sources.r1.selector.mapping.t_event = c2    # event日志发往c2
+a1.sources.r1.selector.mapping.start = c1      # start日志发往c1
+a1.sources.r1.selector.mapping.event = c2      # event日志发往c2
 
 # 配置channel
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
-a1.channels.c1.kafka.topic = t_start                                    # 如果topic不存在会自动创建
+a1.channels.c1.kafka.topic = start                                    # 如果topic不存在会自动创建
 #a1.channels.c1.kafka.consumer.group.id = flume-consumer                # 消费者的groupId
 a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不加,不然往表里存还要再截掉
 # 将不同类型的日志由不同channel发往对应的topic
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  
-a1.channels.c2.kafka.topic = t_event                                    # event类型的日志发往channel2,对应kafka的t_event
+a1.channels.c2.kafka.topic = event                                    # event类型的日志发往channel2,对应kafka的event
 a1.channels.c2.parseAsFlumeEvent = false
 
 # 先启动kafka
 [root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
-[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic t_start --partitions 1 --replication-factor 1
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic t_start
+[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic start --partitions 1 --replication-factor 1
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic start
 # 再启动flume-ng
 [root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/nginx-kafka.conf -n a1 -Dflume.root.logger=info,console > logs/flume.log 2>&1 &  # 输出到日志
 # 然后启动log,消费者能收到数据说明ok
