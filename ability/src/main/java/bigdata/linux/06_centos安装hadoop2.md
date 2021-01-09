@@ -1,33 +1,33 @@
 ### hadoop2.7
 ```shell script
 # 解压安装包
-[root@cdh1 opt]$ tar -xvf bigdata-2.7.2.tar.gz -C /opt/module
+[root@cdh1 opt]$ tar -xvf hadoop-2.7.2.tar.gz -C /opt/module
 [root@cdh1 opt]$ tar -xvf apache-hive-1.2.1-bin.tar.gz -C /opt/module
-# bin目录是一些原始命令  bigdata/hdfs/yarn/mapred/run-eample/spark-shell/spark-submit/spark-sql
+# bin目录是一些原始命令  hadoop/hdfs/yarn/mapred/run-eample/spark-shell/spark-submit/spark-sql
 # sbin目录是一些服务(启动/停止)命令  start/stop
 # 添加到环境变量
 [root@cdh1 ~]$ vim /etc/profile
-export HADOOP_HOME=/opt/module/bigdata-2.7.2
+export HADOOP_HOME=/opt/module/hadoop-2.7.2
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 export HIVE_HOME=/opt/module/hive-1.2.1
 export PATH=$PATH:$HIVE_HOME/bin:$HIVE_HOME/sbin
 # 修改hadoop-env
-[root@cdh1 bigdata]$ vim bigdata-env.sh
+[root@cdh1 hadoop]$ vim hadoop-env.sh
 export JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
 # 修改slaves
-[root@cdh1 bigdata]$ vim slaves
+[root@cdh1 hadoop]$ vim slaves
 cdh1
 cdh2
 cdh3
 # 修改hive-env
 [root@cdh1 conf]$ vim hive-env.sh
-export HADOOP_HOME=/opt/module/bigdata-2.7.2
+export HADOOP_HOME=/opt/module/hadoop-2.7.2
 export HIVE_CONF_DIR=/opt/module/hive-1.2.1/conf
 # 配置hive元数据到mysql,在hive的conf目录新增hive-site.xml
 [root@cdh1 ~]$ cp /usr/share/java/mysql-connector-java-5.1.46.jar /opt/module/hive-1.2.1/lib/
 # 修改完全部配置文件后拷贝到其它节点
-[root@cdh1 module]$ scp -r bigdata-2.7.2/ cdh2:/opt/module/
-[root@cdh1 module]$ scp -r bigdata-2.7.2/ cdh3:/opt/module/
+[root@cdh1 module]$ scp -r hadoop-2.7.2/ cdh2:/opt/module/
+[root@cdh1 module]$ scp -r hadoop-2.7.2/ cdh3:/opt/module/
 # 一键分发脚本
 [root@cdh1 ~]$ cd /usr/bin & vim xsync & chmod +x xsync
 #!/bin/bash
@@ -94,8 +94,8 @@ done
     </property>  
     <!-- 指定hadoop临时目录 -->  
     <property>  
-        <name>bigdata.tmp.dir</name>  
-        <value>/opt/module/bigdata-2.7.2/tmp</value>  
+        <name>hadoop.tmp.dir</name>  
+        <value>/opt/module/hadoop-2.7.2/tmp</value>  
     </property>  
     <!-- 指定zookeeper地址 -->  
     <property>  
@@ -152,7 +152,7 @@ done
     <!-- 指定JournalNode在本地磁盘存放数据的位置 -->  
     <property>  
         <name>dfs.journalnode.edits.dir</name>  
-        <value>/opt/module/bigdata-2.7.2/journaldata</value>  
+        <value>/opt/module/hadoop-2.7.2/journaldata</value>  
     </property>  
     <!-- 开启NameNode失败自动切换 -->  
     <property>  
@@ -162,7 +162,7 @@ done
     <!-- 配置失败自动切换实现方式 -->  
     <property>  
         <name>dfs.client.failover.proxy.provider.ns1</name>
-        <value>org.apache.bigdata.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+        <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
     </property>  
     <!-- 配置隔离机制方法,防止脑裂SB(split-brain)-->  
     <property>  
@@ -175,7 +175,7 @@ done
     <!-- 使用sshfence隔离机制时需要ssh免登陆 -->  
     <property>  
         <name>dfs.ha.fencing.ssh.private-key-files</name>  
-        <value>/opt/module/bigdata-2.7.2/.ssh/id_rsa</value>  
+        <value>/opt/module/hadoop-2.7.2/.ssh/id_rsa</value>  
     </property>  
     <!-- 配置sshfence隔离机制超时时间 -->  
     <property>  
@@ -291,7 +291,7 @@ done
 # 格式化namenode
 [root@cdh1 ~]$ hdfs namenode -format
 # 把tmp拷到nn2下面
-[root@cdh1 bigdata-2.7.2]$ scp -r bigdata-2.7.2/tmp cdh2:/opt/module/bigdata-2.7.2
+[root@cdh1 hadoop-2.7.2]$ scp -r hadoop-2.7.2/tmp cdh2:/opt/module/hadoop-2.7.2
 # 格式化ZKFC
 [root@cdh1 ~]$ hdfs zkfc -formatZK
 # 启动hdfs
@@ -376,7 +376,7 @@ done
 # 集群命令
 [root@cdh1 ~]$ /opt/cloudera/parcels/CDH/bin目录存放了hadoop/hdfs/yarn/zookeeper等一系列集群命令
 # 查看hadoop版本
-[root@cdh1 ~]$ bigdata version
+[root@cdh1 ~]$ hadoop version
 # 查看hdfs的各节点状态信息
 [root@cdh1 ~]$ hdfs dfsadmin -report
 # 刷新节点
@@ -390,7 +390,7 @@ done
 # 检测节点健康状况
 [root@cdh1 ~]$ hdfs haadmin -checkHealth nn1
 # 单独启动一个zkfc进程
-[root@cdh1 ~]$ bigdata-daemon.sh start zkfc
+[root@cdh1 ~]$ hadoop-daemon.sh start zkfc
 
 # yarn
 # 查看yarn应用列表
@@ -401,43 +401,42 @@ done
 [root@cdh1 ~]$ yarn application -status application_id
 
 # hdfs
-# 修改目录所属用户
-[root@cdh1 ~]$ bigdata fs -chown dev /crm
-# 修改目录读写权限
-[root@cdh1 ~]$ bigdata fs -chmod 755 /user
+# 修改目录所属用户(组)
+[root@cdh1 ~]$ hadoop fs -chown deploy /user/flume
+[root@cdh1 ~]$ hadoop fs -chown deploy:supergroup /user/flume
 # 查看文件列表以时间倒序排序
-[root@cdh1 ~]$ bigdata fs -ls -t -r /
+[root@cdh1 ~]$ hadoop fs -ls -t -r /
 # 查看文件内容
-[root@cdh1 ~]$ bigdata fs -cat <hdfs文件>
+[root@cdh1 ~]$ hadoop fs -cat <hdfs文件>
 # 上传下载
-[root@cdh1 ~]$ bigdata fs -put <Linux文件> <hdfs路径>
-[root@cdh1 ~]$ bigdata fs -get <hdfs路径> <Linux文件>
+[root@cdh1 ~]$ hadoop fs -put <Linux文件> <hdfs路径>
+[root@cdh1 ~]$ hadoop fs -get <hdfs路径> <Linux文件>
 # 创建文件夹(级联)
-[root@cdh1 ~]$ bigdata fs -mkdir -p <path>  
+[root@cdh1 ~]$ hadoop fs -mkdir -p <path>  
 # 设置/取消该文件夹上传文件数限制
 [root@cdh1 ~]$ hdfs dfsadmin -setQuota | -clrQuota 3 /test
 # 设置/取消该文件夹大小
 [root@cdh1 ~]$ hdfs dfsadmin -setSpaceQuota | -clrSpaceQuota 1g /test
 # 在hdfs上移动文件
-[root@cdh1 ~]$ bigdata fs -mv /aaa/* /bbb/  
+[root@cdh1 ~]$ hadoop fs -mv /aaa/* /bbb/  
 # 删除hdfs文件
-[root@cdh1 ~]$ bigdata fs -rm /aaa/angela.txt  
+[root@cdh1 ~]$ hadoop fs -rm /aaa/angela.txt  
 # 删除hdfs文件夹
-[root@cdh1 ~]$ bigdata fs -rm -r /aaa  
+[root@cdh1 ~]$ hadoop fs -rm -r /aaa  
 # hdfs总空间大小
-[root@cdh1 ~]$ bigdata fs -df -h /
+[root@cdh1 ~]$ hadoop fs -df -h /
 Filesystem    Size   Used  Available  Use%
 hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 # hdfs某个目录大小
-[root@cdh1 ~]$ bigdata fs -du -s -h /user/hive/warehouse
+[root@cdh1 ~]$ hadoop fs -du -s -h /user/hive/warehouse
 31.6T  64.7T  /user/hive/warehouse  # 说明是2个副本,小文件也会被当成128m切块大小,所以不是刚刚好2倍关系
 # hdfs某个目录下所有文件大小
-[root@cdh1 ~]$ bigdata fs -du -h /user/hive/warehouse
+[root@cdh1 ~]$ hadoop fs -du -h /user/hive/warehouse
 5.2 G    12.7 G   /user/hive/warehouse/dm.db
 104.5 G  240.2 G  /user/hive/warehouse/dw.db
 320.7 G  671.3 G  /user/hive/warehouse/ods.db
 # hdfs文件大小排序
-[root@cdh1 ~]$ bigdata fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="  " | sort -nr
+[root@cdh1 ~]$ hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="  " | sort -nr
 72G  167G  /user/hive/warehouse/ods.db/debit_detail
 54G  110G  /user/hive/warehouse/ods.db/urge_record
 51G  105G  /user/hive/warehouse/ods.db/pay_repayment_detail
@@ -449,7 +448,7 @@ hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 # hdfs内部实现是在namenode开启一个后台线程Emptier专门管理和监控系统回收站,将超过生命周期的数据删除并释放关联的数据块
 # 防止误删数据,删除的文件不会立即清除而是转移到/user/当前用户/.Trash/Current并保留一段时间(fs.trash.interval),所以hdfs磁盘空间不会立即增加
 # 手动清空回收站
-[root@cdh1 ~]$ bigdata fs -expunge  # 会将当前目录/user/用户名/.Trash/current重命名为/user/用户名/.Trash/yyMMddHHmmSS,再次执行就彻底删除了
+[root@cdh1 ~]$ hadoop fs -expunge  # 会将当前目录/user/用户名/.Trash/current重命名为/user/用户名/.Trash/yyMMddHHmmSS,再次执行就彻底删除了
 
 # web页面监控
 http://cdh1:50070    # active/standby
@@ -474,7 +473,7 @@ export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 # java环境
 JAVA_HOME=/usr/java/jdk1.8.0_181-cloudera
 # on yarn模式,只能从hdfs读数据,通过yarn管理资源和任务监控(8088端口)
-HADOOP_CONF_DIR=/opt/module/bigdata-2.7.2/etc/bigdata
+HADOOP_CONF_DIR=/opt/module/hadoop-2.7.2/etc/hadoop
 SPARK_DRIVER_MEMORY=512M
 SPARK_EXECUTOR_CORES=1
 SPARK_EXECUTOR_INSTANCES=2

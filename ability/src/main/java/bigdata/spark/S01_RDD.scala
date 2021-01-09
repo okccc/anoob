@@ -174,7 +174,7 @@ object S01_RDD {
 
     // 累加器案例
     val intRDD: RDD[Int] = sc.makeRDD(List(1,2,3,4),numSlices = 2)
-    val stringRDD: RDD[String] = sc.makeRDD(List("bigdata", "hive", "bigdata/spark", "kafka", "flume"))
+    val stringRDD: RDD[String] = sc.makeRDD(List("hadoop", "hive", "spark", "kafka", "flume"))
     // 在driver中创建计数器cnt,对于executor来说就是闭包内的变量,是不可见的
     var cnt: Int = 0
     // spark将job分解成多个task,每个task对应一个executor,执行之前spark会计算task的closure(闭包)并将其序列化发送到每个executor
@@ -193,7 +193,7 @@ object S01_RDD {
     sc.register(myAccumulator)
     // 执行累计功能
     stringRDD.foreach((i: String) => myAccumulator.add(i))
-    println(myAccumulator.value)  // [bigdata, hive]
+    println(myAccumulator.value)  // [hadoop, hive]
   }
 
   def transform03(sc: SparkContext): Unit = {

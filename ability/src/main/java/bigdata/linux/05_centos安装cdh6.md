@@ -253,14 +253,12 @@ mysql> select * from ROLES/ROLE_MAP/DB_PRIVS/TBL_PRIVS/TBL_COL_PRIVS;
 
 ### cdh运维
 ```shell script
-# CDH安装成功后,bigdata/hdfs/hive/impala/java/mapred/spark/sqoop/yarn/zookeeper等组件的命令在/etc/alternatives目录
+# CDH安装成功后,hadoop/hdfs/hive/impala/java/mapred/spark/sqoop/yarn/zookeeper等组件的命令在/etc/alternatives目录
 # 在CM界面重启yarn后,8088页面的applications也会清零
 
 # Permission denied: user=root, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
-原因：root用户没有hdfs用户的/user目录权限
-解决：sudo -u更改目录所属用户改为root,或者切换到hdfs用户执行命令
-sudo -u hdfs bigdata fs -chwon root /user/flume
-sudo -u hdfs bigdata fs -rm -r /user/flume/a.txt
+原因：root用户没有hdfs用户的/user目录权限,要切换到hdfs用户执行命令,或者更改目录所属用户为root
+sudo -u hdfs hadoop fs -chwon root /user/flume
 
 # 运行mr涉及join操作时：container is running beyond physical memory limits
 map join：默认情况下,hive会自动将小表加到distribute cache中,然后在map扫描大表的时候,去和distribute cache中的小表做join
@@ -324,7 +322,7 @@ swapon -a 开启交换空间
 # cdh界面查看各个组件版本号  
 主机 - 所有主机 - 选中主机 - 组件
 
-# org.apache.bigdata.ipc.StandbyException: Operation category READ is not supported in state standby
+# org.apache.hadoop.ipc.StandbyException: Operation category READ is not supported in state standby
 原因：主节点是standby状态  
 命令行：hdfs haadmin -failover nn2 nn1 将nn1切换成active状态
 CM界面：hdfs - 实例 - NameNode(备用) - Federation与High Availability - 操作 - 手动故障转移
@@ -339,7 +337,7 @@ CM界面：hdfs - 实例 - NameNode(备用) - Federation与High Availability - �
 
 # java.io.IOException: Could not locate executable null\bin\winutils.exe in the Hadoop binaries.
 原因：windows缺少hadoop环境  
-解决：安装windows版本的hadoop-2.7.2 - Idea - Run - Edit Configurations - Environment variables - 添加HADOOP_HOME=C:\bigdata-2.7.2
+解决：安装windows版本的hadoop-2.7.2 - Idea - Run - Edit Configurations - Environment variables - 添加HADOOP_HOME=C:\hadoop-2.7.2
 
 # 执行hql报错 FAILED: ParseException line 321:8 character ' ' not supported here
 原因：windows的UTF-8 BOM格式会带有一些隐藏的特殊符号,切换成以ANSI格式编码就能看到有些空格是特殊字符,导致在linux环境下乱码  
