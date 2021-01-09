@@ -203,7 +203,9 @@ hive> set hive.cli.print.header=true;
 -- 删除库(加cascade可以删除含有表的数据库)
 hive> drop database test cascade;
 -- 模糊搜索表
-hive> show tables like '*name*';  
+hive> show tables like '*name*';
+-- 查看hive表最近一次读写时间
+hive> show table extended in db_name like tbl_name;
 -- 删除表
 hive> drop table test;
 -- 清空表数据
