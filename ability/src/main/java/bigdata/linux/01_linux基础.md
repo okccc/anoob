@@ -387,16 +387,17 @@ hdfs : hdfs hadoop
 [root@cdh1 ~]$ vim -o a.txt b.txt  # 分屏显示  
 [root@cdh1 ~]$ dd  # 编辑文件时删除当前行, :2,5 d 删除第2~5行的内容  
 [root@cdh1 ~]$ :set nu  # 编辑文件时显示行号,PgUp/PgDn可以向上向下翻页  
+[root@cdh1 ~]$ diff a.txt b.txt  # 比对文件
 [root@cdh1 ~]$ gg/Shift + g  # 顶部/底部  
 [root@cdh1 ~]$ ctrl + b/f  # 上一页/下一页  
-[root@cdh1 ~]$ cat access.log | grep '01/Jun/2016:10' > test.log  # 提取某个时间段的日志记录  
+[root@cdh1 ~]$ grep '01/Jun/2016:10' access.log > tmp.log  # 提取某个时间段的日志记录  
 [root@cdh1 ~]$ sh startup.sh && tail -f ../logs/catalina.out  # 启动tomcat后立刻查看日志  
 [root@cdh1 ~]$ sh -x test.sh  # 执行shell脚本时,启动跟踪模式 
 
 # stat a.txt  文件的3个时间戳  
-[root@cdh1 ~]$ Access time(atime)  # 读取操作 cat、cp、grep、sed、more、less、tail、head 会改变此时间  
-[root@cdh1 ~]$ Modify time(mtime)  # 修改操作 vim、ll 会改变此时间  
-[root@cdh1 ~]$ Change time(ctime)  # 修改文件属性或位置 chmod、chown、mv 会改变此时间  
+[root@cdh1 ~]$ Access time(atime)  # 读取操作 cat/cp/grep/sed/less/tail
+[root@cdh1 ~]$ Modify time(mtime)  # 修改操作 vim
+[root@cdh1 ~]$ Change time(ctime)  # 修改文件属性或位置 chmod/chown/mv
  
 # 重定向(>覆盖 >>追加)
 # linux上所有东西都对应操作系统的文件描述符fd,操作系统默认0/1/2对应标准输入(stdin)/标准输出(stdout)/标准错误(stderr),应用程序的fd从3开始

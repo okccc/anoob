@@ -546,23 +546,23 @@ grant all privileges on *.* to 'canal'@'%' identified by 'canal';
 [root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules/canal.deployer-1.1.4
 # canal服务端配置
 [root@cdh1 ~]$ vim conf/canal.properties
-canal.port = 11111             # canal端口,默认11111
-canal.serverMode = kafka       # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
-canal.mq.servers = cdh1:9092   # kafka地址,逗号分隔
-canal.destinations = example1,example2  # canal服务可以有多个实例,conf/下的每个example都是一个独立实例,canal默认只有一个实例,如果需要多个实例处理不同mysql数据,拷贝example重命名并修改实例配置即可
-# instance实例配置,有多个实例就逐一配置即可
+canal.serverMode = kafka                # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
+canal.mq.servers = cdh1:9092,cdh1:9092  # kafka地址,逗号分隔
+canal.destinations = example1,example2  # canal默认单实例,可以拷贝conf/example并修改配置,多实例同步不同mysql/database/table数据
+# instance实例配置(修改后直接生效不用重启)
 [root@cdh1 ~]$ vim conf/example/instance.properties
-canal.instance.master.address=localhost:3306  # mysql地址
-canal.instance.dbUsername=canal               # 连接mysql的用户名和密码,需事先创建并授权
+canal.instance.master.address={ip:port}  # mysql地址
+canal.instance.dbUsername=canal          # 连接mysql的用户名和密码,需事先创建并授权
 canal.instance.dbPassword=canal
-canal.instance.defaultDatabaseName=test       # 指定库
-canal.instance.filter.regex=.*\\..*           # 通过正则指定表 .*\\..* 所有表 | canal\\..* canal库下表 | canal\\.canal.* canal库下canal开头表 | canal.test指定表
-canal.mq.topic=t_canal                        # 指定kafka的topic
-canal.mq.partition=0                          # 默认输出到一个partition,多个分区并行可能会打乱binlog顺序
+canal.instance.defaultDatabaseName=ods   # 指定库(这个配置是无效的,要看白名单和黑名单里配置)
+canal.instance.filter.regex=.*\\..*      # 白名单表 .*\\..* 所有表 | ods\\..* ods库下表 | ods\\.ods.* ods库下ods开头表 | ods.order指定表
+canal.instance.filter.black.regex=       # 黑名单表
+canal.mq.topic=canal                     # 指定kafka的topic
+canal.mq.partition=0                     # 默认输出到一个partition,多个分区并行可能会打乱binlog顺序
 # 启动canal
-[root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题t_canal
+[root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题canal
 # 启动kafka消费者
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t_canal
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic canal
 {"data":[{"id":"9","name":"aaa"},{"id":"10","name":"bbb"}],"database":"canal","es":1608384750000,"id":21,"isDdl":false,
 "mysqlType":{"id":"bigint(20)","user_name":"varchar(20)","tel":"varchar(20)"},"old":null,"pkNames":["id"],"sql":"",
 "sqlType":{"id":-5,"user_name":12,"tel":12},"table":"z_user_info","ts":1608384750686,"type":"INSERT"}
