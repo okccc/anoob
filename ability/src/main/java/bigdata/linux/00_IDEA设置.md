@@ -21,8 +21,8 @@ Alt + 数字
 Ctrl + -
 # duplicated code fragment
 File - Settings - Editor - Inspections - General - Duplicated Code fragment
-# remove dangling comment
-File - Settings - Editor - Inspections - General - dangling javadoc comment
+# dangling javadoc comment
+File - Settings - Editor - Inspections - Java - Javadoc - Dangling Javadoc comment
 # Edit Configurations
 Run - Edit Configurations - Templates - Temporary configurations limit
 # idea删除文件恢复
