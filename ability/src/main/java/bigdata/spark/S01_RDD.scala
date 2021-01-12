@@ -95,10 +95,10 @@ object S01_RDD {
     val sc: SparkContext = new SparkContext(conf)
     // 创建RDD两种方式：内存创建(测试),读取文件(常用)
 
-//    transform01(sc)
+    transform01(sc)
 //    transform02(sc)
     transform03(sc)
-//    action(sc)
+    action(sc)
 //    fileRDD(sc)
 //    jdbcRDD(sc)
   }
@@ -114,13 +114,13 @@ object S01_RDD {
     val mapRDD: RDD[Int] = rdd1.map((i: Int) => i * 2)
     // mapPartitions算子：map针对元素操作而mapPartitions针对分区操作,比如有10个元素2个分区,map调用10次而mapPartitions调用2次
     // mapPartitions效率会优于map,因为减少了发送到执行器的交互次数,但是一次发送一个分区的数据可能会OOM
-    val mapRDD02: RDD[Int] = rdd1.mapPartitions((datas: Iterator[Int]) => {
+    val mapRDD02: RDD[Int] = rdd1.mapPartitions((iterator: Iterator[Int]) => {
       // mapPartitions是spark算子,会调用executor执行有几个分区就调用几次,此处的map是scala函数不会调用executor
-      datas.map((data: Int) => data * 2)
+      iterator.map((data: Int) => data * 2)
     })
     // mapPartitionsWithIndex算子：类似mapPartitions,但是func会带一个整数参数表示分片的索引值
-    val mapRDD03: RDD[(Int, String)] = rdd1.mapPartitionsWithIndex((i: Int, datas: Iterator[Int]) => {
-      datas.map((data: Int) => (data, "分区号：" + i))
+    val mapRDD03: RDD[(Int, String)] = rdd1.mapPartitionsWithIndex((i: Int, iterator: Iterator[Int]) => {
+      iterator.map((data: Int) => (data, "分区号：" + i))
     })
     // flatMap算子：当集合中的元素是一个个整体时,可以将每个输入元素映射为0或多个输出元素(扁平化操作)
     val flatMapRDD: RDD[String] = rdd2.flatMap((i: String) => {
@@ -397,11 +397,11 @@ object S01_RDD {
     //    }
 
     // 3).遍历RDD所有分区,foreachPartition算子是action操作,以下代码是在executor端执行
-    dataRDD.foreachPartition((datas: Iterator[(String, Int)]) => {
+    dataRDD.foreachPartition((iterator: Iterator[(String, Int)]) => {
       // 创建连接对象,有几个分区就创建几次连接,在executor端初始化连接对象避免网络传输导致的序列化问题
       val conn: Connection = DriverManager.getConnection(url, user, password)
       // 遍历每个分区中的所有元素
-      datas.foreach{
+      iterator.foreach{
         case (name, age) =>
           // 关闭自动提交
           conn.setAutoCommit(false)

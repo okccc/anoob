@@ -125,7 +125,7 @@ object S03_DStream {
     // 优化方案：1.减小窗口长度 2.增大滑动间隔 3.用上一个window统计结果加上新的slide减去旧的slide,该方法要设置checkpoint保存之前的状态
     val window2SDtream: DStream[(String, Int)] = pairsDStream.reduceByKeyAndWindow((x: Int, y: Int) => x + y, (x: Int, y: Int) => x - y, Seconds(4), Seconds(2))
 
-    // transform算子：对DStream中的RDD做一些RDD的transform操作,且不用执行RDD的action操作,而是通过DStream的output操作触发计算
+    // transform算子：对DStream中的RDD做一些transform操作,且不用执行RDD的action操作,而是通过DStream的output操作触发计算
     val transformDStream: DStream[(String, Int)] = socketDStream.transform((rdd: RDD[String]) => {
       // transform/foreachRDD算子内除了获取的RDD的算子以外的代码都是在driver端执行,利用这个特点可以动态改变广播变量
       println("=" * 50)
@@ -202,8 +202,6 @@ object S03_DStream {
 
     // 启动程序
     ssc.start()
-    // 等待程序终止
     ssc.awaitTermination()
   }
-
 }

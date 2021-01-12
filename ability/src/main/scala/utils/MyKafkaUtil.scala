@@ -3,7 +3,6 @@ package utils
 import java.util.Properties
 
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.streaming.StreamingContext
@@ -19,62 +18,58 @@ import scala.collection.mutable
  */
 object MyKafkaUtil {
 
-  // 读取配置文件
+  // 1.读取配置文件
   private val prop: Properties = MyPropertiesUtil.load("config.properties")
   private val broker_list: String = prop.getProperty("kafka.broker.list")
   private val group: String = prop.getProperty("group.id")
 
-  // kafka消费者配置,使用mutable.Map存储,方便更改参数
-  private val kafkaParams: mutable.Map[String, Object] = collection.mutable.Map(
+  // 2.kafka消费者配置
+  private val kafkaParams: mutable.Map[String, Object] = mutable.Map(
     // 必选参数
-    "bootstrap.servers" -> broker_list, // kafka集群地址
-    "key.deserializer" -> classOf[StringDeserializer],  // key的反序列化器
-    "value.deserializer" -> classOf[StringDeserializer],  // value的反序列化器
-    "group.id" -> group, // 消费者组
+    "bootstrap.servers" -> broker_list,                   // kafka地址
+    "key.deserializer" -> classOf[StringDeserializer],    // key反序列化
+    "value.deserializer" -> classOf[StringDeserializer],  // value反序列化
+    "group.id" -> group,                                  // 消费者组
     // 可选参数
-    "auto.offset.reset" -> "latest", // 没有offset时从哪里开始消费 latest(默认)/earliest/none
-    "enable.auto.commit" -> (false: java.lang.Boolean) // true自动提交(默认),false手动提交
+    "enable.auto.commit" -> (false: java.lang.Boolean),   // true自动提交(默认),false手动提交
+    "auto.offset.reset" -> "earliest"                     // 没有offset就从latest(默认)/earliest/none开始消费
   )
 
-  /**
-   * 创建消费kafka数据的流对象,指定ssc/topic
-   */
+  // 3.创建读取kafka数据的DStream,指定ssc/topic
   def getKafkaDStream(ssc: StreamingContext, topic: String): InputDStream[ConsumerRecord[String, String]] = {
-    // 将接收的消息封装成ConsumerRecord对象
-    val kafkaDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream[String, String](
+    val recordDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream[String, String](
       ssc,
-      LocationStrategies.PreferConsistent,  // 位置策略
-      ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams)  // 消费策略
+      // 位置策略
+      LocationStrategies.PreferConsistent,
+      // 消费策略,自动提交偏移量
+      ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams)
     )
-    kafkaDStream
+    recordDStream
   }
 
-  /**
-   * 创建消费kafka数据的流对象,指定ssc/topic/groupId
-   */
+  // 创建读取kafka数据的DStream,指定ssc/topic/groupId
   def getKafkaDStream(ssc: StreamingContext, topic: String, groupId: String): InputDStream[ConsumerRecord[String, String]] = {
     // 手动传入groupId
     kafkaParams("group.id") = groupId
-    val kafkaDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
+    val recordDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
       ssc,
       LocationStrategies.PreferConsistent,
       ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams)
     )
-    kafkaDStream
+    recordDStream
   }
 
-  /**
-   * 创建消费kafka数据的流对象,指定ssc/topic/groupId/offset
-   */
+  // 创建读取kafka数据的DStream,指定ssc/topic/groupId/offset
   def getKafkaDStream(ssc: StreamingContext, topic: String, groupId: String, offset: Map[TopicPartition, Long]): InputDStream[ConsumerRecord[String, String]] = {
     // 手动传入groupId
     kafkaParams("group.id") = groupId
-    val kafkaDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
+    val recordDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
       ssc,
+      // 位置策略
       LocationStrategies.PreferConsistent,
-      // 手动传入offset替换默认的latest
+      // 消费策略：手动提交偏移量
       ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams, offset)
     )
-    kafkaDStream
+    recordDStream
   }
 }

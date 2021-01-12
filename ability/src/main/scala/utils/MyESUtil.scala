@@ -64,24 +64,17 @@ object MyESUtil {
   def putIndex(indexName: String): Unit = {
     // 1.获取jest客户端
     val jestClient: JestClient = getJestClient
+
     // 3.封装Index对象,将样例类对象作为Builder的参数传入,底层会将其转换为json字符串,id可以不写会随机生成文档id
     val index: Index = new Index.Builder(generateSource()).index(indexName).`type`("_doc").id("1").build()
+
     // 2.执行index插入操作
     // 查看源码发现execute方法需传入Action<T>接口,F4查找发现有Index/Get/Update/Delete等实现类,并且这些类都使用了Builder模式
+    // java代码此处需要try catch不然会编译异常,scala没有所谓的编译异常所以不需要
     jestClient.execute(index)
+
     // 4.关闭连接
     jestClient.close()
-  }
-
-  def generateSource(): Object = {
-    // 创建样例类对象
-    val actorList: util.ArrayList[util.Map[String, Any]] = new util.ArrayList[util.Map[String, Any]]()
-    val hashMap: util.HashMap[String, Any] = new util.HashMap[String, Any]()
-    hashMap.put("id", 1)
-    hashMap.put("name", "grubby")
-    actorList.add(hashMap)
-    val movie: MovieInfo = MovieInfo(1, "war3", 9.5, actorList)
-    movie
   }
 
   /**
@@ -93,6 +86,7 @@ object MyESUtil {
     // 1.获取jest客户端
     if(docList != null && docList.nonEmpty) {
       val jestClient: JestClient = getJestClient
+
       // 3.封装Bulk对象
       val builder: Bulk.Builder = new Bulk.Builder
       // 遍历文档列表
@@ -103,10 +97,12 @@ object MyESUtil {
         builder.addAction(index)
       }
       val bulk: Bulk = builder.build()
+
       // 2.执行bulk批量操作
       val result: BulkResult = jestClient.execute(bulk)
       val items: util.List[BulkResult#BulkResultItem] = result.getItems
       println("往es的" + indexName + "索引中插入了" + items.size() + "条文档")
+
       // 4.关闭连接
       jestClient.close()
     }
@@ -121,10 +117,13 @@ object MyESUtil {
   def getIndexById(indexName: String, docId: String): String = {
     // 1.获取jest客户端
     val jestClient: JestClient = getJestClient
+
     // 3.封装Get对象,将index名称和文档id作为Builder的参数传入
     val get: Get = new Get.Builder(indexName, docId).build()
+
     // 2.执行get查询操作
     val result: DocumentResult = jestClient.execute(get)
+
     // 4.关闭连接
     jestClient.close()
     result.getJsonString
@@ -138,8 +137,10 @@ object MyESUtil {
   def getIndexByQuery(indexName: String): List[util.Map[String, Any]] = {
     // 1.获取jest客户端
     val jestClient: JestClient = getJestClient
+
     // 3.封装Search对象,将条件查询字符串作为Builder的参数传入
     val search: Search = new Search.Builder(generateQueryStr()).addIndex(indexName).build()
+
     // 2.执行search查询操作
     val result: SearchResult = jestClient.execute(search)
     // 获取命中结果
@@ -148,15 +149,23 @@ object MyESUtil {
     import scala.collection.JavaConverters._
     val hit_list: mutable.Buffer[SearchResult#Hit[util.Map[String, Any], Void]] = hitList.asScala
     val source_list: List[util.Map[String, Any]] = hit_list.map((sr: SearchResult#Hit[util.Map[String, Any], Void]) => sr.source).toList
+
     // 4.关闭连接
     jestClient.close()
     source_list
   }
 
-  /**
-   * 生成条件查询的字符串
-   * @return query字符串
-   */
+  def generateSource(): Object = {
+    // 创建样例类对象
+    val actorList: util.ArrayList[util.Map[String, Any]] = new util.ArrayList[util.Map[String, Any]]()
+    val hashMap: util.HashMap[String, Any] = new util.HashMap[String, Any]()
+    hashMap.put("id", 1)
+    hashMap.put("name", "grubby")
+    actorList.add(hashMap)
+    val movie: MovieInfo = MovieInfo(1, "war3", 9.5, actorList)
+    movie
+  }
+
   def generateQueryStr(): String = {
     // kibana中编写的条件查询字符串
 //    val queryStr: String =

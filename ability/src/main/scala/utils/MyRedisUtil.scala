@@ -35,6 +35,7 @@ object MyRedisUtil {
     val prop: Properties = MyPropertiesUtil.load("config.properties")
     val host: String = prop.getProperty("redis.host")
     val port: String = prop.getProperty("redis.port")
+
     // 2.设置连接池配置信息
     val config: JedisPoolConfig = new JedisPoolConfig()
     config.setMaxTotal(100)  // 最大连接数
@@ -43,6 +44,7 @@ object MyRedisUtil {
     config.setBlockWhenExhausted(true)  // 忙碌时是否等待
     config.setMaxWaitMillis(5000)  // 最大等待时长(ms)
     config.setTestOnBorrow(true)  // 每次获得连接进行测试
+
     // 1.创建jedis连接池
     val jedisPool: JedisPool = new JedisPool(config, host, port.toInt)
     jedisPool

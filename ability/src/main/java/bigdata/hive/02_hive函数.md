@@ -202,7 +202,7 @@ where t.n = 1;
 select t.*
 from 
 (
-    select num,ntile(100) over(order by num desc) as n from datas
+    select num,ntile(100) over(order by num desc) as n from t1
 ) t
 where t.n = 1;
 
