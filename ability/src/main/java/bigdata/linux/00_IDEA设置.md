@@ -8,6 +8,8 @@ Intellij IDEA - Preferences - Keymap - Main menu - Edit/Navigate/Run
 Ctrl + Shift + Alt + N
 # 重构代码
 Ctrl + Shift + Alt + T
+# 重命名类/变量/方法,注意生效范围
+Alt + Shift + R
 # 查看接口实现类
 Ctrl + Alt + B
 # 返回上一个光标
