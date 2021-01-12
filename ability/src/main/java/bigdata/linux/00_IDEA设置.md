@@ -1,8 +1,9 @@
 ### shortcut
-
 ```shell script
+# idea查看变量/方法/构造器的Structure时,开着的绿色锁表示public权限,关闭的红色锁表示private权限
+# idea默认给被重新分配地址的变量或参数加下划线,因为有些代码很长,你很难知道变量是否被重新分配过地址值
 # idea快捷键设置
-File - Settings - Keymap - Main menu - Edit/Navigate/Run
+Intellij IDEA - Preferences - Keymap - Main menu - Edit/Navigate/Run
 # 查找某个类
 Ctrl + Shift + Alt + N
 # 重构代码
@@ -20,35 +21,31 @@ Alt + 数字
 # 折叠代码块
 Ctrl + -
 # duplicated code fragment
-File - Settings - Editor - Inspections - General - Duplicated Code fragment
+Intellij IDEA - Preferences - Editor - Inspections - General - Duplicated Code fragment
 # dangling javadoc comment
-File - Settings - Editor - Inspections - Java - Javadoc - Dangling Javadoc comment
+Intellij IDEA - Preferences - Editor - Inspections - Java - Javadoc - Dangling Javadoc comment
 # Edit Configurations
 Run - Edit Configurations - Templates - Temporary configurations limit
+# idea取消文档渲染
+Intellij IDEA - Preferences - Editor - General - Appearance/Reader Mode - 取消勾选Rendered documentation comments
 # idea删除文件恢复
 Project/Module - 右键 - Local History - Show History - 找到删除文件 - Revert Selection
-# idea查看变量/方法/构造器的Structure时,开着的绿色锁表示public权限,关闭的红色锁表示private权限
-# 增强for循环快捷键 xxx.for
-# 对于一些被重新分配地址的变量或者参数,IDEA默认给它们加上下划线,因为有些代码很长,你很难知道变量是否被重新分配过地址值
 # 快速生成同步代码块
 选中代码 - Code - Surround With - try/catch | synchronized ...
 # idea设置代码模板
-File - Settings - Editor - File and Code Templates - Includes - FileHeader 添加author/date/version信息
+Intellij IDEA - Preferences - Editor - File and Code Templates - Includes - FileHeader Author/Date/Desc
 # idea导入导出所有设置
 File - Manage IDE Settings - Import/Export Settings
 ```
 
 ### idea-scala
-
 ```shell script
-# idea永久激活
-install - Evaluate for free - Help - Edit Custom VM Options - 添加-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA 2020.1.1\bin\jetbrains-agent.jar - 保存后重启 - Help - Register - Activation code - 输入激活码 - Activate
 # idea安装Scala插件
-File - Settings - Plugins - Scala
+Intellij IDEA - Preferences - Plugins - Scala
 # idea配置maven环境
-File - Settings - Build - Build Tools - Maven
+Intellij IDEA - Preferences - Build - Build Tools - Maven
 # 创建maven工程
-File - New - Project - Maven Next - GroupId(公司名)/ArtifactId(项目名) - Finish
+File - New - Project - Maven Next - GroupId/ArtifactId - Finish
 # 给工程添加scala支持,不然无法创建scala类,查看scala源码会出现Decompile to java和Choose Sources
 Project/Module - Add Framework Support - Scala - Use library scala-sdk-2.11.8/Create
 File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
