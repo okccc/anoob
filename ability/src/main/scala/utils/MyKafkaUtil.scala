@@ -35,32 +35,32 @@ object MyKafkaUtil {
     "auto.offset.reset" -> "earliest"                     // 没有offset就从latest(默认)/earliest/none开始消费
   )
 
-  // 3.创建读取kafka数据的DStream,指定ssc/topic
-  def getKafkaDStream(ssc: StreamingContext, topic: String): InputDStream[ConsumerRecord[String, String]] = {
+  // 3.创建读取kafka数据的DStream,指定ssc/topicName
+  def getKafkaDStream(ssc: StreamingContext, topicName: String): InputDStream[ConsumerRecord[String, String]] = {
     val recordDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream[String, String](
       ssc,
       // 位置策略
       LocationStrategies.PreferConsistent,
       // 消费策略,自动提交偏移量
-      ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams)
+      ConsumerStrategies.Subscribe[String, String](Array(topicName), kafkaParams)
     )
     recordDStream
   }
 
-  // 创建读取kafka数据的DStream,指定ssc/topic/groupId
-  def getKafkaDStream(ssc: StreamingContext, topic: String, groupId: String): InputDStream[ConsumerRecord[String, String]] = {
+  // 创建读取kafka数据的DStream,指定ssc/topicName/groupId
+  def getKafkaDStream(ssc: StreamingContext, topicName: String, groupId: String): InputDStream[ConsumerRecord[String, String]] = {
     // 手动传入groupId
     kafkaParams("group.id") = groupId
     val recordDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
       ssc,
       LocationStrategies.PreferConsistent,
-      ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams)
+      ConsumerStrategies.Subscribe[String, String](Array(topicName), kafkaParams)
     )
     recordDStream
   }
 
-  // 创建读取kafka数据的DStream,指定ssc/topic/groupId/offset
-  def getKafkaDStream(ssc: StreamingContext, topic: String, groupId: String, offset: Map[TopicPartition, Long]): InputDStream[ConsumerRecord[String, String]] = {
+  // 创建读取kafka数据的DStream,指定ssc/topicName/groupId/offset
+  def getKafkaDStream(ssc: StreamingContext, topicName: String, groupId: String, offset: Map[TopicPartition, Long]): InputDStream[ConsumerRecord[String, String]] = {
     // 手动传入groupId
     kafkaParams("group.id") = groupId
     val recordDStream: InputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(
@@ -68,7 +68,7 @@ object MyKafkaUtil {
       // 位置策略
       LocationStrategies.PreferConsistent,
       // 消费策略：手动提交偏移量
-      ConsumerStrategies.Subscribe[String, String](Array(topic), kafkaParams, offset)
+      ConsumerStrategies.Subscribe[String, String](Array(topicName), kafkaParams, offset)
     )
     recordDStream
   }

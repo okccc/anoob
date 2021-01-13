@@ -61,34 +61,14 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> zcard z1                   # 求zset长度
 
 # hash
-127.0.0.1:6379> hset offset:t01:g01 0 10           # 往hash存key field value
-(integer) 1
-127.0.0.1:6379> HMSET offset:t01:g01 1 20 2 30     # 往hash存多个key field value
-OK
-127.0.0.1:6379> hlen offset:t01:g01                # 求hash长度
-(integer) 3
-127.0.0.1:6379> hget offset:t01:g01 0              # 根据hash的key和field获取value
-"10"
-127.0.0.1:6379> hmget offset:t01:g01 0 1           # 根据hash的key和多个field获取多个value
-1) "10"
-2) "20"
-127.0.0.1:6379> hgetall offset:t01:g01             # 根据hash的key获取所有field和value
-1) "0"
-2) "10"
-3) "1"
-4) "20"
-5) "2"
-6) "30"
-127.0.0.1:6379> hkeys offset:t01:g01               # 根据hash的key获取所有field
-1) "0"
-2) "1"
-3) "2"
-127.0.0.1:6379> hvals offset:t01:g01               # 根据hash的key获取所有value
-1) "10"
-2) "20"
-3) "30"
-127.0.0.1:6379> hexists offset:t01:g01 0           # 判断hash的key和field是否存在,1表示true,0表示false
-(integer) 1
-127.0.0.1:6379> hdel offset:t01:g01 3              # 删除hash的指定key和field,1表示删除成功,0表示删除失败
-(integer) 1
+127.0.0.1:6379> hset g01:t01 0 10          # 往hash的key添加field及value
+127.0.0.1:6379> HMSET g01:t01 1 20 2 30    # 往hash的key添加多个field及value
+127.0.0.1:6379> hlen g01:t01               # 求hash长度
+127.0.0.1:6379> hkeys g01:t01              # 根据hash的key获取所有field
+127.0.0.1:6379> hvals g01:t01              # 根据hash的key获取所有value
+127.0.0.1:6379> hget g01:t01 0             # 根据hash的key和field获取value
+127.0.0.1:6379> hmget g01:t01 0 1          # 根据hash的key和多个field获取多个value
+127.0.0.1:6379> hgetall g01:t01            # 根据hash的key获取所有field和value
+127.0.0.1:6379> hexists g01:t01 0          # 判断hash的key和field是否存在,1表示true,0表示false
+127.0.0.1:6379> hdel g01:t01 3             # 删除hash的指定key和field,1表示true,0表示false
 ```

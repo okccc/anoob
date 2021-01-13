@@ -31,9 +31,9 @@ public class TypeInterceptor implements Interceptor {
         Map<String, String> headers = event.getHeaders();
         // 填充header
         if (body.contains("start")) {
-            headers.put("topic", "t_start");
+            headers.put("topic", "start");
         } else {
-            headers.put("topic", "t_event");
+            headers.put("topic", "event");
         }
         // 返回填充headers后的Event
         return event;

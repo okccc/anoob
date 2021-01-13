@@ -64,7 +64,7 @@ case $1 in
 esac
 
 # event
-flume传输数据的基本单元,由header和body组成 Event: {headers:{} body: 61 61 61  aaa}
+flume传输数据的基本单元,由headers和body组成 Event: {headers:{} body: 61 61 61  aaa}
 # agent
 jvm运行flume的最小单元,由source-channel-sink组成
 # source
@@ -108,15 +108,14 @@ a1.sources.r1.interceptors.i1.type = flume.ETLInterceptor$Builder
 a1.sources.r1.interceptors.i2.type = flume.TypeInterceptor$Builder
 # 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing     # 根据日志类型发往指定channel
-a1.sources.r1.selector.header = topic          # event的header的key
-a1.sources.r1.selector.mapping.start = c1      # start日志发往c1
-a1.sources.r1.selector.mapping.event = c2      # event日志发往c2
+a1.sources.r1.selector.header = topic          # headers的key
+a1.sources.r1.selector.mapping.start = c1      # headers的value=start发往c1
+a1.sources.r1.selector.mapping.event = c2      # headers的value=event发往c2
 
 # 配置channel
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
-a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka集群地址
-a1.channels.c1.kafka.topic = start                                      # 如果topic不存在会自动创建
-#a1.channels.c1.kafka.consumer.group.id = flume-consumer                # 消费者的groupId
+a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka地址
+a1.channels.c1.kafka.topic = start                                      # kafka的topic需提前创建好
 a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不加,不然往表里存还要再截掉
 # 将不同类型的日志由不同channel发往对应的topic
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel

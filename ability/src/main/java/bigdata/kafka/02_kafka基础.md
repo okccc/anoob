@@ -149,8 +149,8 @@ export PATH=$PATH:$KAFKA_HOME/bin
 [root@cdh1 ~]$ xsync /Users/okc/modules/kafka_2.11-2.4.1 & broker.id=1/2
 
 # 启动kafka,默认是前台进程,可以在后台启动
-[root@cdh1 ~]$ bin/kafka-server-start.sh -daemon /config/server.properties
-[root@cdh1 ~]$ nohup bin/kafka-server-start.sh config/server.properties > (logs/kafka.log | /dev/null) 2>&1 &
+[root@cdh1 ~]$ kafka-server-start.sh -daemon /config/server.properties  # 日志默认存放在logs/server.log
+[root@cdh1 ~]$ nohup kafka-server-start.sh config/server.properties > (logs/server.log | /dev/null) 2>&1 &
 # 杀掉kafka进程
 [root@cdh1 bin]$ ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
 # 一键启动kafka集群

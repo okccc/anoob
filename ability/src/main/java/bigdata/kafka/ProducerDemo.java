@@ -105,7 +105,7 @@ public class ProducerDemo {
             // 随机生成一条用户日志
             String eventLog = getEventLog();
             // 将消息封装成ProducerRecord对象发送,并且可以添加回调函数,在producer收到ack时调用
-            producer.send(new ProducerRecord<>("nginx", eventLog));
+            producer.send(new ProducerRecord<>("start", eventLog));
             // 设置发送间隔
             Thread.sleep(100);
         }

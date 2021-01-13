@@ -4,6 +4,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
+import org.apache.spark.streaming.kafka010.{ConsumerStrategies, ConsumerStrategy, KafkaUtils, LocationStrategies}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 object S03_DStream {
@@ -28,10 +29,10 @@ object S03_DStream {
      * SparkStreaming性能优化
      * 1.减小窗口长度 -> 防止每个DStream耗时太长导致DStream任务堆积,无法充分利用集群资源
      * 2.增大滑动间隔 -> 保证数据处理能跟上数据摄取的步伐
-     * 3.设置checkpoint保存上一个窗口统计结果的状态,上一个窗口统计结果 + 头部新的滑动间隔的值 - 尾部旧的滑动间隔的值 = 当前窗口统计结果,减少重复计算
+     * 3.设置checkpoint保存上一个窗口统计结果状态,上一个窗口统计结果 + 头部新的滑动间隔值 - 尾部旧的滑动间隔值 = 当前窗口统计结果,减少重复计算
      *
      * SparkStreaming为什么要通过Kafka连接Flume
-     * 缓冲：flume采集数据存在峰值问题,比如双11期间日志特别多,spark处理不完接收的数据导致崩溃,需要消息队列来缓冲一下,kafka本身吞吐量很大并且将数据落地到磁盘,可以向spark提供稳定的流数据
+     * 缓冲：flume采集数据太快的话spark可能处理不完,需要消息队列缓冲一下,kafka吞吐量大并且可以将数据落盘,向spark提供稳定的数据流
      * 解耦：flume只管采集数据,spark只管处理数据,两者互不影响
      *
      * SparkStreaming整合Kafka
@@ -39,20 +40,14 @@ object S03_DStream {
      * spark2.3 + kafka0.11 -> 只有direct模式
      *
      * kafka高低阶消费者？
-     * 基于receiver的方式,使用kafka高阶api在zk中保存消费过的offset,配合wa机制可以保证数据零丢失,但是数据可能不止一次被消费,因为spark和zk可能是不同步的
-     * 基于direct的方式,使用kafka低阶api由SparkStreaming自己追踪消费的offset并保存在checkpoint,保证数据只消费一次(常用)
+     * 基于receiver方式,使用kafka高阶api在zk中保存消费过的offset,配合wa机制可以保证数据零丢失,但是可能重复消费,因为spark和zk并不同步
+     * 基于direct方式,使用kafka低阶api由SparkStreaming自己追踪消费的offset并保存在checkpoint,保证数据只消费一次(常用)
      *
-     * spark streaming接收数据两种方式
-     * receiver模式：offset存储在zookeeper,由receiver维护,spark获取数据存入executor中,调用kafka高阶api
-     * direct模式：offset存储在zookeeper,由spark维护,且可以从每个分区读取数据,调用kafka低阶api
-     *
-     * sparkStreaming/flink消费kafka数据存到哪里？
-     * 主要看具体业务场景的数据量
+     * spark消费kafka数据存到哪里？
      * mysql：不适合存大量数据速度也一般
      * hbase：能存储大量数据但是过于笨重
-     * es：也能存大量数据并且使用灵活,如果spark/flink只是将kafka数据清洗过滤,数据量级并没有变,可以将明细数据存到es/clickhouse再做聚合
-     * redis：只能存少量数据但速度极快,如果spark/flink已经将数据聚合,生成少量结果集,可以存到redis,内存计算这块压力会比较大
-     * 还有就是中间结果缓存,比如spark计算累加值要缓存中间结果的状态,也可以用redis代替checkpoint
+     * es：能存大量数据并且使用灵活,如果spark只是将kafka数据清洗过滤,数据量级并没有变,可以将明细数据存到es/clickhouse再做聚合
+     * redis：只能存少量数据但速度极快,如果spark已经将数据聚合成少量结果集,可以存到redis,但是内存计算压力会较大,还有就是缓存偏移量这种中间结果
      */
 
     //    if (args.length < 2) {
@@ -76,21 +71,21 @@ object S03_DStream {
     val conf: SparkConf = new SparkConf().setMaster("local[2]").setAppName("Spark Streaming")
     // 创建StreamingContext对象,指定批处理时间间隔(采集周期)
     val ssc: StreamingContext = new StreamingContext(conf, batchDuration = Seconds(2))
-    // 可以设置日志级别
+    // 设置日志级别
     ssc.sparkContext.setLogLevel("warn")
 
     // DStream的有状态更新操作需要设置checkpoint将数据落盘保存内存中的状态,频率是 max(batchDuration, 10s)
     // checkpoint可以保存：1.conf配置信息 2.DStream处理逻辑 3.batch处理的位置信息,比如kafka的offset
-    // 但是checkpoint存在小文件等问题,生产环境中通常存入redis,可以去重、记录offset等
+    // 但是checkpoint存在小文件等问题,生产环境中通常使用redis去重和存储偏移量
     ssc.checkpoint("ability/cp")
 
     // 创建DStream两种方式：接收输入数据流,从其他DStream转换
     // 1).socket套接字, yum -y install nc 开启nc -lk 9999写入数据
     val socketDStream: ReceiverInputDStream[String] = ssc.socketTextStream("localhost", 9999)
     // 2).监控文件或目录,没有采用Receiver接收器模式,所以local[n]不需要设置n > 1
-    //    val hdfsDStream: DStream[String] = ssc.textFileStream("hdfs://cdh1:9000/test")
+//    val hdfsDStream: DStream[String] = ssc.textFileStream("hdfs://cdh1:9000/test")
     // 3).从kafka采集数据
-    //    val kafkaDStream: ReceiverInputDStream[(String, String)] = KafkaUtils.createStream(ssc, "cdh1:2181", "spark", topics = Map("spark" -> 3))
+//    KafkaUtils.createDirectStream()
 
     // DStream的transform操作
     // flatMap算子：扁平化处理
@@ -126,16 +121,13 @@ object S03_DStream {
     val window2SDtream: DStream[(String, Int)] = pairsDStream.reduceByKeyAndWindow((x: Int, y: Int) => x + y, (x: Int, y: Int) => x - y, Seconds(4), Seconds(2))
 
     // transform算子：对DStream中的RDD做一些transform操作,且不用执行RDD的action操作,而是通过DStream的output操作触发计算
-    val transformDStream: DStream[(String, Int)] = socketDStream.transform((rdd: RDD[String]) => {
+    val wordDStream: DStream[(String, Int)] = socketDStream.transform((rdd: RDD[String]) => {
       // transform/foreachRDD算子内除了获取的RDD的算子以外的代码都是在driver端执行,利用这个特点可以动态改变广播变量
-      println("=" * 50)
-      val filterRDD: RDD[String] = rdd.filter((s: String) => {
-        !s.contains("hive")
-      })
+      val filterRDD: RDD[String] = rdd.filter((s: String) => !s.contains("hive"))
       val wordsRDD: RDD[(String, Int)] = filterRDD.map((s: String) => (s, 1))
       wordsRDD
     })
-    transformDStream.print()
+    wordDStream.print()
 
     // DStream的output操作
     // print算子：在driver节点打印DStream中生成的每个RDD的前10个元素(调试)

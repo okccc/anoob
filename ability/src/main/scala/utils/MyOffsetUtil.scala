@@ -36,17 +36,17 @@ object MyOffsetUtil {
     // 导入scala集合转换器,允许通过asScala和asJava方法在java和scala之间相互转换集合
     import scala.collection.JavaConverters._
 
-//    val kafkaOffsetMap1: Map[TopicPartition, String] = offsetMap.asScala.toMap.map {
+//    val offsetMap1: Map[TopicPartition, String] = field_value.asScala.toMap.map {
 //      // Map集合的参数是元组(K,V),元组里有两个参数scala无法识别,需要case转换一下,并且当参数不止一个时只能用{}不能用()
 //      case (partitionId, offset) =>
 //        val topicPartition: TopicPartition = new TopicPartition(topicName, partitionId.toInt)
 //        (topicPartition, offset)
 //    }
 
-    // 4.将java的Map转换成scala的Map,方便后续操作
-    val field_value_new: mutable.Map[String, String] = field_value.asScala
+    // 4.将java集合转换成对应的scala集合,方便后续操作
+    val mutableMap: mutable.Map[String, String] = field_value.asScala
     // map算子转换结构 mutable.Map[String, String] => Map[TopicPartition, Long]
-    val offsetMap: Map[TopicPartition, Long] = field_value_new.toMap.map((t: (String, String)) => {
+    val offsetMap: Map[TopicPartition, Long] = mutableMap.toMap.map((t: (String, String)) => {
       // 获取Map[String, String]中的field和value
       val partitionId: String = t._1
       val offset: String = t._2
