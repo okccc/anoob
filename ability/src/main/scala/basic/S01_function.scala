@@ -34,7 +34,7 @@ object S01_function {
     }
     println(test2())
 
-    def test3 = "grubby"
+    def test3: String = "grubby"
     println(test3)
 
     // 3.调用带参数的函数时,如果不传值就使用初始化值,如果传值就按顺序覆盖初始化值,此时可用带名参数传值
@@ -46,7 +46,7 @@ object S01_function {
 
     // 不定长参数
     def test5(v: Int *): Int = {
-      var res = 0
+      var res: Int = 0
       for (i <- v) {res += i}
       res
     }
@@ -107,7 +107,7 @@ object S01_function {
     println("result=" + result)
 
     // 1.if判断
-    val a = 1
+    val a: Int = 1
     // scala中任意表达式都有返回值,所以if else表达式也是有返回结果的,结果值取决于满足条件的代码体的最后一行内容
     // 如果判断逻辑中返回的结果类型相同那么变量类型能够自动推断出来,如果返回的结果类型不同那么会设定变量类型为Any
     // scala中()和{}是一样的,如果只有一行代码就用(),多行代码就用{}
@@ -149,7 +149,7 @@ object S01_function {
     println(seq_new) // Vector(1, 2, 3)
 
     // 3.while循环
-    var n = 1
+    var n: Int = 1
     breakable {
       while (n <= 5) {
         println(n)

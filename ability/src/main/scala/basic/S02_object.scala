@@ -2,7 +2,7 @@ package basic
 
 object S02_object {
   def main(args: Array[String]): Unit = {
-    /**
+    /*
      * Scala是结合面向对象和函数式编程的静态类型语言
      *
      * scala六大特征
@@ -23,6 +23,11 @@ object S02_object {
      * java中的null是关键字不是对象,对它调用任何方法都是非法的,因此在调用方法时要经常做null值检查以避免NullPointerException
      * scala中当变量或函数返回值可能为null的时候,建议使用Option[T]类型,包含Some[T]和None两个子类,这样调用者就知道此处可能存在null值
      * 静态语言会在编译时做类型检查,当你尝试在一个可能为null的值上调用方法时编译是不通过的,避免在运行时出现空指针异常
+     *
+     * scala类型检查和转换
+     * 判断对象类型 isInstanceOf[T] 相当于java的 instanceOf T
+     * 强制类型转换 asInstanceOf[T] 相当于java的 (T)obj
+     * 获取类的对象 ClassOf[T]      相当于java的 T.class
      *
      * 构造函数
      * 主构造函数：scala面向函数编程,类的整个主体是主构造函数,可以带参数也可以不带参数
