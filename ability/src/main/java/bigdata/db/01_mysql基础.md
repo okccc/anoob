@@ -544,23 +544,25 @@ grant all privileges on *.* to 'canal'@'%' identified by 'canal';
 # 安装canal(单机版,canal很少宕机且单节点足够用所以不需要HA)
 # 集群：多台服务器干相同的活(两个厨师炒菜) | 分布式：多台服务器干不同的活(一个厨师炒菜一个小二传菜) | 高可用：多台服务器一个干活别的备份
 [root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules/canal.deployer-1.1.4
-# canal服务端配置
+# canal服务端配置(修改后先stop再startup,不然bin/canal.pid一直存在,example/meta.dat会记录mysql-bin.xxx的position,所以不会丢数据)
 [root@cdh1 ~]$ vim conf/canal.properties
-canal.serverMode = kafka                # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
-canal.mq.servers = cdh1:9092,cdh1:9092  # kafka地址,逗号分隔
-canal.destinations = example1,example2  # canal默认单实例,可以拷贝conf/example并修改配置,多实例同步不同mysql/database/table数据
+canal.serverMode = kafka                 # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
+canal.mq.servers = cdh1:9092,cdh1:9092   # kafka地址,逗号分隔
+canal.destinations = example1,example2   # canal默认单实例,可以拷贝conf/example配置多实例,通常一个ip对应一个instance
 # instance实例配置(修改后直接生效不用重启)
 [root@cdh1 ~]$ vim conf/example/instance.properties
 canal.instance.master.address={ip:port}  # mysql地址
 canal.instance.dbUsername=canal          # 连接mysql的用户名和密码,需事先创建并授权
 canal.instance.dbPassword=canal
-canal.instance.defaultDatabaseName=ods   # 指定库(这个配置是无效的,要看白名单和黑名单里配置)
+canal.instance.defaultDatabaseName=ods   # 指定库(这个配置貌似无效,要看白名单和黑名单的配置)
 canal.instance.filter.regex=.*\\..*      # 白名单表 .*\\..* 所有表 | ods\\..* ods库下表 | ods\\.ods.* ods库下ods开头表 | ods.order指定表
 canal.instance.filter.black.regex=       # 黑名单表
 canal.mq.topic=canal                     # 指定kafka的topic
 canal.mq.partition=0                     # 默认输出到一个partition,多个分区并行可能会打乱binlog顺序
 # 启动canal
 [root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题canal
+# 关闭canal
+[root@cdh1 ~]$ bin/stop.sh
 # 启动kafka消费者
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic canal
 {"data":[{"id":"9","name":"aaa"},{"id":"10","name":"bbb"}],"database":"canal","es":1608384750000,"id":21,"isDdl":false,
