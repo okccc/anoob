@@ -59,12 +59,13 @@ case $1 in
 };;
 "stop"){
     echo "================= 停止flume ================"
-    ps -ef | grep 'nginx-kafka' | grep -v grep | awk '{print \$2}' | xargs kill  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
+    ps -ef | grep flume | grep -v grep | awk '{print \$2}' | xargs kill  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
 };;
 esac
 
 # event
 flume传输数据的基本单元,由headers和body组成 Event: {headers:{} body: 61 61 61  aaa}
+headers是Map<String, String>集合,可以根据key来区分不同event并将其分流,headers并不会被传输,body是byte[]数组,是真正传输的数据
 # agent
 jvm运行flume的最小单元,由source-channel-sink组成
 # source
@@ -78,12 +79,10 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger/kafka
 
 # flume常见错误
-2020-12-22 15:03:15,837 ERROR org.apache.flume.source.taildir.TaildirSource: Failed writing positionFile
-java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
+1.java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
-Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.InterceptorDemo$Builder
-# 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没读到这个jar包
-# 如果flume没找到上传到lib目录下的自定义拦截器jar包,需要在flume-ng命令行里-C手动指定jar包
+2.Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.InterceptorDemo$Builder
+# 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
 ```
 
 #### nginx-kafka.conf
@@ -95,29 +94,28 @@ a1.channels = c1 c2
 
 # 配置source
 a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
-a1.sources.r1.channels = c1 c2
 # File in JSON format to record the inode, the absolute path and the last position of each tailing file
 a1.sources.r1.positionFile = ${flume}/taildir_position.json  # 如果不存在会自动创建,并且从头读取所有文件,记录每个文件的末尾位置
 a1.sources.r1.filegroups = f1                  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也支持正则表达式,目录必须存在不然报错
 a1.sources.r1.fileHeader = true
 a1.sources.ri.maxBatchCount = 1000
+a1.sources.r1.channels = c1 c2
 # 拦截器(jar包放到flume的lib目录)
 a1.sources.r1.interceptors = i1 i2
 a1.sources.r1.interceptors.i1.type = flume.ETLInterceptor$Builder
 a1.sources.r1.interceptors.i2.type = flume.TypeInterceptor$Builder
 # 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing     # 根据日志类型发往指定channel
-a1.sources.r1.selector.header = topic          # headers的key
+a1.sources.r1.selector.header = topic          # headers的key,通过header对event分流
 a1.sources.r1.selector.mapping.start = c1      # headers的value=start发往c1
 a1.sources.r1.selector.mapping.event = c2      # headers的value=event发往c2
 
 # 配置channel
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka地址
-a1.channels.c1.kafka.topic = start                                      # kafka的topic需提前创建好
-a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加上flume前缀,一般不加,不然往表里存还要再截掉
-# 将不同类型的日志由不同channel发往对应的topic
+a1.channels.c1.kafka.topic = start                                      # 指定channel对应的topic,topic需提前创建
+a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加flume前缀,一般不加,不然往表里存还要再截掉
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
 a1.channels.c2.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092
 a1.channels.c2.kafka.topic = event
@@ -161,7 +159,7 @@ a1.channels.c1.transactionCapacity = 100   # channel收集到100个event才会�
 # file channel
 a1.channels.c1.type = file
 a1.channels.c1.checkpointDir = ${flume}/cp     # 存储checkpoint的文件
-a1.channels.c1.dataDirs = ${flume}/data        # 存储日志的目录列表,用逗号分隔,优化：指向不同硬盘的多个路径提高flume吞吐量
+a1.channels.c1.dataDirs = ${flume}/data        # 存储日志的目录列表,逗号分隔,优化：指向不同硬盘的多个路径提高flume吞吐量
 a1.channels.c1.maxFileSize = 2146435071        # 单个log文件的最大字节数
 a1.channels.c1.capacity = 1000000              # channel的最大容量
 a1.channels.c1.keep-alive = 6                  # 等待put操作的超时时间(秒)
