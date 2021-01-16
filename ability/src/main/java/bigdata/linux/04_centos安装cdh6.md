@@ -350,4 +350,7 @@ CM界面：hdfs - 实例 - NameNode(备用) - Federation与High Availability - �
 # FAILED: SemanticException The current builtin authorization in Hive is incomplete and disabled.
 原因：cdh默认没有开启hive的权限控制  
 解决：手动添加配置参数,详见hive authorization
+
+# Could not open client transport with JDBC Uri:jdbc:hive2://10.18.3.20:10000:java.net.ConnectException:Connection refused 
+原因：cdh没有设置yarn的mapreduce.map.memory.mb参数,默认只有1024M
 ```
