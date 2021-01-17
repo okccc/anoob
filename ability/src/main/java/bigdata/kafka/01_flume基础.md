@@ -83,6 +83,9 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
 2.Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.InterceptorDemo$Builder
 # 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
+3.[Producer clientId=producer-1] Connection to node 0 could not be established. Broker may not be available.
+# flume往kafka写数据时,下游kafka挂了导致flume作为生产者一直连不上broker,重启kafka之后flume也要重启然后继续之前的position采集和发送数据
+# nginx-flume-kafka采集通道正常时flume日志的ClusterID和zookeeper的/cluster/id以及kafka日志的meta.properties的cluster.id应该相同
 ```
 
 #### nginx-kafka.conf
@@ -106,8 +109,8 @@ a1.sources.r1.interceptors = i1 i2
 a1.sources.r1.interceptors.i1.type = flume.ETLInterceptor$Builder
 a1.sources.r1.interceptors.i2.type = flume.TypeInterceptor$Builder
 # 选择器(配合拦截器使用)
-a1.sources.r1.selector.type = multiplexing     # 根据日志类型发往指定channel
-a1.sources.r1.selector.header = topic          # headers的key,通过header对event分流
+a1.sources.r1.selector.type = multiplexing     # 根据日志类型指定channel
+a1.sources.r1.selector.header = type           # headers的key,通过headers对event分流
 a1.sources.r1.selector.mapping.start = c1      # headers的value=start发往c1
 a1.sources.r1.selector.mapping.event = c2      # headers的value=event发往c2
 
