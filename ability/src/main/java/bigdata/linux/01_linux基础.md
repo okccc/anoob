@@ -148,6 +148,44 @@ procs  ----------memory----------  --swap--  ---io---  --system--  -----cpu-----
 # io读写：bi每秒写到磁盘的块数(blocks/s),bo每秒从磁盘读取的块数(blocks/s)
 # system系统：in每秒中断数,cs每秒上下文切断数
 # cpu使用占比：us用户进程使用cpu时间比例,sy系统调用使用cpu时间比例,id是cpu空闲时间比例,wa是cpu等待磁盘io的时间正常是0
+
+# jmap(java memory map) 查看进程的java堆详细信息
+[root@cdh1 ~]$ jmap -heap 3512
+Heap Configuration:                                  # 堆内存配置情况,也就是通常说的jvm参数配置
+   MinHeapFreeRatio         = 0                      # 最小堆使用比例
+   MaxHeapFreeRatio         = 100                    # 最大堆可用比例
+   MaxHeapSize              = 4294967296 (4096.0MB)  # 最大堆空间大小
+   NewSize                  = 1431306240 (1365.0MB)  # 新生代分配大小
+   MaxNewSize               = 1431306240 (1365.0MB)  # 新生代最大分配大小
+   OldSize                  = 2863661056 (2731.0MB)  # 老年代大小
+   NewRatio                 = 2                      # 新生代比例
+   SurvivorRatio            = 8                      # 新生代与survivor的比例
+   MetaspaceSize            = 21807104 (20.796875MB)
+   CompressedClassSpaceSize = 1073741824 (1024.0MB)
+   MaxMetaspaceSize         = 17592186044415 MB
+   G1HeapRegionSize         = 0 (0.0MB)
+Heap Usage:                                    # 堆内存使用情况
+PS Young Generation                            # 新生代 = 伊甸区 + 幸存区1/2
+Eden Space:
+   capacity = 1405091840 (1340.0MB)            # 伊甸区容量
+   used     = 815180592 (777.4167938232422MB)  # 伊甸区已用容量
+   free     = 589911248 (562.5832061767578MB)  # 伊甸区剩余容量
+   58.016178643525535% used                    # 伊甸区使用比例
+From Space:
+   capacity = 13107200 (12.5MB)                # survivor1区容量
+   used     = 6629408 (6.322296142578125MB)    # survivor1区已用容量
+   free     = 6477792 (6.177703857421875MB)    # survivor1区剩余容量
+   50.578369140625% used                       # survivor1区使用比例
+To Space:
+   capacity = 13107200 (12.5MB)                # survivor2区容量
+   used     = 0 (0.0MB)                        # survivor2区已用情况
+   free     = 13107200 (12.5MB)                # survivor2区剩余容量
+   0.0% used                                   # survivor2区使用比例
+PS Old Generation
+   capacity = 2863661056 (2731.0MB)            # 老年代容量
+   used     = 8854168 (8.443992614746094MB)    # 老年代已用容量
+   free     = 2854806888 (2722.556007385254MB) # 老年代剩余容量
+   0.3091905021877002% used                    # 老年代使用比例
 ```
 
 ### lsof
