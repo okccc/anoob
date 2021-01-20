@@ -118,6 +118,13 @@ object S04_collection {
     println(lb.init)  // ListBuffer(1, 2, 3, 4)
     // 转换为List
     println(lb.toList)  // List(1, 2, 3, 4, 5)
+
+    // 不可变集合是可协变的
+    val strings01 = List("aaa", "bbb")
+    val obj01: List[Any] = strings01
+    // 可变集合是不可协变的
+    val strings02 = ListBuffer("aaa", "bbb")
+//    val obj02: ListBuffer[Any] = strings02  // Required:ListBuffer[Any] Found:ListBuffer[String]
   }
 
   def testMap(): Unit = {
