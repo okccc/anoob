@@ -1,5 +1,64 @@
 ### zookeeper
 ```shell script
+# 下载安装
+[root@cdh1 opt]$ wget http://archive.apache.org/dist/zookeeper/zookeeper-3.6.1/apache-zookeeper-3.6.1-bin.tar.gz
+[root@cdh1 opt]$ tar -xvf apache-zookeeper-3.6.1-bin.tar.gz -C /opt/module
+# 修改配置文件
+[root@cdh1 conf]$ vim zoo.cfg
+# 存储快照
+dataDir=/Users/okc/modules/apache-zookeeper-3.6.1-bin/data
+# 存储事务日志
+dataLogDir=/Users/okc/modules/apache-zookeeper-3.6.1-bin/logs
+# 端口
+clientPort=2181
+# 服务器编号=服务器地址:LF通信端口:选举端口
+server.1=cdh1:2888:3888
+server.2=cdh2:2888:3888
+server.3=cdh3:2888:3888
+# 添加到环境变量
+[root@cdh1 ~]$ vim /etc/profile
+export ZK_HOME=/Users/okc/modules/apache-zookeeper-3.6.1-bin
+export PATH=$PATH:$ZK_HOME/bin
+# 在data目录下创建myid文件
+[root@cdh1 ~]$ echo 1 > myid
+# 一键分发并修改myid
+[root@cdh1 module]$ xsync /Users/okc/modules/apache-zookeeper-3.6.1-bin
+
+# 启动,hdfs/yarn/kafka都依赖zk管理
+[root@cdh1 ~]$ zkServer.sh start-foreground/stop/status
+# 一键启动zk集群
+[root@cdh1 ~]$ vim zk.sh
+#!/bin/bash
+case $1 in
+"start"){
+    for i in cdh1 cdh2 cdh3
+    do
+        echo "=============== ${i}启动zk ==============="
+        ssh ${i} "source /etc/profile && zkServer.sh start"
+    done
+};;
+"stop"){
+    for i in cdh1 cdh2 cdh3
+    do
+        echo "=============== ${i}停止zk ==============="
+        ssh ${i} "source /etc/profile && zkServer.sh stop"
+    done
+};;
+"status"){
+    for i in cdh1 cdh2 cdh3
+    do
+        echo "=============== ${i}zk状态 ==============="
+        ssh ${i} "source /etc/profile && zkServer.sh status"
+    done
+};;
+esac
+# 打开客户端
+[root@cdh1 ~]$ zkCli.sh -server host:port
+# 查看事务日志
+[root@cdh1 version-2]$ zkTxnLogToolkit.sh log.100000001
+# 查看快照文件
+[root@cdh1 version-2]$ zkSnapShotToolkit.sh snapshot.0
+
 # zookeeper是一个分布式应用程序协调服务,分布式就是利用更多机器处理更多数据,协调就是让各个节点的信息能够同步和共享,zookeeper=文件系统+通知机制
 # zk数据结构：类似linux的树形结构,每个znode节点默认存储1M数据,适合读多写少场景,比如存储少量状态和配置信息,不适合存储大规模业务数据
 # znode类型：持久的znode即使zk集群宕机也不会丢失,临时的znode断开连接就会丢失
@@ -47,87 +106,10 @@
 # data目录下缺少myid文件
 4.Cannot open channel to 3 at election address cdh3/192.168.152.13:3888
 # 有的节点还没启动,已经启动的节点会努力寻找其它节点进行leader选举,正常现象等节点都启动就好了
-
-# 下载安装
-[root@cdh1 opt]$ wget http://archive.apache.org/dist/zookeeper/zookeeper-3.6.1/apache-zookeeper-3.6.1-bin.tar.gz
-[root@cdh1 opt]$ tar -xvf apache-zookeeper-3.6.1-bin.tar.gz -C /opt/module
-# 修改配置文件
-[root@cdh1 conf]$ vim zoo.cfg
-# 存储快照
-dataDir=/Users/okc/modules/apache-zookeeper-3.6.1-bin/data
-# 存储事务日志
-dataLogDir=/Users/okc/modules/apache-zookeeper-3.6.1-bin/logs
-# 端口
-clientPort=2181
-# 服务器编号=服务器地址:LF通信端口:选举端口
-server.1=cdh1:2888:3888
-server.2=cdh2:2888:3888
-server.3=cdh3:2888:3888
-# 添加到环境变量
-[root@cdh1 ~]$ vim /etc/profile
-export ZK_HOME=/Users/okc/modules/apache-zookeeper-3.6.1-bin
-export PATH=$PATH:$ZK_HOME/bin
-# 在data目录下创建myid文件
-[root@cdh1 ~]$ echo 1 > myid
-# 一键分发并修改myid
-[root@cdh1 module]$ xsync /Users/okc/modules/apache-zookeeper-3.6.1-bin
-# 启动,hdfs/yarn/kafka都依赖zk管理
-[root@cdh1 ~]$ zkServer.sh start-foreground/stop/status
-# 一键启动zk集群
-[root@cdh1 ~]$ vim zk.sh
-#!/bin/bash
-case $1 in
-"start"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "=============== ${i}启动zk ==============="
-        ssh ${i} "source /etc/profile && zkServer.sh start"
-    done
-};;
-"stop"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "=============== ${i}停止zk ==============="
-        ssh ${i} "source /etc/profile && zkServer.sh stop"
-    done
-};;
-"status"){
-    for i in cdh1 cdh2 cdh3
-    do
-        echo "=============== ${i}zk状态 ==============="
-        ssh ${i} "source /etc/profile && zkServer.sh status"
-    done
-};;
-esac
-# 打开客户端
-[root@cdh1 ~]$ zkCli.sh -server host:port
-# 查看事务日志
-[root@cdh1 version-2]$ zkTxnLogToolkit.sh log.100000001
-# 查看快照文件
-[root@cdh1 version-2]$ zkSnapShotToolkit.sh snapshot.0
 ```
 
 ### kafka
 ```shell script
-producer
-# 生产者：往partition写数据,分区方便kafka横向扩展,提高并发和吞吐量,这样集群就可以适应任意大小的数据量
-consumer
-# 消费者：可以消费同一个broker上的多个partition,依赖controller和zk在消费者端做负载均衡
-consumer-group
-# 消费者组：逻辑上的订阅者,组内每个consumer对应topic的一个partition,且partition只能被组内的一个consumer消费,但是消费者组之间互不干扰
-broker
-# 节点：存储topic并负责消息的读写,一个broker可以容纳多个topic,最先注册到zk的broker会被选举为controller
-topic
-# 消息队列/消息分类：topic是逻辑的partition是物理的,一个topic分成多个partition,分区可以让消费者并行处理,分区内部消息有序先进先出全局无序
-partition
-# 分区：每个partition对应一个log文件,生产者生产的消息会不断追加到文件末尾,且每条消息都有offset,保存在kafka内置topic __consumer_offsets
-replication
-# 副本：为了保证高可用性,每个partition都有副本,leader负责工作,follower负责同步数据,当leader故障时Isr中的某个follower会被选举为新的leader
-segment
-# 片段：为了防止log文件过大难以定位数据,将其分为多个segment,包含.index(存储索引)和.log(存储数据),文件以当前segment第一条消息的offset命名
-offset
-# 偏移量：如果是消费者维护消费者挂掉offset就丢失了,当分区或消费者发生变化时会触发rebalance机制在消费者组内重新分配,所以offset是消费者组维护
-
 # 下载安装
 [root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.11-2.4.1.tgz
 [root@cdh1~]$ tar -xvf kafka_2.11-2.4.1.tgz -C /opt/module
@@ -151,8 +133,9 @@ export PATH=$PATH:$KAFKA_HOME/bin
 # 启动kafka,默认是前台进程,可以在后台启动
 [root@cdh1 ~]$ kafka-server-start.sh -daemon /config/server.properties  # 日志默认存放在logs/server.log
 [root@cdh1 ~]$ nohup kafka-server-start.sh config/server.properties > (logs/server.log | /dev/null) 2>&1 &
-# 杀掉kafka进程
-[root@cdh1 bin]$ ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
+# 关闭/杀掉进程
+[root@cdh1 ~]$ kafka-server-stop.sh / ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
+[root@cdh1 bin]$ 
 # 一键启动kafka集群
 [root@cdh1 ~]$ vim kafka.sh
 #!/bin/bash
@@ -174,6 +157,25 @@ case $1 in
     done
 };;
 esac
+
+producer
+# 生产者：往partition写数据,分区方便kafka横向扩展,提高并发和吞吐量,这样集群就可以适应任意大小的数据量
+consumer
+# 消费者：可以消费同一个broker上的多个partition,依赖controller和zk在消费者端做负载均衡
+consumer-group
+# 消费者组：逻辑上的订阅者,组内每个consumer对应topic的一个partition,且partition只能被组内的一个consumer消费,但是消费者组之间互不干扰
+broker
+# 节点：存储topic并负责消息的读写,一个broker可以容纳多个topic,最先注册到zk的broker会被选举为controller
+topic
+# 消息队列/消息分类：topic是逻辑的partition是物理的,一个topic分成多个partition,分区可以让消费者并行处理,分区内部消息有序先进先出全局无序
+partition
+# 分区：每个partition对应一个log文件,生产者生产的消息会不断追加到文件末尾,且每条消息都有offset,保存在kafka内置topic __consumer_offsets
+replication
+# 副本：为了保证高可用性,每个partition都有副本,leader负责工作,follower负责同步数据,当leader故障时Isr中的某个follower会被选举为新的leader
+segment
+# 片段：为了防止log文件过大难以定位数据,将其分为多个segment,包含.index(存储索引)和.log(存储数据),文件以当前segment第一条消息的offset命名
+offset
+# 偏移量：如果是消费者维护消费者挂掉offset就丢失了,当分区或消费者发生变化时会触发rebalance机制在消费者组内重新分配,所以offset是消费者组维护
 
 # 创建topic,指定分区数和副本数
 [root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2

@@ -80,9 +80,9 @@ object MyESUtil {
   /**
    * 往index中批量插入document
    * @param indexName 索引名称
-   * @param docList 文档列表,Any是具体的文档,通常对应java bean
+   * @param docList 文档列表,String是文档编号保证数据的幂等性,Any是具体文档通常对应java bean
    */
-  def bulkIndex(indexName: String, docList: List[Any]): Unit = {
+  def bulkIndex(indexName: String, docList: List[(String, Any)]): Unit = {
     // 1.获取jest客户端
     if(docList != null && docList.nonEmpty) {
       val jestClient: JestClient = getJestClient
@@ -90,9 +90,9 @@ object MyESUtil {
       // 3.封装Bulk对象
       val builder: Bulk.Builder = new Bulk.Builder
       // 遍历文档列表
-      for (doc <- docList) {
+      for ((doc_id, doc) <- docList) {
         // 每个doc都是Index对象
-        val index: Index = new Index.Builder(doc).index(indexName).`type`("_doc").build()
+        val index: Index = new Index.Builder(doc).index(indexName).`type`("_doc").id(doc_id).build()
         // 将Index对象添加到Bulk对象中
         builder.addAction(index)
       }
@@ -101,7 +101,7 @@ object MyESUtil {
       // 2.执行bulk批量操作
       val result: BulkResult = jestClient.execute(bulk)
       val items: util.List[BulkResult#BulkResultItem] = result.getItems
-      println("往es的" + indexName + "索引中插入了" + items.size() + "条文档")
+      println("往es的 " + indexName + " 索引中插入了 " + items.size() + " 条文档")
 
       // 4.关闭连接
       jestClient.close()
@@ -143,7 +143,7 @@ object MyESUtil {
 
     // 2.执行search查询操作
     val result: SearchResult = jestClient.execute(search)
-    // 获取命中结果
+    // 获取命中结果,es是java写的所以返回的集合也是java集合
     val hitList: util.List[SearchResult#Hit[util.Map[String, Any], Void]] = result.getHits(classOf[util.Map[String, Any]])
     // 只取命中结果的"_source"部分,为了方便转换数据结构,将java集合隐式转换为scala集合,scala有很多强大的函数
     import scala.collection.JavaConverters._

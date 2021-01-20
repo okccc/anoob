@@ -22,18 +22,18 @@ public class TypeInterceptor implements Interceptor {
 
     @Override
     public Event intercept(Event event) {
-        // Event: {headers:{} body: 61 61 61  aaa} headers默认是空,根据body中的日志类型填充headers
+        // Event: {headers:{} body: 61 61 61  aaa} headers默认是空,可以根据body中的日志类型填充headers
         // 获取body
         byte[] bytes = event.getBody();
         // 将数组转换成字符串
         String body = new String(bytes, StandardCharsets.UTF_8);
         // 获取header
         Map<String, String> headers = event.getHeaders();
-        // 填充header
+        // 填充headers
         if (body.contains("start")) {
-            headers.put("topic", "start");
+            headers.put("type", "start");
         } else {
-            headers.put("topic", "event");
+            headers.put("type", "event");
         }
         // 返回填充headers后的Event
         return event;

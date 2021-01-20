@@ -101,7 +101,6 @@ a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
 a1.sources.r1.positionFile = ${flume}/taildir_position.json  # 如果不存在会自动创建,并且从头读取所有文件,记录每个文件的末尾位置
 a1.sources.r1.filegroups = f1                  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也支持正则表达式,目录必须存在不然报错
-a1.sources.r1.fileHeader = true
 a1.sources.ri.maxBatchCount = 1000
 a1.sources.r1.channels = c1 c2
 # 拦截器(jar包放到flume的lib目录)

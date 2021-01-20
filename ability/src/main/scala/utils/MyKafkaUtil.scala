@@ -32,7 +32,7 @@ object MyKafkaUtil {
     "group.id" -> group,                                  // 消费者组
     // 可选参数
     "enable.auto.commit" -> (false: java.lang.Boolean),   // true自动提交(默认),false手动提交
-    "auto.offset.reset" -> "earliest"                     // 没有offset就从latest(默认)/earliest/none开始消费
+    "auto.offset.reset" -> "latest"                       // 没有offset就从latest(默认)/earliest/none开始消费
   )
 
   // 3.创建读取kafka数据的DStream,指定ssc/topicName

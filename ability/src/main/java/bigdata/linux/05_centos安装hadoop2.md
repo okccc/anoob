@@ -417,7 +417,7 @@ done
 [root@cdh1 ~]$ hdfs dfsadmin -setQuota | -clrQuota 3 /test
 # 设置/取消该文件夹大小
 [root@cdh1 ~]$ hdfs dfsadmin -setSpaceQuota | -clrSpaceQuota 1g /test
-# 在hdfs上移动文件
+# 在hdfs上复制cp/移动mv文件
 [root@cdh1 ~]$ hadoop fs -mv /aaa/* /bbb/  
 # 删除hdfs文件
 [root@cdh1 ~]$ hadoop fs -rm /aaa/angela.txt  
