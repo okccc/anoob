@@ -18,6 +18,10 @@ import java.util.Properties;
 public class ConsumerDemo {
     public static void main(String[] args) {
         /*
+         * 消息丢失和重复消费
+         * 消息丢失：生产者端ack=0/1,消费者端先提交后消费
+         * 重复消费：生产者端ack=-1(all),消费者端先消费后提交
+         *
          * 消费者数据可靠性
          * 1).自动提交
          * kafka默认每5秒自动提交一次偏移量 enable.auto.commit=true & auto.commit.interval.ms=5000(ms)
@@ -29,43 +33,35 @@ public class ConsumerDemo {
          * 3).精准消费
          * 方案1：利用关系型数据库的事务保证消费数据和提交offset的原子性,缺点是事务性能一般,大数据场景还得考虑分布式事务,适用于少量聚合数据
          * 方案2：at least once + 手动实现幂等性 = exactly once 一般有主键的数据库都支持幂等性操作,适用于大量明细数据
+         * 实现幂等性之redis：通过set数据结构实现,key存在就进不来,保留前面的
+         * 实现幂等性之es：通过索引的doc_id实现,存在就覆盖,保留后面的,其实有主键id的数据库都可以实现幂等性操作
          * 4).offset维护
          * kafka0.9版本以前保存在zk,但是zk并不适合频繁写入业务数据
          * kafka0.9版本以后保存在__consumer_offsets,弊端是提交偏移量的数据流必须是InputDStream[ConsumerRecord[String, String]]
-         * 但是实际运算经常会做结构转换,就无法使用xxDstream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)提交offset
          * 因为offset存储于HasOffsetRanges,只有kafkaRDD实现了该特质,转换成别的RDD就无法再获取offset,生产环境通常使用redis保存offset
          *
-         * 消息丢失和重复消费场景
-         * 消息丢失：生产者端ack=0/1,消费者端先提交后消费
-         * 重复消费：生产者端ack=-1(all),消费者端先消费后提交
-         *
-         * 消费者保证数据幂等性
-         * redis：通过set数据结构实现,key存在就进不来,保留前面的
-         * es：通过索引的doc_id实现,存在就覆盖,保留后面的,其实有主键id的数据库都可以实现幂等性操作
-         *
-         *
+         * 如何判断消费者实时消费速度？
+         * 运行消费者代码查看当前正在消费的topic数据的时间戳,如果是当前时间说明ok,如果还在消费几个小时前的数据说明消费速度跟不上生产速度
          */
 
         // 1.消费者属性配置
         Properties prop = new Properties();
         // 必选参数
-//        prop.put("bootstrap.servers", "localhost:9092");                     // kafka地址
-        prop.put("bootstrap.servers", "10.18.0.7:9092,10.18.0.8:9092,10.18.0.9:9092");
+//        prop.put("bootstrap.servers", "localhost:9092");                     // 本地kafka
+        prop.put("bootstrap.servers", "10.18.0.7:9092,10.18.0.8:9092,10.18.0.9:9092");  // 生产kafka
+//        prop.put("bootstrap.servers", "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
         prop.put("key.deserializer", StringDeserializer.class.getName());    // key的反序列化器
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
         prop.put("group.id", "gg");                                          // 消费者组
         // 可选参数
-        prop.put("enable.auto.commit", "false");    // true自动提交(默认),false手动提交
+        prop.put("enable.auto.commit", "false");  // true自动提交(默认),false手动提交
         prop.put("auto.offset.reset", "latest");  // 没有offset就从latest(默认)/earliest/none开始消费
 
         // 2.创建消费者对象,参数是topicName和eventLog
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
         // 订阅topic集合
         List<String> list = new ArrayList<>();
-//        list.add("start");
-        list.add("eduplatform01");
-        list.add("eduplatform02");
-//        list.add("thrall");
+        list.add("nginx");
         consumer.subscribe(list);
 
         // 3.从kafka拉取数据

@@ -28,12 +28,11 @@ public class AppMain {
 
     public static void main(String[] args) {
         // 参数一：控制发送每条的延时时间,默认是0
-        Long delay = args.length > 0 ? Long.parseLong(args[0]) : 0L;
+        Long delay = args.length > 0 ? Long.parseLong(args[0]) : 100L;
         // 参数二：循环遍历次数
         int loop_len = args.length > 1 ? Integer.parseInt(args[1]) : 1000;
         // 生成日志
-//        generateLog(delay, loop_len);
-        generateLog(10L, 1000);
+        generateLog(delay, loop_len);
     }
 
     private static void generateLog(Long delay, int loop_len) {

@@ -23,28 +23,28 @@ import scala.collection.mutable.ListBuffer
 object DauAPP {
   def main(args: Array[String]): Unit = {
     // 创建spark配置信息
-    val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("DauApp")
+    val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("nginx-kafka-spark-es/redis")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     // 创建StreamingContext对象
     val ssc: StreamingContext = new StreamingContext(conf, Seconds(3))
     // 设置日志级别
     ssc.sparkContext.setLogLevel("warn")
 
-    // 指定kafka的topic和groupId
+    // 指定topic和groupId
     val topicName: String = "start"
     val groupId: String = "g"
 
     // ============================== 功能1.SparkStreaming读取kafka数据=============================
-    // 1.从redis读取偏移量起始点,只在消费者代码启动时读取一次
+    // 1.从redis读取偏移量起始点
     val offsetMap: Map[TopicPartition, Long] = OffsetManageUtil.getOffset(topicName, groupId)
     // 2.加载偏移量起始点处的kafka数据
     var recordDStream: InputDStream[ConsumerRecord[String, String]] = null
     if(offsetMap != null && offsetMap.nonEmpty) {
       // redis中已经有偏移量,就从偏移量处读取
-      recordDStream  = MyKafkaUtil.getKafkaDStream(ssc, topicName, groupId, offsetMap)
+      recordDStream  = KafkaConsUtil.getKafkaDStream(ssc, topicName, groupId, offsetMap)
     } else {
       // redis中还没有偏移量,默认从latest处读取
-      recordDStream = MyKafkaUtil.getKafkaDStream(ssc, topicName, groupId)
+      recordDStream = KafkaConsUtil.getKafkaDStream(ssc, topicName, groupId)
     }
     // 测试输出
 //    recordDStream.print()

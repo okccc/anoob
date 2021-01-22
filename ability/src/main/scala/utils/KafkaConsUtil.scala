@@ -14,9 +14,9 @@ import scala.collection.mutable
 /**
  * Author: okccc
  * Date: 2020/12/12 17:52
- * Desc: 读取kafka数据的工具类
+ * Desc: kafka消费者工具类
  */
-object MyKafkaUtil {
+object KafkaConsUtil {
 
   // 1.读取配置文件
   private val prop: Properties = MyPropertiesUtil.load("config.properties")
@@ -27,8 +27,8 @@ object MyKafkaUtil {
   private val kafkaParams: mutable.Map[String, Object] = mutable.Map(
     // 必选参数
     "bootstrap.servers" -> broker_list,                   // kafka地址
-    "key.deserializer" -> classOf[StringDeserializer],    // key反序列化
-    "value.deserializer" -> classOf[StringDeserializer],  // value反序列化
+    "key.deserializer" -> classOf[StringDeserializer],    // key反序列化器
+    "value.deserializer" -> classOf[StringDeserializer],  // value反序列化器
     "group.id" -> group,                                  // 消费者组
     // 可选参数
     "enable.auto.commit" -> (false: java.lang.Boolean),   // true自动提交(默认),false手动提交
