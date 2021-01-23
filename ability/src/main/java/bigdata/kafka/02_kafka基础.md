@@ -71,31 +71,31 @@ esac
 # Hadoop使用zk做namenode高可用,Kafka依赖zk维护broker信息,Hbase客户端连接zk获取集群配置信息再进行后续操作
 
 # znode节点
-[zk: localhost:2181(CONNECTED) 0] ls /zookeeper                  # zk信息
-[zk: localhost:2181(CONNECTED) 0] ls /bigdata-ha                 # hadoop信息
-[zk: localhost:2181(CONNECTED) 0] ls /yarn-leader-election       # yarn信息
-[zk: localhost:2181(CONNECTED) 0] ls /brokers                    # kafka启动时会向zk注册broker节点信息
-[zk: localhost:2181(CONNECTED) 0] ls /brokers/ids                # kafka存活节点的broker.id
-[zk: localhost:2181(CONNECTED) 0] ls /brokers/topics             # kafka的topic信息
-[zk: localhost:2181(CONNECTED) 0] get /controller                # kafka成为controller的节点
-[zk: localhost:2181(CONNECTED) 0] get /consumers                 # kafka消费者信息
-[zk: localhost:2181(CONNECTED) 0] get /admin/delete_topics       # kafka删除的topic
-[zk: localhost:2181(CONNECTED) 0] get /isr_change_notification   # isr变化通知
-[zk: localhost:2181(CONNECTED) 0] get /latest_producer_id_block  # 最新生产者块信息
+[zk: cdh1:2181(CONNECTED) 0] ls /brokers/ids                # kafka存活节点的信息
+[zk: cdh1:2181(CONNECTED) 0] ls /brokers/topics             # kafka的topic基本信息
+[zk: cdh1:2181(CONNECTED) 0] ls /config/topics              # kafka的topic配置信息
+[zk: cdh1:2181(CONNECTED) 0] ls /zookeeper                  # zk信息
+[zk: cdh1:2181(CONNECTED) 0] ls /bigdata-ha                 # hadoop信息
+[zk: cdh1:2181(CONNECTED) 0] ls /yarn-leader-election       # yarn信息
+[zk: cdh1:2181(CONNECTED) 0] get /controller                # kafka成为controller的节点
+[zk: cdh1:2181(CONNECTED) 0] get /consumers                 # kafka消费者信息
+[zk: cdh1:2181(CONNECTED) 0] get /admin/delete_topics       # kafka删除的topic
+[zk: cdh1:2181(CONNECTED) 0] get /isr_change_notification   # isr变化通知
+[zk: cdh1:2181(CONNECTED) 0] get /latest_producer_id_block  # 最新生产者块信息
 
 # zk实现分布式锁: 当锁的持有者断开时锁会自动释放,zk的临时znode可以实现这个功能
 # 在cli1创建临时znode
-[zk: localhost:2181(CONNECTED) 0] create -e /lock 'lock'  # -e表示临时,此时cli2无法创建/lock会显示已存在
+[zk: cdh1:2181(CONNECTED) 0] create -e /lock 'lock'  # -e表示临时,此时cli2无法创建/lock会显示已存在
 # 在cli2监控该znode
-[zk: localhost:2181(CONNECTED) 0] stat -w /lock  # 当cli1断开连接时/lock自动丢失,此时cli2可以创建/lock
+[zk: cdh1:2181(CONNECTED) 0] stat -w /lock  # 当cli1断开连接时/lock自动丢失,此时cli2可以创建/lock
 
 # zk实现master-worker协同: 要求系统中只能有一个master,且master能实时监控worker情况
 # 在cli1创建临时znode
-[zk: localhost:2181(CONNECTED) 0] create -e /master 'master:8888'
+[zk: cdh1:2181(CONNECTED) 0] create -e /master 'master:8888'
 # 在cli1创建持久znode并监控该znode
-[zk: localhost:2181(CONNECTED) 0] create /workers && ls -w /workers
+[zk: cdh1:2181(CONNECTED) 0] create /workers && ls -w /workers
 # 在cli2的/workers节点下创建临时znode并观察监控变化
-[zk: localhost:2181(CONNECTED) 0] create -e /workers/w1 'w1:8888'
+[zk: cdh1:2181(CONNECTED) 0] create -e /workers/w1 'w1:8888'
 
 # zk常见问题
 1.找不到或无法加载主类 org.apache.zookeeper.server.quorum.QuorumPeerMain
@@ -109,6 +109,7 @@ esac
 ```
 
 ### kafka
+- [kafka官方文档](http://kafka.apache.org/0110/documentation.html)
 ```shell script
 # 下载安装
 [root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.11-2.4.1.tgz
@@ -176,35 +177,60 @@ segment
 # 片段：为了防止log文件过大难以定位数据,将其分为多个segment,包含.index(存储索引)和.log(存储数据),文件以当前segment第一条消息的offset命名
 offset
 # 偏移量：如果是消费者维护消费者挂掉offset就丢失了,当分区或消费者发生变化时会触发rebalance机制在消费者组内重新分配,所以offset是消费者组维护
+```
 
-# 创建topic,指定分区数和副本数
-[root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2
+### shell
+```shell script
+# 创建topic,必须指定分区数和副本数,额外配置信息可选,不写就使用默认值
+[root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2 [--config key=value]
 Topic creation {"version":1,"partitions":{"1":[1,2,0],"0":[0,1,2]}}
 Created topic "t01".
+
 # 查看topic列表/详细信息
-[root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181,cdh2:2181,cdh3:2181 --list
-[root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181,cdh2:2181,cdh3:2181 --describe --topic t01
+[root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181,cdh2:2181,cdh3:2181 --list
+[root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181,cdh2:2181,cdh3:2181 --describe [--topic t01]
 Topic:t01       PartitionCount:3        ReplicationFactor:2     Configs:
     Topic: t01      Partition: 0    Leader: 2    Replicas: 2,1    Isr: 2,1  # 0/1/2表示broker.id
     Topic: t01      Partition: 1    Leader: 0    Replicas: 0,2    Isr: 0,2
     Topic: t01      Partition: 2    Leader: 1    Replicas: 1,0    Isr: 1,0
+    
 # 修改topic分区数,只能增加不能减少,因为partition可能已经有数据
-[root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --alter --topic t01 --partitions 2
+[root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --alter --topic t01 --partitions 2
 WARNING: If partitions are increased for a topic that has a key, the partition logic or ordering of message will affect
 Adding partitions succeeded!
+
+# 修改topic配置信息
+[root@cdh1 ~]$ kafka-configs.sh --zookeeper cdh1:2181 --entity-type topics --entity-name nginx --alter --add-config max.message.bytes=5242880
+Completed Updating config for entity: topic 'nginx'.
+# 查看修改内容
+[root@cdh1 ~]$ kafka-configs.sh --zookeeper cdh1:2181 --entity-type topics --describe [--entity-name nginx]
+Configs for topic 'nginx' are max.message.bytes=5242880
+# 修改完会在Configs中显示配置信息
+[root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --describe --topic nginx                                                                
+Topic: nginx	PartitionCount: 1	ReplicationFactor: 1	Configs: max.message.bytes=5242880
+	Topic: nginx	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+# 也可以在zk中查看topic配置信息
+[zk: cdh1:2181(CONNECTED) 0] get /config/topics/nginx
+{"version":1,"config":{"max.message.bytes":"5242880"}}
+# 撤销修改
+[root@cdh1 ~]$ kafka-configs.sh --zookeeper cdh1:2181 --entity-type topics --entity-name nginx --alter --delete-config max.message.bytes
+Completed Updating config for entity: topic 'nginx'.
+
 # 删除topic,对应的数据文件和zk上的节点信息也会被删除
-[root@cdh1 ~]$ bin/kafka-topics.sh --zookeeper cdh1:2181 --delete --topic t01
+[root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --delete --topic t01
 Topic t01 is marked for deletion.
 Note: This will have no impact if delete.topic.enable is not set to true.
+
 # 生产者
-[root@cdh1 ~]$ bin/kafka-console-producer.sh --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic t01
+[root@cdh1 ~]$ kafka-console-producer.sh --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic t01
 >java bigdata
 # 消费者,--from-beginning表示读取主题中以往所有数据
-[root@cdh1 ~]$ bin/kafka-console-consumer.sh --bootstrap-server cdh1:9092 [--from-beginning] --topic t01
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 [--from-beginning] --topic t01
 java bigdata
+
 # 查看consumer-group列表/详细信息
-[root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
-[root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 # 重置消费者组的offset
-[root@cdh1 ~]$ bin/kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
 ```
