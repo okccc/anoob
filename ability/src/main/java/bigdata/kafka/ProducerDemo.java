@@ -86,12 +86,13 @@ public class ProducerDemo {
         prop.put("key.serializer", StringSerializer.class.getName());    // key的序列化器
         prop.put("value.serializer", StringSerializer.class.getName());  // value的序列化器
         // 可选参数
-        prop.put("acks", "all");                  // ack可靠性级别 0/1/-1(all)
-        prop.put("enable.idempotence", true);     // 开启幂等性机制,配合ack=-1确保生产者exactly once
-        prop.put("retries", 1);                   // 重试次数
-        prop.put("batch.size", 1024*16);          // 批次大小
-        prop.put("linger.ms", 10);                // 等待时间
-        prop.put("buffer.memory", 1024*1024*16);  // 缓冲区大小
+        prop.put("acks", "all");                    // ack可靠性级别 0/1/-1(all)
+        prop.put("enable.idempotence", true);       // 开启幂等性机制,配合ack=-1确保生产者exactly once
+        prop.put("retries", 1);                     // 重试次数
+        prop.put("batch.size", 1024*16);            // 批次大小,当数据累积到该数值后sender线程才会发送到kafka,可以控制生产者吞吐量
+        prop.put("linger.ms", 10);                  // 等待时间,如果数据迟迟未达到batch.size大小,sender线程等待该时间后就会发送数据
+        prop.put("max.request.size", 1024*1024*5);  // 生产者往kafka批量发送请求的最大字节数,默认1M
+        prop.put("buffer.memory", 1024*1024*32);    // 缓冲区大小
         // 添加拦截器集合(可选)
         List<String> interceptors = new ArrayList<>();
         interceptors.add("bigdata.kafka.InterceptorDemo");
@@ -104,7 +105,8 @@ public class ProducerDemo {
         while (true) {
             // 随机生成一条用户日志
             String eventLog = getEventLog();
-            // 将消息封装成ProducerRecord对象发送,并且可以添加回调函数,在producer收到ack时调用
+            // 将消息封装成ProducerRecord对象发送,可以指定topic/partition/key/value,还可以添加回调函数,在producer收到ack时调用
+            // 生产者的分区策略：1.指定partition 2.不指定partition但是指定key 3.既不指定partition也不指定key
             producer.send(new ProducerRecord<>("start", eventLog));
             // 设置发送间隔
             Thread.sleep(100);

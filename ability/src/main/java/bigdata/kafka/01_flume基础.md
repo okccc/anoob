@@ -26,7 +26,7 @@ Welcome to nginx!
 ```
 
 ### flume
-[flume官方文档](http://flume.apache.org/releases/content/1.7.0/FlumeUserGuide.html)
+- [flume官方文档](http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html)
 ```shell script
 # 下载
 [root@cdh1 ~]$ wget https://mirror.bit.edu.cn/apache/flume/1.9.0/apache-flume-1.9.0-bin.tar.gz
@@ -83,9 +83,13 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
 2.Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.InterceptorDemo$Builder
 # 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
-3.[Producer clientId=producer-1] Connection to node 0 could not be established. Broker may not be available.
+3.Producer clientId=producer-1 Connection to node 0 could not be established. Broker may not be available.
 # flume往kafka写数据时,下游kafka挂了导致flume作为生产者一直连不上broker,重启kafka之后flume也要重启然后继续之前的position采集和发送数据
 # nginx-flume-kafka采集通道正常时flume日志的ClusterID和zookeeper的/cluster/id以及kafka日志的meta.properties的cluster.id应该相同
+4.Caused by: org.apache.kafka.common.errors.RecordTooLargeException: The message is 2262864 bytes when serialized 
+which is larger than the maximum request size you have configured with the max.request.size configuration.
+# flume发送消息大小超过了kafka生产者最大请求字节数(默认1M),agent添加配置a1.channels.c1.kafka.producer.max.request.size = 5242880
+# kafka消息大小有限制 max.request.size(producer端) < message.max.bytes(broker端) < max.partition.fetch.bytes(consumer端)
 ```
 
 #### nginx-kafka.conf
@@ -101,7 +105,7 @@ a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
 a1.sources.r1.positionFile = ${flume}/taildir_position.json  # 如果不存在会自动创建,并且从头读取所有文件,记录每个文件的末尾位置
 a1.sources.r1.filegroups = f1                  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也支持正则表达式,目录必须存在不然报错
-a1.sources.ri.maxBatchCount = 1000
+a1.sources.ri.maxBatchCount = 100  # 控制连续读取同一文件的最大批次,防止某个文件写入速度远快于其他文件,导致其他文件无法被读取
 a1.sources.r1.channels = c1 c2
 # 拦截器(jar包放到flume的lib目录)
 a1.sources.r1.interceptors = i1 i2
