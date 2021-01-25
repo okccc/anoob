@@ -78,6 +78,15 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 # sink
 不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger/kafka
 
+# flume调优
+a1.sources.r1.batchSize = 1000  # 控制往channel发送数据的批次大小,可以适当调大提高吞吐量,但是不能超过capacity和transactionCapacity
+a1.sources.ri.maxBatchCount = 1000  # 控制连续读取同一文件的最大批次,防止某个文件写入速度远快于其他文件,导致其他文件无法被读取
+a1.sources.r1.writePosInterval = 1000  # 控制往position.json写入inode和pos的频率,可以减少Agent故障重启时从position重复读取的数据量
+a1.sources.r1.ServerConnector.idleTimeout = 300  # 超过该时间没有新增行就关闭文件防止文件资源一直占用,有新的行写入会自动重新打开该文件
+a1.channels.c1.transactionCapacity = 5000  # batchSize <= transactionCapacity <= capacity,
+a1.channels.c1.capacity = 10000  # 可以适当调大提高吞吐量,还能避免The channel is full or unexpected failure异常
+a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防止channel处于时满时空状态
+
 # flume常见错误
 1.java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
@@ -90,6 +99,7 @@ channel selectors：replicating将events发往所有channel,multiplexing将event
 which is larger than the maximum request size you have configured with the max.request.size configuration.
 # flume发送消息大小超过了kafka生产者最大请求字节数(默认1M),agent添加配置a1.channels.c1.kafka.producer.max.request.size = 5242880
 # kafka消息大小有限制 max.request.size(producer端) < message.max.bytes(broker端) < max.partition.fetch.bytes(consumer端)
+# flume作为kafka生产者的配置信息在其运行日志flume.log通过ProducerConfig values可以找到
 ```
 
 #### nginx-kafka.conf
@@ -105,7 +115,6 @@ a1.sources.r1.type = TAILDIR  # exec方式flume宕机会丢数据
 a1.sources.r1.positionFile = ${flume}/taildir_position.json  # 如果不存在会自动创建,并且从头读取所有文件,记录每个文件的末尾位置
 a1.sources.r1.filegroups = f1                  # 监控的是一组文件
 a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也支持正则表达式,目录必须存在不然报错
-a1.sources.ri.maxBatchCount = 100  # 控制连续读取同一文件的最大批次,防止某个文件写入速度远快于其他文件,导致其他文件无法被读取
 a1.sources.r1.channels = c1 c2
 # 拦截器(jar包放到flume的lib目录)
 a1.sources.r1.interceptors = i1 i2
