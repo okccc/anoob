@@ -224,9 +224,14 @@ Note: This will have no impact if delete.topic.enable is not set to true.
 # 生产者
 [root@cdh1 ~]$ kafka-console-producer.sh --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic t01
 >java bigdata
-# 消费者,--from-beginning表示读取主题中以往所有数据
+# 消费者
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 [--from-beginning] --topic t01
 java bigdata
+# kafka压力测试：看看CPU/内存/网络IO哪里会出现性能瓶颈,一般都是网络IO达到瓶颈
+# 生产者压测,record-size是一条信息字节数,num-records是发送信息总条数,throughput是每秒发送条数
+[root@cdh1 ~]$ kafka-producer-perf-test.sh --producer-props bootstrap.servers=localhost:9092 --topic test --record-size 100 --num-records 100000 --throughput 1000
+# 消费者压测,fetch-size是每次消费的数据大小,messages是消费的消息总数
+[root@cdh1 ~]$ kafka-consumer-perf-test.sh --broker-list localhost:9092 --topic test --fetch-size 1000 --messages 100000 --threads 1
 
 # 查看consumer-group列表/详细信息
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
