@@ -111,8 +111,9 @@ esac
 ### kafka
 - [kafka官方文档](http://kafka.apache.org/0110/documentation.html)
 ```shell script
-# 下载安装
+# 下载
 [root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.11-2.4.1.tgz
+# 安装
 [root@cdh1~]$ tar -xvf kafka_2.11-2.4.1.tgz -C /opt/module
 # 修改配置文件
 [root@cdh1~]$ vim server.properties
@@ -130,6 +131,36 @@ export KAFKA_HOME=/Users/okc/modules/kafka_2.11-2.4.1
 export PATH=$PATH:$KAFKA_HOME/bin
 # 分发到其他节点并修改broker.id
 [root@cdh1 ~]$ xsync /Users/okc/modules/kafka_2.11-2.4.1 & broker.id=1/2
+
+# broker配置
+# The largest record batch size allowed by Kafka
+message.max.bytes=10485760
+# The minimum age of a log file to be eligible for deletion due to age
+log.retention.hours=168
+# The maximum size of a log segment file. When this size is reached a new log segment will be created.
+log.segment.bytes=1073741824
+
+# producer配置
+# the default batch size in bytes when batching multiple records sent to a partition
+batch.size=16384
+# producer will wait for up to the given delay to allow other records to be sent so that the sends can be batched together
+linger.ms=0
+# the maximum size of a request in bytes
+max.request.size=1048576
+# specify the compression codec for all data generated: none, gzip, snappy, lz4, zstd
+compression.type=none
+# client to resend any record whose send fails with a potentially transient error
+retries=0
+# The amount of time to wait before attempting to retry a failed request to a given topic partition
+retry.backoff.ms=100
+
+# consumer配置
+# The maximum amount of data per-partition the server will return
+max.partition.fetch.bytes=1048576
+# The maximum number of records returned in a single call to poll()
+max.poll.records=500
+# the maximum amount of time the client will wait for the response of a request
+request.timeout.ms=305000
 
 # 启动kafka,默认是前台进程,可以在后台启动
 [root@cdh1 ~]$ kafka-server-start.sh -daemon /config/server.properties  # 日志默认存放在logs/server.log
@@ -182,6 +213,8 @@ offset
 ### shell
 ```shell script
 # 创建topic,必须指定分区数和副本数,额外配置信息可选,不写就使用默认值
+# partition数 >= consumer数可以实现最大并发,但是分区过多也会导致 1.producer吞吐量降低(副本) 2.leader选举耗时增加 3.offset查询耗时增加
+# replication数会影响producer/consumer流量,比如3副本则实际流量 = 生产流量 × 3
 [root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2 [--config key=value]
 Topic creation {"version":1,"partitions":{"1":[1,2,0],"0":[0,1,2]}}
 Created topic "t01".
@@ -194,7 +227,7 @@ Topic:t01       PartitionCount:3        ReplicationFactor:2     Configs:
     Topic: t01      Partition: 1    Leader: 0    Replicas: 0,2    Isr: 0,2
     Topic: t01      Partition: 2    Leader: 1    Replicas: 1,0    Isr: 1,0
     
-# 修改topic分区数,只能增加不能减少,因为partition可能已经有数据
+# 修改topic分区数,只能增加不能减少,因为partition可能已经有数据,增加后可能出现rebalance情况
 [root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --alter --topic t01 --partitions 2
 WARNING: If partitions are increased for a topic that has a key, the partition logic or ordering of message will affect
 Adding partitions succeeded!
