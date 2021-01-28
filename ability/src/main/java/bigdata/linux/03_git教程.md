@@ -73,8 +73,8 @@ git branch dev & git checkout dev & ... | git checkout -b dev  # 开发人员平
 git checkout master & git diff dev
 # 快速合并某个分支到当前分支
 git merge dev  # 如果不同分支修改同一个文件并且都提交后做合并操作会冲突,先解决冲突再重新提交合并
-# 禁用快速合并(应用场景：当代码写到一半时突然发现前面有个紧急bug要处理,这时候先保护工作现场此时工作区是干净的,然后创建一个临时的bug分支处理完bug后merge到dev分支,
-# 此时最好禁用快速合并,不然删掉临时bug分支后看不到merge修复bug的版本记录,最后再回到工作现场继续工作)
+# 禁用快速合并(应用场景：当代码写到一半时突然发现前面有个紧急bug要处理,这时候先保护工作现场此时工作区是干净的,然后创建一个临时bug分支处理完bug后
+# merge到dev分支,此时最好禁用快速合并,不然删掉临时bug分支后看不到merge修复bug的版本记录,最后再回到工作现场继续工作)
 git merge --no-ff -m 'no fast-forward' dev
 # 保护工作现场 - 查看现场列表 - 创建bug分支修复bug - 恢复工作现场 - 删除已合并的分支
 git stash -> git stash list -> git checkout -b bug01 & ... & git checkout dev & git merge bug01 -> git stash pop -> git branch -d bug01

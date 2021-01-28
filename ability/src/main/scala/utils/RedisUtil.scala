@@ -9,7 +9,7 @@ import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
  * Date: 2020/12/13 10:31
  * Desc: 获取Jedis的工具类
  */
-object MyRedisUtil {
+object RedisUtil {
 
   // 声明jedis连接池
   private var jedisPool: JedisPool = _
@@ -32,7 +32,7 @@ object MyRedisUtil {
    */
   def build(): JedisPool = {
     // 3.获取redis地址
-    val prop: Properties = MyPropertiesUtil.load("config.properties")
+    val prop: Properties = PropertiesUtil.load("config.properties")
     val host: String = prop.getProperty("redis.host")
     val port: String = prop.getProperty("redis.port")
 

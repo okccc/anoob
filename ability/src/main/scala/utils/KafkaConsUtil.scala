@@ -19,7 +19,7 @@ import scala.collection.mutable
 object KafkaConsUtil {
 
   // 1.读取配置文件
-  private val prop: Properties = MyPropertiesUtil.load("config.properties")
+  private val prop: Properties = PropertiesUtil.load("config.properties")
   private val broker_list: String = prop.getProperty("kafka.broker.list")
   private val group: String = prop.getProperty("group.id")
 

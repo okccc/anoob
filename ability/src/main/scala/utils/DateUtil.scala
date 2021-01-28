@@ -10,7 +10,7 @@ import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
  * Date: 2020/12/15 4:16 下午
  * Desc: 获取日期时间的工具类
  */
-object MyDateUtil {
+object DateUtil {
 
   // 日期时间格式常量
   val DATE_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")

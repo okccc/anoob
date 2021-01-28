@@ -120,11 +120,11 @@ object S04_collection {
     println(lb.toList)  // List(1, 2, 3, 4, 5)
 
     // 不可变集合是可协变的
-    val strings01 = List("aaa", "bbb")
-    val obj01: List[Any] = strings01
+    val s01: List[String] = List("aaa", "bbb")
+    val obj01: List[Any] = s01
     // 可变集合是不可协变的
-    val strings02 = ListBuffer("aaa", "bbb")
-//    val obj02: ListBuffer[Any] = strings02  // Required:ListBuffer[Any] Found:ListBuffer[String]
+    val s02: ListBuffer[String] = ListBuffer("aaa", "bbb")
+//    val obj02: ListBuffer[Any] = s02  // Required:ListBuffer[Any] Found:ListBuffer[String]
   }
 
   def testMap(): Unit = {

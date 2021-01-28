@@ -45,7 +45,7 @@ public class ProducerDemo {
          * kafka采用的是第二种,因为网络延迟对kafka的影响相较于数据冗余要小很多
          * 2).Isr
          * 如果有一个follower故障导致迟迟不能与leader同步,也要一直等它同步结束才发送ack吗?
-         * leader维护了一个动态的Isr(in-sync replica),存放和leader保持同步的follower集合,只要Isr同步完成leader就发送ack
+         * leader维护了一个动态的副本同步队列Isr(in-sync replica),存放和leader保持同步的follower集合,只要Isr同步完成leader就发送ack
          * 如果follower长时间不同步数据就会被Isr剔除,通过replica.lag.time.max.ms参数设定,当leader故障时会从Isr中选举新的leader
          * 3).ack可靠性级别
          * 有些数据对可靠性要求不高允许有少量丢失,kafka提供了3种可靠性级别,用户可以针对可靠性和延迟性权衡

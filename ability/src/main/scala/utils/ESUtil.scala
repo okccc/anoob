@@ -18,7 +18,7 @@ import scala.collection.mutable
  * Date: 2020/12/31 9:59 上午
  * Desc: 操作es的工具类
  */
-object MyESUtil {
+object ESUtil {
 
   // 声明jest客户端工厂
   private var jestClientFactory: JestClientFactory = _
@@ -43,7 +43,7 @@ object MyESUtil {
     // 1.创建jest客户端工厂
     val factory: JestClientFactory = new JestClientFactory
     // 3.获取es地址
-    val prop: Properties = MyPropertiesUtil.load("config.properties")
+    val prop: Properties = PropertiesUtil.load("config.properties")
     val es_server: String = prop.getProperty("es.server")
     // 2.工厂属性配置,HttpClientConfig使用了Builder模式
     factory.setHttpClientConfig(new HttpClientConfig

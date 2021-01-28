@@ -69,7 +69,7 @@ object DauAPP {
       // 获取时间戳
       val ts: lang.Long = jsonObj.getLong("t")
       // 转换成日期和小时
-      val dtStr: String = MyDateUtil.parseUnixToDateTime(ts)
+      val dtStr: String = DateUtil.parseUnixToDateTime(ts)
       // 添加到json对象
       jsonObj.put("dt", dtStr.substring(0, 10))
       jsonObj.put("hr", dtStr.substring(11, 13))
@@ -83,7 +83,7 @@ object DauAPP {
     // 1.遍历分区,涉及到数据库连接的操作,通常是以分区为单位处理数据,减少数据库连接次数
     val filteredDStream: DStream[JSONObject] = jsonDStream.mapPartitions((iterator: Iterator[JSONObject]) => {
       // 2.获取jedis客户端,有几个分区就创建几次连接,提高性能
-      val jedis: Jedis = MyRedisUtil.getJedis()
+      val jedis: Jedis = RedisUtil.getJedis()
       // 存放首次登录用户的列表
       val listBuffer: ListBuffer[JSONObject] = new ListBuffer[JSONObject]
       // 3.遍历分区中的元素
@@ -132,7 +132,7 @@ object DauAPP {
           (mid, dauInfo)
         }).toList
         // 5.往es批量插入数据
-        MyESUtil.bulkIndex("dau_" + dt, dauList)
+        ESUtil.bulkIndex("dau_" + dt, dauList)
       })
       // 6.处理完本批次数据之后要更新redis中的偏移量
       OffsetManageUtil.saveOffset(topicName, groupId, offsetRanges)

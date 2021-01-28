@@ -26,7 +26,7 @@ object OffsetManageUtil {
 
     // 2.根据hash的key获取由field和value组成的Map<String, String>  g:start {0=10} {1=20} {2=30}
     // 获取redis客户端
-    val jedis: Jedis = MyRedisUtil.getJedis()
+    val jedis: Jedis = RedisUtil.getJedis()
     // Jedis是java写的,返回的集合也是java集合
     val offset_map: util.Map[String, String] = jedis.hgetAll(offsetKey)
     // 关闭连接
@@ -74,7 +74,7 @@ object OffsetManageUtil {
     // 2.保存偏移量到redis
     if (offsetMap != null && offsetMap.size()>0) {
       // 获取redis客户端
-      val jedis: Jedis = MyRedisUtil.getJedis()
+      val jedis: Jedis = RedisUtil.getJedis()
       // 往hash写入key和对应的util.Map<String, String>
       jedis.hmset(offsetKey, offsetMap)
       // 关闭连接

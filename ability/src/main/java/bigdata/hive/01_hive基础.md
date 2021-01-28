@@ -220,7 +220,7 @@ hive> alter table test replace columns(id int, name string);
 hive> alter table test drop partition (dt=20160101);               # 删除单个分区
 hive> alter table test drop partition (dt>=20160101,dt<20170101);  # 删除多个分区
 -- 重命名表
-hive> alter table t1 rename to table2; 
+hive> alter table t1 rename to table2;
 -- temporary表示临时表,仅在本次hive session期间有效,关闭hive后会自动删除,不加该关键字则会存储下来
 -- create table like 复制表结构(没有数据)
 hive> create temporary table t1_tmp like t1 stored as textfile;

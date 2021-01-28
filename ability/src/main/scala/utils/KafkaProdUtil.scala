@@ -15,7 +15,7 @@ object KafkaProdUtil {
   var producer: KafkaProducer[String, String] = _
 
   // 1.读取配置文件
-  private val prop: Properties = MyPropertiesUtil.load("config.properties")
+  private val prop: Properties = PropertiesUtil.load("config.properties")
 
   // 2.kafka生产者配置
   // 必选参数

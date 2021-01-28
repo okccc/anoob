@@ -89,7 +89,7 @@ a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防�
 
 # flume常见错误
 1.java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
-# 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),然后再修改目录所属用户即可
+# 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),再修改目录所属用户即可
 2.Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.InterceptorDemo$Builder
 # 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
 3.Producer clientId=producer-1 Connection to node 0 could not be established. Broker may not be available.
@@ -98,8 +98,8 @@ a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防�
 4.Caused by: org.apache.kafka.common.errors.RecordTooLargeException: The message is 2262864 bytes when serialized 
 which is larger than the maximum request size you have configured with the max.request.size configuration.
 # flume发送消息大小超过了kafka生产者最大请求字节数(默认1M),agent添加配置a1.channels.c1.kafka.producer.max.request.size = 5242880
-# kafka消息大小有限制 max.request.size(producer端) < message.max.bytes(broker端) < max.partition.fetch.bytes(consumer端)
 # flume作为kafka生产者的配置信息在其运行日志flume.log通过ProducerConfig values可以找到
+# kafka消息大小有限制 max.request.size(producer端) < message.max.bytes(broker端) < max.partition.fetch.bytes(consumer端)
 ```
 
 #### nginx-kafka.conf

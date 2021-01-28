@@ -9,7 +9,7 @@ import java.util.Properties
  * Date: 2020/12/12 17:16
  * Desc: 读取配置文件的工具类
  */
-object MyPropertiesUtil {
+object PropertiesUtil {
 
   def load(filename: String): Properties = {
     // 创建Properties对象
@@ -22,7 +22,7 @@ object MyPropertiesUtil {
   }
 
   def main(args: Array[String]): Unit = {
-    val prop: Properties = MyPropertiesUtil.load("config.properties")
+    val prop: Properties = PropertiesUtil.load("config.properties")
     val value: String = prop.getProperty("kafka.broker.list")
     println(value)
   }
