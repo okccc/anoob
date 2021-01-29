@@ -23,7 +23,7 @@ object PropertiesUtil {
 
   def main(args: Array[String]): Unit = {
     val prop: Properties = PropertiesUtil.load("config.properties")
-    val value: String = prop.getProperty("kafka.broker.list")
+    val value: String = prop.getProperty("bootstrap.servers")
     println(value)
   }
 

@@ -23,7 +23,9 @@ import scala.collection.mutable.ListBuffer
 object DauAPP {
   def main(args: Array[String]): Unit = {
     // 创建spark配置信息
-    val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("nginx-kafka-spark-es/redis")
+    val conf: SparkConf = new SparkConf()
+      .setMaster("local[*]")
+      .setAppName("nginx-kafka-spark-es/redis")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     // 创建StreamingContext对象
     val ssc: StreamingContext = new StreamingContext(conf, Seconds(3))
@@ -57,13 +59,12 @@ object DauAPP {
       offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
       rdd
     })
-
-    // 4.转换DStream中的数据结构
+    // 4.转换DStream数据结构
     val jsonDStream: DStream[JSONObject] = offsetDStream.map((record: ConsumerRecord[String, String]) => {
-      // 获取ConsumerRecord的value部分
+      // ConsumerRecord对象的value部分是具体的record contents
       val jsonStr: String = record.value()
 //      println("key = " + record.key())  // key = null
-//      println("value = " + record.value())  // value = {"action":"2","ar":"MX","ba":"HTC","vn":"1.2.1"...}
+//      println("value = " + record.value())  // value = {"mid":"11","uid":"11","en":"start"...}
       // 将json字符串封装成json对象
       val jsonObj: JSONObject = JSON.parseObject(jsonStr)
       // 获取时间戳
@@ -110,7 +111,7 @@ object DauAPP {
     filteredDStream.count().print()
 
     // ============================== 功能3.将每批次新增的当日日活信息保存到es ==============================
-    // 1.输出操作通常由foreachRDD完成,RDD本身是一个集合,只不过存储的是逻辑抽象而不是具体数据
+    // 1.DStream输出操作通常由foreachRDD完成,RDD本身是一个集合,只不过存储的是逻辑抽象而不是具体数据
     filteredDStream.foreachRDD((rdd: RDD[JSONObject]) => {
       // 2.遍历分区,涉及数据库连接的操作,通常是以分区为单位处理数据,减少数据库连接次数
       rdd.foreachPartition((iterator: Iterator[JSONObject]) => {
@@ -138,7 +139,7 @@ object DauAPP {
       OffsetManageUtil.saveOffset(topicName, groupId, offsetRanges)
     })
 
-    // 启动采集
+    // 启动程序
     ssc.start()
     ssc.awaitTermination()
   }

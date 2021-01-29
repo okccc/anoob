@@ -20,16 +20,16 @@ object KafkaConsUtil {
 
   // 1.读取配置文件
   private val prop: Properties = PropertiesUtil.load("config.properties")
-  private val broker_list: String = prop.getProperty("kafka.broker.list")
-  private val group: String = prop.getProperty("group.id")
+  private val BOOTSTRAP_SERVERS: String = prop.getProperty("bootstrap.servers")
+  private val GROUP_ID: String = prop.getProperty("group.id")
 
   // 2.kafka消费者配置
   private val kafkaParams: mutable.Map[String, Object] = mutable.Map(
     // 必选参数
-    "bootstrap.servers" -> broker_list,                   // kafka地址
+    "bootstrap.servers" -> BOOTSTRAP_SERVERS,             // kafka地址
+    "group.id" -> GROUP_ID,                               // 消费者组
     "key.deserializer" -> classOf[StringDeserializer],    // key反序列化器
     "value.deserializer" -> classOf[StringDeserializer],  // value反序列化器
-    "group.id" -> group,                                  // 消费者组
     // 可选参数
     "enable.auto.commit" -> (false: java.lang.Boolean),   // true自动提交(默认),false手动提交
     "auto.offset.reset" -> "latest"                       // 没有offset就从latest(默认)/earliest/none开始消费

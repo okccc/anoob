@@ -103,11 +103,13 @@ public class ProducerDemo {
 
         // 3.往kafka发送数据
         while (true) {
+            // 主题
+            String topicName = "start";
             // 随机生成一条用户日志
             String eventLog = getEventLog();
             // 将消息封装成ProducerRecord对象发送,可以指定topic/partition/key/value,还可以添加回调函数,在producer收到ack时调用
             // 生产者的分区策略：1.指定partition 2.不指定partition但是指定key 3.既不指定partition也不指定key
-            producer.send(new ProducerRecord<>("start", eventLog));
+            producer.send(new ProducerRecord<>(topicName, eventLog));
             // 设置发送间隔
             Thread.sleep(100);
         }

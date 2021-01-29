@@ -15,9 +15,9 @@ import scala.util.Random
 object MockDataGenerate {
 
   // 表名常量
-  private val USER_INFO_TABLE = "user_info"
-  private val PRODUCT_INFO_TABLE = "product_info"
-  private val USER_VISIT_ACTION_TABLE = "user_visit_action"
+  private val USER_INFO_TABLE: String = "user_info"
+  private val PRODUCT_INFO_TABLE: String = "product_info"
+  private val USER_VISIT_ACTION_TABLE: String = "user_visit_action"
 
   def main(args: Array[String]): Unit = {
     // 创建Spark配置信息
@@ -105,7 +105,7 @@ object MockDataGenerate {
     // 创建存放用户行为数据的可变数组
     val rows: ArrayBuffer[UserVisitAction] = ArrayBuffer[UserVisitAction]()
     // 创建随机数生成器对象
-    val random = new Random()
+    val random: Random = new Random()
     // 四个用户行为：搜索/点击/下单/支付
     val actions: Array[String] = Array("search", "click", "order", "pay")
     // 搜索关键字

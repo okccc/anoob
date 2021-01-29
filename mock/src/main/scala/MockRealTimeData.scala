@@ -19,7 +19,7 @@ object MockRealTimeData {
     */
   def generateMockData(): Array[String] = {
     val array: ArrayBuffer[String] = ArrayBuffer[String]()
-    val random = new Random()
+    val random: Random = new Random()
     // 模拟实时数据：
     // timestamp province city userid adid
     for (i <- 0 to 50) {
@@ -36,7 +36,7 @@ object MockRealTimeData {
 
   def createKafkaProducer(broker: String): KafkaProducer[String, String] = {
     // 创建配置对象
-    val prop = new Properties()
+    val prop: Properties = new Properties()
     // 添加配置
     prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, broker)
     prop.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
@@ -47,7 +47,7 @@ object MockRealTimeData {
 
   def main(args: Array[String]): Unit = {
     // 获取配置文件commerce.properties中的Kafka配置参数
-    val broker: String = ConfigurationManager.config.getString("kafka.broker.list")
+    val broker: String = ConfigurationManager.config.getString("bootstrap.servers")
     val topic: String = ConfigurationManager.config.getString("kafka.topics")
     // 创建Kafka消费者
     val kafkaProducer: KafkaProducer[String, String] = createKafkaProducer(broker)
