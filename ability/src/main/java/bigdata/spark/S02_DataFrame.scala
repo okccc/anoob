@@ -40,18 +40,21 @@ object S02_DataFrame {
      * Tungsten项目
      * 固态硬盘和大功率交换机的普及大幅提升了I/O性能,使得CPU和内存成了大数据处理的新瓶颈
      * JVM GC适用于在线事务处理(OLTP)系统,JVM对象开销很大容易引起内存不足,导致CPU访问数据的吞吐量降低,损失性能
-     * Spark偏向于在线分析处理(OLAP)系统,大规模并行计算对性能要求很高,Tungsten目的就是摆脱JVM垃圾回收器自己管理内存,从而避免JVM GC带来的性能损失
+     * Spark偏向于在线分析处理(OLAP)系统,大规模并行计算对性能要求很高,Tungsten目的就是摆脱JVM垃圾回收器自己管理内存,从而避免GC带来的性能损失
      *
      * 自定义函数包括UDF和UDAF
      * UDF：类似map操作的行处理,一行输入一行输出
      * UDAF：聚合操作,多行输入一行输出,包括un-type配合DataFrame使用和safe-type配合Dataset使用
      */
 
-    // 创建Spark配置信息
-    val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("Spark Sql")
     // Spark2.0以后使用SparkSession代替SqlContext作为SparkSql所有功能的入口,可以创建DataFrame,注册临时视图,执行sql,缓存表...
     // 创建SparkSession,查看源码发现SparkSession类的构造器是private,只能通过其伴生对象创建,并且使用了Builder模式
-    val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
+    val spark: SparkSession = SparkSession
+      .builder()
+      .master("local[*]")
+      .appName("Spark Sql")
+      .enableHiveSupport()
+      .getOrCreate()
     // 创建DataFrame/Dataset三种方式：读取文件,从RDD转换,查询hive
 
     readFile(spark)
