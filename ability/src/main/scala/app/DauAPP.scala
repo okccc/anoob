@@ -22,13 +22,18 @@ import scala.collection.mutable.ListBuffer
  */
 object DauAPP {
   def main(args: Array[String]): Unit = {
-    // 创建spark配置信息
+    if (args.length != 1) {
+      println("Usage: Please input batchDuration(s)")
+      System.exit(1)
+    }
+    // 创建spark配置信息,本地调试时代码不应写死,可以在Edit Configurations添加相关配置参数
+    // Main class当前类,Program arguments程序参数,VM options系统参数-Dspark.master=local[*] -DHADOOP_USER_NAME=hdfs
+    // 配置参数优先级：SparkConf(代码写死) > spark-submit(动态指定) > spark-defaults.conf(集群配置)
     val conf: SparkConf = new SparkConf()
-      .setMaster("local[*]")
       .setAppName("nginx-kafka-spark-es/redis")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     // 创建StreamingContext对象
-    val ssc: StreamingContext = new StreamingContext(conf, Seconds(3))
+    val ssc: StreamingContext = new StreamingContext(conf, Seconds(args(0).toLong))
     // 设置日志级别
     ssc.sparkContext.setLogLevel("warn")
 

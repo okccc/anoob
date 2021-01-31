@@ -89,7 +89,6 @@ object S01_RDD {
     // 创建Spark配置信息
     // "local": 单线程  "local[4]": 4个线程  "local[*]": 线程数=cpu最大核数,最大化cpu计算能力 cat /proc/cpuinfo | grep 'cores'
     // "spark://master:7077": standalone   "yarn": yarn集群,client/cluster模式
-    // 配置参数优先级：SparkConf(代码写死) > spark-submit(提交脚本) > spark-defaults.conf(集群配置)
     val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("RDD")
     // SparkContext是Spark所有功能的入口,可以创建RDD,Accumulator,Broadcast
     val sc: SparkContext = new SparkContext(conf)
