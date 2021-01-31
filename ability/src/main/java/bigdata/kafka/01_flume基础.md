@@ -41,7 +41,8 @@ export JAVA_OPTS="-Xms4096m -Xmx4096m -Dcom.sun.management.jmxremote"
 [root@cdh1 ~]$ mkdir logs
 
 # 集群生成日志启动脚本
-# java -jar/-cp区别：打包时mainClass已指定类名 java -jar a.jar,未指定类名 java -cp a.jar 包名.类名
+# 解压jar包：tar -xvf mock.jar -C mock(目标目录需提前创建),jar包本质上也是压缩包,直接用tar命令解压缩即可
+# java -jar/-cp区别：打包时mainClass已指定类名java -jar a.jar,未指定类名java -cp a.jar 包名.类名,可在解压jar包的META-INF文件中查看
 [root@cdh1 ~]$ vim log.sh
 #!/bin/bash
 for i in cdh1 cdh2 cdh3
