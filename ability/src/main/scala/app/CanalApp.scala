@@ -27,6 +27,7 @@ object CanalApp {
     val spark: SparkSession = SparkSession
       .builder()
       .appName("canal-kafka-spark-ods")
+      // pom.xml添加spark-hive_2.11依赖,不然报错Unable to instantiate SparkSession with Hive support because Hive classes are not found.
       .enableHiveSupport()
       .config("hive.exec.dynamic.partition", "true")
       .config("hive.exec.dynamic.partition.mode", "nonstrict")
