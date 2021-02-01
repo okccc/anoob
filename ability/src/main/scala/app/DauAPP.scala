@@ -22,12 +22,15 @@ import scala.collection.mutable.ListBuffer
  */
 object DauAPP {
   def main(args: Array[String]): Unit = {
+    // 判断参数
     if (args.length != 1) {
       println("Usage: Please input batchDuration(s)")
       System.exit(1)
     }
-    // 创建spark配置信息,本地调试时代码不应写死,可以在Edit Configurations添加相关配置参数
-    // Main class当前类,Program arguments程序参数,VM options系统参数-Dspark.master=local[*] -DHADOOP_USER_NAME=hdfs
+    // 创建sparkConf对象
+    // 本地调试代码时参数不应该写死,本地代码和提交到服务器的代码应该是一样的
+    // main方法参数配置：Edit Configurations - Main class - Program arguments - VM options添加相关参数
+    // -Dspark.master=local[*] -DHADOOP_USER_NAME=hdfs -Dspark.sql.shuffle.partitions=1
     // 配置参数优先级：SparkConf(代码写死) > spark-submit(动态指定) > spark-defaults.conf(集群配置)
     val conf: SparkConf = new SparkConf()
       .setAppName("nginx-kafka-spark-es/redis")
@@ -44,13 +47,14 @@ object DauAPP {
     // ============================== 功能1.SparkStreaming读取kafka数据=============================
     // 1.从redis读取偏移量起始点
     val offsetMap: Map[TopicPartition, Long] = OffsetManageUtil.getOffset(topicName, groupId)
+    println(offsetMap)  // 第一次读取时应该是Map(),此时redis还没有g:start这个key,下面的saveOffset方法会创建该key并第一次写入offset
     // 2.加载偏移量起始点处的kafka数据
     var recordDStream: InputDStream[ConsumerRecord[String, String]] = null
     if(offsetMap != null && offsetMap.nonEmpty) {
-      // redis中已经有偏移量,就从偏移量处读取
+      // 如果redis已经有偏移量,就从偏移量处读取
       recordDStream  = KafkaConsUtil.getKafkaDStream(ssc, topicName, groupId, offsetMap)
     } else {
-      // redis中还没有偏移量,默认从latest处读取
+      // 如果redis还没有偏移量,默认会从kafka本地topic __consumer_offsets的latest处读取
       recordDStream = KafkaConsUtil.getKafkaDStream(ssc, topicName, groupId)
     }
     // 测试输出

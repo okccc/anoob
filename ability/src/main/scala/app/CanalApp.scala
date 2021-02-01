@@ -18,7 +18,6 @@ import utils.{KafkaConsUtil, OffsetManageUtil}
 object CanalApp {
   def main(args: Array[String]): Unit = {
     // yarn cluster和yarn client区别？
-    // sqoop导出数据一致性？ --staging-table table_tmp --clear-staging-table
     if (args.length != 1) {
       println("Usage: Please input batchDuration(s)")
       System.exit(1)
