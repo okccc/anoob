@@ -51,7 +51,9 @@ else
      exit 1
 fi
 
-
+# sqoop如何保证数据一致性
+# 1.hive底层使用'\N'存储null值,mysql底层null就是null,为了保证导入导出数据的一致性,导入使用--null-string,导出使用--input-null-string
+# 2.sqoop将导出过程分解为多个事务,当有多个map任务时,如果出现失败会将部分数据写入mysql,后续再插入就会数据重复,可以通过--staging-table先将所有数据都写入临时表,全部成功后再由一个单独的事务将临时表数据写入目标表
 
 # sqoop增量导入两种方式
 # 基于递增列(Append方式)
