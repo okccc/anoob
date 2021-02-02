@@ -84,6 +84,10 @@
             <groupId>org.codehaus.janino</groupId>
             <artifactId>commons-compiler</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.ipip</groupId>
+            <artifactId>ipdb</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
