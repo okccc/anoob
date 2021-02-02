@@ -436,7 +436,7 @@ hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 104.5 G  240.2 G  /user/hive/warehouse/dw.db
 320.7 G  671.3 G  /user/hive/warehouse/ods.db
 # hdfs文件大小排序
-[root@cdh1 ~]$ hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="  " | sort -nr
+[root@cdh1 ~]$ hadoop fs -du /user/hive/warehouse/ods.db | awk '{print int($1/1024/1024) "M",int($2/1024/1024) "M",$3}' OFS="  " | sort -nr
 72G  167G  /user/hive/warehouse/ods.db/debit_detail
 54G  110G  /user/hive/warehouse/ods.db/urge_record
 51G  105G  /user/hive/warehouse/ods.db/pay_repayment_detail
@@ -507,25 +507,6 @@ spark.eventLog.dir         hdfs://cdh1:9000/user/spark/history
 # 本地测试(日志格式：local-timestamp)
 [root@cdh1 ~]$ run-example org.apache.spark.examples.SparkPi
 [root@cdh1 ~]$ run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
-[root@cdh1 ~]$ spark-shell
-Spark context Web UI available at http://192.168.152.11:4040
-Spark context available as 'sc' (master = local[*], app id = local-1594958655022).
-Spark session available as 'spark'.
-Using Scala version 2.11.8 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_181)
-scala> sc
-res0: org.apache.spark.SparkContext = org.apache.spark.SparkContext@236f3885
-scala> val count = sc.textFile("README.md").filter(line=>line.contains("Spark")).count()
-count: Long = 20
-scala> spark
-res1: org.apache.spark.sql.SparkSession = org.apache.spark.sql.SparkSession@31aa9b01
-scala> spark.read.
-csv   format   jdbc   json   load   option   options   orc   parquet   schema   table   text   textFile
-scala> spark.sql("show databases").show()
-+------------+
-|databaseName|
-+------------+
-|     default|
-+------------+
 
 # 提交任务到yarn(日志格式：application_timestamp_0001)
 [root@cdh1 spark-2.1.1-bin-hadoop2.7]$ spark-submit --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode client ./examples/jars/spark-examples_2.11-2.1.1.jar
@@ -541,9 +522,8 @@ scala> spark.sql("show databases").show()
 --driver-memory 512M           # driver可用内存,默认1G
 --executor-memory 512M         # executor可用内存,默认1G
 
-# client/cluster对比
-1.submit your application from a gateway machine that is physically co-located with your worker machines(e.g. Master node in a standalone EC2 cluster). In this setup, client mode is appropriate, the driver is launched directly within the spark-submit process which acts as a client to the cluster. The input and output of the application is attached to the console. Thus, this mode is especially suitable for applications that involve the REPL (e.g. Spark shell).
-2.if your application is submitted from a machine far from the worker machines (e.g. locally on your laptop), it is common to use cluster mode to minimize network latency between the drivers and the executors
+# yarn cluster和yarn client
+yarn中的每个Application实例都有一个ApplicationMaster进程,负责向ResourceManager请求资源,然后通知NodeManager为Application启动Container
 In client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.
 In cluster mode, the driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application. 
 ```
