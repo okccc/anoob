@@ -1,5 +1,7 @@
 ### shortcut
 ```shell script
+# idea调整内存大小
+Help - Edit Custom VM Options - -Xms256m(idea开始内存,提高启动速度)/-Xmx3072m(idea最大内存,提高性能)
 # idea查看变量/方法/构造器的Structure时,开着的绿色锁表示public权限,关闭的红色锁表示private权限
 # idea默认给被重新分配地址的变量或参数加下划线,因为有些代码很长,你很难知道变量是否被重新分配过地址值
 # idea快捷键设置
