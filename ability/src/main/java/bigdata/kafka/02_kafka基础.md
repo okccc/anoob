@@ -207,7 +207,7 @@ replication
 segment
 # 片段：为了防止log文件过大难以定位数据,将其分为多个segment,包含.index(存储索引)和.log(存储数据),文件以当前segment第一条消息的offset命名
 offset
-# 偏移量：如果是消费者维护消费者挂掉offset就丢失了,当分区或消费者发生变化时会触发rebalance机制在消费者组内重新分配,所以offset是消费者组维护
+# 消息偏移量：类似数组下标,如果由消费者维护消费者挂掉就丢失了,当分区或消费者发生变化时会触发rebalance机制在消费者组内重新分配,所以offset由消费者组维护
 ```
 
 ### shell
