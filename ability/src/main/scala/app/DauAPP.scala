@@ -44,10 +44,10 @@ object DauAPP {
     val topicName: String = "start"
     val groupId: String = "g"
 
-    // ============================== 功能1.SparkStreaming读取kafka数据=============================
-    // 1.从redis读取偏移量起始点
+    // ============================== 功能1.SparkStreaming读取kafka数据 =============================
+    // 1.从redis读取偏移量起始点,只在程序启动时读取一次
     val offsetMap: Map[TopicPartition, Long] = OffsetManageUtil.getOffset(topicName, groupId)
-    println(offsetMap)  // 第一次读取时应该是Map(),此时redis还没有g:start这个key,下面的saveOffset方法会创建该key并第一次写入offset
+    println(offsetMap)  // 第一次读取应该是Map(),此时redis还没有g:start这个key
     // 2.加载偏移量起始点处的kafka数据
     var recordDStream: InputDStream[ConsumerRecord[String, String]] = null
     if(offsetMap != null && offsetMap.nonEmpty) {
@@ -127,7 +127,7 @@ object DauAPP {
         var dt: String = null
         // 3.遍历每个分区中的元素
         val dauList: List[(String, DauInfo)] = iterator.map((jsonObj: JSONObject) => {
-          // 4.封装DauInfo对象
+          // 4.解析JSONObject,将其封装成DauInfo对象
           val uid: String = jsonObj.getString("uid")
           val mid: String = jsonObj.getString("mid")
           val ar: String = jsonObj.getString("ar")
@@ -145,7 +145,7 @@ object DauAPP {
         ESUtil.bulkIndex("dau_" + dt, dauList)
       })
       // 6.处理完本批次数据之后要更新redis中的偏移量
-      OffsetManageUtil.saveOffset(topicName, groupId, offsetRanges)
+      OffsetManageUtil.updateOffset(topicName, groupId, offsetRanges)
     })
 
     // 启动程序

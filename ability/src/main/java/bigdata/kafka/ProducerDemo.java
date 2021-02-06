@@ -17,7 +17,7 @@ import java.util.Random;
  * Desc: 模拟kafka生产者
  */
 public class ProducerDemo {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         /*
          * 消息队列
          * java提供的Queue是基于内存的单机版队列,MQ通常是分布式队列并且数据可以持久化,当然系统设计会更复杂
@@ -94,24 +94,22 @@ public class ProducerDemo {
         prop.put("max.request.size", 1024*1024*5);  // 生产者往kafka批量发送请求的最大字节数,默认1M
         prop.put("buffer.memory", 1024*1024*32);    // 缓冲区大小
         // 添加拦截器集合(可选)
-        List<String> interceptors = new ArrayList<>();
-        interceptors.add("bigdata.kafka.InterceptorDemo");
-        prop.put("interceptor.classes", interceptors);
+//        List<String> interceptors = new ArrayList<>();
+//        interceptors.add("bigdata.kafka.InterceptorDemo");
+//        prop.put("interceptor.classes", interceptors);
 
-        // 2.创建生产者对象,参数是topicName和eventLog
+        // 2.创建生产者对象
         KafkaProducer<String, String> producer = new KafkaProducer<>(prop);
 
         // 3.往kafka发送数据
-        while (true) {
+        while(true) {
             // 主题
-            String topicName = "start";
+            String topicName = "ods_user_info";
             // 随机生成一条用户日志
             String eventLog = getEventLog();
             // 将消息封装成ProducerRecord对象发送,可以指定topic/partition/key/value,还可以添加回调函数,在producer收到ack时调用
             // 生产者的分区策略：1.指定partition 2.不指定partition但是指定key 3.既不指定partition也不指定key
             producer.send(new ProducerRecord<>(topicName, eventLog));
-            // 设置发送间隔
-            Thread.sleep(100);
         }
     }
 

@@ -8,13 +8,13 @@ import java.util.Arrays;
  * Date: 2021/2/2 2:12 下午
  * Desc: 根据IP地址查询城市
  */
-public class IPUtils {
+public class IPUtil {
     private static City city;
 
     public static String[] find(String ip, String language) {
         try {
             if (city == null) {
-                city = new City(IPUtils.class.getResource("/").getPath() + "ipipfree.ipdb");
+                city = new City(IPUtil.class.getResource("/").getPath() + "ipipfree.ipdb");
             }
             return city.find(ip, language);
         } catch (Exception e) {

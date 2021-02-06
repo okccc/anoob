@@ -4,7 +4,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.functions.{col, when}
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.SparkContext
 
 object S02_DataFrame {
   def main(args: Array[String]): Unit = {
@@ -24,7 +24,7 @@ object S02_DataFrame {
      *
      * DataFrame比RDD性能更好
      * 1.执行计划优化：DataFrame和Dataset都是以SparkSql作为引擎,Catalyst优化器会优化逻辑计划和物理计划,可通过explain查看
-     * 比如filter下推 RDD -> rdd1.join(rdd2).filter(...) | SparkSql -> select * from t1 join t2 on t1.id=t2.id where ...
+     *              比如filter下推 RDD -> rdd1.join(rdd2).filter(...) | SparkSql -> select * from t1 join t2 on t1.id=t2.id where ...
      * 2.减少数据读取：SparkSql可以直接读取ORC/PARQUET等列式存储的数据源,仅查询需要的列避免全表扫描
      * 3.内存占用：RDD是函数式编程,强调数据不可变性,倾向于创建新对象而不是修改旧对象,RDD在转换过程中会生成大量临时对象,对GC造成很大压力
      *           SparkSql虽然最终返回的也是不可变的DataFrame对象,但是在内部实现过程中会尽量重用对象减少内存占用

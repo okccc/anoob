@@ -31,7 +31,9 @@ public class SingleDemo {
 class Single01 {
     // 饿汉式：类一加载,对象就已经创建好
     private static final Single01 s = new Single01();
-    private Single01(){}
+    private Single01(){
+
+    }
     static Single01 getInstance(){
         return s;
     }
@@ -40,7 +42,9 @@ class Single01 {
 class Single02 {
     // 懒汉式：类加载时没有对象,要用的时候才创建(延迟加载)
     private static Single02 s = null;
-    private Single02(){}
+    private Single02(){
+
+    }
     static Single02 getInstance(){
         // 外面套一层if可以提高效率,先判断对象是否存在,存在就直接返回,不用每次进来都判断锁
         if(s==null){

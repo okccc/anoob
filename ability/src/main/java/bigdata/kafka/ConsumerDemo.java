@@ -52,8 +52,8 @@ public class ConsumerDemo {
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
         prop.put("group.id", "gg");                                          // 消费者组
         // 可选参数
-        prop.put("enable.auto.commit", "false");  // true自动提交(默认),false手动提交
-        prop.put("auto.offset.reset", "latest");  // 没有offset就从latest(默认)/earliest/none开始消费
+//        prop.put("enable.auto.commit", "false");  // true自动提交(默认),false手动提交
+//        prop.put("auto.offset.reset", "latest");  // 没有offset就从latest(默认)/earliest/none开始消费
 
         // 2.创建消费者对象,参数是topicName和eventLog
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
