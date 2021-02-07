@@ -50,7 +50,7 @@ do
     ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
 done
 
-# 启动flume(单节点nginx配置单个flume,如果nginx做了负载均衡就配置多个flume)
+# 启动flume(每个nginx节点都单独装flume,单个nginx节点配置是8核16g,4个节点峰值流量100M/S,稳定流量10M/S)
 [root@cdh1 ~]$ vim flume.sh
 #!/bin/bash
 case $1 in
