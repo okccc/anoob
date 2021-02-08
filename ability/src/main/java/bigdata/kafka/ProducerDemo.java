@@ -94,9 +94,9 @@ public class ProducerDemo {
         prop.put("max.request.size", 1024*1024*5);  // 生产者往kafka批量发送请求的最大字节数,默认1M
         prop.put("buffer.memory", 1024*1024*32);    // 缓冲区大小
         // 添加拦截器集合(可选)
-//        List<String> interceptors = new ArrayList<>();
-//        interceptors.add("bigdata.kafka.InterceptorDemo");
-//        prop.put("interceptor.classes", interceptors);
+        List<String> interceptors = new ArrayList<>();
+        interceptors.add("bigdata.kafka.InterceptorDemo");
+        prop.put("interceptor.classes", interceptors);
 
         // 2.创建生产者对象
         KafkaProducer<String, String> producer = new KafkaProducer<>(prop);
