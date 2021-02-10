@@ -21,8 +21,8 @@ object KafkaProdUtil {
   prop.put("key.serializer", classOf[StringSerializer])    // value序列化器
   prop.put("value.serializer", classOf[StringSerializer])  // value序列化器
   // 可选参数
-//  prop.put("acks", "all")                                  // ack可靠性级别 0/1/-1(all)
-//  prop.put("enable.idempotence", true: java.lang.Boolean)  // 开启幂等性机制,配合ack=-1确保生产者exactly once
+  prop.put("acks", "all")                                  // ack可靠性级别 0/1/-1(all)
+  prop.put("enable.idempotence", true: java.lang.Boolean)  // 开启幂等性机制,配合ack=-1确保生产者exactly once
 
   // 2.创建生产者对象
   def createKafkaProducer(): KafkaProducer[String, String] = {
@@ -43,10 +43,6 @@ object KafkaProdUtil {
       producer = createKafkaProducer()
       producer.send(new ProducerRecord[String, String](topicName, key, msg))
     }
-  }
-
-  def main(args: Array[String]): Unit = {
-    createKafkaProducer()
   }
 
 }

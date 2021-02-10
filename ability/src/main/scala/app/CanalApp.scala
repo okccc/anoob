@@ -8,7 +8,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.kafka010.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import utils.{KafkaConsUtil, OffsetManageUtil}
+import utils.{KafkaConsUtil, KafkaProdUtil, OffsetManageUtil}
 
 /**
  * Author: okccc
@@ -17,7 +17,7 @@ import utils.{KafkaConsUtil, OffsetManageUtil}
  */
 object CanalApp {
   def main(args: Array[String]): Unit = {
-    // yarn cluster和yarn client区别？
+    // spark.streaming.stopGracefullyOnShutdown
     if (args.length != 1) {
       println("Usage: Please input batchDuration(s)")
       System.exit(1)
@@ -30,21 +30,21 @@ object CanalApp {
       .enableHiveSupport()
       .config("hive.exec.dynamic.partition", "true")
       .config("hive.exec.dynamic.partition.mode", "nonstrict")
-//      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      //      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .getOrCreate()
     // 创建StreamingContext对象
     val ssc: StreamingContext = new StreamingContext(spark.sparkContext, Seconds(args(0).toLong))
     // 设置日志级别
-    spark.sparkContext.setLogLevel("info")
+    spark.sparkContext.setLogLevel("warn")
 
     // 指定topic和groupId
     val topicName: String = "canal"
     val groupId: String = "g"
 
-    // ============================== 功能1.SparkStreaming读取kafka数据=============================
-    // 1.从redis读取偏移量起始点
+    // ============================== 功能1.SparkStreaming读取kafka数据 =============================
+    // 1.从redis读取偏移量起始点,只在程序启动时读取一次
     val offsetMap: Map[TopicPartition, Long] = OffsetManageUtil.getOffset(topicName, groupId)
-    println(offsetMap)  // 第一次读取时应该是Map(),此时redis还没有g:canal这个key,下面的saveOffset方法会创建该key并第一次写入offset
+    println(offsetMap) // 第一次读取应该是Map(),此时redis还没有g:canal这个key
     // 2.加载偏移量起始点处的kafka数据
     var recordDStream: InputDStream[ConsumerRecord[String, String]] = null
     if (offsetMap != null && offsetMap.nonEmpty) {
@@ -68,25 +68,30 @@ object CanalApp {
       val jsonObj: JSONObject = JSON.parseObject(jsonStr)
       jsonObj
     })
-    jsonDStream.print()
-    // {"data":[{"sku_id":"11","user_id":"77","sku_name":"iphone12"...}],"type":"INSERT","database":"canal","table":"cart_info"...}
+    //    jsonDStream.print() // {"data":[{"user_id":"77","sku_name":"iphone12"...}],"type":"INSERT","database":"canal","table":"cart_info"...}
 
     // ============================== 功能2.将topic按表进行分流写入ods层 ==============================
+    // 方式一：将topic由ip/database级别拆分到table级别,再按业务需求单独处理每个表,弊端是会多出来很多topic/partition/replication,生成大量冗余数据
+    // 方式二：将topic直接按table分类写入对应的ods层hive表
     // 1.DStream输出操作通常由foreachRDD完成,RDD本身是一个集合,只不过存储的是逻辑抽象而不是具体数据
     jsonDStream.foreachRDD((rdd: RDD[JSONObject]) => {
+      // 2.遍历元素
       rdd.foreach((jsonObj: JSONObject) => {
-        val dataArray: JSONArray = jsonObj.getJSONArray("data")
-        import scala.collection.JavaConverters._
-        for (data <- dataArray.asScala) {
-
+        // 3.解析JSONObject,获取table以及对应更新记录
+        val mysqlTable: String = jsonObj.getString("table")
+        val odsTopic: String = "ods_" + mysqlTable
+        val records: JSONArray = jsonObj.getJSONArray("data")
+        // 4.根据table分类写入对应topic
+        for (i <- 0 until records.size()) {
+          KafkaProdUtil.sendMsg(odsTopic, records.get(i).toString)
         }
-        val table: String = jsonObj.getString("table")
       })
+      // 5.处理完本批次数据之后要更新redis中的偏移量
+      OffsetManageUtil.updateOffset(topicName, groupId, offsetRanges)
     })
 
-    // 启动程序5
+    // 启动程序
     ssc.start()
     ssc.awaitTermination()
-
   }
 }
