@@ -55,7 +55,7 @@ object F01_WordCount {
 
   def streamProcess(args: Array[String]): Unit = {
 
-    // 创建流处理执行环境
+    // 创建流处理执行环境,scala会自动推断类型,所以定义变量的时候可以省略类型,但是为了增加可读性还是写上吧
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     // 可以设置并行度,默认是当前机器的最大核数
     env.setParallelism(4)
