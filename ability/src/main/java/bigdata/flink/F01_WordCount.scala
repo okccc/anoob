@@ -67,7 +67,7 @@ object F01_WordCount {
     val socketDataStream: DataStream[String] = env.socketTextStream(host, port)
     // 词频统计
     val resultDataStream: DataStream[(String, Int)] = socketDataStream
-
+      // _是lambda表达式的简写方式
       .flatMap((line: String) => line.split(" "))
       .filter((line: String) => line.nonEmpty)
       .map((word: String) => (word, 1))
