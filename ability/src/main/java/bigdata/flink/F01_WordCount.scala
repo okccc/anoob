@@ -54,7 +54,7 @@ object F01_WordCount {
   }
 
   def streamProcess(args: Array[String]): Unit = {
-
+    // 创建可执行的scala程序一般都选object单例对象,class需要创建对象才能执行
     // 创建流处理执行环境,scala会自动推断类型,所以定义变量的时候可以省略类型,但是为了增加可读性还是写上吧
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     // 可以设置并行度,默认是当前机器的最大核数
