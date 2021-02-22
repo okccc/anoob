@@ -237,11 +237,13 @@
                 <artifactId>flink-streaming-scala_2.12</artifactId>
                 <version>${flink.version}</version>
             </dependency>
+            <!-- flink操作kafka -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-kafka-0.11_2.12</artifactId>
                 <version>${flink.version}</version>
             </dependency>
+            <!-- flink操作redis -->
             <dependency>
                 <groupId>org.apache.bahir</groupId>
                 <artifactId>flink-connector-redis_2.11</artifactId>
@@ -253,6 +255,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- flink操作es -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-elasticsearch6_2.12</artifactId>
