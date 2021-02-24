@@ -177,8 +177,8 @@ case $1 in
     for i in cdh1 cdh2 cdh3
     do
         echo "============ ${i}启动kafka ============"
-        # 启动kafka时开启JMX(Java Management Extensions)端口,用于后续KafkaManager监控
-        ssh ${i} "source /etc/profile && cd {kafka_home}/bin && export JMX_PORT=9988 && kafka-server-start.sh -daemon ../config/server.properties"
+        # 启动kafka之前先开启JMX(Java Management Extensions)端口,不然启动kafka-manager会报错
+        ssh ${i} "source /etc/profile && cd {kafka_home}/bin && export JMX_PORT=9999 && kafka-server-start.sh -daemon ../config/server.properties"
     done
 };;
 "stop"){
@@ -258,7 +258,7 @@ Note: This will have no impact if delete.topic.enable is not set to true.
 [root@cdh1 ~]$ kafka-console-producer.sh --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic t01
 >java bigdata
 # 消费者
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 [--from-beginning] --topic t01
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --topic t01 [--from-beginning] [--max-messages 1]
 java bigdata
 # kafka压力测试：看看CPU/内存/网络IO哪里会出现性能瓶颈,一般都是网络IO达到瓶颈
 # 生产者压测,record-size是一条信息字节数,num-records是发送信息总条数,throughput是每秒发送条数
@@ -271,4 +271,34 @@ java bigdata
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 # 重置消费者组的offset
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
+```
+
+### kafka-manager
+```shell script
+# github官网只提供了kafka-manage的源码,需要手动编译
+# 修改配置文件
+[root@cdh1 ~]$ vim conf/application.conf
+kafka-manager.zkhosts="localhost:2181"  # 配置kafka集群zk地址
+akka {
+   loggers = ["akka.event.slf4j.Slf4jLogger"]
+   loglevel = "INFO"
+   logger-startup-timeout = 30s  # 添加超时时间不然启动报错
+ }
+# 给命令添加可执行权限
+[root@cdh1 ~]$ chmod +x kafka-manager
+# 启动脚本
+[root@cdh1 ~]$ vim km.sh & chmod +x km.sh
+#!/bin/bash
+case $1 in
+"start"){
+    echo "--------启动KafkaManager-------"
+    nohup bin/kafka-manager -Dconfig.file=conf/application.conf -Dhttp.port=7456 > start.log 2>&1 &
+};;
+"stop"){
+    echo "--------停止KafkaManager-------"
+    ps -ef | grep ProdServerStart | grep -v grep | awk '{print $2}' | xargs kill 
+};;
+esac
+# 查看日志
+[root@cdh1 ~]$ tail -f start.log | tail -f application.home_IS_UNDEFINED/logs/application.log
 ```
