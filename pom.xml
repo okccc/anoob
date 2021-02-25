@@ -18,7 +18,7 @@
     <!-- 声明子项目公用配置属性 -->
     <properties>
         <!-- scala版本要和spark/flink引用的scala版本保持一致       -->
-        <scala.version>2.12.12</scala.version>
+        <scala.version>2.12</scala.version>
         <spark.version>2.4.5</spark.version>
         <flink.version>1.10.1</flink.version>
         <kafka.version>2.4.1</kafka.version>
@@ -65,7 +65,7 @@
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-library</artifactId>
-                <version>${scala.version}</version>
+                <version>2.12.12</version>
             </dependency>
             <!-- scala操作jdbc的工具 -->
             <dependency>
@@ -228,19 +228,19 @@
             <!-- flink相关 -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-scala_2.12</artifactId>
+                <artifactId>flink-scala_${scala.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-streaming-scala_2.12</artifactId>
+                <artifactId>flink-streaming-scala_${scala.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <!-- flink操作kafka -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-kafka-0.11_2.12</artifactId>
+                <artifactId>flink-connector-kafka_${scala.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <!-- flink操作redis -->

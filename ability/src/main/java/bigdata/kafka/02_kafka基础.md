@@ -178,7 +178,7 @@ case $1 in
     do
         echo "============ ${i}启动kafka ============"
         # 启动kafka之前先开启JMX(Java Management Extensions)端口,不然启动kafka-manager会报错
-        ssh ${i} "source /etc/profile && cd {kafka_home}/bin && export JMX_PORT=9999 && kafka-server-start.sh -daemon ../config/server.properties"
+        ssh ${i} "source /etc/profile && cd {kafka_home}/bin && export JMX_PORT=9988 && kafka-server-start.sh -daemon ../config/server.properties"
     done
 };;
 "stop"){
@@ -291,11 +291,11 @@ akka {
 #!/bin/bash
 case $1 in
 "start"){
-    echo "--------启动KafkaManager-------"
+    echo "-------- 启动KafkaManager -------"
     nohup bin/kafka-manager -Dconfig.file=conf/application.conf -Dhttp.port=7456 > start.log 2>&1 &
 };;
 "stop"){
-    echo "--------停止KafkaManager-------"
+    echo "-------- 停止KafkaManager -------"
     ps -ef | grep ProdServerStart | grep -v grep | awk '{print $2}' | xargs kill 
 };;
 esac
