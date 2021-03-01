@@ -1,9 +1,10 @@
 package utils
 
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.StringSerializer
-
 import java.util.Properties
+
+import scala.io.BufferedSource
 
 /**
  * Author: okccc
@@ -25,23 +26,26 @@ object KafkaProdUtil {
   prop.put("enable.idempotence", true: java.lang.Boolean)  // 开启幂等性机制,配合ack=-1确保生产者exactly once
 
   // 2.创建生产者对象
-  def createKafkaProducer(): KafkaProducer[String, String] = {
-    new KafkaProducer[String, String](prop)
+  if(producer == null) {
+    producer = new KafkaProducer[String, String](prop)
   }
 
-  // 4.发送数据,不指定partition也不指定key,会根据递增的随机数和partition数取余决定往哪个partition写数据
+  // 3.发送数据,不指定partition也不指定key,会根据递增的随机数和partition数取余决定往哪个partition写数据
   def sendMsg(topicName: String, msg: String): Unit = {
-    if(producer == null) {
-      producer = createKafkaProducer()
-      producer.send(new ProducerRecord[String, String](topicName, msg))
-    }
+    producer.send(new ProducerRecord[String, String](topicName, msg))
   }
 
   // 发送数据,不指定partition但是指定key,会按照key的hash值和partition数取余决定往哪个partition写数据
   def sendMsg(topicName: String, key: String, msg: String): Unit = {
-    if(producer == null) {
-      producer = createKafkaProducer()
-      producer.send(new ProducerRecord[String, String](topicName, key, msg))
+    producer.send(new ProducerRecord[String, String](topicName, key, msg))
+  }
+
+  def main(args: Array[String]): Unit = {
+    // 读取文件数据写入kafka
+    val topicName: String = "nginx"
+    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/UserBehavior.csv")
+    for (line <- bufferedSource.getLines()) {
+      sendMsg(topicName, line)
     }
   }
 
