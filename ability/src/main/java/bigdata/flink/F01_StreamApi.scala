@@ -54,7 +54,15 @@ object F01_StreamApi {
      * 时间窗口(Time Window)：滚动时间窗口、滑动时间窗口、会话窗口
      * 计数窗口(Count Window)：滚动计数窗口、滑动计数窗口
      *
-     * flink中的状态：算子状态OperatorState、键控状态KeyedState(重点)、状态后端StateBackends
+     * flink状态管理
+     * DataStream的算子可以是有状态的也可以是无状态的,map/flatmap/filter等简单的转换算子就是无状态的,只和当前输入数据有关
+     * 涉及aggregate和window操作的算子通常是有状态的,聚合和窗口输出的结果不仅仅和当前输入数据有关,还和之前所有数据的统计结果有关,这个统计结果就叫做当前任务的状态
+     * 状态可以理解成一个本地变量,可以被任务的业务逻辑访问,但是在算子转换过程中会涉及序列化反序列化以及检查点容错等复杂机制,flink在任务运行过程中会自己进行状态管理,这样开发人员只要专注于业务逻辑开发即可
+     * 两种类型状态：算子状态OperatorState、键控状态KeyedState(常用)
+     * KeyedState根据输入数据流中定义的key维护和访问
+     * flink为每个key维护一个状态实例,并将具有相同key的数据都分到同一个算子任务中
+     * 当任务处理一条数据时,会自动将状态的访问范围限定为当前数据的key
+     * KeyedState常用数据结构：ValueState将状态表示为单个值、ListState将状态表示为列表数据、MapState将状态表示为key-value对、ReducingState & AggregatingState将状态表示为用于聚合操作的列表
      *
      *
      * could not find implicit value for evidence parameter of type org.apache.flink.api.common.typeinfo.TypeInformation[String]
