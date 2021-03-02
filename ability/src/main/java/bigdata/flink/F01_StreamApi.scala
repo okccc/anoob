@@ -54,6 +54,9 @@ object F01_StreamApi {
      * 时间窗口(Time Window)：滚动时间窗口、滑动时间窗口、会话窗口
      * 计数窗口(Count Window)：滚动计数窗口、滑动计数窗口
      *
+     * flink中的状态：算子状态OperatorState、键控状态KeyedState(重点)、状态后端StateBackends
+     *
+     *
      * could not find implicit value for evidence parameter of type org.apache.flink.api.common.typeinfo.TypeInformation[String]
      * val result:DataSet[(String,Int)] = inputDataSet.flatMap(_.split(" "))
      * scala版本要和flink引用的scala版本保持一致,不然会冲突导致无法使用scala的隐式转换
