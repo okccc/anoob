@@ -54,11 +54,10 @@ object HotItems {
     // 1).将流数据封装成样例类对象,并提取时间戳生成watermark,方便后续窗口操作
     val dataStream: DataStream[UserBehavior] = inputStream
       .map((line: String) => {
+        // 662708,1177318,4756105,pv,1511690399
         val words: Array[String] = line.split(",")
         UserBehavior(words(0).toLong, words(1).toLong, words(2).toInt, words(3), words(4).toLong)
       })
-      // 乱序：流处理过程是event - source - operator,由于网络和分布式等原因会导致乱序,即flink接收到的event并不是严格按照EventTime顺序排列
-      // watermark：表示数据流中timestamp小于watermark的数据都已到达从而触发window执行,是一种延迟触发机制,专门处理乱序数据,用来指示当前事件时间
       // 数据本身有序：不用设置watermark
       .assignAscendingTimestamps((_: UserBehavior).timestamp * 1000L)
       // 数据本身无序(通用情况)：要设置watermark,创建有界的乱序时间戳提取器,传入时间参数(毫秒)控制乱序程度,具体时间根据数据的实际乱序程度设置
@@ -110,7 +109,6 @@ class ItemCountAgg() extends AggregateFunction[UserBehavior, Int, Int] {
  */
 class ItemViewCountWindow() extends WindowFunction[Int, ItemViewCount, Tuple, TimeWindow] {
   override def apply(key: Tuple, window: TimeWindow, input: Iterable[Int], out: Collector[ItemViewCount]): Unit = {
-    println("key = " + key)
     // Tuple是一个java抽象类,并且这里的key只有itemId一个元素,可通过其子类Tuple1实现
     val itemId: Long = key.asInstanceOf[Tuple1[Long]].f0
     // 获取时间窗口,windowEnd是窗口的结束时间,也是窗口的唯一标识
@@ -152,7 +150,7 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
    * 触发定时器时调用
    * @param timestamp 定时器设定的触发时间戳,就是processElement方法里设定的windowEnd + 1
    * @param ctx KeyedProcessFunction的内部类OnTimerContext,提供了流的一些上下文信息,包括当前定时器的时间域和key
-   * @param out Collector接口提供了collect方法收集输出结果
+   * @param out Collector接口提供了collect方法收集输出结果,可以输出0个或多个元素
    */
   override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Tuple, ItemViewCount, String]#OnTimerContext, out: Collector[String]): Unit = {
     // ListState本身没有排序功能,需额外定义一个ListBuffer保存ListState的所有数据
