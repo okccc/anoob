@@ -42,7 +42,7 @@ object F01_StreamApi {
      * 通常基于事件时间处理数据,好处是时间进度取决于数据本身而不是任何时钟,即使处理乱序数据也能获得准确结果,需要指定watermark表示事件时间的进度
      *
      * 水位线(watermark)
-     * 流处理过程是event - source - operator,由于网络延迟和分布式等原因,event到达flink的顺序和其实际产生顺序不一致导致数据乱序
+     * 乱序：流处理过程是event - source - operator,由于网络延迟和分布式等原因,event到达flink的顺序和其实际产生顺序不一致导致数据乱序
      * 事件时间内对于延迟数据不能无限期等下去,必须要有机制保证在特定时间后会触发窗口计算
      * watermark本质上是一个时间戳,表示数据流中timestamp小于watermark的数据都已到达从而触发window执行,是一种延迟触发机制,用于处理乱序数据
      * 标点水位线(Punctuated Watermark)
@@ -53,8 +53,7 @@ object F01_StreamApi {
      * 对于迟到事件flink默认是直接丢弃,也可以使用另外两种处理方式
      * allowLateNess是在窗口关闭后一直保留窗口状态至最大允许时长,迟到事件会触发窗口重新计算,保存状态需要更多额外内存,因此该时长不宜过久
      * sideOutPut是最后的兜底操作,所有过期的延迟数据在窗口彻底关闭后会被放到侧输出流,作为窗口计算结果的副产品以便用户获取并对其进行特殊处理
-     *
-     * window - watermark - allowLateNess - sideOutput
+     * 乱序数据三重保证：watermark - allowLateNess - sideOutput
      *
      * flink特点：在保证exactly-once精准一次性的同时具有低延迟和高吞吐的处理能力
      * flink的世界观中,一切都是由流组成,离线数据是有界的流,实时数据是无界的流
