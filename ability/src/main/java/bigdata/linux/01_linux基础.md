@@ -350,7 +350,7 @@ root     pts/0    10.9.6.148       11:08    3.00s  0.03s  0.00s w
 [root@cdh1 ~]$ visudo
 # root用户权限,第一个ALL表示允许从任何终端访问sudo,第二个ALL表示任何用户都可以执行sudo命令,第三个ALL表示可以向root一样执行所有命令
 root      ALL = (ALL) ALL
-# 设置deploy用户拥有所有root权限且不用输入密码
+# 设置deploy用户拥有所有root权限且不用输入密码,[deploy@cdh1 ~]$ sudo start.sh
 deploy    ALL = (ALL)   NOPASSWD: ALL
 # 设置tomcat用户拥有启动tomcat权限且不用输入密码
 tomcat    ALL = (ALL) NOPASSWD: /usr/local/tomcat/bin/startup.sh
