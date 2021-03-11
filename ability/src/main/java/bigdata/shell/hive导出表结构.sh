@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 老集群hive导出表结构
-databases='jlgl_ads jlgl_dim jlgl_dw jlgl_dm jlgl_rpt ods'
+databases='jlgl_ads jlgl_dim jlgl_dw jlgl_dm jlgl_rpt ods tmp'
 for database in ${databases}
 do
     hive -e "use ${database}; show tables" > "${database}"-tables.txt

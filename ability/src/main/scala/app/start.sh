@@ -16,6 +16,7 @@ fi
 class=app.$className
 yarn application --list | grep $class | awk '{system(" yarn application --kill "$1)}'
 
+# 将配置信息放到工程外面的独立文件,这样代码可以复用,可以往dev/test等不同环境写数据,只需更改配置文件不用重新编译代码
 nohup /opt/spark/bin/spark-submit \
 --class $class \
 --files /data1/projects-app/MongoStream/$project/conf/config.properties,\
