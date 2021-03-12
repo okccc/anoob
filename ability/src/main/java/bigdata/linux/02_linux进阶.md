@@ -122,6 +122,8 @@ cat access.log | grep "23/Jan/2019" | awk '{print $2}' | cut -c 1-2 | sort | uni
 -f           # 对比文件
 -x           # 完全相同的行
 -w           # 部分单词相同的行
+-r           # 递归目录
+-l/L         # 列出匹配/不匹配的文件名称
 --color      # 高亮显示
 -A2/B2/C2    # 打印符合要求的行及下面/上面/上下两行  
 # 案例
@@ -133,13 +135,15 @@ grep 'bin$' a.txt               # 选取以bin结尾的行
 grep -v '^$' a.txt              # 选取非空行  
 grep 'mysql' *.sh               # 查看包含mysql的脚本    
 # 查找当前目录下用到debit_order表的sql文件并统计使用次数
-grep 'debit_order' *.sql | awk -F: '{print $1}' | uniq -c | sort -nr  
+grep 'debit_order' *.sql | awk -F: '{print $1}' | uniq -c | sort -nr
+# 将当前目录下所有文件的jlgl替换成dev-jlgl
+sed -i 's/jlgl/dev-jlgl/g' `grep jlgl -rl ./*`
 # 高亮显示关键字所在行的前10行和后10行
-grep error mysql.log --color -A 10 -B 10  
-# 输出两个文件都有的行(完全相同/部分相同)  
-grep -xf/-wf a.log b.log  
+grep error mysql.log --color -A 10 -B 10
+# 输出两个文件都有的行(完全相同/部分相同)
+grep -xf/-wf a.log b.log
 # 输出后面文件有而前面文件没有的行
-grep -vxf a.log b.log  
+grep -vxf a.log b.log
 ```
 
 ### find
