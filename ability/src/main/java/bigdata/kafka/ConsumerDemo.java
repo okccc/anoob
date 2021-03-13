@@ -61,7 +61,7 @@ public class ConsumerDemo {
         List<String> list = new ArrayList<>();
 //        list.add("amplitude02");
 //        list.add("nginx");
-        list.add("eduplatform01");
+        list.add("test");
         consumer.subscribe(list);
 
         // 3.从kafka拉取数据
