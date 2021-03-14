@@ -29,31 +29,45 @@ object F01_StreamApi {
      * 偏好分析（离线）：点赞、收藏、评价、用户画像、推荐系统
      *
      * API
-     * 批处理：数据累积到一定程度再处理,对应有界数据,API是DataSet
-     * 流处理：数据来一条处理一条,对应无界数据,API是DataStream
+     * 批处理：数据累积到一定程度再处理,使用DataSet处理有界数据
+     * 流处理：数据来一条就处理一条,使用DataStream处理无界数据
      *
      * 窗口(window)
-     * 流处理是按条处理,类似一分钟一小时内的统计操作就需要窗口,Window将无界流拆分成一个个bucket进行计算,窗口分为滚动窗口、滑动窗口、会话窗口
-     * 窗口的生命周期是[start, end)左闭右开的,当属于窗口的第一个元素到达时就会开启一个窗口,当时间超过结束时间戳加上用户设置的延迟窗口就会关闭
+     * 窗口是为了周期性的获取数据,类似一分钟一小时这种统计需求,Window将无界流拆分成一个个bucket进行计算,包括滚动窗口、滑动窗口、会话窗口
+     * 窗口生命周期[start, end)是左闭右开的,当属于窗口的第一个元素到达时就会开启新窗口,当时间超过结束时间戳加上用户设置的延迟时长该窗口就会关闭
      * 定义窗口之前要确定是否要keyBy()将原始流分成逻辑流,KeyedStream允许窗口计算由多个任务并行执行,non-KeyedStream窗口计算由单个任务执行
      *
      * 时间语义(time)
      * 发生顺序：事件时间(EventTime) - 提取时间(IngestionTime) - 处理时间(ProcessingTime)
-     * 通常基于事件时间处理数据,好处是时间进度取决于数据本身而不是任何时钟,即使处理乱序数据也能获得准确结果,需要指定watermark表示事件时间的进度
+     * flink默认是基于ProcessingTime处理流数据,这个适用于实时性非常高的场景,不会等待延迟数据到窗口结束时间就计算,结果往往会有偏差
+     * 所以通常是基于EventTime作为时间推进的考量,让时间进度取决于数据本身而不是任何时钟,配合watermark处理乱序数据也能获得准确结果
      *
      * 水位线(watermark)
-     * 乱序：流处理过程是event - source - operator,由于网络延迟和分布式等原因,event到达flink的顺序和其实际产生顺序不一致导致数据乱序
-     * 事件时间内对于延迟数据不能无限期等下去,必须要有机制保证在特定时间后会触发窗口计算
-     * watermark本质上是一个时间戳,表示数据流中timestamp小于watermark的数据都已到达从而触发window执行,是一种延迟触发机制,用于处理乱序数据
-     * 标点水位线(Punctuated Watermark)
-     * 定期水位线(Periodic Watermark)
+     * 流处理过程是event - source - operator,由于网络延迟和分布式等原因导致数据乱序,比如kafka多个分区之间的数据就是无序的
+     * 窗口计算时对于事件时间内的延迟数据不能无限期等下去,必须要有某种机制保证到达特定时间(水位线)后就触发窗口计算,该机制就是watermark
+     * 相当于把表调慢了,表示流中时间戳小于水位线的数据都已到达,当水位线越过窗口结束时间时窗口关闭开始计算,是一种延迟触发机制,专门处理乱序/迟到数据
+     * watermark = 进入flink的最大事件时间(maxEventTime) - 指定延迟时间(t)    水位线会随着数据流动不断上升,作为衡量EventTime进展的机制
+     * 指定延迟时间t的设定：太大会导致等待时间过久实时性很差,太小实时性很高但是会漏数据导致结果不准确,数据的乱序程度应该是符合正态分布的,可以先设置
+     * 一个很小的延迟时间hold住大部分延迟数据,剩下少量延迟太久的数据通过allowLateness和sideOutput处理,这样既能保证结果精确也能保证实时性
+     * 触发窗口计算条件：watermark >= windowEnd
+     * 标点水位线(Punctuated Watermark) 每条数据后面都有一个水位线,适用于数据稀少的情况
+     * 定期水位线(Periodic Watermark) 隔几条数据后面会有一个水位线,适用于数据密集的情况
      *
      * 迟到事件
      * 实际上接收到水位线以前的数据是不可避免的,这就是迟到事件,属于乱序事件的特例,它们的乱序程度超出了水位线的预计,在它们到达之前窗口已经关闭
      * 对于迟到事件flink默认是直接丢弃,也可以使用另外两种处理方式
      * allowLateNess是在窗口关闭后一直保留窗口状态至最大允许时长,迟到事件会触发窗口重新计算,保存状态需要更多额外内存,因此该时长不宜过久
      * sideOutPut是最后的兜底操作,所有过期的延迟数据在窗口彻底关闭后会被放到侧输出流,作为窗口计算结果的副产品以便用户获取并对其进行特殊处理
-     * 乱序数据三重保证：watermark - allowLateNess - sideOutput
+     *
+     * 乱序数据三重保证：window - watermark - allowLateNess - sideOutput
+     * window将流数据分块,watermark确定什么时候不再等待更早数据触发窗口计算,allowLateNess将窗口关闭时间再延迟一会儿,sideOutput兜底操作
+     *
+     * flink状态管理
+     * DataStream算子分为有状态和无状态,map/flatmap/filter等简单的转换算子就是无状态的,只和当前输入数据有关,aggregate/window等算子
+     * 通常是有状态的,因为聚合函数或窗口函数输出的结果不仅仅和当前输入数据有关,还和之前所有数据的统计结果有关,这个统计结果就是当前任务的状态
+     * 状态可以理解成本地变量,由于算子转换过程中会涉及序列化/检查点容错等复杂机制,flink运行任务时会自己进行状态管理,开发者只需专注于业务逻辑
+     * 两种类型状态: 算子状态OperatorState、键控状态KeyedState(常用)
+     * flink为每个key维护一个状态实例,并将具有相同key的数据都分到同一个算子任务中,当任务处理一条数据时,会自动将状态的访问范围限定为当前数据的key
      *
      * flink特点：在保证exactly-once精准一次性的同时具有低延迟和高吞吐的处理能力
      * flink的世界观中,一切都是由流组成,离线数据是有界的流,实时数据是无界的流
@@ -73,17 +87,6 @@ object F01_StreamApi {
      *
      * flink程序由三部分组成：Source读取数据源、Transformation利用各种算子加工处理、Sink输出
      * flink运行的程序会被映射成逻辑数据流DataFlows,以一个或多个source开始以一个或多个sink结束,类似于有向无环图DAG
-     *
-     *
-     *
-     * flink状态管理
-     * DataStream算子分为有状态和无状态,map/flatmap/filter等简单的转换算子就是无状态的,只和当前输入数据有关,aggregate/window等算子
-     * 通常是有状态的,因为聚合函数或窗口函数输出的结果不仅仅和当前输入数据有关,还和之前所有数据的统计结果有关,这个统计结果就是当前任务的状态
-     * 状态可以理解成本地变量,由于算子转换过程中会涉及序列化/检查点容错等复杂机制,flink运行任务时会自己进行状态管理,开发者只要专注于业务逻辑即可
-     * 两种类型状态: 算子状态OperatorState、键控状态KeyedState(常用)
-     * KeyedState根据输入数据流中定义的key来维护和访问
-     * flink为每个key维护一个状态实例,并将具有相同key的数据都分到同一个算子任务中
-     * 当任务处理一条数据时,会自动将状态的访问范围限定为当前数据的key
      *
      * could not find implicit value for evidence parameter of type org.apache.flink.api.common.typeinfo.TypeInformation[String]
      * val result:DataSet[(String,Int)] = inputDataSet.flatMap(_.split(" "))

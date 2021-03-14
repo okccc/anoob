@@ -64,7 +64,7 @@ object HotItems {
 //      .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[UserBehavior](Time.milliseconds(30)) {
 //        override def extractTimestamp(element: UserBehavior): Long = element.timestamp * 1000L  // 注意如果单位是秒要*1000
 //      })
-    dataStream.print("data")  // UserBehavior(543462,1715,1464116,pv,1511658000)
+    dataStream.print("data")  // data> UserBehavior(543462,1715,1464116,pv,1511658000)
 
     // 2).按照商品分组聚合
     // 过滤pv行为
@@ -81,7 +81,7 @@ object HotItems {
 
     // 3).按照窗口分组聚合
     val windowEndStream: KeyedStream[ItemViewCount, Tuple] = aggStream.keyBy("windowEnd")
-    // 因为要用到状态编程和定时器,ProcessFunction是flink最底层api,属于终极大招,可以自定义功能实现所有需求,最常用的是KeyedProcessFunction
+    // 涉及状态编程和定时器,ProcessFunction是flink最底层api,属于终极大招,可以自定义功能实现所有需求,最常用的是KeyedProcessFunction
     val resultDataStream: DataStream[String] = windowEndStream.process(new TopNHotItems(5))
     resultDataStream.print("topN")
 
@@ -127,7 +127,6 @@ class ItemViewCountWindow() extends WindowFunction[Int, ItemViewCount, Tuple, Ti
 class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, String] {
   // 先定义状态：每个窗口都应该有一个ListState来保存当前窗口内所有商品对应的count值
   var itemViewCountListState: ListState[ItemViewCount] = _
-
   // 初始化方法,从运行上下文获取当前流的状态
   override def open(parameters: Configuration): Unit = {
     itemViewCountListState = getRuntimeContext.getListState(new ListStateDescriptor[ItemViewCount]("itemViewCount-list", classOf[ItemViewCount]))
@@ -136,13 +135,13 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
   /**
    * 处理输入流中的每个元素
    * @param value 输入元素
-   * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,包括当前处理元素的时间戳和key、注册定时服务、侧输出流
+   * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,包括当前处理元素的时间戳和key、注册定时服务、写数据到侧输出流
    * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素
    */
   override def processElement(value: ItemViewCount, ctx: KeyedProcessFunction[Tuple, ItemViewCount, String]#Context, out: Collector[String]): Unit = {
     // 每来一条数据都添加到状态中
     itemViewCountListState.add(value)
-    // 注册一个windowEnd + 1(ms)之后触发的定时器,比如9点延迟1毫秒后到达watermark,9点的数据肯定都到齐了,9点之前的窗口也都关闭了
+    // 注册一个windowEnd + 1(ms)之后触发的定时器,比如9点延迟1毫秒后到达watermark从而触发窗口执行
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 1)
   }
 
@@ -162,7 +161,7 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
       // 将ListState中的数据添加到ListBuffer
       itemViewCounts += iterator.next()
     }
-    // 清除状态,节约内存空间
+    // 此时状态已经不需要了,提前清除状态,节约内存空间
     itemViewCountListState.clear()
     // 按count值排序取前n个,默认升序,sortBy().reverse相当于排序两次,sortBy()(Ordering.Long.reverse)使用柯里化方式隐式转换,只排序一次
     val sortedItemViewCounts: ListBuffer[ItemViewCount] = itemViewCounts.sortBy((i: ItemViewCount) => i.count)(Ordering.Int.reverse).take(i)
@@ -173,12 +172,12 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
     // 遍历当前窗口的结果列表中的每个ItemViewCount,输出到一行
     for (i <- sortedItemViewCounts.indices) {
       val itemViewCount: ItemViewCount = sortedItemViewCounts(i)
-      sb.append("NO").append(i + 1).append(":\t")
-        .append("商品ID = ").append(itemViewCount.itemId).append("\t")
-        .append("热度 = ").append(itemViewCount.count).append("\n")
+      sb.append("NO").append(i + 1).append(": ")
+        .append("商品ID=").append(itemViewCount.itemId).append("\t")
+        .append("热度=").append(itemViewCount.count).append("\n")
     }
     sb.append("\n==================================\n")
-    // 输出一个窗口后停一下
+    // 输出一个窗口后停1秒
     Thread.sleep(1000)
 
     // 收集结果
