@@ -143,16 +143,16 @@ class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, PageViewCount, Str
   /**
    * 处理所有PageViewCount
    * @param value 输入元素
-   * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,包括当前处理元素的时间戳和key、注册定时服务、写数hive据到侧输出流
+   * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,包括当前处理元素的时间戳和key、注册定时服务、写数据到侧输出流
    * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素,该方法一般用不到out
    */
   override def processElement(value: PageViewCount, ctx: KeyedProcessFunction[Long, PageViewCount, String]#Context, out: Collector[String]): Unit = {
     // 每来一条数据都添加到状态
     pageViewCountListState.add(value)
-    // 注册一个windowEnd + 1(ms)触发的定时器,比如到达09:30:50这个watermark了再延迟1毫秒就执行定时器,watermark更新时会触发新的定时器
+    // 注册一个windowEnd + 1(毫秒)触发的定时器,比如到达09:30:50这个watermark了再延迟1毫秒就执行定时器,watermark更新时会触发新的定时器
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 1)
-    // 注册一个1min后处罚的定时器,此时窗口已经彻底关闭,不会再有聚合结果输出,这时候就可以清空状态了
-    ctx.timerService().registerEventTimeTimer(value.windowEnd + 60000L)
+    // 注册一个windowEnd + 1(分钟)触发的定时器,此时窗口已经彻底关闭,不会再有聚合结果输出,这时候就可以清空状态了
+    ctx.timerService().registerEventTimeTimer(value.windowEnd + 60000)
   }
 
   /**
