@@ -75,7 +75,7 @@ object HotItems {
     // 设置滑动窗口,窗口长度1hour,滑动间隔5min
     val windowedStream: WindowedStream[UserBehavior, Tuple, TimeWindow] = itemIdStream.timeWindow(Time.hours(1), Time.minutes(5))
     // AggregateFunction是一个底层通用函数,直接聚合(itemId,count)无法判断属于哪个窗口,需结合WindowFunction使用,先来一条处理一条做增量聚合
-    // 等窗口关闭时再调用全窗口函数,拿到预聚合状态并添加窗口信息封装成ItemViewCount(itemId, windowEnd, count)得到每个商品在每个窗口的点击量
+    // 等窗口关闭时再调用窗口函数,拿到预聚合状态并添加窗口信息封装成ItemViewCount(itemId, windowEnd, count)得到每个商品在每个窗口的点击量
     val aggStream: DataStream[ItemViewCount] = windowedStream.aggregate(new ItemCountAgg(), new ItemViewCountWindow())
     aggStream.print("agg")
 
@@ -90,7 +90,7 @@ object HotItems {
   }
 }
 
-// 自定义增量聚合函数
+// 自定义预聚合函数
 class ItemCountAgg() extends AggregateFunction[UserBehavior, Int, Int] {
   override def createAccumulator(): Int = 0
   // 聚合状态就是当前商品的count值,来一条数据调用一次add方法,count值+1
@@ -100,7 +100,7 @@ class ItemCountAgg() extends AggregateFunction[UserBehavior, Int, Int] {
 }
 
 /*
- * 自定义全窗口函数
+ * 自定义窗口函数
  * trait WindowFunction[IN, OUT, KEY, W <: Window]
  * IN:  输入的是前面的预聚合结果
  * OUT: 输出的是窗口聚合的结果样例类ItemViewCount(itemId, windowEnd, count)
@@ -121,7 +121,8 @@ class ItemViewCountWindow() extends WindowFunction[Int, ItemViewCount, Tuple, Ti
 }
 
 // 自定义处理函数
-// 所有ProcessFunction都继承自RichFunction接口,都有open/close/getRuntimeContext方法,KeyedProcessFunction还提供了processElement和onTimer方法
+// 所有ProcessFunction都继承自RichFunction接口,都有open/close/getRuntimeContext方法
+// KeyedProcessFunction主要提供了processElement和onTimer方法,泛型参数<K(分组字段类型), I(输入元素类型), O(输出元素类型)>
 // KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
 // ListState接口体系包含add/addAll/update/get/clear等方法
 class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, String] {
@@ -133,15 +134,15 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
   }
 
   /**
-   * 处理输入流中的每个元素
+   * 处理所有ItemViewCount
    * @param value 输入元素
    * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,包括当前处理元素的时间戳和key、注册定时服务、写数据到侧输出流
    * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素
    */
   override def processElement(value: ItemViewCount, ctx: KeyedProcessFunction[Tuple, ItemViewCount, String]#Context, out: Collector[String]): Unit = {
-    // 每来一条数据都添加到状态中
+    // 每来一条数据都添加到状态
     itemViewCountListState.add(value)
-    // 注册一个windowEnd + 1(ms)之后触发的定时器,比如9点延迟1毫秒后到达watermark从而触发窗口执行
+    // 注册一个windowEnd + 1(ms)之后触发的定时器
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 1)
   }
 
@@ -152,7 +153,7 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
    * @param out Collector接口提供了collect方法收集输出结果,可以输出0个或多个元素
    */
   override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Tuple, ItemViewCount, String]#OnTimerContext, out: Collector[String]): Unit = {
-    // ListState本身没有排序功能,需额外定义一个ListBuffer保存ListState的所有数据
+    // 由于ListState本身没有排序功能,需额外定义一个ListBuffer保存ListState的所有数据
     val itemViewCounts: ListBuffer[ItemViewCount] = new ListBuffer[ItemViewCount]
     // 获取ListState的迭代器
     val iterator: util.Iterator[ItemViewCount] = itemViewCountListState.get().iterator()
@@ -163,6 +164,7 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
     }
     // 此时状态已经不需要了,提前清除状态,节约内存空间
     itemViewCountListState.clear()
+
     // 按count值排序取前n个,默认升序,sortBy().reverse相当于排序两次,sortBy()(Ordering.Long.reverse)使用柯里化方式隐式转换,只排序一次
     val sortedItemViewCounts: ListBuffer[ItemViewCount] = itemViewCounts.sortBy((i: ItemViewCount) => i.count)(Ordering.Int.reverse).take(i)
 

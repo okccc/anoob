@@ -19,7 +19,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
  * @date 2021/2/14 11:18
  * @desc flink stream
  */
-object F01_StreamApi {
+object StreamApi {
 
   def main(args: Array[String]): Unit = {
     /**
@@ -34,8 +34,8 @@ object F01_StreamApi {
      *
      * 窗口(window)
      * 窗口是为了周期性的获取数据,类似一分钟一小时这种统计需求,Window将无界流拆分成一个个bucket进行计算,包括滚动窗口、滑动窗口、会话窗口
-     * 窗口生命周期[start, end)是左闭右开的,当属于窗口的第一个元素到达时就会开启新窗口,当时间超过结束时间戳加上用户设置的延迟时长该窗口就会关闭
-     * 定义窗口之前要确定是否要keyBy()将原始流分成逻辑流,KeyedStream允许窗口计算由多个任务并行执行,non-KeyedStream窗口计算由单个任务执行
+     * 窗口生命周期[start, end)左闭右开,当属于窗口的第一个元素到达时就会开启新窗口,当时间超过windowEnd加上用户设置的延时t该窗口就会关闭并计算
+     * 定义窗口之前先确定是否要keyBy()将原始流分成逻辑流,KeyedStream允许窗口计算由多个任务并行执行,non-KeyedStream窗口计算由单个任务执行
      *
      * 时间语义(time)
      * 发生顺序：事件时间(EventTime) - 提取时间(IngestionTime) - 处理时间(ProcessingTime)
@@ -43,12 +43,12 @@ object F01_StreamApi {
      * 所以通常是基于EventTime作为时间推进的考量,让时间进度取决于数据本身而不是任何时钟,配合watermark处理乱序数据也能获得准确结果
      *
      * 水位线(watermark)
-     * 流处理过程是event - source - operator,由于网络延迟和分布式等原因导致数据乱序,比如kafka多个分区之间的数据就是无序的
+     * 流处理过程是event - source - operator,由于网络延迟和分布式等原因会导致数据乱序,比如kafka多个分区之间的数据就是无序的
      * 窗口计算时对于事件时间内的延迟数据不能无限期等下去,必须要有某种机制保证到达特定时间(水位线)后就触发窗口计算,该机制就是watermark
      * 相当于把表调慢了,表示流中时间戳小于水位线的数据都已到达,当水位线越过窗口结束时间时窗口关闭开始计算,是一种延迟触发机制,专门处理乱序/迟到数据
-     * watermark = 进入flink的最大事件时间(maxEventTime) - 指定延迟时间(t)    水位线会随着数据流动不断上升,作为衡量EventTime进展的机制
-     * 指定延迟时间t的设定：太大会导致等待时间过久实时性很差,太小实时性很高但是会漏数据导致结果不准确,数据的乱序程度应该是符合正态分布的,可以先设置
-     * 一个很小的延迟时间hold住大部分延迟数据,剩下少量延迟太久的数据通过allowLateness和sideOutput处理,这样既能保证结果精确也能保证实时性
+     * watermark = 进入flink的最大事件时间(maxEventTime) - 指定延迟时间(t)    水位线会随着数据流动不断上升,是衡量EventTime进展的机制
+     * 指定延迟时间t的设定：太大会导致等待时间过久实时性很差,太小实时性高了但是会漏数据导致结果不准确,数据的乱序程度应该是符合正态分布的,可以先设置
+     * 一个很小的延迟时间hold住大部分延迟数据,剩下少量延迟太久的数据通过allowLateness和sideOutput处理,这样能同时兼顾结果准确性和实时性
      * 触发窗口计算条件：watermark >= windowEnd
      * 标点水位线(Punctuated Watermark) 每条数据后面都有一个水位线,适用于数据稀少的情况
      * 定期水位线(Periodic Watermark) 隔几条数据后面会有一个水位线,适用于数据密集的情况
@@ -60,22 +60,20 @@ object F01_StreamApi {
      * sideOutPut是最后的兜底操作,所有过期的延迟数据在窗口彻底关闭后会被放到侧输出流,作为窗口计算结果的副产品以便用户获取并对其进行特殊处理
      *
      * 乱序数据三重保证：window - watermark - allowLateNess - sideOutput
-     * window将流数据分块,watermark确定什么时候不再等待更早数据触发窗口计算,allowLateNess将窗口关闭时间再延迟一会儿,sideOutput兜底操作
+     * window将流数据分块,watermark确定什么时候不再等待更早的数据触发窗口计算,allowLateNess将窗口关闭时间再延迟一会儿,sideOutput兜底操作
      *
      * flink状态管理
      * DataStream算子分为有状态和无状态,map/flatmap/filter等简单的转换算子就是无状态的,只和当前输入数据有关,aggregate/window等算子
      * 通常是有状态的,因为聚合函数或窗口函数输出的结果不仅仅和当前输入数据有关,还和之前所有数据的统计结果有关,这个统计结果就是当前任务的状态
      * 状态可以理解成本地变量,由于算子转换过程中会涉及序列化/检查点容错等复杂机制,flink运行任务时会自己进行状态管理,开发者只需专注于业务逻辑
      * 两种类型状态: 算子状态OperatorState、键控状态KeyedState(常用)
-     * flink为每个key维护一个状态实例,并将具有相同key的数据都分到同一个算子任务中,当任务处理一条数据时,会自动将状态的访问范围限定为当前数据的key
+     * flink会为每个key维护一个状态实例,并将具有相同key的数据分到同一个算子任务中,当任务处理一条数据时,会将状态的访问范围限定为当前数据的key
+     *
+     *
      *
      * flink特点：在保证exactly-once精准一次性的同时具有低延迟和高吞吐的处理能力
      * flink的世界观中,一切都是由流组成,离线数据是有界的流,实时数据是无界的流
      * flink可以实现批流统一,时间语义可以处理乱序数据,保证结果的正确性
-     *
-     * 数据模型
-     * spark采用RDD模型,SparkStreaming的DStream实际上也是不同批次的RDD集合
-     * flink基本数据模型是数据流,以及事件(Event)序列
      *
      * 运行架构
      * spark本质上是批处理,将DAG划分成不同stage,一个完成后才可以计算下一个
