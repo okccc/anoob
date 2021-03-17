@@ -198,7 +198,7 @@ hive.execution.engine=mr
 -- 查看本地模式
 hive> set hive.exec.mode.local.auto;
 hive.exec.mode.local.auto=false
--- 在输出结果最上面一行打印列名  
+-- 在输出结果最上面一行打印列名
 hive> set hive.cli.print.header=true;
 -- 删除库(加cascade可以删除含有表的数据库)
 hive> drop database test cascade;
@@ -211,12 +211,12 @@ hive> drop table test;
 -- 清空表数据
 hive> truncate table test;
 -- 添加字段(注意：添加新字段后要将原来已经存在的分区先删掉,不然数据加载不进去,如果要调整新字段顺序,可以再用change)
-hive> alter table test add columns(order_id int comment '订单id'); 
+hive> alter table test add columns(order_id int comment '订单id');
 -- 修改字段
-hive> alter table test change column column1 column2 string comment '...' first|after column3;  
+hive> alter table test change column column1 column2 string comment '...' first|after column3;
 -- 删除字段(只保留需要的列,不需要的列删掉,同时也可以更换列的顺序)
-hive> alter table test replace columns(id int, name string);  
--- 删除表分区,如果直接删除HDFS数据目录,表分区还在但没有数据 
+hive> alter table test replace columns(id int, name string);
+-- 删除表分区,如果直接删除HDFS数据目录,表分区还在但没有数据
 hive> alter table test drop partition (dt=20160101);               # 删除单个分区
 hive> alter table test drop partition (dt>=20160101,dt<20170101);  # 删除多个分区
 -- 重命名表
@@ -227,16 +227,17 @@ hive> create temporary table t1_tmp like t1 stored as textfile;
 -- create table as 生成新表并插入数据,表结构取决于select的内容
 hive> create temporary table t1_tmp as select * from t1;
 -- 查看分区信息
-hive> show partitions test;  
+hive> show partitions test;
 -- 查看最小分区
 hive> select min(dt) from test;
--- 查找所有函数 
+-- 查找所有函数
 hive> show functions;
--- 查看某个函数使用案例  
+-- 查看某个函数使用案例
 hive> desc function extended parse_url;
 -- 视图
-hive> create view v01 as select * from debit_info where dt=regexp_replace(date_sub(current_date,1),'-','');  
--- 注册udf,将开发的udf打成jar包上传到HDFS指定目录,然后创建函数  
+hive> create view v01 as select * from debit_info where dt=regexp_replace(date_sub(current_date,1),'-','');
+-- 注册udf,将开发的udf打成jar包上传到HDFS指定目录,然后创建函数
+-- 专门处理json数据的udf地址：https://github.com/klout/brickhouse/tree/master/src/main/java/brickhouse/udf/json
 hive> create function default.url_decode as 'com.qbao.udf.decodeurl' using jar '<HDFS:///lib/decodeurl.jar>';
 
 -- hive查看表统计信息
