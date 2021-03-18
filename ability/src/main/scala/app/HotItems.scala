@@ -66,7 +66,7 @@ object HotItems {
 //      })
     dataStream.print("data")  // data> UserBehavior(543462,1715,1464116,pv,1511658000)
 
-    // 2).按照商品分组聚合
+    // 2).将UserBehavior按照itemId分组聚合
     // 过滤pv行为
     val filterStream: DataStream[UserBehavior] = dataStream.filter((_: UserBehavior).behavior == "pv")
     // 按照商品id分组
@@ -79,7 +79,7 @@ object HotItems {
     val aggStream: DataStream[ItemViewCount] = windowedStream.aggregate(new ItemCountAgg(), new ItemViewCountWindow())
     aggStream.print("agg")
 
-    // 3).按照窗口分组聚合
+    // 3).将ItemViewCount按照windowEnd分组聚合
     val windowEndStream: KeyedStream[ItemViewCount, Tuple] = aggStream.keyBy("windowEnd")
     // 涉及状态编程和定时器,ProcessFunction是flink最底层api,属于终极大招,可以自定义功能实现所有需求,最常用的是KeyedProcessFunction
     val resultDataStream: DataStream[String] = windowEndStream.process(new TopNHotItems(5))
@@ -124,7 +124,7 @@ class ItemViewCountWindow() extends WindowFunction[Int, ItemViewCount, Tuple, Ti
 // 所有ProcessFunction都继承自RichFunction接口,都有open/close/getRuntimeContext方法
 // KeyedProcessFunction主要提供了processElement和onTimer方法,泛型参数<K(分组字段类型), I(输入元素类型), O(输出元素类型)>
 // KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
-// ListState接口体系包含add/addAll/update/get/clear等方法
+// ListState接口体系包含add/update/get/clear等方法
 class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, String] {
   // 先定义状态：每个窗口都应该有一个ListState来保存当前窗口内所有商品对应的count值
   var itemViewCountListState: ListState[ItemViewCount] = _
@@ -153,7 +153,7 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
    * @param out Collector接口提供了collect方法收集输出结果,可以输出0个或多个元素
    */
   override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Tuple, ItemViewCount, String]#OnTimerContext, out: Collector[String]): Unit = {
-    // 由于ListState本身没有排序功能,需额外定义一个ListBuffer保存ListState的所有数据
+    // ListState本身没有排序功能,需额外定义ListBuffer存放ListState中的数据
     val itemViewCounts: ListBuffer[ItemViewCount] = new ListBuffer[ItemViewCount]
     // 获取ListState的迭代器
     val iterator: util.Iterator[ItemViewCount] = itemViewCountListState.get().iterator()
@@ -173,10 +173,10 @@ class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, ItemViewCount, St
     sb.append("窗口结束时间：").append(new Timestamp(timestamp - 1)).append("\n")
     // 遍历当前窗口的结果列表中的每个ItemViewCount,输出到一行
     for (i <- sortedItemViewCounts.indices) {
-      val itemViewCount: ItemViewCount = sortedItemViewCounts(i)
+      val currentItemViewCount: ItemViewCount = sortedItemViewCounts(i)
       sb.append("NO").append(i + 1).append(": ")
-        .append("商品ID=").append(itemViewCount.itemId).append("\t")
-        .append("热度=").append(itemViewCount.count).append("\n")
+        .append("商品ID=").append(currentItemViewCount.itemId).append("\t")
+        .append("热度=").append(currentItemViewCount.count).append("\n")
     }
     sb.append("\n==================================\n")
     // 输出一个窗口后停1秒
