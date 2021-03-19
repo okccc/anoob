@@ -242,7 +242,7 @@ Authorization failed:No privilege 'Select' found for inputs {database:ods}.Use s
 # 直接给用户赋权,如果用户很多时可以分组然后创建角色并赋权给组
 [root@cdh1 ~]# useradd aaa -g common
 hive> show roles;
-hive> show grant role/user/group xxx;
+hive> show grant role /user/group xxx;
 hive> create role guest;
 hive> grant role guest to group common;
 hive> grant all/select on database ods to role guest; 

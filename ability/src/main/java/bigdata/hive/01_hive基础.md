@@ -53,7 +53,7 @@ namenode会等待datanode向它发送块报告,接收到的datanode blocks和tot
 # hive、hiveserver2、beeline
 hive和beeline都是hive客户端,hiveserver和hivesrver2都是hive服务端
 hiveserver是本地模式,只能处理单个请求,已废弃
-hiveserver2是远程连接模式,可以在任意机器使用hive-cli/beeline/hue/jdbc连接
+hiveserver2是远程连接模式,可以在任意机器使用hive或beeline(hue/象数)连接
 # gateway
 由于hive服务没有worker角色,需要另一种机制使客户端的配置传播到集群中其它主机
 # metastore
@@ -238,7 +238,9 @@ hive> desc function extended parse_url;
 hive> create view v01 as select * from debit_info where dt=regexp_replace(date_sub(current_date,1),'-','');
 -- 注册udf,将开发的udf打成jar包上传到HDFS指定目录,然后创建函数
 -- 专门处理json数据的udf地址：https://github.com/klout/brickhouse/tree/master/src/main/java/brickhouse/udf/json
-hive> create function default.url_decode as 'com.qbao.udf.decodeurl' using jar '<HDFS:///lib/decodeurl.jar>';
+hive> create function url_decode as 'com.qbao.udf.decodeurl' using jar 'hdfs:///lib/decodeurl.jar';
+-- 删除函数
+hive> drop function url_decode;
 
 -- hive查看表统计信息
 hive> desc formatted table_name;
