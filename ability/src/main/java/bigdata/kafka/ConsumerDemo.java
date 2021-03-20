@@ -59,9 +59,8 @@ public class ConsumerDemo {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
         // 订阅topic集合
         List<String> list = new ArrayList<>();
-//        list.add("amplitude02");
+        list.add("amplitude02");
 //        list.add("nginx");
-        list.add("test");
         consumer.subscribe(list);
 
         // 3.从kafka拉取数据
