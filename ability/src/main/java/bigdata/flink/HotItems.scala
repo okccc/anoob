@@ -1,4 +1,4 @@
-package app
+package bigdata.flink
 
 import java.sql.Timestamp
 import java.util
@@ -11,7 +11,6 @@ import org.apache.flink.api.java.tuple.{Tuple, Tuple1}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.scala.function.WindowFunction
 import org.apache.flink.streaming.api.windowing.time.Time
@@ -25,7 +24,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * Author: okccc
  * Date: 2021/2/23 11:16 上午
- * Desc: 实时统计一小时内的热门商品,5分钟刷新一次
+ * Desc: 实时统计1小时内的热门商品,5分钟刷新一次
  */
 
 // 定义输入数据的样例类
@@ -72,7 +71,7 @@ object HotItems {
     // 按照商品id分组
     val itemIdStream: KeyedStream[UserBehavior, Tuple] = filterStream.keyBy("itemId")
     itemIdStream.print("keyed")
-    // 设置滑动窗口,窗口长度1hour,滑动间隔5min
+    // 因为有刷新频率,所以要设置滑动时间窗口,一个EventTime可以属于窗口大小(1hour)/滑动间隔(5min)=12个窗口
     val windowedStream: WindowedStream[UserBehavior, Tuple, TimeWindow] = itemIdStream.timeWindow(Time.hours(1), Time.minutes(5))
     // AggregateFunction是一个底层通用函数,直接聚合(itemId,count)无法判断属于哪个窗口,需结合WindowFunction使用,先来一条处理一条做增量聚合
     // 等窗口关闭时再调用窗口函数,拿到预聚合状态并添加窗口信息封装成ItemViewCount(itemId, windowEnd, count)得到每个商品在每个窗口的点击量

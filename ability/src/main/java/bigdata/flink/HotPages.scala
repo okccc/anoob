@@ -1,13 +1,13 @@
-package app
+package bigdata.flink
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util
-import java.util.{Map, Properties}
+import java.util.Properties
 
 import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.api.common.serialization.SimpleStringSchema
-import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, MapState, MapStateDescriptor}
+import org.apache.flink.api.common.state.{MapState, MapStateDescriptor}
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
@@ -73,16 +73,14 @@ object HotPages {
 
     // 2).将LogEvent按照url分组聚合
     // 过滤get请求
-    val filterStream: DataStream[LogEvent] = dataStream.filter((logEvent: LogEvent) => {
-      logEvent.method == "GET" // && !logEvent.url.endsWith("css") && !logEvent.url.endsWith("js")
-    })
+    val filterStream: DataStream[LogEvent] = dataStream.filter((logEvent: LogEvent) => logEvent.method == "GET")
     // 按照页面url分组
-    val keyedStream: KeyedStream[LogEvent, String] = filterStream.keyBy((logEvent: LogEvent) => logEvent.url)
+    val keyedByUrlStream: KeyedStream[LogEvent, String] = filterStream.keyBy((logEvent: LogEvent) => logEvent.url)
     // 创建侧输出流
     val outputTag: OutputTag[LogEvent] = new OutputTag[LogEvent]("late-data")
     // 窗口操作
-    val windowStream: WindowedStream[LogEvent, String, TimeWindow] = keyedStream
-      // 设置滑动时间窗口：一个EventTime可以属于10min/5s=120个窗口
+    val windowStream: WindowedStream[LogEvent, String, TimeWindow] = keyedByUrlStream
+      // 因为有刷新频率,所以要设置滑动时间窗口,一个EventTime可以属于窗口大小(10min)/滑动间隔(5s)=120个窗口
       .timeWindow(Time.minutes(10), Time.seconds(5))
       // 设置允许延迟时长：保持窗口状态1min,只要是在这1分钟时间内进来的迟到数据都会叠加在原先的统计结果上
       .allowedLateness(Time.seconds(60))
@@ -98,9 +96,10 @@ object HotPages {
     aggStream.getSideOutput(outputTag).print("late-data")
 
     // 3).将PageViewCount按照windowEnd分组聚合
-    val windowEndStream: KeyedStream[PageViewCount, Long] = aggStream.keyBy((p: PageViewCount) => p.windowEnd)
-    // 涉及状态编程和定时器,ProcessFunction是flink最底层api,属于终极大招,可以自定义功能实现所有需求,最常用的是KeyedProcessFunction
-    val resultStream: DataStream[String] = windowEndStream.process(new TopNHotPages(3))
+    val keyedByWindowEndStream: KeyedStream[PageViewCount, Long] = aggStream.keyBy((p: PageViewCount) => p.windowEnd)
+    // map/window这些算子是无法访问事件时间戳和水位线的,因此DataStream API提供了一些Low-Level算子,可以访问时间戳/watermark/注册定时事件
+    // ProcessFunction属于底层大招,可以构建基于事件驱动的应用,自定义所有功能,最常用的是KeyedProcessFunction,用来操作KeyedStream
+    val resultStream: DataStream[String] = keyedByWindowEndStream.process(new TopNHotPages(3))
     // topN操作是在定时器里完成
     resultStream.print("topN")
 
@@ -131,8 +130,8 @@ class PageViewCountWindow() extends WindowFunction[Int, PageViewCount, String, T
 }
 
 // 自定义处理函数
-// 所有ProcessFunction都继承自RichFunction接口,都有open/close/getRuntimeContext方法
-// KeyedProcessFunction主要提供了processElement和onTimer方法,泛型参数<K(分组字段类型), I(输入元素类型), O(输出元素类型)>
+// Rich函数和Process函数都继承自RichFunction接口,提供了getRuntimeContext(运行环境上下文)/open(生命周期初始化)/close(生命周期结束)方法
+// KeyedProcessFunction<K(分组字段类型), I(输入元素类型), O(输出元素类型)>,主要提供了processElement和onTimer方法
 // KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
 // MapState接口体系包含put/get/entries/clear等方法
 class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, PageViewCount, String] {
@@ -154,7 +153,7 @@ class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, PageViewCount, Str
     // 添加或更新状态
     pageViewCountMapState.put(value.url, value.count)
     // 每来一个PageViewCount就会注册一个定时器,但是只有当水位线更新时才会往下游传递,不然还是之前的水位线,下游收不到新的水位线就不会触发定时器
-    // 注册一个windowEnd + 1(毫秒)触发的定时器,比如到达09:30:50这个watermark了再延迟1毫秒就执行定时器,watermark有更新才会触发新的定时器
+    // 注册一个windowEnd + 1(毫秒)触发的定时器,比如到达09:30:50这个watermark了再延迟1毫秒就执行定时器
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 1)
     // 注册一个windowEnd + 1(分钟)触发的定时器,此时窗口等待1分钟后已经彻底关闭,不会再有聚合结果输出,这时候就可以清空状态了
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 60000)

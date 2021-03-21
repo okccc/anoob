@@ -19,7 +19,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
  * @date 2021/2/14 11:18
  * @desc flink stream
  */
-object StreamApi {
+object F01_StreamApi {
 
   def main(args: Array[String]): Unit = {
     /**
@@ -35,7 +35,7 @@ object StreamApi {
      * 窗口(window)
      * 窗口是为了周期性的获取数据,类似一分钟一小时这种统计需求,Window将无界流拆分成一个个bucket进行计算,包括滚动窗口、滑动窗口、会话窗口
      * 窗口生命周期[start, end)左闭右开,当属于窗口的第一个元素到达时就会开启新窗口,当时间超过windowEnd加上用户设置的延时t该窗口就会关闭并计算
-     * 定义窗口之前先确定是否要keyBy()将原始流分成逻辑流,KeyedStream允许窗口计算由多个任务并行执行,non-KeyedStream窗口计算由单个任务执行
+     * 定义窗口之前可以先keyBy()将原始数据流按照key划分到不同区,KeyedStream窗口由多个任务并行执行,non-KeyedStream窗口由单个任务执行
      *
      * 时间语义(time)
      * 发生顺序：事件时间(EventTime) - 提取时间(IngestionTime) - 处理时间(ProcessingTime)
@@ -69,11 +69,9 @@ object StreamApi {
      * 两种类型状态: 算子状态OperatorState、键控状态KeyedState(常用)
      * flink会为每个key维护一个状态实例,并将具有相同key的数据分到同一个算子任务中,当任务处理一条数据时,会将状态的访问范围限定为当前数据的key
      *
+     * 为什么用flink代替spark？
+     * flink低延迟、高吞吐更适合流式数据场景,EventTime + Watermark可以处理乱序数据,exactly-once可以保证状态一致性
      *
-     *
-     * flink特点：在保证exactly-once精准一次性的同时具有低延迟和高吞吐的处理能力
-     * flink的世界观中,一切都是由流组成,离线数据是有界的流,实时数据是无界的流
-     * flink可以实现批流统一,时间语义可以处理乱序数据,保证结果的正确性
      *
      * 运行架构
      * spark本质上是批处理,将DAG划分成不同stage,一个完成后才可以计算下一个
