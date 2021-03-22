@@ -78,7 +78,7 @@ object HotPages {
     val keyedByUrlStream: KeyedStream[LogEvent, String] = filterStream.keyBy((logEvent: LogEvent) => logEvent.url)
     // 创建侧输出流
     val outputTag: OutputTag[LogEvent] = new OutputTag[LogEvent]("late-data")
-    // 窗口操作
+    // 窗口操作,KeyedStream对应timeWindow方法,non-KeyedStream对应timeWindowAll方法
     val windowStream: WindowedStream[LogEvent, String, TimeWindow] = keyedByUrlStream
       // 因为有刷新频率,所以要设置滑动时间窗口,一个EventTime可以属于窗口大小(10min)/滑动间隔(5s)=120个窗口
       .timeWindow(Time.minutes(10), Time.seconds(5))
@@ -109,6 +109,7 @@ object HotPages {
 }
 
 // 自定义预聚合函数
+// flink函数式编程提供了所有udf函数的接口(实现方式为接口或抽象类),MapFunction/AggregateFunction/WindowFunction/ProcessFunction...
 class PageCountAgg() extends AggregateFunction[LogEvent, Int, Int] {
   override def createAccumulator(): Int = 0
   // 聚合状态就是当前页面的count值,来一条数据调用一次add方法,count值+1
@@ -130,7 +131,8 @@ class PageViewCountWindow() extends WindowFunction[Int, PageViewCount, String, T
 }
 
 // 自定义处理函数
-// Rich函数和Process函数都继承自RichFunction接口,提供了getRuntimeContext(运行环境上下文)/open(生命周期初始化)/close(生命周期结束)方法
+// flink所有函数都有其对应的Rich版本,Rich函数和Process函数都继承自RichFunction接口,提供了三个特有方法
+// getRuntimeContext(运行环境上下文)/open(生命周期初始化,比如数据库连接)/close(生命周期结束,比如关闭数据库连接、清空状态等)
 // KeyedProcessFunction<K(分组字段类型), I(输入元素类型), O(输出元素类型)>,主要提供了processElement和onTimer方法
 // KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
 // MapState接口体系包含put/get/entries/clear等方法
