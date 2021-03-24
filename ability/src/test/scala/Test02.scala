@@ -1,3 +1,5 @@
+import java.net.URLDecoder
+
 import org.junit.Test
 
 import scala.util.Random
@@ -6,8 +8,13 @@ class Test02 {
 
   @Test
   def testRandom(): Unit = {
-    println(Random.nextInt(10))
-    println(Random.nextDouble())
+    // 生成随机整数
+    println(Random.nextInt(10))  // [0, 10)
+    // 生成随机浮点数
+    println(Random.nextDouble())  // [0.0, 1.0)
+    // 生成随机字符串
+    val alpha: String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    println((1 to 10).map((_: Int) => alpha(Random.nextInt.abs % alpha.length)).mkString)
   }
 
   @Test
