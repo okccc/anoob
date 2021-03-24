@@ -73,6 +73,10 @@ object F01_StreamApi {
      * flink低延迟、高吞吐更适合流式数据场景,EventTime + Watermark可以处理乱序数据,exactly-once可以保证状态一致性
      *
      *
+     * 分流操作：DataStream.split  已弃用
+     * 合流操作：DataStream.connect/union
+     *
+     *
      * 运行架构
      * spark本质上是批处理,将DAG划分成不同stage,一个完成后才可以计算下一个
      * flink是标准的流处理,一个事件在一个节点处理完之后可以直接发往下一个节点进行处理,有头没尾源源不断
