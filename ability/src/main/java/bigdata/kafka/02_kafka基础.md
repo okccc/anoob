@@ -219,7 +219,7 @@ offset
 Topic creation {"version":1,"partitions":{"1":[1,2,0],"0":[0,1,2]}}
 Created topic "t01".
 
-# 查看topic列表/详细信息
+# 查看topic列表/详细信息,本地命令行也可以连接生产环境的kafka,只要指定对应的zk和kafka地址即可
 [root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181,cdh2:2181,cdh3:2181 --list
 [root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181,cdh2:2181,cdh3:2181 --describe [--topic t01]
 Topic:t01       PartitionCount:3        ReplicationFactor:2     Configs:
