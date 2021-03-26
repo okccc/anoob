@@ -26,11 +26,12 @@ case class UVCount(windowEnd: Long, count: Int)
 object UniqueVisitor {
   def main(args: Array[String]): Unit = {
     /**
-     * 缓存穿透问题
+     * 缓存穿透
      * 生产环境中会把一些数据放到redis做缓存,查询请求过来的时候会先查缓存,有就直接返回没有就再去查数据库并把查询结果放入缓存
      * 但是如果有大量请求都在查询一个不存在的userId,既然不存在那么肯定没有缓存,所以这些请求都会怼到数据库,可能会把数据库干翻
      *
-     *
+     * 海量数据去重
+     * 一亿userId存储空间大小：10^8 * 10byte ≈ 1g 使用set集合存储对服务器内存压力很大,redis也消耗不起这么多数据
      */
 
     // 1.创建流处理执行环境
@@ -62,6 +63,8 @@ object UniqueVisitor {
     // 可以先map映射成("uv", 1)元组,再按元组的第一个字段"uv"进行分组得到KeyedStream,这样就可以使用timeWindow
     // 不涉及刷新频率,分配滚动窗口即可
     val allWindowStream: AllWindowedStream[UserBehavior, TimeWindow] = filterStream.timeWindowAll(Time.hours(1))
+    // 窗口关闭后的操作
+    allWindowStream.apply(new UVCountWindow())
 
     // 4.Sink操作
 
@@ -72,5 +75,12 @@ object UniqueVisitor {
 }
 
 
+class UVCountWindow() extends AllWindowFunction[UserBehavior, UVCount, TimeWindow] {
+  override def apply(window: TimeWindow, input: Iterable[UserBehavior], out: Collector[UVCount]): Unit = {
+    // 存放userId的set集合
+    val userIdSet: Set[Int] = Set[Int]()
 
+
+  }
+}
 
