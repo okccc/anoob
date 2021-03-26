@@ -286,6 +286,12 @@
                 <artifactId>flink-json</artifactId>
                 <version>${flink.version}</version>
             </dependency>
+            <!-- 布隆过滤器 -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>29.0-jre</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
