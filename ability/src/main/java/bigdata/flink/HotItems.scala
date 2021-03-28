@@ -41,7 +41,7 @@ object HotItems {
     // 时间语义：EventTime事件创建时间(常用) | IngestionTime数据进入flink时间 | ProcessingTime执行基于时间操作的算子的机器的本地时间
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
-    // 2.读取kafka数据
+    // 2.Source操作
     val prop: Properties = new Properties()
     prop.put("bootstrap.servers", "localhost:9092")              // kafka地址
     prop.put("group.id", "consumer-group")                       // 消费者组
@@ -49,7 +49,7 @@ object HotItems {
     prop.put("value.deserializer", classOf[StringDeserializer])  // value反序列化器
     val inputStream: DataStream[String] = env.addSource(new FlinkKafkaConsumer[String]("nginx", new SimpleStringSchema(), prop))
 
-    // 3.转换处理
+    // 3.Transform操作
     // 1).将流数据封装成样例类对象,并提取时间戳生成watermark,方便后续窗口操作
     val dataStream: DataStream[UserBehavior] = inputStream
       .map((line: String) => {
@@ -80,9 +80,11 @@ object HotItems {
     val windowEndStream: KeyedStream[HotItemCount, Tuple] = aggStream.keyBy("windowEnd")
     // 涉及状态编程和定时器,ProcessFunction是flink最底层api,属于终极大招,可以自定义功能实现所有需求,最常用的是KeyedProcessFunction
     val resultDataStream: DataStream[String] = windowEndStream.process(new TopNHotItems(5))
+
+    // 4.sink操作
     resultDataStream.print("topN")
 
-    // 4.启动任务
+    // 5.启动任务
     env.execute("hot items")
   }
 }
@@ -120,7 +122,6 @@ class HotItemCountWindow() extends WindowFunction[Int, HotItemCount, Tuple, Time
 // 自定义处理函数
 // 所有ProcessFunction都继承自RichFunction接口,都有open/close/getRuntimeContext方法
 // KeyedProcessFunction主要提供了processElement和onTimer方法,泛型参数<K(分组字段类型), I(输入元素类型), O(输出元素类型)>
-// KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
 class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, HotItemCount, String] {
   // 先定义状态：每个窗口都应该有一个ListState来保存当前窗口内所有商品对应的count值,ListState接口体系包含add/update/get/clear等方法
   var itemViewCountListState: ListState[HotItemCount] = _

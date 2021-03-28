@@ -37,7 +37,7 @@ object PageView {
     // 设置时间语义
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
-    // 2.读取kafka数据
+    // 2.Source操作
     val prop: Properties = new Properties()
     prop.put("bootstrap.servers", "localhost:9092")
     prop.put("group.id", "consumer-group")
@@ -45,8 +45,8 @@ object PageView {
     prop.put("value.deserializer", classOf[StringDeserializer])
     val inputStream: DataStream[String] = env.addSource(new FlinkKafkaConsumer[String]("nginx", new SimpleStringSchema(), prop))
 
-    // 3.转换处理
-    // 1).将流数据封装成样例类对象,并提取时间戳生成watermark
+    // 3.Transform操作
+    // 1).将流数据封装成样例类对象,并提取事件时间生成watermark
     val dataStream: DataStream[UserBehavior] = inputStream
       .map((data: String) => {
         val words: Array[String] = data.split(",") // 543462,1715,1464116,pv,1511658000
@@ -56,25 +56,28 @@ object PageView {
 
     // 2).统计pv值
     val filterStream: DataStream[UserBehavior] = dataStream.filter((u: UserBehavior) => u.behavior == "pv")
-    // 由于计算pv本身不涉及keyBy操作,DataStream只能使用timeWindowAll,所有数据都会发送到一个slot做窗口计算,并行度是1无法充分利用集群资源
-    // 先map映射成("pv", 1)元组,再按元组的第一个字段"pv"进行分组得到KeyedStream,这样就可以使用timeWindow
+    // 计算pv本身不涉及keyBy操作,DataStream只能使用timeWindowAll,所有数据都会发送到一个slot,并行度是1无法充分利用集群资源
+    // 可以先map映射成("pv", 1)元组,再按元组的第一个字段"pv"进行分组得到KeyedStream,这样就可以使用timeWindow
 //    val mapStream: DataStream[(String, Int)] = filterStream.map((_: UserBehavior) => ("pv", 1))
     val mapStream: DataStream[(String, Int)] = filterStream.map(new MyMapper())
-    // 前面算子并行度都是cpu核数,到keyBy这里并行度只有1,因为所有数据都会分到"pv"这个slot,所以map逻辑要优化成并行的
+    // 前面算子并行度都是cpu核数,到keyBy这里并行度只有1,因为所有数据都会分到"pv"这个slot,相当于还是timeWindowAll,所以map逻辑要优化成并行的
     // 生产环境中以userId/itemId作为key进行分组时,如果某个用户/商品的数据特别多就会导致数据倾斜,此时也可以自定义map逻辑重新设计key
     val keyedStream: KeyedStream[(String, Int), String] = mapStream.keyBy((t: (String, Int)) => t._1)
     // 不涉及刷新频率,分配滚动窗口即可
     val windowStream: WindowedStream[(String, Int), String, TimeWindow] = keyedStream.timeWindow(Time.hours(1))
     // 关闭窗口后的聚合操作
     val aggStream: DataStream[PVCount] = windowStream.aggregate(new PVCountAgg(), new PVCountWindow())
+//    aggStream.print()
 
     // 3).将DatStream[PVCount]按照windowEnd分组聚合
     val keyedByWindowEndStream: KeyedStream[PVCount, Long] = aggStream.keyBy((pv: PVCount) => pv.windowEnd)
     // 将各个slot里的数据结果进行汇总得到最终的pv值
     val resultStream: DataStream[PVCount] = keyedByWindowEndStream.process(new PVCountResult())
+
+    // 4.Sink操作
     resultStream.print("pv")
 
-    // 4.启动任务
+    // 5.启动任务
     env.execute("page view")
   }
 }
@@ -111,7 +114,7 @@ class MyMapper() extends MapFunction[UserBehavior, (String, Int)] {
 
 // 自定义处理函数
 class PVCountResult() extends KeyedProcessFunction[Long, PVCount, PVCount] {
-  // 定义状态保存当前窗口的pv值,ValueState接口体系包含value/update/clear等方法
+  // 先定义状态：每个窗口都应该有一个ValueState来保存当前窗口的pv值,ValueState接口体系包含value/update/clear等方法
   lazy val pvCountValueState: ValueState[Int] = getRuntimeContext.getState(new ValueStateDescriptor[Int]("pv", classOf[Int]))
 
   // 处理每个过来的PVCount

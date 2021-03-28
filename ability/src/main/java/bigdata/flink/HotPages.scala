@@ -43,7 +43,7 @@ object HotPages {
     // 可以自定义水位线生成间隔
     env.getConfig.setAutoWatermarkInterval(100)
 
-    // 2.读取kafka数据
+    // 2.Source操作
     val prop: Properties = new Properties()
     prop.put("bootstrap.servers", "localhost:9092")
     prop.put("group.id", "consumer-group")
@@ -51,7 +51,7 @@ object HotPages {
     prop.put("value.deserializer", classOf[StringDeserializer])
     val inputStream: DataStream[String] = env.addSource(new FlinkKafkaConsumer[String]("nginx", new SimpleStringSchema(), prop))
 
-    // 3.转换处理
+    // 3.Transform操作
     // 1).将流数据封装成样例类对象,并提取事件时间生成watermark
     val dataStream: DataStream[LogEvent] = inputStream
       .map((line: String) => {
@@ -110,10 +110,11 @@ object HotPages {
     // map/window这些算子是无法访问事件时间和水位线的,因此DataStream API提供了一些Low-Level算子,可以访问时间戳/watermark/注册定时事件
     // ProcessFunction属于底层大招,可以构建基于事件驱动的应用,自定义所有功能,最常用的是KeyedProcessFunction,用来操作KeyedStream
     val resultStream: DataStream[String] = keyedByWindowEndStream.process(new TopNHotPages(3))
-    // topN操作是在定时器里完成
+
+    // 4.Sink操作
     resultStream.print("topN")
 
-    // 4.启动任务
+    // 5.启动任务,流处理有头没尾源源不断,开启后一直监听直到手动关闭
     env.execute("hot pages")
   }
 }
@@ -137,7 +138,7 @@ class HotPageCountAgg() extends AggregateFunction[LogEvent, Int, Int] {
  * 自定义窗口函数
  * trait WindowFunction[IN, OUT, KEY, W <: Window]
  * IN:  输入元素类型,就是前面的预聚合结果,Int
- * OUT: 输出的是窗口聚合的结果样例类PageViewCount(url, windowEnd, count)
+ * OUT: 输出的是窗口聚合的结果样例类HotPageCount(url, windowEnd, count)
  * KEY: 分组字段类型,url字符串
  * W:   窗口分配器分配的窗口类型,一般都是时间窗口,W <: Window表示上边界,即W必须是Window类型或其子类
  */
@@ -162,14 +163,14 @@ class HotPageCountWindow() extends WindowFunction[Int, HotPageCount, String, Tim
 class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, HotPageCount, String] {
   /*
    * flink所有函数都有其对应的Rich版本,Rich函数和Process函数都继承自RichFunction接口,提供了三个特有方法
-   * getRuntimeContext(运行环境上下文)/open(生命周期初始化,比如数据库连接)/close(生命周期结束,比如关闭数据库连接、清空状态等)
+   * getRuntimeContext(运行环境上下文)/open(生命周期初始化,比如创建数据库连接)/close(生命周期结束,比如关闭数据库连接、清空状态等)
    * KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
-   * MapState接口体系包含put/get/entries/clear等方法
    */
 
-  // 先定义状态,由于迟到数据的存在,每来一条迟到数据都会有对应等待窗口的PageViewCount更新,如果某个窗口连续来了几条相同url的迟到数据
-  // 就会生成多个相同url的PageViewCount进入process方法的定时器进行排序,如果使用ListState状态会直接add,导致同一个url被多次排序
-  // 合理做法应该是先判断进来的url是否已存在,存在就覆盖不存在就添加,所以应该用MapState状态
+  // 先定义状态：每个窗口都应该有一个状态来保存当前窗口内所有页面对应的count值
+  // 由于迟到数据的存在,每来一条迟到数据都会有对应等待窗口的HotPageCount更新,如果某个窗口连续来几条相同url的迟到数据,就会生成多个相同url的
+  // HotPageCount进入process方法的定时器排序,ListState状态无法做到键相同值覆盖,会导致同一个url被多次排序,针对迟到数据场景的状态管理应该
+  // 使用键值对存储,先判断进来的迟到数据的url是否已存在,存在就更新不存在就新增,MapState接口体系包含put/get/remove/entries/clear等方法
 //  lazy val pageViewCountListState: ListState[HotPageCount] = getRuntimeContext
 //    .getListState(new ListStateDescriptor[HotPageCount]("pageViewCount-list", classOf[HotPageCount]))
   lazy val pageViewCountMapState: MapState[String, Int] = super.getRuntimeContext
