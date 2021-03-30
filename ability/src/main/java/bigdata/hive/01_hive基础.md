@@ -200,6 +200,9 @@ hive> set hive.exec.mode.local.auto;
 hive.exec.mode.local.auto=false
 -- 在输出结果最上面一行打印列名
 hive> set hive.cli.print.header=true;
+-- 查看数据库信息
+hive> desc database ods;
+ods    hdfs://dev-jiliguala/user/hive/warehouse/ods.db deploy USER
 -- 删除库(加cascade可以删除含有表的数据库)
 hive> drop database test cascade;
 -- 模糊搜索表
