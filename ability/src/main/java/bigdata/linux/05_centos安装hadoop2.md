@@ -452,6 +452,7 @@ hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 
 # web页面监控
 http://cdh1:50070    # active/standby
+http://cdh1:10002    # hive
 http://cdh1:8088     # yarn  
 http://cdh1:19888    # mr job history
 http://cdh1:8080     # master(如果8080端口被占用,MasterUI会尝试8081端口,WorkerUI会顺延到8082端口,可通过spark启动日志查看)
