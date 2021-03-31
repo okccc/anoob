@@ -534,8 +534,8 @@ mysql> source mock.sql
 # 模拟更新数据
 [root@cdh1 ~]$ vim application.properties
 [root@cdh1 ~]$ java -jar mock-db.jar
-# 给canal账号赋予权限
-grant all privileges on *.* to 'canal'@'%' identified by 'canal';
+# 注意：要给canal账号读binlog的权限,主要是REPLICATION SLAVE
+mysql> grant all privileges on *.* to 'canal'@'%' identified by 'canal';
 ```
 
 ### canal
