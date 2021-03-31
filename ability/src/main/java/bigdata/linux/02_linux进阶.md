@@ -114,7 +114,8 @@ cat access.log | grep "23/Jan/2019" | awk '{print $2}' | cut -c 1-2 | sort | uni
 ### grep
 ```shell script
 # grep(global search re print) - print lines matching a pattern 基于行的文本搜索工具 
-# 格式: grep -option 'str/re' file  
+# 格式: grep -option 'str/re' file
+-a           # 将.log二进制文件当成文本处理,不然会Binary file 000001.log matches
 -c           # 统计符合要求的行数  
 -i           # 忽略大小写  
 -n           # 输出时带上行号  
@@ -133,7 +134,7 @@ grep '[^r]' a.txt               # 选取不包含某个字符的行
 grep '^import' a.txt            # 选取以import开头的行  
 grep 'bin$' a.txt               # 选取以bin结尾的行  
 grep -v '^$' a.txt              # 选取非空行  
-grep 'mysql' *.sh               # 查看包含mysql的脚本    
+grep -a 'test' *.log            # 查看包含test的log文件  
 # 查找当前目录下用到debit_order表的sql文件并统计使用次数
 grep 'debit_order' *.sql | awk -F: '{print $1}' | uniq -c | sort -nr
 # 将当前目录下所有文件的jlgl替换成dev-jlgl
