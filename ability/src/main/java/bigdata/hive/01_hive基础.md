@@ -139,6 +139,12 @@ insert overwrite table ods.tickets_order partition(dt)
 select *,
        case when create_time >= '2016-01-01' then regexp_replace(substr(create_time,0,10),'-','') else 20151231 end
 from temp.tickets_order;
+
+-- hive中文乱码
+-- 修改存放hive元数据信息的数据库表字符集
+alter table COLUMNS_V2 modify column COMMENT varchar(256) character set utf8;
+alter table TABLE_PARAMS modify column PARAM_VALUE varchar(4000) character set utf8;
+alter table PARTITION_KEYS modify column PKEY_COMMENT varchar(4000) character set utf8;
 ```
 
 ### IMPALA
