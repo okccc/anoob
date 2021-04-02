@@ -12,9 +12,10 @@ do
         hive -e "use ${database}; show create table ${eachline};" >> "${database}"_tables_ddl.txt
         echo ";" >> "${database}"_tables_ddl.txt
     done
-    sed -i '/WARN/d;/LOCATION/d;/hdfs/d' "${database}"_tables_ddl.txt
-    sed -i 's/CREATE TABLE/CREATE TABLE IF NOT EXISTS/g' "${database}"_tables_ddl.txt
 done
+sed -i '/WARN/d' "${database}"_tables_ddl.txt
+sed -i 's/jiliguala/dev-jiliguala/g' "${database}"_tables_ddl.txt
+sed -i 's/CREATE TABLE/CREATE TABLE IF NOT EXISTS/g' "${database}"_tables_ddl.txt
 
 # 新集群hive导入表结构
-hive -f "${database}"_tables_ddl.txt
+sudo -u hive hive -f "${database}"_tables_ddl.txt
