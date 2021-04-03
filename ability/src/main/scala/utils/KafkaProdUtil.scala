@@ -43,11 +43,13 @@ object KafkaProdUtil {
   def main(args: Array[String]): Unit = {
     // 读取文件数据写入kafka
     val topicName: String = "nginx"
-    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/UserBehavior.csv")
+//    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/UserBehavior.csv")
+//    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/AdClickLog.csv")
+    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/LoginLog.csv")
 //    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/apache.log")
     for (line <- bufferedSource.getLines()) {
+      println(line)
       sendMsg(topicName, line)
     }
   }
-
 }
