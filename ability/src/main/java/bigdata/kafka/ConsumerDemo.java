@@ -60,8 +60,8 @@ public class ConsumerDemo {
         // 订阅topic集合
         List<String> list = new ArrayList<>();
 //        list.add("amplitude02");
-//        list.add("nginx-test");
-        list.add("eduplatform0");
+//        list.add("eduplatform0");
+        list.add("eduplatform-fat");
         consumer.subscribe(list);
 
         // 3.从kafka拉取数据
