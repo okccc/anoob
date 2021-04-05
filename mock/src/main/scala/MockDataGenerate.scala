@@ -57,7 +57,7 @@ object MockDataGenerate {
     // 创建存放用户数据的可变数组
     val rows: ArrayBuffer[UserInfo] = ArrayBuffer[UserInfo]()
     // 创建随机数生成器对象
-    val random = new Random()
+    val random: Random = new Random()
     // 用户性别
     val sexes: Array[String] = Array("male", "female")
     // 随机产生100个用户的个人信息
