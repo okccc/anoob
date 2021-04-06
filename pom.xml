@@ -292,6 +292,12 @@
                 <artifactId>guava</artifactId>
                 <version>29.0-jre</version>
             </dependency>
+            <!-- flink专门处理复杂事件的包 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-cep-scala_2.12</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
