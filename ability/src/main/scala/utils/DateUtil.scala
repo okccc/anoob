@@ -15,11 +15,23 @@ object DateUtil {
 
   // 日期时间格式常量
   val DATE_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
+  val HOUR_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("HH")
+  val DATE_HOUR_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH")
   val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
   // timestamp -> "yyyy-MM-dd"
   def parseUnixToDate(timestamp: Long): String = {
     new DateTime(new Date(timestamp)).toString(DATE_FORMATTER)
+  }
+
+  // timestamp -> "HH"
+  def parseUnixToHour(timestamp: Long): String = {
+    new DateTime(new Date(timestamp)).toString(HOUR_FORMATTER)
+  }
+
+  // timestamp -> "yyyy-MM-dd HH"
+  def parseUnixToDateHour(timestamp: Long): String = {
+    new DateTime(new Date(timestamp)).toString(DATE_HOUR_FORMATTER)
   }
 
   // timestamp -> "yyyy-MM-dd HH:mm:ss"
@@ -82,7 +94,7 @@ object DateUtil {
     DateTime.now().plusDays(n).toString(DATE_FORMATTER)
   }
 
-  // 今天 - n天/周/月/年
+  // 今天日期 - n天/周/月/年
   def getMinusDay(n: Int): String = {
     DateTime.now().minusDays(n).toString(DATE_FORMATTER)
   }
@@ -127,8 +139,9 @@ object DateUtil {
 
   def main(args: Array[String]): Unit = {
 //    println(new Timestamp(1511658661000L))
-//    println(parseUnixToDate(1608011762573L))
-    println(parseUnixToDateTime(1616651926928L))
+    println(parseUnixToDate(1608011762573L))
+    println(parseUnixToHour(1608011762573L))
+    println(parseUnixToDateHour(1608011762573L))
+    println(parseUnixToDateTime(1608011762573L))
   }
-
 }
