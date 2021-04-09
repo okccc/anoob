@@ -1,3 +1,56 @@
+### auth
+![](images/权限.png) 
+```shell script
+# sudo(superuser do)
+# 当前用户执行sudo命令时,系统会自动寻找/etc/sudoers,判断该用户是否有执行sudo的权限,有就输入密码确认,当然也可以设置不用输入密码
+-u      # 切换用户执行,不指定默认root
+[root@cdh1 ~]$ visudo
+# root用户权限,第一个ALL表示允许从任何终端访问sudo,第二个ALL表示任何用户都可以执行sudo命令,第三个ALL表示可以向root一样执行所有命令
+root      ALL = (ALL) ALL
+# 设置deploy用户拥有所有root权限且不用输入密码
+deploy    ALL = (ALL)   NOPASSWD: ALL
+# 设置tomcat用户拥有启动tomcat权限且不用输入密码
+tomcat    ALL = (ALL) NOPASSWD: /usr/local/tomcat/bin/startup.sh
+# 设置admin用户组的用户在不输入该用户密码的情况下使用所有命令
+%admin	  ALL = (ALL) NOPASSWD: ALL
+[deploy@cdh1 ~]$ sudo start.sh  # 使用deploy账号执行root权限的脚本,其它账号则需-u指定用户名再执行命令
+[deploy@cdh1 ~]$ sudo -u hdfs hadoop fs -mkdir -p /data/aaa  # 使用deploy账号执行hdfs权限的命令
+
+# linux用户
+[root@cdh1 ~]$ cat /etc/passwd | head -3
+# 用户名:密码(x表示密码保存在/etc/shadow):用户id(0root,1~99系统用户,100~999其它账户):组id:用户信息:主目录:命令解释程序
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+
+# linux组
+[root@cdh1 ~]$ cat /etc/group | head -3
+# 组名:密码(x表示密码保存在/etc/gshadow):组id:组成员
+root:x:0:
+bin:x:1:bin,daemon
+daemon:x:2:bin,daemon
+
+# 添加新用户(组),只有root有这个权限
+[root@cdh1 ~]$ groupadd g1         # 创建组  
+[root@cdh1 ~]$ useradd u1 -g g1    # 创建用户并指定组,默认主目录/home/xxx
+[root@cdh1 ~]$ groupmems -g g1 -a u1  # 将u1用户添加到g1组
+[root@cdh1 ~]$ passwd u1           # 设置密码
+[root@cdh1 ~]$ su u1               # 切换用户 
+[root@cdh1 ~]$ groupdel g1         # 删除组,如果组内有用户要先删用户  
+[root@cdh1 ~]$ userdel -r u1       # 删除用户及主目录  
+[root@cdh1 ~]$ id bigdata          # 查看bigdata用户的uid/gid/groups 
+uid=1006(bigdata) gid=0(root) groups=0(root),1000(deploy),985(hive)
+[root@cdh1 ~]$ groups bigdata      # 显示用户所属的组 
+bigdata : root deploy hive
+
+# 修改权限
+[root@cdh1 ~]$ chmod 755 a.txt                       # 修改文件的rwx权限
+[root@cdh1 ~]$ chmod +x roll.sh                      # 给脚本添加x权限
+[root@cdh1 ~]$ chmod -R a+rwx /usr/local/mysql/data  # 给所有用户添加rwx权限 
+[root@cdh1 ~]$ chown -R root data                    # 将data及其所有子目录所属用户都改为root(-r表示级联)
+[root@cdh1 ~]$ chown -R root:root data               # 将data目录所属用户和组都改为root
+```
+
 ### os
 ```shell script
 # RHEL(Red Hat Enterprise Linux)：红帽公司发布的面向企业的linux操作系统,收费
@@ -339,58 +392,6 @@ ctrl + z 暂停前台运行的命令并放到后台
  11:32:35 up 692 days, 20:04,  1 user,  load average: 0.43, 0.21, 0.21
 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
 root     pts/0    10.9.6.148       11:08    3.00s  0.03s  0.00s w
-```
-
-### auth
-![](images/权限.png) 
-```shell script
-# sudo(superuser do)
-# 当前用户执行sudo命令时,系统会自动寻找/etc/sudoers,判断该用户是否有执行sudo的权限,有就输入密码确认,当然也可以设置不用输入密码
--u      # 切换用户执行,不指定默认root
-[root@cdh1 ~]$ visudo
-# root用户权限,第一个ALL表示允许从任何终端访问sudo,第二个ALL表示任何用户都可以执行sudo命令,第三个ALL表示可以向root一样执行所有命令
-root      ALL = (ALL) ALL
-# 设置deploy用户拥有所有root权限且不用输入密码
-deploy    ALL = (ALL)   NOPASSWD: ALL
-# 设置tomcat用户拥有启动tomcat权限且不用输入密码
-tomcat    ALL = (ALL) NOPASSWD: /usr/local/tomcat/bin/startup.sh
-# 设置admin用户组的用户在不输入该用户密码的情况下使用所有命令
-%admin	  ALL = (ALL) NOPASSWD: ALL
-[deploy@cdh1 ~]$ sudo start.sh  # 使用deploy账号执行root权限的脚本,其它账号则需-u指定用户名再执行命令
-[deploy@cdh1 ~]$ sudo -u hdfs hadoop fs -mkdir -p /data/aaa  # 使用deploy账号执行hdfs权限的命令
-
-# linux用户
-[root@cdh1 ~]$ cat /etc/passwd | head -3
-# 用户名:密码(x表示密码保存在/etc/shadow):用户id(0root,1~99系统用户,100~999其它账户):组id:用户信息:主目录:命令解释程序
-root:x:0:0:root:/root:/bin/bash
-bin:x:1:1:bin:/bin:/sbin/nologin
-daemon:x:2:2:daemon:/sbin:/sbin/nologin
-
-# linux组
-[root@cdh1 ~]$ cat /etc/group | head -3
-# 组名:密码(x表示密码保存在/etc/gshadow):组id:组成员
-root:x:0:
-bin:x:1:bin,daemon
-daemon:x:2:bin,daemon
-
-# 添加新用户(组),只有root有这个权限
-[root@cdh1 ~]$ groupadd g1         # 创建组  
-[root@cdh1 ~]$ useradd u1 -g g1    # 创建用户并指定组,默认主目录/home/xxx
-[root@cdh1 ~]$ passwd u1           # 设置密码
-[root@cdh1 ~]$ su u1               # 切换用户 
-[root@cdh1 ~]$ groupdel g1         # 删除组,如果组内有用户要先删用户  
-[root@cdh1 ~]$ userdel -r u1       # 删除用户及主目录  
-[root@cdh1 ~]$ id hdfs             # 查看hdfs用户的uid、gid、groups 
-uid=993(hdfs) gid=991(hdfs) groups=991(hdfs),993(hadoop)
-[root@cdh1 ~]$ groups hdfs         # 显示用户所属的组 
-hdfs : hdfs hadoop
-
-# 修改权限
-[root@cdh1 ~]$ chmod 755 a.txt                       # 修改文件的rwx权限
-[root@cdh1 ~]$ chmod +x roll.sh                      # 给脚本添加x权限
-[root@cdh1 ~]$ chmod -R a+rwx /usr/local/mysql/data  # 给所有用户添加rwx权限 
-[root@cdh1 ~]$ chown -R root data                    # 将data及其所有子目录所属用户都改为root(-r表示级联)
-[root@cdh1 ~]$ chown -R root:root data               # 将data目录所属用户和组都改为root
 ```
 
 ### file
