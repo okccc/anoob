@@ -1,26 +1,19 @@
 package bigdata.flink
 
-import org.apache.flink.api.common.functions.RuntimeContext
-import org.apache.flink.api.common.serialization.{SimpleStringEncoder, SimpleStringSchema}
+import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.api.scala._  // 导入隐式转换
-import org.apache.flink.core.fs.Path
-import org.apache.flink.streaming.api.functions.sink.RichSinkFunction
-import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
-import org.apache.flink.streaming.connectors.kafka.internals.KeyedSerializationSchemaWrapper
+import org.apache.flink.api.scala._
 import java.util.Properties
 
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 
 /**
  * @author okccc
  * @date 2021/2/14 11:18
- * @desc flink stream
+ * @desc flink quick start
  */
-object F01_StreamApi {
-
+object FlinkDemo {
   def main(args: Array[String]): Unit = {
     /*
      * 电商用户行为分析
@@ -29,18 +22,18 @@ object F01_StreamApi {
      * 偏好分析(离线)：点赞、收藏、评价、用户画像、推荐系统
      *
      * API
-     * 有界流(批处理)：可以在摄取所有数据后再处理,DataSet API
-     * 无界流(流处理)：摄取数据后立刻处理,DataStream API
+     * 有界流(批处理)：摄取所有数据再处理,DataSet API
+     * 无界流(流处理)：摄取数据后立刻处理,DataStream API  分流操作：split(已弃用)/getSideOutput  合流操作：connect/union
      *
      * 窗口(window)
-     * 窗口是为了周期性的获取数据,类似一分钟一小时这种统计需求,Window将无界流拆分成一个个bucket进行计算,包括滚动窗口、滑动窗口、会话窗口
-     * 窗口生命周期[start, end)左闭右开,当属于窗口的第一个元素到达时就会开启新窗口,当时间超过windowEnd加上用户设置的延时t该窗口就会关闭并计算
-     * 定义窗口之前可以先keyBy()将原始数据流按照key划分到不同区,KeyedStream窗口由多个任务并行执行,non-KeyedStream窗口由单个任务执行
+     * 窗口是为了周期性获取数据,类似一分钟一小时这种统计需求,Window将无界流拆分成一个个bucket进行计算,包括滚动窗口、滑动窗口、会话窗口
+     * 窗口生命周期[start, end)左闭右开,当第一个元素到达时就会开启新窗口,当时间超过windowEnd加上用户设置的延时t就会关闭窗口执行计算
+     * 分配窗口前可以先keyBy()将原始数据流按照key划分到不同区,KeyedStream窗口由多任务并行执行,non-KeyedStream窗口只能由单任务执行
      *
      * 时间语义(time)
      * 发生顺序：事件时间(EventTime) - 提取时间(IngestionTime) - 处理时间(ProcessingTime)
-     * flink默认是基于ProcessingTime处理流数据,这个适用于实时性非常高的场景,不会等待延迟数据到窗口结束时间就计算,结果往往会有偏差
-     * 所以通常是基于EventTime作为时间推进的考量,让时间进度取决于数据本身而不是任何时钟,配合watermark处理乱序数据也能获得准确结果
+     * flink默认基于ProcessingTime处理流数据,这个适用于实时性非常高的场景,不会等待延迟数据,到窗口结束时间就计算,结果往往有偏差
+     * 所以通常使用EventTime作为时间推进的考量,让时间进度取决于数据本身而不是任何时钟,配合watermark可以处理乱序数据获得准确结果
      *
      * 水位线(watermark)
      * 流处理过程是event - source - operator,由于网络延迟和分布式等原因会导致数据乱序,比如kafka多个分区之间的数据就是无序的
@@ -55,7 +48,7 @@ object F01_StreamApi {
      *
      * 迟到事件
      * 实际上接收到水位线以前的数据是不可避免的,这就是迟到事件,属于乱序事件的特例,它们的乱序程度超出了水位线的预计,在它们到达之前窗口已经关闭
-     * 对于迟到事件flink默认是直接丢弃,也可以使用另外两种处理方式
+     * 对于迟到事件flink默认直接丢弃,也可以使用另外两种处理方式
      * allowLateNess是在窗口关闭后一直保留窗口状态至最大允许时长,迟到事件会触发窗口重新计算,保存状态需要更多额外内存,因此该时长不宜过久
      * sideOutPut是最后的兜底操作,所有过期的延迟数据在窗口彻底关闭后会被放到侧输出流,作为窗口计算结果的副产品以便用户获取并对其进行特殊处理
      *
@@ -67,14 +60,11 @@ object F01_StreamApi {
      * 通常是有状态的,因为聚合函数或窗口函数输出的结果不仅仅和当前输入数据有关,还和之前所有数据的统计结果有关,这个统计结果就是当前任务的状态
      * 状态可以理解成本地变量,由于算子转换过程中会涉及序列化/检查点容错等复杂机制,flink运行任务时会自己进行状态管理,开发者只需专注于业务逻辑
      * 两种类型状态: 算子状态OperatorState、键控状态KeyedState(常用)
+     * KeyedState数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
      * flink会为每个key维护一个状态实例,并将具有相同key的数据分到同一个算子任务中,当任务处理一条数据时,会将状态的访问范围限定为当前数据的key
      *
      * 为什么用flink代替spark？
      * flink低延迟、高吞吐更适合流式数据场景,EventTime + Watermark可以处理乱序数据,exactly-once可以保证状态一致性
-     *
-     *
-     * 分流操作：DataStream.split  已弃用
-     * 合流操作：DataStream.connect/union
      *
      *
      * 运行架构
@@ -98,41 +88,41 @@ object F01_StreamApi {
   }
 
   def batchProcess(): Unit = {
-    // 创建批处理执行环境
+    // 1.创建批处理执行环境
     val env: ExecutionEnvironment = ExecutionEnvironment.getExecutionEnvironment
-    // flink可以读取text/csv等不同格式的文件
+    // 2.Source操作,flink可以读取text/csv等不同格式的文件
     val inputPath: String = "/Users/okc/projects/anoob/ability/input/aaa.txt"
     val inputDataSet: DataSet[String] = env.readTextFile(inputPath)
-    // 词频统计
+    // 3.Transform操作
     val resultDataSet: AggregateDataSet[(String, Int)] = inputDataSet
       .flatMap((line: String) => line.split(" "))
       .map((word: String) => (word, 1))
       .groupBy(0)  // 以第一个元素作为key进行分组
       .sum(1)      // 对所有数据的第二个元素进行求和
-    // 输出
+    // 4.Sink操作
     resultDataSet.print()
   }
 
   def streamProcess(args: Array[String]): Unit = {
-    // 创建可执行的scala程序一般都选object单例对象,class需要创建对象才能执行
+    // scala可执行程序一般都选object单例对象,class类需要创建对象才能执行
     // 1.创建流处理执行环境,scala会自动推断类型,所以定义变量的时候可以省略类型,但是为了增加可读性还是写上吧
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     // 设置并行度,本地默认最大核数,生产环境一般可配置
     env.setParallelism(4)
 
     // 2.Source操作
-//    // a.读取集合数据
-//    val dataList: List[String] = List("aa", "bb", "cc")
-//    val listDataStream: DataStream[String] = env.fromCollection(dataList)
-//    // b.读取文件数据
-//    val inputPath: String = ""
-//    val fileDataStream: DataStream[String] = env.readTextFile(inputPath)
-//    // c.监听socket流
-//    // 从外部命令提取参数,Edit Configuration - Program arguments - 指定--host localhost --port 7777
-//    val parameterTool: ParameterTool = ParameterTool.fromArgs(args)
-//    val host: String = parameterTool.get("host")
-//    val port: Int = parameterTool.getInt("port")
-//    val socketDataStream: DataStream[String] = env.socketTextStream(host, port)
+    // a.读取集合数据
+    val dataList: List[String] = List("aa", "bb", "cc")
+    val listDataStream: DataStream[String] = env.fromCollection(dataList)
+    // b.读取文件数据
+    val inputPath: String = ""
+    val fileDataStream: DataStream[String] = env.readTextFile(inputPath)
+    // c.监听socket流
+    // 从外部命令提取参数,Edit Configuration - Program arguments - 指定--host localhost --port 7777
+    val parameterTool: ParameterTool = ParameterTool.fromArgs(args)
+    val host: String = parameterTool.get("host")
+    val port: Int = parameterTool.getInt("port")
+    val socketDataStream: DataStream[String] = env.socketTextStream(host, port)
     // d.读取kafka数据
     val prop: Properties = new Properties()
     prop.put("bootstrap.servers", "localhost:9092")
@@ -159,5 +149,4 @@ object F01_StreamApi {
     // 5.启动任务,流处理是有头没尾源源不断的,开启后一直监听直到手动关闭
     env.execute("flink source and sink")
   }
-
 }
