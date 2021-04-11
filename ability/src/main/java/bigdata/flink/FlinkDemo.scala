@@ -21,6 +21,14 @@ object FlinkDemo {
      * 风险控制(实时)：页面广告黑名单过滤、恶意登录监控、订单支付失效监控、支付实时对账
      * 偏好分析(离线)：点赞、收藏、评价、用户画像、推荐系统
      *
+     * flink特点
+     * 低延迟&高吞吐,完美适合流式数据场景
+     * 支持时间语义,EventTime + Watermark可以处理乱序数据
+     * 支持窗口操作,各种灵活的窗口及触发条件处理复杂的流式计算
+     * 容错性,轻量级的分布式快照在拥有高吞吐量的同时还能保证强一致性
+     * 批流结合,批处理和流处理公用一个引擎
+     * 内存管理,flink在jvm中实现了自己的内存管理,应用可以超出主内存的大小限制,承受更小的垃圾回收开销
+     *
      * API
      * 有界流(批处理)：摄取所有数据再处理,DataSet API
      * 无界流(流处理)：摄取数据后立刻处理,DataStream API  分流操作：split(已弃用)/getSideOutput  合流操作：connect/union
@@ -62,9 +70,6 @@ object FlinkDemo {
      * 两种类型状态: 算子状态OperatorState、键控状态KeyedState(常用)
      * KeyedState数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
      * flink会为每个key维护一个状态实例,并将具有相同key的数据分到同一个算子任务中,当任务处理一条数据时,会将状态的访问范围限定为当前数据的key
-     *
-     * 为什么用flink代替spark？
-     * flink低延迟、高吞吐更适合流式数据场景,EventTime + Watermark可以处理乱序数据,exactly-once可以保证状态一致性
      *
      *
      * 运行架构
