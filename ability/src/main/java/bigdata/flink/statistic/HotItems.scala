@@ -1,4 +1,4 @@
-package bigdata.flink
+package bigdata.flink.statistic
 
 import java.sql.Timestamp
 import java.util
@@ -98,6 +98,14 @@ class HotItemCountAgg() extends AggregateFunction[UserBehavior, Int, Int] {
   override def merge(a: Int, b: Int): Int = a + b
 }
 
+// 自定义平均数函数
+class AvgAgg extends AggregateFunction[UserBehavior, (Long, Int), Long]{
+  override def add(value: UserBehavior, accumulator: (Long, Int)): (Long, Int) = (accumulator._1 + value.timestamp, accumulator._2 + 1)
+  override def createAccumulator(): (Long, Int) = (0L, 0)
+  override def getResult(accumulator: (Long, Int)): Long = accumulator._1 / accumulator._2
+  override def merge(a: (Long, Int), b: (Long, Int)): (Long, Int) = (a._1 + b._1, a._2 + b._2)
+}
+
 /*
  * 自定义窗口函数
  * trait WindowFunction[IN, OUT, KEY, W <: Window]
@@ -119,13 +127,24 @@ class HotItemCountWindow() extends WindowFunction[Int, HotItemCount, Tuple, Time
   }
 }
 
-// 自定义处理函数
-// 所有ProcessFunction都继承自RichFunction接口,都有open/close/getRuntimeContext方法
-// KeyedProcessFunction主要提供了processElement和onTimer方法,泛型参数<K(分组字段类型), I(输入元素类型), O(输出元素类型)>
+/*
+ * 自定义处理函数
+ * abstract class KeyedProcessFunction<K, I, O>
+ * K: 分组字段类型,windowEnd
+ * I: 输入元素类型,HotPageCount
+ * O: 输出元素类型,这里拼接成字符串展示
+ */
 class TopNHotItems(i: Int) extends KeyedProcessFunction[Tuple, HotItemCount, String] {
+  /*
+   * flink所有函数都有其对应的Rich版本,Rich函数和Process函数都继承自RichFunction接口,提供了三个特有方法
+   * getRuntimeContext(运行环境上下文)/open(生命周期初始化,比如创建数据库连接)/close(生命周期结束,比如关闭数据库连接、清空状态等)
+   * KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
+   */
+
   // 先定义状态：每个窗口都应该有一个ListState来保存当前窗口内所有商品对应的count值,ListState接口体系包含add/update/get/clear等方法
   var itemViewCountListState: ListState[HotItemCount] = _
-  // 初始化方法,从运行上下文获取当前流的状态
+  // flink状态是从运行时上下文中获取,在类中直接调用getRuntimeContext是不生效的,要等到类初始化时才能调用,所以获取状态的操作要放在open方法中
+  // 或者采用懒加载模式,lazy只是先声明变量,等到使用这个状态时才会做赋值操作,processElement方法使用状态的时候肯定已经能getRuntimeContext了
   override def open(parameters: Configuration): Unit = {
     itemViewCountListState = getRuntimeContext.getListState(new ListStateDescriptor[HotItemCount]("itemViewCount-list", classOf[HotItemCount]))
   }

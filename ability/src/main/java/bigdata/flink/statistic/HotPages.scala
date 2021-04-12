@@ -1,4 +1,4 @@
-package bigdata.flink
+package bigdata.flink.statistic
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
@@ -42,6 +42,8 @@ object HotPages {
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     // 可以自定义水位线生成间隔
     env.getConfig.setAutoWatermarkInterval(100)
+    // 设置侧输出流
+    val outputTag: OutputTag[LogEvent] = new OutputTag[LogEvent]("late-data")
 
     // 2.Source操作
     val prop: Properties = new Properties()
@@ -74,8 +76,6 @@ object HotPages {
     // 2).将DataStream[LogEvent]按照url分组聚合
     val filterStream: DataStream[LogEvent] = dataStream.filter((logEvent: LogEvent) => logEvent.method == "GET")
     val keyedByUrlStream: KeyedStream[LogEvent, String] = filterStream.keyBy((logEvent: LogEvent) => logEvent.url)
-    // 创建侧输出流
-    val outputTag: OutputTag[LogEvent] = new OutputTag[LogEvent]("late-data")
 
     /*
      * 窗口分配器: 定义窗口,KeyedStream对应timeWindow方法(推荐),non-KeyedStream对应timeWindowAll方法
@@ -96,7 +96,7 @@ object HotPages {
      * 窗口函数: 窗口关闭后的聚合操作
      * flink函数式编程提供了所有udf函数(实现方式为接口或抽象类),MapFunction/AggregateFunction/WindowFunction/ProcessFunction...
      * AggregateFunction是一个底层通用函数,直接聚合(url, count)无法判断属于哪个窗口,需结合WindowFunction使用,先来一条处理一条做增量聚合
-     * 等窗口关闭时再调用窗口函数,拿到预聚合状态并添加窗口信息将其封装成PageViewCount(url, windowEnd, count)得到每个页面在每个窗口的点击量
+     * 等窗口关闭时再调用窗口函数,拿到预聚合状态并添加窗口信息将其封装成HotPageCount(url, windowEnd, count)得到每个页面在每个窗口的点击量
      */
     val aggStream: DataStream[HotPageCount] = windowStream.aggregate(new HotPageCountAgg(), new HotPageCountWindow())
     // 有窗口关闭时就会生成聚合结果
@@ -107,13 +107,12 @@ object HotPages {
 
     // 3).将DataStream[HotPageCount]按照windowEnd分组聚合
     val keyedByWindowEndStream: KeyedStream[HotPageCount, Long] = aggStream.keyBy((p: HotPageCount) => p.windowEnd)
-    // map/window这些算子是无法访问事件时间和水位线的,因此DataStream API提供了一些Low-Level算子,可以访问时间戳/watermark/注册定时事件
-    // ProcessFunction属于底层大招,可以构建基于事件驱动的应用,自定义所有功能,最常用的是KeyedProcessFunction,用来操作KeyedStream
+    // map/filter/window这些普通转换算子无法做状态管理和定时器操作,因DataStream API提供了最底层的low-level算子process
+    // 属于终极大招,可以构建基于事件驱动的应用,自定义所有功能,最常用的是KeyedProcessFunction,用来操作KeyedStream
     val resultStream: DataStream[String] = keyedByWindowEndStream.process(new TopNHotPages(3))
 
     // 4.Sink操作
     resultStream.print("topN")
-
     // 5.启动任务,流处理有头没尾源源不断,开启后一直监听直到手动关闭
     env.execute("hot pages")
   }
@@ -135,10 +134,10 @@ class HotPageCountAgg() extends AggregateFunction[LogEvent, Int, Int] {
 }
 
 /*
- * 自定义窗口函数
+ * 自定义全窗口函数
  * trait WindowFunction[IN, OUT, KEY, W <: Window]
  * IN:  输入元素类型,就是前面的预聚合结果,Int
- * OUT: 输出的是窗口聚合的结果样例类HotPageCount(url, windowEnd, count)
+ * OUT: 输出元素类型,是窗口聚合结果的样例类HotPageCount(url, windowEnd, count)
  * KEY: 分组字段类型,url字符串
  * W:   窗口分配器分配的窗口类型,一般都是时间窗口,W <: Window表示上边界,即W必须是Window类型或其子类
  */
@@ -156,36 +155,28 @@ class HotPageCountWindow() extends WindowFunction[Int, HotPageCount, String, Tim
 /*
  * 自定义处理函数
  * abstract class KeyedProcessFunction<K, I, O>
- * K: 分组字段类型
- * I: 输入元素类型
- * O: 输出元素类型
+ * K: 分组字段类型,windowEnd
+ * I: 输入元素类型,HotPageCount
+ * O: 输出元素类型,这里拼接成字符串展示
  */
 class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, HotPageCount, String] {
-  /*
-   * flink所有函数都有其对应的Rich版本,Rich函数和Process函数都继承自RichFunction接口,提供了三个特有方法
-   * getRuntimeContext(运行环境上下文)/open(生命周期初始化,比如创建数据库连接)/close(生命周期结束,比如关闭数据库连接、清空状态等)
-   * KeyedState常用数据结构：ValueState(单值状态)/ListState(列表状态)/MapState(键值对状态)/ReducingState & AggregatingState(聚合状态)
-   */
-
   // 先定义状态：每个窗口都应该有一个状态来保存当前窗口内所有页面对应的count值
   // 由于迟到数据的存在,每来一条迟到数据都会有对应等待窗口的HotPageCount更新,如果某个窗口连续来几条相同url的迟到数据,就会生成多个相同url的
   // HotPageCount进入process方法的定时器排序,ListState状态无法做到键相同值覆盖,会导致同一个url被多次排序,针对迟到数据场景的状态管理应该
   // 使用键值对存储,先判断进来的迟到数据的url是否已存在,存在就更新不存在就新增,MapState接口体系包含put/get/remove/entries/clear等方法
-//  lazy val pageViewCountListState: ListState[HotPageCount] = getRuntimeContext
-//    .getListState(new ListStateDescriptor[HotPageCount]("pageViewCount-list", classOf[HotPageCount]))
-  lazy val pageViewCountMapState: MapState[String, Int] = super.getRuntimeContext
-    .getMapState(new MapStateDescriptor[String, Int]("pageViewCount-map", classOf[String], classOf[Int]))
+  lazy val hotPageCountMapState: MapState[String, Int] = super.getRuntimeContext
+    .getMapState(new MapStateDescriptor[String, Int]("HotPageCount-map", classOf[String], classOf[Int]))
 
   /**
-   * 处理每个进来的PageViewCount
-   * @param value 输入元素
-   * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,包括当前处理元素的时间戳和key、注册定时服务、写数据到侧输出流
+   * 处理每个进来的HotPageCount
+   * @param value 输入元素类型,HotPageCount
+   * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,可以获取当前key和时间戳、注册定时服务、侧输出流等
    * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素,processElement方法一般用不到out
    */
   override def processElement(value: HotPageCount, ctx: KeyedProcessFunction[Long, HotPageCount, String]#Context, out: Collector[String]): Unit = {
     // 添加或更新状态
-    pageViewCountMapState.put(value.url, value.count)
-    // 每来一个PageViewCount就会注册一个定时器,水位线传递机制是更新了才会往下游传递,不然还是之前的水位线,下游收不到新的水位线就不会触发定时器
+    hotPageCountMapState.put(value.url, value.count)
+    // 每来一个HotPageCount就会注册一个定时器,水位线传递机制是更新了才会往下游传递,不然还是之前的水位线,下游收不到新的水位线就不会触发定时器
     // 注册一个windowEnd + 1(毫秒)触发的定时器,比如到达09:30:50这个watermark了再延迟1毫秒就执行定时器
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 1)
     // 注册一个windowEnd + 1(分钟)触发的定时器,此时窗口等待1分钟后已经彻底关闭,不会再有聚合结果输出,这时候就可以清空状态了
@@ -199,17 +190,17 @@ class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, HotPageCount, Stri
    * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素,onTimer方法会用到out
    */
   override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Long, HotPageCount, String]#OnTimerContext, out: Collector[String]): Unit = {
-    // 先判断定时器触发时间,这里触发定时器的key就是PageViewCount对象的windowEnd
+    // 当有多个定时器时可以先根据触发时间判断是哪个定时器,这里触发定时器的key就是HotPageCount对象的windowEnd
     if (timestamp == ctx.getCurrentKey + 60000) {
       // 如果已经是窗口关闭又等待了1min之后,就不会再有迟到数据进来了,也就不会再执行下面属于windowEnd + 1定时器的操作,此时可以清空状态结束程序
-      pageViewCountMapState.clear()
+      hotPageCountMapState.clear()
       return
     }
 
     // MapState本身没有排序功能,需额外定义ListBuffer存放MapState中的数据
     val urlCounts: ListBuffer[(String, Int)] = new ListBuffer[(String, Int)]
     // 获取MapState的迭代器
-    val iterator: util.Iterator[util.Map.Entry[String, Int]] = pageViewCountMapState.entries().iterator()
+    val iterator: util.Iterator[util.Map.Entry[String, Int]] = hotPageCountMapState.entries().iterator()
     // 遍历迭代器
     while (iterator.hasNext) {
       // 将MapState数据添加到ListBuffer
@@ -223,7 +214,7 @@ class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, HotPageCount, Stri
     // 将排名信息拼接成字符串展示,实际应用场景可以写入数据库
     val sb: StringBuilder = new StringBuilder
     sb.append("窗口结束时间：").append(new Timestamp(timestamp - 1)).append("\n")
-    // 遍历当前窗口结果列表中的每个PageViewCount,输出到一行
+    // 遍历当前窗口结果列表中的每个HotPageCount,输出到一行
     for (i <- sortedUrlCounts.indices) {
       val currentUrlCount: (String, Int) = sortedUrlCounts(i)
       sb.append("NO").append(i + 1).append(": ")

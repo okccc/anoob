@@ -1,10 +1,10 @@
-package bigdata.flink
+package bigdata.flink.statistic
 
 import java.sql.Timestamp
 import java.util.UUID
 
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.function.ProcessWindowFunction
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.streaming.api.windowing.time.Time
@@ -20,7 +20,7 @@ import scala.util.Random
  */
 
 // 定义输入数据样例类
-case class ChannelInfo(userId: String, behavior: String, channel: String, timestamp: Long)
+case class ChannelLog(userId: String, behavior: String, channel: String, timestamp: Long)
 // 定义输出结果样例类
 case class ChannelCount(windowStart: String, windowEnd: String, behavior: String, channel: String, count: Int)
 
@@ -28,7 +28,7 @@ case class ChannelCount(windowStart: String, windowEnd: String, behavior: String
  * 模拟生成测试数据源
  * interface SourceFunction<T>: 该接口用于自定义数据源
  */
-class TestSource extends SourceFunction[ChannelInfo] {
+class TestSource extends SourceFunction[ChannelLog] {
   // 定义运行标识
   var running: Boolean = true
 
@@ -38,7 +38,7 @@ class TestSource extends SourceFunction[ChannelInfo] {
   private val random: Random = new Random()
 
   // 生产数据
-  override def run(ctx: SourceFunction.SourceContext[ChannelInfo]): Unit = {
+  override def run(ctx: SourceFunction.SourceContext[ChannelLog]): Unit = {
     // 设置数据量上限
     val maxCount: Int = Int.MaxValue
     var count: Int = 0
@@ -50,7 +50,7 @@ class TestSource extends SourceFunction[ChannelInfo] {
       val channel: String = channels(random.nextInt(channels.size))
       val timestamp: Long = System.currentTimeMillis()
       // 收集结果封装成样例类
-      ctx.collect(ChannelInfo(userId, behavior, channel, timestamp))
+      ctx.collect(ChannelLog(userId, behavior, channel, timestamp))
       count += 1
       Thread.sleep(100)
     }
@@ -70,19 +70,19 @@ object MarketChannel {
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
     // 2.Source操作
-    val inputStream: DataStream[ChannelInfo] = env
+    val inputStream: DataStream[ChannelLog] = env
       .addSource(new TestSource())
-      .assignAscendingTimestamps((c: ChannelInfo) => c.timestamp)
+      .assignAscendingTimestamps((c: ChannelLog) => c.timestamp)
 
     // 3.Transform操作
     val resultStream: DataStream[ChannelCount] = inputStream
       // 过滤行为
-      .filter((c: ChannelInfo) => c.behavior != "uninstall")
+      .filter((c: ChannelLog) => c.behavior != "uninstall")
       // 按照行为和渠道两个维度分组
-      .keyBy((u: ChannelInfo) => (u.behavior, u.channel))
+      .keyBy((u: ChannelLog) => (u.behavior, u.channel))
       // 分配滑动窗口
       .timeWindow(Time.hours(1), Time.seconds(5))
-      // 这里可以先aggregate预聚合再按窗口分组,也可以直接全窗口函数处理
+      // 这里可以先aggregate预聚合,也可以直接全窗口函数处理,具体情况具体分析
       .process(new MarketCountByChannel())
 
     // 4.Sink操作
@@ -95,23 +95,24 @@ object MarketChannel {
 /*
  * 自定义全窗口函数
  * abstract class ProcessWindowFunction[IN, OUT, KEY, W <: Window]
- * IN:  输入元素类型,ChannelInfo
+ * IN:  输入元素类型,ChannelLog
  * OUT: 输出元素类型,ChannelCount
  * KEY: 分组字段类型,(behavior, channel)
  * W:   窗口分配器分配的窗口类型,一般都是时间窗口,W <: Window表示上边界,即W必须是Window类型或其子类
  */
-class MarketCountByChannel() extends ProcessWindowFunction[ChannelInfo, ChannelCount, (String, String), TimeWindow] {
+class MarketCountByChannel() extends ProcessWindowFunction[ChannelLog, ChannelCount, (String, String), TimeWindow] {
   /**
    * 处理窗口中的所有元素
    * @param key 分组字段
    * @param context ProcessWindowFunction类的内部类Context,提供了流的一些上下文信息,包括窗口信息、处理时间、水位线、侧输出流等
-   * @param elements 窗口中存储的元素,process全窗口函数会把所有数据都存下来,aggregate预聚合只存一个accumulator累加器(推荐)
-   * @param out Collector接口提供了collect方法收集结果
+   * @param elements 窗口中存储的元素,process全窗口函数会把所有数据都存下来,aggregate增量聚合函数只存一个accumulator记录状态(推荐)
+   * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素
    */
-  override def process(key: (String, String), context: Context, elements: Iterable[ChannelInfo], out: Collector[ChannelCount]): Unit = {
-    // 收集结果封装成样例类
+  override def process(key: (String, String), context: Context, elements: Iterable[ChannelLog], out: Collector[ChannelCount]): Unit = {
+    // 将时间戳转换成字符串类型
     val windowStart: String = new Timestamp(context.window.getStart).toString
     val windowEnd: String = new Timestamp(context.window.getEnd).toString
+    // 收集结果封装成样例类
     out.collect(ChannelCount(windowStart, windowEnd, key._1, key._2, elements.size))
   }
 }

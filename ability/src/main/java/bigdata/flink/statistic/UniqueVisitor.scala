@@ -1,12 +1,12 @@
-package bigdata.flink
+package bigdata.flink.statistic
 
 import java.lang
 import java.util.Properties
 
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.scala.function.{AllWindowFunction, ProcessWindowFunction, WindowFunction}
-import org.apache.flink.streaming.api.scala.{AllWindowedStream, DataStream, KeyedStream, StreamExecutionEnvironment, WindowedStream, createTypeInformation}
+import org.apache.flink.streaming.api.scala.function.{ProcessWindowFunction, WindowFunction}
+import org.apache.flink.streaming.api.scala.{DataStream, KeyedStream, StreamExecutionEnvironment, WindowedStream, createTypeInformation}
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.triggers.{Trigger, TriggerResult}
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
@@ -143,7 +143,7 @@ class MyBloomFilter(size: Long) extends Serializable {
   }
 }
 
-// 自定义窗口处理函数
+// 自定义全窗口处理函数
 class UVCountWithBloom() extends ProcessWindowFunction[(String, Long), UVCount, String, TimeWindow] {
   // 定义redis连接以及布隆过滤器
   lazy val jedis: Jedis = new Jedis("localhost", 6379)

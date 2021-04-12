@@ -1,4 +1,4 @@
-package bigdata.flink
+package bigdata.flink.statistic
 
 import java.util.Properties
 
