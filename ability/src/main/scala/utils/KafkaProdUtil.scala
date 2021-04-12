@@ -45,11 +45,17 @@ object KafkaProdUtil {
     val topicName: String = "nginx"
 //    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/UserBehavior.csv")
 //    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/AdClickLog.csv")
-    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/LoginLog.csv")
 //    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/apache.log")
-    for (line <- bufferedSource.getLines()) {
+//    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/LoginLog.csv")
+    val bufferedSource01: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/OrderLog.csv")
+    val bufferedSource02: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/ReceiptLog.csv")
+    for (line <- bufferedSource01.getLines()) {
       println(line)
-      sendMsg(topicName, line)
+      sendMsg("order", line)
+    }
+    for (line <- bufferedSource02.getLines()) {
+      println(line)
+      sendMsg("tx", line)
     }
   }
 }
