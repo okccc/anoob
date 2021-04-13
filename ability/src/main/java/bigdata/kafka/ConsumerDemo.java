@@ -59,8 +59,8 @@ public class ConsumerDemo {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
         // 订阅topic集合
         List<String> list = new ArrayList<>();
-//        list.add("amplitude02");
-//        list.add("eduplatform0");
+        list.add("thrall");
+        list.add("eduplatform0");
         list.add("eduplatform-fat");
         consumer.subscribe(list);
 

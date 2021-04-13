@@ -226,7 +226,7 @@ Topic:t01       PartitionCount:3        ReplicationFactor:2     Configs:
     Topic: t01      Partition: 0    Leader: 2    Replicas: 2,1    Isr: 2,1  # 0/1/2表示broker.id
     Topic: t01      Partition: 1    Leader: 0    Replicas: 0,2    Isr: 0,2
     Topic: t01      Partition: 2    Leader: 1    Replicas: 1,0    Isr: 1,0
-    
+
 # 修改topic分区数,只能增加不能减少,因为partition可能已经有数据,增加后可能出现rebalance情况
 [root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --alter --topic t01 --partitions 2
 WARNING: If partitions are increased for a topic that has a key, the partition logic or ordering of message will affect

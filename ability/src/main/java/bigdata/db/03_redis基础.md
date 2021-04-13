@@ -1,4 +1,4 @@
-[参考文档](https://www.cnblogs.com/freeweb/p/5276558.html)
+- [参考文档](https://www.cnblogs.com/freeweb/p/5276558.html)
 ### redis
 ```shell script
 # redis是分布式的高性能key-value数据库,数据完全基于内存读写速度极快(10万条/s),可以定期持久化到磁盘防止数据丢失,支持多种数据类型
