@@ -1,6 +1,7 @@
 package utils
 
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import org.joda.time.DateTime
@@ -19,41 +20,37 @@ object DateUtil {
   val DATE_HOUR_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH")
   val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
+  // Long类型时间戳转换成字符串
   // timestamp -> "yyyy-MM-dd"
   def parseUnixToDate(timestamp: Long): String = {
     new DateTime(new Date(timestamp)).toString(DATE_FORMATTER)
   }
-
   // timestamp -> "HH"
   def parseUnixToHour(timestamp: Long): String = {
     new DateTime(new Date(timestamp)).toString(HOUR_FORMATTER)
   }
-
   // timestamp -> "yyyy-MM-dd HH"
   def parseUnixToDateHour(timestamp: Long): String = {
     new DateTime(new Date(timestamp)).toString(DATE_HOUR_FORMATTER)
   }
-
   // timestamp -> "yyyy-MM-dd HH:mm:ss"
   def parseUnixToDateTime(timestamp: Long): String = {
     new DateTime(new Date(timestamp)).toString(DATETIME_FORMATTER)
   }
 
+  // 字符串和日期
   // "yyyy-MM-dd" -> Date
   def parseDate(date: String): Date = {
     DATE_FORMATTER.parseDateTime(date).toDate
   }
-
   // "yyyy-MM-dd HH:mm:ss" -> Date
   def parseTime(time: String): Date = {
     DATETIME_FORMATTER.parseDateTime(time).toDate
   }
-
   // Date -> "yyyy-MM-dd"
   def formatDate(date: Date): String = {
     new DateTime(date).toString(DATE_FORMATTER)
   }
-
   // Date -> "yyyy-MM-dd HH:mm:ss"
   def formatTime(date: Date): String = {
     new DateTime(date).toString(DATETIME_FORMATTER)
@@ -93,55 +90,53 @@ object DateUtil {
   def getPlusDay(n: Int): String = {
     DateTime.now().plusDays(n).toString(DATE_FORMATTER)
   }
-
   // 今天日期 - n天/周/月/年
   def getMinusDay(n: Int): String = {
     DateTime.now().minusDays(n).toString(DATE_FORMATTER)
   }
-
   def getMinusWeek(n: Int): String = {
     DateTime.now().minusWeeks(n).toString(DATE_FORMATTER)
   }
-
   def getMinusMonth(n: Int): String = {
     DateTime.now().minusMonths(n).toString(DATE_FORMATTER)
   }
-
   def getMinusYear(n: Int): String = {
     DateTime.now().minusYears(n).toString(DATE_FORMATTER)
   }
 
-  // 周/月/年第一天
+  // 周/月/年的第一天
   def getFirstDateOfWeek: String = {
     DateTime.now().dayOfWeek().withMinimumValue().toString(DATE_FORMATTER)
   }
-
   def getFirstDateOfMonth: String = {
     DateTime.now().dayOfMonth().withMinimumValue().toString(DATE_FORMATTER)
   }
-
   def getFirstDateOfYear: String = {
     DateTime.now().dayOfYear().withMinimumValue().toString(DATE_FORMATTER)
   }
 
-  // 周/月/年最后一天
+  // 周/月/年的最后一天
   def getLastDateOfWeek: String = {
     DateTime.now().dayOfWeek().withMaximumValue().toString(DATE_FORMATTER)
   }
-
   def getLastDateOfMonth: String = {
     DateTime.now().dayOfMonth().withMaximumValue().toString(DATE_FORMATTER)
   }
-
   def getLastDateOfYear: String = {
     DateTime.now().dayOfYear().withMaximumValue().toString(DATE_FORMATTER)
   }
 
+  // 获取今天是星期几
+  def getWeekday: String = {
+    new SimpleDateFormat("E").format(new Date(System.currentTimeMillis()))
+  }
+
   def main(args: Array[String]): Unit = {
 //    println(new Timestamp(1511658661000L))
-    println(parseUnixToDate(1608011762573L))
-    println(parseUnixToHour(1608011762573L))
-    println(parseUnixToDateHour(1608011762573L))
-    println(parseUnixToDateTime(1608011762573L))
+//    println(parseUnixToDate(1618365760937L))
+//    println(parseUnixToHour(1608011762573L))
+//    println(parseUnixToDateHour(1608011762573L))
+    println(parseUnixToDateTime(1618365760937L))
+    println(getWeekday)
   }
 }
