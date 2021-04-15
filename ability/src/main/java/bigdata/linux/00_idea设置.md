@@ -39,7 +39,7 @@ Project/Module - 右键 - Local History - Show History - 找到删除文件 - Re
 # idea设置代码模板
 Intellij IDEA - Preferences - Editor - File and Code Templates - Includes - FileHeader Author/Date/Desc
 # idea设置实时模板
-Intellij IDEA - Preferences - Editor - Live Templates - 选中/新增模板 - 编辑内容 - Change指定适用范围
+Intellij IDEA - Preferences - Editor - Live Templates - 选中模板比如plain或者新增模板 - 编辑模板内容 - Change指定模板适用范围
 # idea导入导出所有设置
 File - Manage IDE Settings - Import/Export Settings
 ```
@@ -59,6 +59,15 @@ File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
 Intellij IDEA中Project是顶级结构单元,一个Project由一个或多个Module组成
 # 管理Project中的Module
 File - Project Structure - Modules - add/delete module - 此时module还在磁盘上,右键发现出现delete按钮了
+# idea断点调试
+step over 下一步,如果是方法不进入方法体直接跳过,就像超级玛丽跳过水管
+step into 下一步,如果是方法会进入方法体
+step out 跳出方法体
+resume program 恢复程序运行,但如果断点下面代码还有断点则会停在下一个断点处
+stop 停止
+mute breakpoints 使断点失效
+view breakpoints 查看断点
+Condition 右键断点可以设置条件,比如代码循环了100次可以输入条件直接跳到第60次,加快调试进度
 ```
 
 ### maven
