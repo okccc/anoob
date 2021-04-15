@@ -56,7 +56,7 @@ File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
 # Project和Module
 Intellij IDEA中Project是顶级结构单元,一个Project由一个或多个Module组成
 # 管理Project中的Module
-File - Project Structure - Modules - add/delete module
+File - Project Structure - Modules - add/delete module - 此时module还在磁盘上,右键发现出现delete按钮了
 ```
 
 ### maven
