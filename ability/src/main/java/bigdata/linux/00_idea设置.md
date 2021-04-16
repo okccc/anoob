@@ -68,6 +68,8 @@ stop 停止
 mute breakpoints 使断点失效
 view breakpoints 查看断点
 Condition 右键断点可以设置条件,比如代码循环了100次可以输入条件直接跳到第60次,加快调试进度
+# idea关闭自动更新
+Intellij IDEA - Preferences - System Settings - Updates - 取消勾选Automatically check updates
 ```
 
 ### maven
