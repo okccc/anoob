@@ -557,7 +557,11 @@ canal.instance.defaultDatabaseName=ods   # 指定库(这个配置貌似无效,�
 canal.instance.filter.regex=.*\\..*      # 白名单表 .*\\..* 所有表 | ods\\..* ods库下表 | ods\\.ods.* ods库下ods开头表 | ods.order指定表
 canal.instance.filter.black.regex=       # 黑名单表
 canal.mq.topic=canal                     # 指定kafka的topic
-canal.mq.partition=0                     # 默认输出到一个partition,多个分区并行可能会打乱binlog顺序
+# binlog是有序的,如何保证写入mq的消息也有序？
+# 方案1.将消息都发往同一个partition,这样就不会因为网络延迟导致分区之间消息无序
+canal.mq.partition=0                     # binlog是有序的,为了保证写入mq的数据有序,默认只发送到kafka的一个partition,吞吐量低性能较差
+# 方案2.将消息发往多个partition,按照主键进行hash保证相同id的用户进入同一个partition
+canal.mq.partitionHash=.*\\..*:id        # 设置regex匹配到的表的hash字段 .*\\..*:id | .*\\..*:$pk$ | ${db}.${table}:${pk}
 # 启动canal
 [root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题canal
 # 关闭canal
