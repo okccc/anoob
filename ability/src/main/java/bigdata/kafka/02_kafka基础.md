@@ -167,7 +167,6 @@ request.timeout.ms=305000
 [root@cdh1 ~]$ nohup kafka-server-start.sh config/server.properties > (logs/server.log | /dev/null) 2>&1 &
 # 关闭/杀掉进程
 [root@cdh1 ~]$ kafka-server-stop.sh / ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
-[root@cdh1 bin]$ 
 # 一键启动kafka集群
 [root@cdh1 ~]$ vim kafka.sh
 #!/bin/bash

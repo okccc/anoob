@@ -59,9 +59,9 @@ public class ConsumerDemo {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
         // 订阅topic集合
         List<String> list = new ArrayList<>();
-        list.add("thrall");
-        list.add("eduplatform0");
-        list.add("eduplatform-fat");
+//        list.add("thrall");
+//        list.add("eduplatform01");
+        list.add("PromoterMysqlStream");
         consumer.subscribe(list);
 
         // 3.从kafka拉取数据
