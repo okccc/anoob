@@ -144,7 +144,7 @@ git push -u origin master  # 如果当前分支与多个主机存在追踪关系
 # a.将github工程克隆到本地
 git clone git@github.com:okccc/python.git
 # b.将本地工程分享到github
-git init - git commit -am 'init' - VCS - Import into Version Control - Share Project on GitHub
+git init - git add . - git commit -am 'init' - VCS - Import into Version Control - Share Project on GitHub
 # 或者先在github创建一个空仓库(不包含readme.md和.gitignore) - 初始化本地库 - 关联远程库 - 推送本地master分支到远程
 # 查看远程主机地址/详细信息
 git remote -v/show <主机名>
