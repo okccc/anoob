@@ -136,6 +136,10 @@ object S01_function {
     for (i <- 1 to 3 if i != 2) {
       println(i)
     }
+    // 循环步长
+    for (i <- 1 to 10 by 2) {
+      println(i)
+    }
     // 引入变量
     for (i <- 1 to 3; j = 5 - i) {
       println(i, j)
