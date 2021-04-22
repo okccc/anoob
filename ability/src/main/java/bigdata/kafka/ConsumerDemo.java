@@ -47,7 +47,8 @@ public class ConsumerDemo {
         // 必选参数
 //        prop.put("bootstrap.servers", "localhost:9092");                     // 本地kafka
 //        prop.put("bootstrap.servers", "10.18.0.7:9092,10.18.0.8:9092,10.18.0.9:9092");  // 生产kafka
-        prop.put("bootstrap.servers", "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
+//        prop.put("bootstrap.servers", "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
+        prop.put("bootstrap.servers", "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092,10.18.2.10:9092,10.18.2.11:9092,10.18.2.12:9092");  // 新集群kafka
         prop.put("key.deserializer", StringDeserializer.class.getName());    // key的反序列化器
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
         prop.put("group.id", "gg");                                          // 消费者组
@@ -59,9 +60,9 @@ public class ConsumerDemo {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
         // 订阅topic集合
         List<String> list = new ArrayList<>();
-//        list.add("thrall");
+        list.add("amplitude02");
 //        list.add("eduplatform01");
-        list.add("PromoterMysqlStream");
+//        list.add("devRefundStream");
         consumer.subscribe(list);
 
         // 3.从kafka拉取数据

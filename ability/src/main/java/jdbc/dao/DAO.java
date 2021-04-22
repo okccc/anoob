@@ -39,7 +39,7 @@ public class DAO {
     /**
      * 通用查询单条记录方法
      */
-    public static <T> T selectOne(Class<T> clazz, String sql, Object... args) {
+    public static <T> T queryOne(Class<T> clazz, String sql, Object... args) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -87,7 +87,7 @@ public class DAO {
     /**
      * 通用查询多条记录方法
      */
-    public static <T> List<T> selectMany(Class<T> clazz, String sql, Object... args) {
+    public static <T> List<T> queryList(Class<T> clazz, String sql, Object... args) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;

@@ -14,10 +14,7 @@ object RedisUtil {
   // 声明jedis连接池
   private var jedisPool: JedisPool = _
 
-  /**
-   * 从jedis连接池中获取jedis
-   * @return Jedis
-   */
+  // 从jedis连接池中获取jedis
   def getJedis(): Jedis = {
     if (jedisPool == null) {
       jedisPool = build()
@@ -26,10 +23,7 @@ object RedisUtil {
     jedis
   }
 
-  /**
-   * 创建jedis连接池
-   * @return JedisPool
-   */
+  // 创建jedis连接池
   def build(): JedisPool = {
     // 3.获取redis地址
     val prop: Properties = PropertiesUtil.load("config.properties")
@@ -51,10 +45,9 @@ object RedisUtil {
   }
 
   def main(args: Array[String]): Unit = {
-    val jedis: Jedis = getJedis()
+    val jedis: Jedis = getJedis
     // 测试连接
     println(jedis.ping())  // PONG
     jedis.close()
   }
-
 }

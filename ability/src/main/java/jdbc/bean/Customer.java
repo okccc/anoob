@@ -9,10 +9,6 @@ public class Customer {
     private String email;
     private Date birth;
 
-    public Customer() {
-        super();
-    }
-
     public Customer(int id, String name, String email, Date birth) {
         this.id = id;
         this.name = name;

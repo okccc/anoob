@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class CustomerDAO extends DAO{
+
     public static void main(String[] args) throws SQLException {
         Connection conn = JDBCUtils.getC3P0Connection();
         Customer cus = new Customer(1, "grubby", "orc@qq.com", new Date(1234567890L));
@@ -50,7 +51,7 @@ public class CustomerDAO extends DAO{
      */
     public static Customer getOne(int id) {
         String sql = "select id, name, email, birth from customers where id = ?";
-        Customer customer = selectOne(Customer.class, sql, id);
+        Customer customer = queryOne(Customer.class, sql, id);
         return customer;
     }
 
@@ -59,7 +60,7 @@ public class CustomerDAO extends DAO{
      */
     public static List<Customer> getAll() {
         String sql = "select id, name, email, birth from customers";
-        List<Customer> customers = selectMany(Customer.class, sql);
+        List<Customer> customers = queryList(Customer.class, sql);
         return customers;
     }   
 }

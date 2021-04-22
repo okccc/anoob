@@ -12,18 +12,13 @@ import java.util.Properties;
 @SuppressWarnings("all")
 public class JDBCUtils {
     public static void main(String[] args) throws Exception {
-        /*
-         * 提供数据库连接、关闭等操作的工具类
-         */
-
+        // 提供数据库连接和关闭操作的工具类
         getConnection();
         getC3P0Connection();
         getDBCPConnection();
     }
 
-    /**
-     * 手动获取连接
-     */
+    // 手动获取连接
     public static Connection getConnection() throws Exception {
         // 1.读取配置文件
         Properties prop = new Properties();
@@ -42,9 +37,7 @@ public class JDBCUtils {
         return conn;
     }
 
-    /**
-     * 使用c3p0数据库连接池
-     */
+    // 使用c3p0数据库连接池
     private static ComboPooledDataSource cpds = new ComboPooledDataSource("mysql01");
     public static Connection getC3P0Connection() throws SQLException {
         // 获取连接
@@ -53,9 +46,7 @@ public class JDBCUtils {
         return conn;
     }
 
-    /**
-     * 使用dbcp数据库连接池
-     */
+    // 使用dbcp数据库连接池
     private static DataSource source;
     static{
         try {
@@ -77,9 +68,7 @@ public class JDBCUtils {
         return conn;
     }
 
-    /**
-     * 关闭数据库连接
-     */
+    // 关闭数据库连接
     public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
         // 手动关闭
         if (conn != null) {

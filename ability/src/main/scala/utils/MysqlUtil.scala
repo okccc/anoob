@@ -41,7 +41,7 @@ object MysqlUtil {
   def close(conn: Connection, ps: PreparedStatement, rs: ResultSet): Unit = {
     if (conn != null) conn.close()
     if (ps != null) ps.close()
-    if (rs != null) ps.close()
+    if (rs != null) rs.close()
   }
 
   /**

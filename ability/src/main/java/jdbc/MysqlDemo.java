@@ -45,14 +45,14 @@ public class MysqlDemo {
          * 一个mysql表对应一个java类,表的一列对应类的一个属性,表的一行对应类的一个对象
          *
          * 传统模式
-         * java.sql.DriverManager连接数据库,每次连接都要将Connection加载到内存会消耗大量资源,且连接资源得不到重复利用
+         * java.sql.DriverManager连接数据库,每次连接都要将Connection加载到内存,消耗大量资源且连接无法重用
          * 无法控制创建的连接对象数,连接过多或者程序异常未能及时关闭连接,可能导致内存泄漏甚至服务器崩溃
          * 数据库连接池
          * javax.sql.DataSource会保持最小的连接数,允许程序重复使用一个现有的数据库连接,当达到最大连接数时新的请求会被放入等待队列
          */
 
-//        testConnect();
-        testUpdate();
+        testConnect();
+//        testUpdate();
 //        testSelect();
     }
 
@@ -85,8 +85,7 @@ public class MysqlDemo {
 
         // 1.读取配置文件
         Properties prop = new Properties();
-        FileReader fr = new FileReader("ability/src/main/resources/config.properties");
-        prop.load(fr);
+        prop.load(new FileReader("ability/src/main/resources/config.properties"));
         // 2.获取连接信息
         String driver = prop.getProperty("driver");
         String url = prop.getProperty("url");
@@ -94,7 +93,7 @@ public class MysqlDemo {
         String password = prop.getProperty("password");
         // 3.通过反射加载驱动
         Class.forName(driver);
-        // 4.获取连接
+        // 4.建立连接
         Connection conn = DriverManager.getConnection(url, user, password);
         System.out.println(conn);  // com.mysql.jdbc.JDBC4Connection@5034c75a
     }
@@ -153,13 +152,13 @@ public class MysqlDemo {
         // 1.演示查询单条记录
         // 当表名刚好是数据库里的关键字时要加斜引号`order`
         // 当表中字段名和类中属性名不一致时,查询时要使用属性名作为字段名的别名,不然报错 java.lang.NoSuchFieldException: order_id
-        String sql1 = "select order_id orderId, order_name orderName from `order` where order_id = ?";
-        Order order = selectOne(Order.class, sql1, 2);
+        String sql01 = "select order_id orderId, order_name orderName from `order` where order_id = ?";
+        Order order = queryOne(Order.class, sql01, 2);
         System.out.println(order);  // Order{orderId=2, orderName='BB', orderDate=null}
 
         // 2.演示批量查询多条记录
-        String sql2 = "select id, name from customers where id < ?";
-        List<Customer> list = selectMany(Customer.class, sql2, 5);
+        String sql02 = "select id, name from customers where id < ?";
+        List<Customer> list = queryList(Customer.class, sql02, 5);
         assert list != null;
         list.forEach(System.out::println);  // Customer{id=1, name='汪峰', email='null', birth=null} ...
     }
@@ -190,7 +189,7 @@ public class MysqlDemo {
     /**
      * 通用查询单条记录方法
      */
-    private static <T> T selectOne(Class<T> clazz, String sql, Object... args) {
+    private static <T> T queryOne(Class<T> clazz, String sql, Object... args) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -238,7 +237,7 @@ public class MysqlDemo {
     /**
      * 通用查询多条记录方法
      */
-    private static <T> List<T> selectMany(Class<T> clazz, String sql, Object... args) {
+    private static <T> List<T> queryList(Class<T> clazz, String sql, Object... args) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
