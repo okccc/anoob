@@ -42,6 +42,8 @@ Intellij IDEA - Preferences - Editor - File and Code Templates - Includes - File
 Intellij IDEA - Preferences - Editor - Live Templates - 选中模板比如plain或者新增模板 - 编辑模板内容 - Change指定模板适用范围
 # idea导入导出所有设置
 File - Manage IDE Settings - Import/Export Settings
+# 代码块用横线分开
+Intellij IDEA - Preferences - Editor - General - Appearance - Show method separators
 ```
 
 ### idea-scala
