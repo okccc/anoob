@@ -1,12 +1,15 @@
 package bigdata.flink
 
-import org.apache.flink.api.common.serialization.SimpleStringSchema
+import org.apache.flink.api.common.serialization.{SerializationSchema, SimpleStringEncoder, SimpleStringSchema}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala._
 import java.util.Properties
 
+import bigdata.flink.statistic.UserBehavior
+import org.apache.flink.core.fs.Path
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
+import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer, FlinkKafkaProducer011}
 
 /**
  * @author okccc
@@ -100,8 +103,10 @@ object FlinkDemo {
     val inputDataSet: DataSet[String] = env.readTextFile(inputPath)
     // 3.Transform操作
     val resultDataSet: AggregateDataSet[(String, Int)] = inputDataSet
-      .flatMap((line: String) => line.split(" "))
-      .map((word: String) => (word, 1))
+      // _是lambda表达式的简写方式
+      .flatMap((_: String).split(" "))
+      .filter((_: String).nonEmpty)
+      .map((_: String, 1) )
       .groupBy(0)  // 以第一个元素作为key进行分组
       .sum(1)      // 对所有数据的第二个元素进行求和
     // 4.Sink操作
@@ -116,42 +121,49 @@ object FlinkDemo {
     env.setParallelism(4)
 
     // 2.Source操作
-    // a.读取集合数据
-    val dataList: List[String] = List("aa", "bb", "cc")
-    val listDataStream: DataStream[String] = env.fromCollection(dataList)
-    // b.读取文件数据
-    val inputPath: String = ""
-    val fileDataStream: DataStream[String] = env.readTextFile(inputPath)
-    // c.监听socket流
-    // 从外部命令提取参数,Edit Configuration - Program arguments - 指定--host localhost --port 7777
-    val parameterTool: ParameterTool = ParameterTool.fromArgs(args)
-    val host: String = parameterTool.get("host")
-    val port: Int = parameterTool.getInt("port")
-    val socketDataStream: DataStream[String] = env.socketTextStream(host, port)
+//    // a.读取集合数据
+//    val dataList: List[String] = List("aa", "bb", "cc")
+//    val listStream: DataStream[String] = env.fromCollection(dataList)
+//    // b.读取文件数据
+//    val inputPath: String = ""
+//    val fileStream: DataStream[String] = env.readTextFile(inputPath)
+//    // c.监听socket流
+//    // 从外部命令提取参数,Edit Configuration - Program arguments - 指定--host localhost --port 7777
+//    val parameterTool: ParameterTool = ParameterTool.fromArgs(args)
+//    val host: String = parameterTool.get("host")
+//    val port: Int = parameterTool.getInt("port")
+//    val socketStream: DataStream[String] = env.socketTextStream(host, port)
     // d.读取kafka数据
     val prop: Properties = new Properties()
     prop.put("bootstrap.servers", "localhost:9092")
     prop.put("group.id", "consumer-group")
-    val kafkaDataStream: DataStream[String] = env.addSource(new FlinkKafkaConsumer[String]("nginx", new SimpleStringSchema(), prop))
+    val kafkaStream: DataStream[String] = env.addSource(new FlinkKafkaConsumer[String]("nginx", new SimpleStringSchema(), prop))
 
     // 3.Transform操作
-    val resultDataStream: DataStream[(String, Int)] = kafkaDataStream
-      // _是lambda表达式的简写方式
-      .flatMap((line: String) => line.split(" "))
-      .filter((line: String) => line.nonEmpty)
-      .map((word: String) => (word, 1))
-      .keyBy(0)  // 以第一个元素作为key进行分组
-      .sum(1)  // 对所有数据的第二个元素进行求和
+    val mapStream: DataStream[UserBehavior] = kafkaStream.map((data: String) => {
+      // 将输入流封装成样例类对象
+      val words: Array[String] = data.split(",")
+      UserBehavior(words(0).toLong, words(1).toLong, words(2).toInt, words(3), words(4).toLong)
+    })
 
     // 4.Sink操作
     // a.输出到控制台,可以人为设置并行度控制资源分配
-    resultDataStream.print().setParallelism(1)
+    mapStream.print().setParallelism(1)
     // b.输出到文件
+    mapStream.addSink(
+      StreamingFileSink.forRowFormat(
+        new Path( "/Users/okc/projects/anoob/ability/input/res.txt" ),
+        new SimpleStringEncoder[UserBehavior]()
+      ).build()  // 这里使用了构造者模式
+    )
     // c.输出到es
     // d.输出到redis
-    // e.输出到kafka
+    // e.输出到kafka,版本api有问题,貌似只能用010
+//    mapStream.addSink(
+//      new FlinkKafkaProducer011[String]("localhost:9092", "sinktest", new SimpleStringSchema())
+//    )
 
-    // 5.启动任务,流处理是有头没尾源源不断的,开启后一直监听直到手动关闭
+    // 5.启动任务,流处理是有头没尾源源不断的,开启后持续监听直到手动关闭
     env.execute("flink source and sink")
   }
 }

@@ -1,6 +1,6 @@
 package utils
 
-import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet, ResultSetMetaData, Statement}
+import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet, ResultSetMetaData}
 import java.util.Properties
 
 import com.alibaba.fastjson.JSONObject
