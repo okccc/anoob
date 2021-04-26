@@ -14,8 +14,8 @@ object S02_object {
      * 并发和分布式：Actor
      *
      * 数据类型
-     * java基本数据类型：byte/short/int/long/float/double/char/boolean,为了方便操作基本数据类型的数值java将其封装成了对象,在对象中
-     * 定义了更加丰富的属性和行为,对应的包装类 Byte/Short/Integer/Long/Double/Character/Boolean
+     * java基本数据类型：byte/short/int/long/float/double/char/boolean,为了方便操作基本数据类型的数值java将其封装成了对象
+     * 在对象中定义了更加丰富的属性和行为,对应的包装类 Byte/Short/Integer/Long/Double/Character/Boolean
      * scala没有基本数据类型,一切数据皆是对象,都是Any的子类,包括AnyVal(值类型)和AnyRef(引用类型)
      * Unit：是不带任何意义的值类型,所有函数必须有返回,所以Unit也是有用的返回类型
      * Nothing：是所有数据类型的子类型,是程序抛异常或者不能正常返回的信号

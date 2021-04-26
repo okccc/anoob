@@ -125,7 +125,7 @@ object S01_function {
 
     // 2.for循环
     // 左闭右闭
-    for (i <- 1 to 3) {
+    for (i <- 1 to 3 reverse) {
       println(i)
     }
     // 左闭右开
@@ -148,7 +148,7 @@ object S01_function {
     for (i <- 1 to 3; j <- 1 to 3) {
       println(i, j)
     }
-    // 循环产生新集合
+    // 循环返回新集合
     val seq_new: immutable.IndexedSeq[Int] = for (i <- 1 to 3) yield i
     println(seq_new) // Vector(1, 2, 3)
 
