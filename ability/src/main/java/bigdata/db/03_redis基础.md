@@ -61,14 +61,14 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> zcard z1                   # 求zset长度
 
 # hash
-127.0.0.1:6379> hset g01:t01 0 10          # 往hash的key添加field及value
-127.0.0.1:6379> HMSET g01:t01 1 20 2 30    # 往hash的key添加多个field及value
-127.0.0.1:6379> hlen g01:t01               # 求hash长度
-127.0.0.1:6379> hkeys g01:t01              # 根据hash的key获取所有field
-127.0.0.1:6379> hvals g01:t01              # 根据hash的key获取所有value
-127.0.0.1:6379> hget g01:t01 0             # 根据hash的key和field获取value
-127.0.0.1:6379> hmget g01:t01 0 1          # 根据hash的key和多个field获取多个value
-127.0.0.1:6379> hgetall g01:t01            # 根据hash的key获取所有field和value
-127.0.0.1:6379> hexists g01:t01 0          # 判断hash的key和field是否存在,1表示true,0表示false
-127.0.0.1:6379> hdel g01:t01 3             # 删除hash的指定key和field,1表示true,0表示false
+127.0.0.1:6379> hset user id 1                   # 往hash的key添加field及value
+127.0.0.1:6379> HMSET user name grubby race orc  # 往hash的key添加多个field及value
+127.0.0.1:6379> hlen user                        # 求hash长度
+127.0.0.1:6379> hget user id                     # 根据hash的key和field获取value
+127.0.0.1:6379> hmget user id name               # 根据hash的key和多个field获取多个value
+127.0.0.1:6379> hkeys user                       # 根据hash的key获取所有field
+127.0.0.1:6379> hvals user                       # 根据hash的key获取所有value
+127.0.0.1:6379> hgetall user                     # 根据hash的key获取所有field和对应value
+127.0.0.1:6379> hexists user id                  # 判断hash的key和field是否存在,1表示true,0表示false
+127.0.0.1:6379> hdel user 3                      # 删除hash的指定key和field,1表示true,0表示false
 ```

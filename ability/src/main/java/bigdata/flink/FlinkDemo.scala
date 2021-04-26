@@ -1,7 +1,6 @@
 package bigdata.flink
 
-import org.apache.flink.api.common.serialization.{SerializationSchema, SimpleStringEncoder, SimpleStringSchema}
-import org.apache.flink.api.java.utils.ParameterTool
+import org.apache.flink.api.common.serialization.{SimpleStringEncoder, SimpleStringSchema}
 import org.apache.flink.api.scala._
 import java.util.Properties
 
@@ -9,7 +8,10 @@ import bigdata.flink.statistic.UserBehavior
 import org.apache.flink.core.fs.Path
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer, FlinkKafkaProducer011}
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
+import org.apache.flink.streaming.connectors.redis.RedisSink
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig
+import org.apache.flink.streaming.connectors.redis.common.mapper.{RedisCommand, RedisCommandDescription, RedisMapper}
 
 /**
  * @author okccc
@@ -150,20 +152,30 @@ object FlinkDemo {
     // a.输出到控制台,可以人为设置并行度控制资源分配
     mapStream.print().setParallelism(1)
     // b.输出到文件
-    mapStream.addSink(
-      StreamingFileSink.forRowFormat(
-        new Path( "/Users/okc/projects/anoob/ability/input/res.txt" ),
-        new SimpleStringEncoder[UserBehavior]()
-      ).build()  // 这里使用了构造者模式
-    )
-    // c.输出到es
-    // d.输出到redis
-    // e.输出到kafka,版本api有问题,貌似只能用010
-//    mapStream.addSink(
-//      new FlinkKafkaProducer011[String]("localhost:9092", "sinktest", new SimpleStringSchema())
-//    )
+    val output: String = "/Users/okc/projects/anoob/ability/input"
+    mapStream.addSink(StreamingFileSink.forRowFormat(new Path(output), new SimpleStringEncoder[UserBehavior]()).build())
+    // c.输出到redis
+    val flinkJedisPoolConfig: FlinkJedisPoolConfig = new FlinkJedisPoolConfig.Builder().setHost("localhost").setPort(6379).build()
+    mapStream.addSink(new RedisSink[UserBehavior](flinkJedisPoolConfig, new MyRedisMapper))
+    // d.输出到kafka,版本api有问题,貌似只能用010
+//    mapStream.addSink(new FlinkKafkaProducer011[String]("localhost:9092", "sinktest", new SimpleStringSchema()))
 
     // 5.启动任务,流处理是有头没尾源源不断的,开启后持续监听直到手动关闭
     env.execute("flink source and sink")
   }
+}
+
+// 自定义RedisMapper
+class MyRedisMapper extends RedisMapper[UserBehavior] {
+  // 定义数据类型的描述符
+  override def getCommandDescription: RedisCommandDescription = {
+    // 这里选择hash类型,写数据命令 hset key field1 value1
+    new RedisCommandDescription(RedisCommand.HSET, "user")
+  }
+
+  // 从对象中提取field
+  override def getKeyFromData(data: UserBehavior): String = data.userId.toString
+
+  // 从对象中提取value
+  override def getValueFromData(data: UserBehavior): String = data.itemId.toString
 }
