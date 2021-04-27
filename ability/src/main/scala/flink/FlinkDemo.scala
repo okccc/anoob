@@ -1,11 +1,16 @@
-package bigdata.flink
+package flink
+
+import java.sql.{Connection, PreparedStatement}
 
 import org.apache.flink.api.common.serialization.{SimpleStringEncoder, SimpleStringSchema}
 import org.apache.flink.api.scala._
 import java.util.Properties
 
-import bigdata.flink.statistic.UserBehavior
+import flink.statis.UserBehavior
+import myutils.JdbcUtil
+import org.apache.flink.configuration.Configuration
 import org.apache.flink.core.fs.Path
+import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunction}
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
@@ -154,14 +159,45 @@ object FlinkDemo {
     // b.输出到文件
     val output: String = "/Users/okc/projects/anoob/ability/input"
     mapStream.addSink(StreamingFileSink.forRowFormat(new Path(output), new SimpleStringEncoder[UserBehavior]()).build())
-    // c.输出到redis
+    // c.输出到mysql
+    mapStream.addSink(new MyJdbcSink())
+    // d.输出到redis
     val flinkJedisPoolConfig: FlinkJedisPoolConfig = new FlinkJedisPoolConfig.Builder().setHost("localhost").setPort(6379).build()
-    mapStream.addSink(new RedisSink[UserBehavior](flinkJedisPoolConfig, new MyRedisMapper))
-    // d.输出到kafka,版本api有问题,貌似只能用010
+    mapStream.addSink(new RedisSink[UserBehavior](flinkJedisPoolConfig, new MyRedisMapper()))
+    // e.输出到kafka,版本api有问题,貌似只能用010
 //    mapStream.addSink(new FlinkKafkaProducer011[String]("localhost:9092", "sinktest", new SimpleStringSchema()))
 
     // 5.启动任务,流处理是有头没尾源源不断的,开启后持续监听直到手动关闭
     env.execute("flink source and sink")
+  }
+}
+
+// 自定义SinkFunction
+class MyJdbcSink extends RichSinkFunction[UserBehavior] {
+  // 定义连接和预编译sql
+  var conn: Connection = _
+  var ps: PreparedStatement = _
+
+  // 初始化工作,数据库连接等
+  override def open(parameters: Configuration): Unit = {
+    conn = JdbcUtil.getConnection
+    ps = conn.prepareStatement("insert into user_behavior values (?,?,?,?,?)")
+  }
+
+  // 插入数据,这里只实现了简单的insert操作,实际情况要考虑去重和更新等复杂逻辑
+  override def invoke(value: UserBehavior, context: SinkFunction.Context[_]): Unit = {
+    ps.setInt(1, value.userId.toInt)
+    ps.setInt(2, value.itemId.toInt)
+    ps.setInt(3, value.categoryId)
+    ps.setString(4, value.behavior)
+    ps.setString(5, value.timestamp.toString)
+    ps.execute()
+  }
+
+  // 收尾工作,关闭连接等
+  override def close(): Unit = {
+    ps.close()
+    conn.close()
   }
 }
 
