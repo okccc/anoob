@@ -1,22 +1,29 @@
 package flink
 
 import java.sql.{Connection, PreparedStatement}
+import java.util
 
 import org.apache.flink.api.common.serialization.{SimpleStringEncoder, SimpleStringSchema}
 import org.apache.flink.api.scala._
 import java.util.Properties
 
-import flink.statis.UserBehavior
+import flink.statistic.UserBehavior
 import myutils.JdbcUtil
+import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.core.fs.Path
 import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunction}
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
+import org.apache.flink.streaming.connectors.elasticsearch6.ElasticsearchSink
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 import org.apache.flink.streaming.connectors.redis.RedisSink
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig
 import org.apache.flink.streaming.connectors.redis.common.mapper.{RedisCommand, RedisCommandDescription, RedisMapper}
+import org.apache.http.HttpHost
+import org.elasticsearch.action.index.IndexRequest
+import org.elasticsearch.client.Requests
 
 /**
  * @author okccc
@@ -158,19 +165,25 @@ object FlinkDemo {
     mapStream.print().setParallelism(1)
     // b.输出到文件
     val output: String = "/Users/okc/projects/anoob/ability/input"
-    mapStream.addSink(StreamingFileSink.forRowFormat(new Path(output), new SimpleStringEncoder[UserBehavior]()).build())
+//    mapStream.addSink(StreamingFileSink.forRowFormat(new Path(output), new SimpleStringEncoder[UserBehavior]()).build())
     // c.输出到mysql
     mapStream.addSink(new MyJdbcSink())
     // d.输出到redis
     val flinkJedisPoolConfig: FlinkJedisPoolConfig = new FlinkJedisPoolConfig.Builder().setHost("localhost").setPort(6379).build()
     mapStream.addSink(new RedisSink[UserBehavior](flinkJedisPoolConfig, new MyRedisMapper()))
-    // e.输出到kafka,版本api有问题,貌似只能用010
+    // e.输出到es(可能存在版本问题)
+    val httpHosts: util.ArrayList[HttpHost] = new util.ArrayList[HttpHost]()
+    httpHosts.add(new HttpHost("localhost", 9200))
+    // 这里创建的是ElasticsearchSink的非静态内部类Builder的对象
+    mapStream.addSink(new ElasticsearchSink.Builder[UserBehavior](httpHosts, new MyElasticsearchSinkFunction()).build())
+    // f.输出到kafka(版本api有问题,貌似只能用010)
 //    mapStream.addSink(new FlinkKafkaProducer011[String]("localhost:9092", "sinktest", new SimpleStringSchema()))
 
     // 5.启动任务,流处理是有头没尾源源不断的,开启后持续监听直到手动关闭
     env.execute("flink source and sink")
   }
 }
+
 
 // 自定义SinkFunction
 class MyJdbcSink extends RichSinkFunction[UserBehavior] {
@@ -184,7 +197,7 @@ class MyJdbcSink extends RichSinkFunction[UserBehavior] {
     ps = conn.prepareStatement("insert into user_behavior values (?,?,?,?,?)")
   }
 
-  // 插入数据,这里只实现了简单的insert操作,实际情况要考虑去重和更新等复杂逻辑
+  // 插入数据(这里只实现了简单的insert操作,实际情况要考虑去重和更新等复杂逻辑)
   override def invoke(value: UserBehavior, context: SinkFunction.Context[_]): Unit = {
     ps.setInt(1, value.userId.toInt)
     ps.setInt(2, value.itemId.toInt)
@@ -201,11 +214,12 @@ class MyJdbcSink extends RichSinkFunction[UserBehavior] {
   }
 }
 
+
 // 自定义RedisMapper
 class MyRedisMapper extends RedisMapper[UserBehavior] {
   // 定义数据类型的描述符
   override def getCommandDescription: RedisCommandDescription = {
-    // 这里选择hash类型,写数据命令 hset key field1 value1
+    // 指定redis数据类型hash(要根据实际业务场景考虑)  hset key field1 value1
     new RedisCommandDescription(RedisCommand.HSET, "user")
   }
 
@@ -214,4 +228,24 @@ class MyRedisMapper extends RedisMapper[UserBehavior] {
 
   // 从对象中提取value
   override def getValueFromData(data: UserBehavior): String = data.itemId.toString
+}
+
+
+// 自定义ElasticsearchSinkFunction
+class MyElasticsearchSinkFunction extends ElasticsearchSinkFunction[UserBehavior] {
+  override def process(element: UserBehavior, ctx: RuntimeContext, requestIndexer: RequestIndexer): Unit = {
+    // 封装数据源对象
+    val dataSource: util.HashMap[String, String] = new util.HashMap[String, String]()
+    dataSource.put("user_id", element.userId.toString)
+    dataSource.put("item_id", element.itemId.toString)
+    dataSource.put("category_id", element.categoryId.toString)
+    dataSource.put("behavior", element.behavior)
+    dataSource.put("timestamp", element.timestamp.toString)
+
+    // 创建请求
+    val indexRequest: IndexRequest = Requests.indexRequest().index("behavior").source(dataSource)
+
+    // 发送请求
+    requestIndexer.add(indexRequest)
+  }
 }
