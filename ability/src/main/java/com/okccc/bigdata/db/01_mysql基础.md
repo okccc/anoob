@@ -58,6 +58,7 @@ tail -f /var/log/mysqld.log
 # 查看mysql连接数
 mysql> show variables like 'max_connections' | select @@max_connections
 mysql> show status like 'Thread%';
+mysql> set global max_connections=1000;
 # 批量插入数据
 mysql> source area.sql;
 ```
@@ -560,7 +561,8 @@ canal.mq.topic=canal                     # 指定kafka的topic
 # binlog是有序的,如何保证写入mq的消息也有序？
 # 方案1.将消息都发往同一个partition,这样就不会因为网络延迟导致分区之间消息无序
 canal.mq.partition=0                     # binlog是有序的,为了保证写入mq的数据有序,默认只发送到kafka的一个partition,吞吐量低性能较差
-# 方案2.将消息发往多个partition,按照主键进行hash保证相同id的用户进入同一个partition
+# 方案2.将消息发往多个partition,按照主键进行hash保证相同id的更新记录进入同一个partition(推荐)
+canal.mq.partitionsNum=3
 canal.mq.partitionHash=.*\\..*:id        # 设置regex匹配到的表的hash字段 .*\\..*:id | .*\\..*:$pk$ | ${db}.${table}:${pk}
 # 启动canal
 [root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题canal
