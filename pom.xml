@@ -17,10 +17,10 @@
 
     <!-- 声明子项目公用配置属性 -->
     <properties>
-        <!-- scala版本要和spark/flink引用的scala版本保持一致       -->
-        <scala.version>2.12</scala.version>
+        <!-- scala版本要和spark/flink引用的scala版本保持一致 -->
+        <scala.version>2.12.12</scala.version>
         <spark.version>2.4.5</spark.version>
-        <flink.version>1.10.1</flink.version>
+        <flink.version>1.12.0</flink.version>
         <kafka.version>2.4.1</kafka.version>
         <mysql.version>5.1.14</mysql.version>
         <hive.version>1.2.1</hive.version>
@@ -35,6 +35,23 @@
 
     <!-- dependencies下的依赖会被maven加载,且默认被所有子项目继承 -->
     <dependencies>
+        <!-- scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.12.12</version>
+        </dependency>
+        <!-- scala操作jdbc的工具 -->
+        <dependency>
+            <groupId>org.scalikejdbc</groupId>
+            <artifactId>scalikejdbc_2.12</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalikejdbc</groupId>
+            <artifactId>scalikejdbc-config_2.12</artifactId>
+            <version>3.4.0</version>
+        </dependency>
         <!-- 阿里巴巴开源json解析框架 -->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -61,66 +78,41 @@
                 <version>2.11.0</version>
             </dependency>
 
-            <!-- scala -->
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>2.12.12</version>
-            </dependency>
-            <!-- scala操作jdbc的工具 -->
-            <dependency>
-                <groupId>org.scalikejdbc</groupId>
-                <artifactId>scalikejdbc_2.12</artifactId>
-                <version>3.4.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.scalikejdbc</groupId>
-                <artifactId>scalikejdbc-config_2.12</artifactId>
-                <version>3.4.0</version>
-            </dependency>
-
             <!-- rdd -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-core_2.11</artifactId>
+                <artifactId>spark-core_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
 
             <!-- Spark on Yarn -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-yarn_2.11</artifactId>
+                <artifactId>spark-yarn_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
 
             <!-- SparkSql -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-sql_2.11</artifactId>
+                <artifactId>spark-sql_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
 
             <!-- SparkStreaming -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming_2.11</artifactId>
+                <artifactId>spark-streaming_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming-flume_2.11</artifactId>
+                <artifactId>spark-streaming-flume_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
-                <version>${spark.version}</version>
-            </dependency>
-
-            <!-- SparkMlLib -->
-            <dependency>
-                <groupId>org.apache.spark</groupId>
-                <artifactId>spark-mllib_2.11</artifactId>
+                <artifactId>spark-streaming-kafka-0-10_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
 
@@ -141,7 +133,7 @@
             <!-- hive -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-hive_2.11</artifactId>
+                <artifactId>spark-hive_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
@@ -244,19 +236,25 @@
             <!-- flink相关 -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-scala_${scala.version}</artifactId>
+                <artifactId>flink-scala_2.12</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-streaming-scala_${scala.version}</artifactId>
+                <artifactId>flink-streaming-scala_2.12</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <!-- flink1.11.0以后的版本flink-clients从flink-streaming-java中独立出来了,要单独添加依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-clients_2.12</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <!-- flink操作kafka -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-kafka_${scala.version}</artifactId>
+                <artifactId>flink-connector-kafka_2.12</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <!-- flink操作redis -->
@@ -282,9 +280,10 @@
                 <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
                 <version>${flink.version}</version>
             </dependency>
+            <!-- flink操作表和sql -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-planner_2.12</artifactId>
+                <artifactId>flink-table-api-scala-bridge_2.12</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
@@ -294,9 +293,16 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-common</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <!-- flink操作csv -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-csv</artifactId>
                 <version>${flink.version}</version>
             </dependency>
+            <!-- flink操作json -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-json</artifactId>
@@ -364,7 +370,7 @@
                 <plugin>
                     <groupId>net.alchim31.maven</groupId>
                     <artifactId>scala-maven-plugin</artifactId>
-                    <version>4.4.0</version>
+                    <version>3.2.2</version>
                     <executions>
                         <execution>
                             <!-- 声明绑定到compile阶段 -->

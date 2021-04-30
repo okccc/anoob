@@ -140,39 +140,39 @@
         <value>mr</value>
     </property>
     <property>
-        <name>spark.executor.memory</name>
+        <name>com.okccc.spark.executor.memory</name>
         <value>10737418240</value>
     </property>
     <property>
-        <name>spark.driver.memory</name>
+        <name>com.okccc.spark.driver.memory</name>
         <value>10737418240</value>
     </property>
     <property>
-        <name>spark.executor.cores</name>
+        <name>com.okccc.spark.executor.cores</name>
         <value>4</value>
     </property>
     <property>
-        <name>spark.yarn.driver.memoryOverhead</name>
+        <name>com.okccc.spark.yarn.driver.memoryOverhead</name>
         <value>1228</value>
     </property>
     <property>
-        <name>spark.yarn.executor.memoryOverhead</name>
+        <name>com.okccc.spark.yarn.executor.memoryOverhead</name>
         <value>1974</value>
     </property>
     <property>
-        <name>spark.dynamicAllocation.enabled</name>
+        <name>com.okccc.spark.dynamicAllocation.enabled</name>
         <value>true</value>
     </property>
     <property>
-        <name>spark.dynamicAllocation.initialExecutors</name>
+        <name>com.okccc.spark.dynamicAllocation.initialExecutors</name>
         <value>1</value>
     </property>
     <property>
-        <name>spark.dynamicAllocation.minExecutors</name>
+        <name>com.okccc.spark.dynamicAllocation.minExecutors</name>
         <value>1</value>
     </property>
     <property>
-        <name>spark.dynamicAllocation.maxExecutors</name>
+        <name>com.okccc.spark.dynamicAllocation.maxExecutors</name>
         <value>2147483647</value>
     </property>
     <property>
@@ -208,7 +208,7 @@
         <value>false</value>
     </property>
     <property>
-        <name>spark.shuffle.service.enabled</name>
+        <name>com.okccc.spark.shuffle.service.enabled</name>
         <value>true</value>
     </property>
 <!--    <property>-->

@@ -5,7 +5,7 @@
         <property name="driverClass">com.mysql.jdbc.Driver</property>
         <property name="jdbcUrl">jdbc:mysql://localhost/test</property>
         <property name="user">root</property>
-        <property name="password">root</property>
+        <property name="password">root@123</property>
 
         <!-- 涉及数据库连接池管理的其他信息 -->
         <!-- 当数据库连接池中的连接不足时,c3p0数据源一次性向数据库服务器申请的连接数 -->

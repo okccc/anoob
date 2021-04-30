@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
+            <artifactId>spark-core_2.12</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.11</artifactId>
+            <artifactId>spark-sql_2.12</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -69,7 +69,7 @@
                     <archive>
                         <manifest>
                             <!-- 指定类名 -->
-                            <mainClass>app.AppMain</mainClass>
+                            <mainClass>com.okccc.app.AppMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
