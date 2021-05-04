@@ -35,11 +35,6 @@ object ParamUtils {
   */
 object StringUtils {
 
-  // 判断字符串是否为空
-  def isEmpty(str: String): Boolean = {
-    str == null || "".equals(str)
-  }
-
   // 截断字符串两侧逗号
   def trimComma(str: String): String = {
     var result = ""
