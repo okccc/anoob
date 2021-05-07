@@ -145,6 +145,8 @@ a1.channels.c2.parseAsFlumeEvent = false
 [root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/nginx-kafka.conf -n a1 -Dflume.root.logger=info,console > logs/flume.log 2>&1 &  # 输出到日志
 # 然后启动log,消费者能收到数据说明ok
 [root@cdh1 ~]$ nohup java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > /dev/null 2>&1 &
+# kafka挂了flume如何补数据？
+# nginx落地的日志文件还在,从文件中grep时间戳截取丢失数据写到临时文件,flume再写一个conf单独监听这个临时文件写入topic就行
 ```
 
 #### nginx-hdfs.conf
