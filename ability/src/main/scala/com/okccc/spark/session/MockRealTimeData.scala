@@ -1,6 +1,8 @@
+package com.okccc.spark.session
+
 import java.util.Properties
 
-import commons.conf.ConfigurationManager
+import com.okccc.spark.common.ConfigurationManager
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 
 import scala.collection.mutable.ArrayBuffer

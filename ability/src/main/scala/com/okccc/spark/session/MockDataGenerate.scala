@@ -1,10 +1,12 @@
+package com.okccc.spark.session
+
 import java.util.UUID
 
-import commons.model.{ProductInfo, UserInfo, UserVisitAction}
-import commons.utils.{DateUtils, StringUtils}
-import org.apache.spark.{SparkConf, SparkContext}
+import com.okccc.spark.common.{ProductInfo, StringUtils, UserInfo, UserVisitAction}
+import com.okccc.util.DateUtil
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
@@ -111,7 +113,7 @@ object MockDataGenerate {
     // 搜索关键字
     val searchKeywords: Array[String] = Array("华为手机", "联想笔记本", "小龙虾", "卫生纸", "吸尘器", "Lamer", "机器学习", "苹果", "洗面奶", "保温杯")
     // 获取当天日期
-    val date: String = DateUtils.getTodayDate
+    val date: String = DateUtil.getTodayDate
     // 生成100个用户(有重复)
     for (i <- 1 to 100) {
       val userid: Int = random.nextInt(100)
@@ -126,7 +128,7 @@ object MockDataGenerate {
           val cityid: Long = random.nextInt(10).toLong
           val pageid: Int = random.nextInt(10)
           // 在yyyy-MM-dd HH后面添加一个随机的分钟时间和秒时间
-          val actionTime: String = baseActionTime + ":" + StringUtils.fulfill(random.nextInt(59).toString) + ":" + StringUtils.fulfill(random.nextInt(59).toString)
+          val actionTime: String = baseActionTime + ":" + random.nextInt(59).toString + ":" + random.nextInt(59).toString
           var searchKeyword: String = null
           var clickCategoryId: Long = -1L
           var clickProductId: Long = -1L

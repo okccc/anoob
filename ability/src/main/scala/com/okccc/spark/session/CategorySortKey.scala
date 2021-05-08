@@ -1,4 +1,4 @@
-package session
+package com.okccc.spark.session
 
 case class CategorySortKey(clickCount: Long, orderCount: Long, payCount: Long) extends Ordered[CategorySortKey] {
 

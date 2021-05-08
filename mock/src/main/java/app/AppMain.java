@@ -1,4 +1,4 @@
-package com.okccc.app;
+package app;
 
 import bean.*;
 import com.alibaba.fastjson.JSON;

@@ -69,7 +69,7 @@
                     <archive>
                         <manifest>
                             <!-- 指定类名 -->
-                            <mainClass>com.okccc.app.AppMain</mainClass>
+                            <mainClass>app.AppMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

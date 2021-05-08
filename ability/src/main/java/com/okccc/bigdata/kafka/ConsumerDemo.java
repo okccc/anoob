@@ -46,22 +46,24 @@ public class ConsumerDemo {
         Properties prop = new Properties();
         // 必选参数
 //        prop.put("bootstrap.servers", "localhost:9092");                     // 本地kafka
-//        prop.put("bootstrap.servers", "10.18.0.7:9092,10.18.0.8:9092,10.18.0.9:9092");  // 生产kafka
+        prop.put("bootstrap.servers", "10.18.0.7:9092,10.18.0.8:9092,10.18.0.9:9092");  // 生产kafka
 //        prop.put("bootstrap.servers", "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
-        prop.put("bootstrap.servers", "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");  // 新集群kafka
+//        prop.put("bootstrap.servers", "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");  // 新集群kafka
         prop.put("key.deserializer", StringDeserializer.class.getName());    // key的反序列化器
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
-        prop.put("group.id", "gg");                                          // 消费者组
+        prop.put("group.id", "g");                                          // 消费者组,consumer-group之间互不影响
         // 可选参数
 //        prop.put("enable.auto.commit", "false");  // true自动提交(默认),false手动提交
-//        prop.put("auto.offset.reset", "latest");  // 没有offset就从latest(默认)/earliest/none开始消费
+//        prop.put("auto.offset.reset", "earliest");  // 没有offset就从latest(默认)/earliest/none开始消费
 
         // 2.创建消费者对象,参数是topicName和eventLog
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
         // 订阅topic集合
         List<String> list = new ArrayList<>();
-        list.add("eduplatform02");
+//        list.add("eduplatform02");
 //        list.add("thrall");
+//        list.add("PromoterMysqlStream");
+        list.add("amplitude02");
         consumer.subscribe(list);
 
         // 3.从kafka拉取数据

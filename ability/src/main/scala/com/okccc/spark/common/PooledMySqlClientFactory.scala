@@ -1,9 +1,7 @@
-package commons.pool
+package com.okccc.spark.common
 
 import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet}
 
-import commons.conf.ConfigurationManager
-import commons.constant.Constants
 import org.apache.commons.pool2.impl.{DefaultPooledObject, GenericObjectPool, GenericObjectPoolConfig}
 import org.apache.commons.pool2.{BasePooledObjectFactory, PooledObject}
 

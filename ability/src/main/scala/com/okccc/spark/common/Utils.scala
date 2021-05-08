@@ -1,10 +1,6 @@
-package commons.utils
+package com.okccc.spark.common
 
-import java.util.Date
-
-import net.sf.json.JSONObject
-import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import com.alibaba.fastjson.JSONObject
 
 import scala.collection.mutable
 
@@ -45,15 +41,6 @@ object StringUtils {
       result = str.substring(0, str.length() - 1)
     }
     result
-  }
-
-  // 补全两位数字
-  def fulfill(str: String): String = {
-    if(str.length() == 2) {
-      str
-    } else {
-      "0" + str
-    }
   }
 
   // 从拼接的字符串中提取字段值

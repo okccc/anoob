@@ -1,6 +1,7 @@
-package session
+package com.okccc.spark.session
 
 import org.apache.spark.util.AccumulatorV2
+
 import scala.collection.mutable
 
 /**
@@ -16,7 +17,7 @@ class SessionAggAccumulator extends AccumulatorV2[String, mutable.HashMap[String
 
   // 复制累加器对象
   override def copy(): AccumulatorV2[String, mutable.HashMap[String, Int]] = {
-    val newAcc = new SessionAggAccumulator
+    val newAcc: SessionAggAccumulator = new SessionAggAccumulator
     hm.synchronized {
       newAcc.hm ++= this.hm
     }

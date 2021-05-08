@@ -1,4 +1,4 @@
-package commons.model
+package com.okccc.spark.common
 
 // ******************** 输入表 ***********************
 
