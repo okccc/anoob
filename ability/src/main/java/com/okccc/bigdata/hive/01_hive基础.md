@@ -220,7 +220,7 @@ hive> drop table test;
 -- 清空表数据
 hive> truncate table test;
 -- 添加字段(注意：添加新字段后要将原来已经存在的分区先删掉,不然数据加载不进去,如果要调整新字段顺序,可以再用change)
-hive> alter table test add columns(order_id int comment '订单id');
+hive> alter table test add columns(order_id int comment '订单id') cascade;
 -- 修改字段
 hive> alter table test change column column1 column2 string comment '...' first|after column3;
 -- 删除字段(只保留需要的列,不需要的列删掉,同时也可以更换列的顺序)
