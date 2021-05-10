@@ -136,7 +136,7 @@ object DateUtil {
 //    println(parseUnixToDate(1618365760937L))
 //    println(parseUnixToHour(1608011762573L))
 //    println(parseUnixToDateHour(1608011762573L))
-    println(parseUnixToDateTime(1620309599000L))
+    println(parseUnixToDateTime(1620316799000L))
 //    println(getWeekday)
   }
 }

@@ -57,18 +57,18 @@ bigdata : root deploy hive
 # CentOS(Community enterprise Operating System)：基于RHEL的源代码二次编译而成,功能基本一样,免费
 # 32位和64位操作系统：位指的是CPU一次能执行的二进制数据的位数,2^32bit=4g 理论上32位操作系统只能使用4g内存,getconf LONG_BIT查看系统位数
 # 现在/5分钟后 关机/重启 
-[root@cdh1 ~]$ shutdown -h/-r now/5  
+[root@cdh1 ~]$ shutdown -h/-r now/5
 # 自杀
 [root@cdh1 ~]$ rm -rf /*
 # 日历
-[root@cdh1 ~]$ cal (2019)  
+[root@cdh1 ~]$ cal (2019)
 # 使用httpd(Apache HTTP Server)作为Web server,通过ip访问linux的/var/www/html目录下的文件
 [root@cdh1 ~]$ yum install httpd && systemctl start httpd && systemctl enable httpd
 http://192.168.152.11/a.txt
 # 显示当前用户登陆时间
 [root@cdh1 ~]$ who
 # 显示本机信息
-[root@cdh1 ~]$ uname -a  
+[root@cdh1 ~]$ uname -a
 # 查看操作系统
 [root@cdh1 ~]$ cat /etc/redhat-release
 # 查看命令功能|路径
@@ -128,7 +128,7 @@ http://192.168.152.11/a.txt
 # /var 系统默认日志存放目录,会不断变大
 
 # fdisk
-[root@cdh1 ~]$ fdisk -l  # 显示磁盘信息  
+[root@cdh1 ~]$ fdisk -l  # 显示磁盘信息
 
 # df (disk free)
 [root@cdh1 ~]$ df -hT  # 显示系统盘类型
@@ -174,17 +174,17 @@ Mem:      31G     13G    4.6G      2.4G         12G         14G
 Swap:    2.0G    481M    1.5G
 
 # swap
-[root@cdh1 ~]$ swapon  # 查看交换空间使用情况 
+[root@cdh1 ~]$ swapon  # 查看交换空间使用情况
 NAME               TYPE    SIZE    USED    PRIO
 /swapfile     file      2G    481M    -1
 # 重新设置swap空间
-dd if=/dev/zero of=/data/swapfile bs=1M count=2048  # bs*count  
+dd if=/dev/zero of=/data/swapfile bs=1M count=2048  # bs*count
 # 修改权限
-chmod 600 /data/swapfile 
+chmod 600 /data/swapfile
 # 指定swap文件
-mkswap /data/swapfile 
+mkswap /data/swapfile
 # 激活新的swap
-swapon /data/swapfile 
+swapon /data/swapfile
 # 关闭旧的swap
 swapoff /swapfile
 
@@ -331,7 +331,7 @@ UID      PID   PPID   C   STIME   TTY       TIME   CMD
 root       1      0   0   Apr21   ?     00:00:04   /sbin/init
 root       2      0   0   Apr21   ?     00:00:00   [kthreadd]
 
-[root@cdh1 ~]$ ps -aux | head  # a所有进程, u以用户为主的格式, x不区分终端  
+[root@cdh1 ~]$ ps -aux | head  # a所有进程, u以用户为主的格式, x不区分终端
 # %CPU进程占用CPU百分比, %MEM进程占用内存百分比, VSZ进程占用的虚拟内存, RSS进程占用的固定内存, STAT进程状态
 USER     PID  %CPU  %MEM   VSZ  RSS  TTY  STAT  START  TIME  COMMAND
 root       1   0.0   0.0 19364 1540  ?    Ss    Apr21  0:04  /sbin/init
@@ -370,9 +370,9 @@ top -c -p 1956,2042  # 每隔3秒显示指定进程的资源使用情况
 # nohup默认输出启动日志到nohup.out,可以重定向到指定日志文件,或者/dev/null丢弃日志,Ctrl + C结束,关闭Shell session免疫
 # &将程序后台运行,输出启动日志到终端,Ctrl + C免疫,关闭Shell session结束
 # nohup和&组合使用,不受Ctrl + C和关闭Shell session影响
-[root@cdh1 ~]$ nohup redis-server > /dev/null &  
+[root@cdh1 ~]$ nohup redis-server > /dev/null &
 # 查看当前终端后台任务jobnum,包括running/stopped/Terminated,+是当前任务 -是后一个任务
-[root@cdh1 ~]$ jobs -l    
+[root@cdh1 ~]$ jobs -l
 [1]+ 14423 Running    nohup /data/hive/scripts/call_sql.sh dw_debit_info &
 # 将后台程序调至前台运行
 [root@cdh1 ~]$ fg %jobnum
@@ -435,7 +435,7 @@ root     pts/0    10.9.6.148       11:08    3.00s  0.03s  0.00s w
 [root@cdh1 ~]$ sh startup.sh && tail -f ../logs/catalina.out  # 启动tomcat后立刻查看日志  
 [root@cdh1 ~]$ sh -x test.sh  # 执行shell脚本时,启动跟踪模式 
 
-# stat a.txt  文件的3个时间戳  
+# stat a.txt  文件的3个时间戳
 [root@cdh1 ~]$ Access time(atime)  # 读取操作 cat/cp/grep/sed/less/tail
 [root@cdh1 ~]$ Modify time(mtime)  # 修改操作 vim
 [root@cdh1 ~]$ Change time(ctime)  # 修改文件属性或位置 chmod/chown/mv
@@ -447,12 +447,12 @@ cmd > file | cmd 1 > file      # 将标准输出重定向到file
 cmd > file 2>&1 | cmd &> file  # 将标准输出重定向到file,并且将标准错误合并到标准输出
 cmd > /dev/null                # /dev/null是黑洞文件,写入到这里的文件都会被丢弃,如果输出日志太长了就可以重定向到这里
 [root@cdh1 ~]$ who > a.txt
-[root@cdh1 ~]$ cat a.txt 
+[root@cdh1 ~]$ cat a.txt
 root     pts/0        2020-09-18 14:23 (10.9.6.148)
 root     pts/1        2020-09-18 14:38 (10.9.6.148)
-[root@cdh1 ~]$ wc -l a.txt 
+[root@cdh1 ~]$ wc -l a.txt
 2 a.txt
-[root@cdh1 ~]$ wc -l < a.txt 
+[root@cdh1 ~]$ wc -l < a.txt
 2
 [root@cdh1 ~]$ wc -l < a.txt > b.txt  # 从a.txt读取内容写入b.txt
 [root@cdh1 ~]$ cat out.txt 
