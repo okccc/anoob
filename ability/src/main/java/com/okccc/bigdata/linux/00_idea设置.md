@@ -45,7 +45,7 @@ File - Manage IDE Settings - Import/Export Settings
 # 代码块用横线分开
 Intellij IDEA - Preferences - Editor - General - Appearance - Show method separators
 # idea添加jar包
-File - Project Structure - Libraries - 点击+添加,直接复制到工程的lib目录是无效的
+File - Project Structure - Libraries - 点击+将lib目录下的jar包都添加进来
 ```
 
 ### idea-scala
