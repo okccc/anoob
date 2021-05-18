@@ -102,4 +102,29 @@ SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/org/slf4j/slf4j-log4
 SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/ch/qos/logback/logback-classic/1.0.7/logback-classic-1.0.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 显示slf4j-log4j12包和logback-classic包冲突,其中logback-classic是我在pom文件里引入的,说明有别的依赖引用了slf4j,找到它并在pom中排出
 mvn dependency:tree  # 查看工程依赖关系
+
+# maven配置文件
+<mirrors>
+  <mirror>
+    <id>nexus-aliyun</id>
+    <mirrorOf>central</mirrorOf>
+    <name>Nexus aliyun</name>
+    <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+  </mirror>
+</mirrors>
+
+<profiles>
+     <profile>
+          <id>jdk-1.8</id>
+          <activation>
+            <activeByDefault>true</activeByDefault>
+            <jdk>1.8</jdk>
+          </activation>
+          <properties>
+            <maven.compiler.source>1.8</maven.compiler.source>
+            <maven.compiler.target>1.8</maven.compiler.target>
+            <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+          </properties>
+     </profile>
+</profiles>
 ```
