@@ -46,6 +46,8 @@ File - Manage IDE Settings - Import/Export Settings
 Intellij IDEA - Preferences - Editor - General - Appearance - Show method separators
 # idea添加jar包
 File - Project Structure - Libraries - 点击+将lib目录下的jar包都添加进来
+# pom文件查看依赖图表
+pom.xml - 右键 - Diagrams - Show Dependencies
 ```
 
 ### idea-scala
