@@ -1,4 +1,4 @@
-package com.okccc.jdbc.bean;
+package com.okccc.bigdata.jdbc.bean;
 
 import java.sql.Date;
 

@@ -1,4 +1,4 @@
-package com.okccc.jdbc.util;
+package com.okccc.bigdata.jdbc.util;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;

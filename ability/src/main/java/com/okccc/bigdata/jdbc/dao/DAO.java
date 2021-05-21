@@ -1,6 +1,6 @@
-package com.okccc.jdbc.dao;
+package com.okccc.bigdata.jdbc.dao;
 
-import com.okccc.jdbc.util.JDBCUtils;
+import com.okccc.bigdata.jdbc.util.JDBCUtils;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;

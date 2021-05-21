@@ -1,8 +1,8 @@
-package com.okccc.jdbc;
+package com.okccc.bigdata.jdbc;
 
-import com.okccc.jdbc.bean.Customer;
-import com.okccc.jdbc.bean.Order;
-import com.okccc.jdbc.util.JDBCUtils;
+import com.okccc.bigdata.jdbc.bean.Customer;
+import com.okccc.bigdata.jdbc.bean.Order;
+import com.okccc.bigdata.jdbc.util.JDBCUtils;
 
 import java.io.FileReader;
 import java.lang.reflect.Field;
