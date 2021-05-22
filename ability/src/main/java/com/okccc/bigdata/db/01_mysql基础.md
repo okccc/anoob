@@ -240,10 +240,9 @@ set autocommit = false;
 delete from emp; -- 不加where条件会删除所有数据(慎用!)
 -- truncate清空表,相当于自动commit无法rollback,如果表有外键约束就不能使用
 truncate table emp;
--- 回滚数据,只能回滚到最近一次commit后的位置
-rollback;
--- 事务一旦提交就不可回滚
+-- 事务一旦提交就无法回滚,所以回滚数据只能回滚到最近一次提交后的位置
 commit;
+rollback;
 
 -- select语句书写规则
 select - from - (join) - where - group by - having - order by - limit
