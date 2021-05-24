@@ -3,16 +3,21 @@
 ```shell script
 # sudo(superuser do)
 # 当前用户执行sudo命令时,系统会自动寻找/etc/sudoers,判断该用户是否有执行sudo的权限,有就输入密码确认,当然也可以设置不用输入密码
--u      # 切换用户执行,不指定默认root
-[root@cdh1 ~]$ visudo
+[root@cdh1 ~]$ whatis su
+su               - run a command with substitute user and group ID
+[root@cdh1 ~]$ whatis sudo
+sudo             - execute a command as another user
+[root@cdh1 ~]$ vim /etc/sudoers
 # root用户权限,第一个ALL表示允许从任何终端访问sudo,第二个ALL表示任何用户都可以执行sudo命令,第三个ALL表示可以向root一样执行所有命令
 root      ALL = (ALL) ALL
 # 设置deploy用户拥有所有root权限且不用输入密码
-deploy    ALL = (ALL)   NOPASSWD: ALL
+deploy    ALL = (ALL) NOPASSWD: ALL
 # 设置tomcat用户拥有启动tomcat权限且不用输入密码
 tomcat    ALL = (ALL) NOPASSWD: /usr/local/tomcat/bin/startup.sh
 # 设置admin用户组的用户在不输入该用户密码的情况下使用所有命令
 %admin	  ALL = (ALL) NOPASSWD: ALL
+# -u切换用户执行,不指定默认root
+[deploy@cdh1 ~]$ su hadoop  # 切换到hadoop用户
 [deploy@cdh1 ~]$ sudo start.sh  # 使用deploy账号执行root权限的脚本,其它账号则需-u指定用户名再执行命令
 [deploy@cdh1 ~]$ sudo -u hdfs hadoop fs -mkdir -p /data/aaa  # 使用deploy账号执行hdfs权限的命令
 
