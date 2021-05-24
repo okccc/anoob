@@ -47,8 +47,9 @@ public class ConsumerDemo {
         // 必选参数
 //        prop.put("bootstrap.servers", "localhost:9092");                     // 本地kafka
 //        prop.put("bootstrap.servers", "10.18.0.7:9092,10.18.0.8:9092,10.18.0.9:9092");  // 生产kafka
-        prop.put("bootstrap.servers", "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
+//        prop.put("bootstrap.servers", "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
 //        prop.put("bootstrap.servers", "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // 新集群kafka
+        prop.put("bootstrap.servers", "10.100.176.47:9092");  // 腾讯云kafka
         prop.put("key.deserializer", StringDeserializer.class.getName());    // key的反序列化器
         prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
         prop.put("group.id", "g1");                                          // 消费者组,consumer-group之间互不影响
@@ -61,9 +62,9 @@ public class ConsumerDemo {
         // 订阅topic集合
         List<String> list = new ArrayList<>();
 //        list.add("devRefundStream");
-//        list.add("eduplatform-fat");
+        list.add("eduplatform");
 //        list.add("thrall");
-        list.add("PromoterMysqlStream");
+//        list.add("PromoterMysqlStream");
 //        list.add("amplitude02");
         consumer.subscribe(list);
 
