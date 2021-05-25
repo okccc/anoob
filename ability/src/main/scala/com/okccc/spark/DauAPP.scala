@@ -1,6 +1,9 @@
-package com.okccc.app
+package com.okccc.spark
+
+import java.lang
 
 import com.alibaba.fastjson.{JSON, JSONObject}
+import com.okccc.util._
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.spark.SparkConf
@@ -9,10 +12,6 @@ import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.kafka010.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import redis.clients.jedis.Jedis
-import com.okccc.util._
-import java.lang
-
-import com.okccc.bean.DauInfo
 
 import scala.collection.mutable.ListBuffer
 

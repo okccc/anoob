@@ -10,8 +10,7 @@ import org.elasticsearch.search.sort.SortOrder
 import java.util
 import java.util.Properties
 
-import com.okccc.bean
-import com.okccc.bean.MovieInfo
+import com.okccc.spark.MovieInfo
 
 import scala.collection.mutable
 
@@ -164,7 +163,7 @@ object ESUtil {
     hashMap.put("id", 1)
     hashMap.put("name", "grubby")
     actorList.add(hashMap)
-    val movie: MovieInfo = bean.MovieInfo(1, "war3", 9.5, actorList)
+    val movie: MovieInfo = MovieInfo(1, "war3", 9.5, actorList)
     movie
   }
 

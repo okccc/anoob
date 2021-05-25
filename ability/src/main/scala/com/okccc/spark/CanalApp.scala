@@ -1,4 +1,4 @@
-package com.okccc.app
+package com.okccc.spark
 
 import com.alibaba.fastjson.{JSON, JSONArray, JSONObject}
 import org.apache.kafka.clients.consumer.ConsumerRecord
