@@ -243,6 +243,10 @@ truncate table emp;
 -- 事务一旦提交就无法回滚,所以回滚数据只能回滚到最近一次提交后的位置
 commit;
 rollback;
+-- drop/truncate/delete区别？
+drop直接删除表,truncate和delete删除数据表还在,有外键约束的表不能使用truncate
+drop和truncate是ddl操作不涉及事务无法回滚,delete是dml操作commit才会生效可以rollback回滚
+truncate是通过释放存储表数据使用的数据页来删除数据,delete是一行一行删除binlog会记录删除的每一行,速度 drop > truncate > delete
 
 -- select语句书写规则
 select - from - (join) - where - group by - having - order by - limit
