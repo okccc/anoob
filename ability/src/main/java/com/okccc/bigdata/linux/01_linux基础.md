@@ -17,8 +17,9 @@ tomcat    ALL = (ALL) NOPASSWD: /usr/local/tomcat/bin/startup.sh
 # 设置admin用户组的用户在不输入该用户密码的情况下使用所有命令
 %admin	  ALL = (ALL) NOPASSWD: ALL
 # -u切换用户执行,不指定默认root
-[deploy@cdh1 ~]$ su hadoop  # 切换到hadoop用户
-[deploy@cdh1 ~]$ sudo start.sh  # 使用deploy账号执行root权限的脚本,其它账号则需-u指定用户名再执行命令
+[deploy@cdh1 ~]$ sudo su         # 切换到root用户
+[deploy@cdh1 ~]$ sudo su hdfs    # 切换到hdfs用户
+[deploy@cdh1 ~]$ sudo start.sh   # 使用deploy账号执行root权限的脚本,其它账号则需-u指定用户名再执行命令
 [deploy@cdh1 ~]$ sudo -u hdfs hadoop fs -mkdir -p /data/aaa  # 使用deploy账号执行hdfs权限的命令
 
 # linux用户
