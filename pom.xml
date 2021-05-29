@@ -192,6 +192,12 @@
                 <version>1.4</version>
                 <scope>compile</scope>
             </dependency>
+            <!-- druid连接池(推荐) https://mvnrepository.com/artifact/com.alibaba/druid -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>1.2.5</version>
+            </dependency>
 
             <!-- java操作redis的客户端工具jedis -->
             <dependency>

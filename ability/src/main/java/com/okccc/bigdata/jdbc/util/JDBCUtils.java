@@ -1,10 +1,10 @@
 package com.okccc.bigdata.jdbc.util;
 
+import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.sql.*;
 import java.util.Properties;
@@ -16,6 +16,7 @@ public class JDBCUtils {
         getConnection();
         getC3P0Connection();
         getDBCPConnection();
+        getDruidConnection();
     }
 
     // 手动获取连接
@@ -37,7 +38,7 @@ public class JDBCUtils {
         return conn;
     }
 
-    // 使用c3p0数据库连接池
+    // 使用c3p0数据库连接池(速度慢,但很稳定)
     private static ComboPooledDataSource cpds = new ComboPooledDataSource("mysql01");
     public static Connection getC3P0Connection() throws SQLException {
         // 获取连接
@@ -46,15 +47,14 @@ public class JDBCUtils {
         return conn;
     }
 
-    // 使用dbcp数据库连接池
+    // 使用dbcp数据库连接池(速度比c3p0快,但是本身有点bug)
     private static DataSource source;
     static{
         try {
             // 1.加载配置文件
             Properties prop = new Properties();
-            FileInputStream is = new FileInputStream("ability/src/main/resources/dbcp.properties");
-//            InputStream is = JDBCUtils.class.getClassLoader().getResourceAsStream("config.properties");
-            prop.load(is);
+//            prop.load(JDBCUtils.class.getClassLoader().getResourceAsStream("dbcp.properties"));
+            prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("dbcp.properties"));
             // 2.创建数据源
             source = BasicDataSourceFactory.createDataSource(prop);
         } catch (Exception e) {
@@ -65,6 +65,27 @@ public class JDBCUtils {
         // 3.获取连接
         Connection conn = source.getConnection();
         System.out.println(conn);  // jdbc:mysql:///test, UserName=root@localhost, MySQL-AB JDBC Driver
+        return conn;
+    }
+
+    // 使用druid数据库连接池(集C3P0和DBCP优点于一身的数据库连接池,推荐使用)
+    private static DataSource dataSource;
+    // 连接池只需要一个就可以了,所以放静态代码块,随着类加载而加载,且只执行一次
+    static {
+        try {
+            // 1.加载配置文件
+            Properties prop = new Properties();
+            prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("druid.properties"));
+            // 2.创建数据源(连接池)
+            dataSource = DruidDataSourceFactory.createDataSource(prop);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public static Connection getDruidConnection() throws SQLException {
+        // 3.获取连接
+        Connection conn = dataSource.getConnection();
+        System.out.println(conn);  // com.mysql.jdbc.JDBC4Connection@23202fce
         return conn;
     }
 
@@ -92,21 +113,5 @@ public class JDBCUtils {
                 e.printStackTrace();
             }
         }
-        // 使用DBUtils工具类关闭
-//        try {
-//            DbUtils.close(conn);
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//        }
-//        try {
-//            DbUtils.close(ps);
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//        }
-//        try {
-//            DbUtils.close(rs);
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//        }
     }
 }
