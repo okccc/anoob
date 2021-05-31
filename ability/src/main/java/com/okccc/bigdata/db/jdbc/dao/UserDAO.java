@@ -1,31 +1,31 @@
-package com.okccc.bigdata.jdbc.dao;
+package com.okccc.bigdata.db.jdbc.dao;
 
-import com.okccc.bigdata.jdbc.bean.Customer;
-import com.okccc.bigdata.jdbc.util.JDBCUtils;
+import com.okccc.bigdata.db.jdbc.bean.User;
+import com.okccc.bigdata.db.jdbc.JdbcUtils;
 
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 
-public class CustomerDAO extends DAO{
+public class UserDAO extends DAO{
 
     public static void main(String[] args) throws SQLException {
-        Connection conn = JDBCUtils.getC3P0Connection();
-        Customer cus = new Customer(1, "grubby", "orc@qq.com", new Date(1234567890L));
+        Connection conn = JdbcUtils.getC3P0Connection();
+        User cus = new User(1, "grubby", "orc@qq.com", new Date(1234567890L));
 //        addCustomer(conn, cus);
 //        deleteById(conn, 19);
 //        updateById(conn, cus);
-        Customer customer = getOne(1);
-        System.out.println(customer);
-        List<Customer> customers = getAll();
-        customers.forEach(System.out::println);
+        User user = getOne(1);
+        System.out.println(user);
+        List<User> users = getAll();
+        users.forEach(System.out::println);
     }
 
     /**
      * 向customer表中插入一条数据
      */
-    public static void addCustomer(Connection conn, Customer cus) {
+    public static void addCustomer(Connection conn, User cus) {
         String sql = "insert into customers(name,email,birth) values(?,?,?)";
         updateWithTx(conn, sql, cus.getName(), cus.getEmail(), cus.getBirth());
     }
@@ -41,7 +41,7 @@ public class CustomerDAO extends DAO{
     /**
      * 根据id修改记录
      */
-    public static void updateById(Connection conn, Customer cus) {
+    public static void updateById(Connection conn, User cus) {
         String sql = "update customers set name = ?, email = ?, birth = ? where id = ?";
         updateWithTx(conn, sql, cus.getName(), cus.getEmail(), cus.getBirth(), cus.getId());
     }
@@ -49,18 +49,18 @@ public class CustomerDAO extends DAO{
     /**
      * 查询单条记录
      */
-    public static Customer getOne(int id) {
+    public static User getOne(int id) {
         String sql = "select id, name, email, birth from customers where id = ?";
-        Customer customer = queryOne(Customer.class, sql, id);
-        return customer;
+        User user = queryOne(User.class, sql, id);
+        return user;
     }
 
     /**
      * 查询所有记录
      */
-    public static List<Customer> getAll() {
+    public static List<User> getAll() {
         String sql = "select id, name, email, birth from customers";
-        List<Customer> customers = queryList(Customer.class, sql);
-        return customers;
+        List<User> users = queryList(User.class, sql);
+        return users;
     }   
 }

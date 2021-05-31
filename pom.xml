@@ -26,6 +26,7 @@
         <flume.version>1.7.0</flume.version>
         <fastjson.version>1.2.51</fastjson.version>
         <slf4j.version>1.7.25</slf4j.version>
+        <lombok.version>1.18.20</lombok.version>
         <!-- maven编译源码时指定编码,不然会告警 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -62,6 +63,13 @@
             <artifactId>junit</artifactId>
             <version>4.13</version>
             <scope>test</scope>
+        </dependency>
+        <!-- lombok用来简化JavaBean和日志开发,需要在plugins里面安装 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

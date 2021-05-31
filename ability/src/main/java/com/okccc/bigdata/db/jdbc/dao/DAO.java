@@ -1,6 +1,6 @@
-package com.okccc.bigdata.jdbc.dao;
+package com.okccc.bigdata.db.jdbc.dao;
 
-import com.okccc.bigdata.jdbc.util.JDBCUtils;
+import com.okccc.bigdata.db.jdbc.JdbcUtils;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -32,7 +32,7 @@ public class DAO {
             e.printStackTrace();
         } finally {
             // 4.关闭ps,conn在外面单独关闭
-            JDBCUtils.close(null, ps, null);
+            JdbcUtils.close(null, ps, null);
         }
     }
 
@@ -46,7 +46,7 @@ public class DAO {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JDBCUtils.getC3P0Connection();
+            conn = JdbcUtils.getC3P0Connection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -79,7 +79,7 @@ public class DAO {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JDBCUtils.close(conn, ps, rs);
+            JdbcUtils.close(conn, ps, rs);
         }
         return null;
     }
@@ -95,7 +95,7 @@ public class DAO {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JDBCUtils.getDBCPConnection();
+            conn = JdbcUtils.getDBCPConnection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -128,7 +128,7 @@ public class DAO {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JDBCUtils.close(conn, ps, rs);
+            JdbcUtils.close(conn, ps, rs);
         }
         return null;
     }
