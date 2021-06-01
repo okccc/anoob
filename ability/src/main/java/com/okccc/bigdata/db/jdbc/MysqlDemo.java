@@ -1,8 +1,7 @@
-package com.okccc.bigdata.jdbc;
+package com.okccc.bigdata.db.jdbc;
 
-import com.okccc.bigdata.jdbc.bean.Customer;
-import com.okccc.bigdata.jdbc.bean.Order;
-import com.okccc.bigdata.jdbc.util.JDBCUtils;
+import com.okccc.bigdata.db.jdbc.bean.User;
+import com.okccc.bigdata.db.jdbc.bean.Order;
 
 import java.io.FileReader;
 import java.lang.reflect.Field;
@@ -74,10 +73,10 @@ public class MysqlDemo {
 //        String url = "jdbc:mysql://localhost:3306/test";
 //        String user = "root";
 //        String password = "root";
-//        // 通过反射创建mysql驱动,查看Driver类源码发现创建和注册Driver已通过静态代码块和构造函数实现,可以继续简化
+//        // 通过反射加载mysql驱动
 //        Class<?> c = Class.forName(className);
+//        // java.sql.Driver接口的com.mysql.jdbc.Driver实现类将创建和注册驱动的逻辑写在静态代码块,随着驱动类的加载而加载,所以可以继续简化
 //        Driver driver = (Driver) c.newInstance();
-//        // 注册驱动
 //        DriverManager.registerDriver(driver);
 //        // 获取连接
 //        Connection conn = DriverManager.getConnection(url, user, password);
@@ -91,7 +90,7 @@ public class MysqlDemo {
         String url = prop.getProperty("url");
         String user = prop.getProperty("user");
         String password = prop.getProperty("password");
-        // 3.通过反射加载驱动
+        // 3.通过反射加载mysql驱动
         Class.forName(driver);
         // 4.建立连接
         Connection conn = DriverManager.getConnection(url, user, password);
@@ -108,7 +107,7 @@ public class MysqlDemo {
         Connection conn = null;
         try {
             // 获取连接
-            conn = JDBCUtils.getDBCPConnection();
+            conn = JdbcUtils.getDBCPConnection();
             // 关闭自动提交
             conn.setAutoCommit(false);
 
@@ -144,7 +143,7 @@ public class MysqlDemo {
             }
         } finally {
             // 关闭连接
-            JDBCUtils.close(conn, null, null);
+            JdbcUtils.close(conn, null, null);
         }
     }
 
@@ -158,7 +157,7 @@ public class MysqlDemo {
 
         // 2.演示批量查询多条记录
         String sql02 = "select id, name from customers where id < ?";
-        List<Customer> list = queryList(Customer.class, sql02, 5);
+        List<User> list = queryList(User.class, sql02, 5);
         assert list != null;
         list.forEach(System.out::println);  // Customer{id=1, name='汪峰', email='null', birth=null} ...
     }
@@ -182,7 +181,7 @@ public class MysqlDemo {
             e.printStackTrace();
         } finally {
             // 4.关闭ps,conn在外面单独关闭
-            JDBCUtils.close(null, ps, null);
+            JdbcUtils.close(null, ps, null);
         }
     }
 
@@ -196,7 +195,7 @@ public class MysqlDemo {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JDBCUtils.getC3P0Connection();
+            conn = JdbcUtils.getC3P0Connection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -229,7 +228,7 @@ public class MysqlDemo {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JDBCUtils.close(conn, ps, rs);
+            JdbcUtils.close(conn, ps, rs);
         }
         return null;
     }
@@ -245,7 +244,7 @@ public class MysqlDemo {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JDBCUtils.getDBCPConnection();
+            conn = JdbcUtils.getDBCPConnection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -278,7 +277,7 @@ public class MysqlDemo {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JDBCUtils.close(conn, ps, rs);
+            JdbcUtils.close(conn, ps, rs);
         }
         return null;
     }
