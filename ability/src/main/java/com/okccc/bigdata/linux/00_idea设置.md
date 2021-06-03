@@ -48,6 +48,8 @@ Intellij IDEA - Preferences - Editor - General - Appearance - Show method separa
 File - Project Structure - Libraries - 点击+将lib目录下的jar包都添加进来
 # pom文件查看依赖图表
 pom.xml - 右键 - Diagrams - Show Dependencies
+# idea调用方法时会在括号中补全2个空格
+Intellij IDEA - Preferences - Editor - Code Style - Java/Scala - Spaces - Within - Method call parentheses
 ```
 
 ### idea-scala
