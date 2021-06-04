@@ -7,9 +7,19 @@ import scala.collection.mutable
 /**
  * Author: okccc
  * Date: 2021/5/26 上午10:43
- * Desc: 
+ * Desc: 字符串工具类
  */
 object StringUtil {
+
+  // 将main方法传入的字符串参数解析成键值对
+  def string2HashMap(args: String): mutable.HashMap[String, String] = {
+    val hashMap: mutable.HashMap[String, String] = new mutable.HashMap[String, String]()
+    for (elem <- args.split("&")) {
+      val kvs: Array[String] = elem.split("=")
+      hashMap.put(kvs(0), kvs(1))
+    }
+    hashMap
+  }
 
   // 对小数四舍五入格式化
   def formatDouble(num: Double, scale: Int): Double = {
@@ -83,10 +93,8 @@ object StringUtil {
     if (startParamFieldStr == null || endParamFieldStr == null) {
       return true
     }
-
     val startParamFieldValue: Int = startParamFieldStr.toInt
     val endParamFieldValue: Int = endParamFieldStr.toInt
-
     val dataFieldStr: String = getFieldFromConcatString(data, "\\|", dataField)
     if (dataFieldStr != null) {
       val dataFieldValue: Int = dataFieldStr.toInt
@@ -113,7 +121,6 @@ object StringUtil {
       return true
     }
     val paramFieldValueSplited: Array[String] = paramFieldValue.split(",")
-
     val dataFieldValue: String = getFieldFromConcatString(data, "\\|", dataField)
     if (dataFieldValue != null && dataFieldValue != "-1") {
       val dataFieldValueSplited: Array[String] = dataFieldValue.split(",")
@@ -141,7 +148,6 @@ object StringUtil {
     if (paramFieldValue == null) {
       return true
     }
-
     val dataFieldValue: String = getFieldFromConcatString(data, "\\|", dataField)
     if (dataFieldValue != null) {
       if (dataFieldValue.compareTo(paramFieldValue) == 0) {
@@ -149,5 +155,11 @@ object StringUtil {
       }
     }
     false
+  }
+
+
+  def main(args: Array[String]): Unit = {
+    val hashMap: mutable.HashMap[String, String] = string2HashMap("jobName=userLabel&envType=online&topic=thrall$groupId=g01&parallelism=6")
+    println(hashMap)
   }
 }
