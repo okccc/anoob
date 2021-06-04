@@ -395,10 +395,16 @@ done
 # yarn
 # 查看yarn应用列表
 [root@cdh1 ~]$ yarn application -list
-# 杀掉指定yarn应用
-[root@cdh1 ~]$ yarn application -kill application_id
 # 查看yarn应用状态
 [root@cdh1 ~]$ yarn application -status application_id
+# 杀掉单个yarn应用
+[root@cdh1 ~]$ yarn application -kill application_id
+# 杀掉全部yarn应用
+[root@cdh1 ~]$ for i in `yarn application -list | awk '{print $1}' | grep application_`; do yarn application -kill $i; done
+# 批量杀掉yarn应用
+[root@cdh1 ~]$ for i in `yarn application -list | grep ... | awk '{print $1}' | grep application_`; do yarn application -kill $i; done
+# linux批量杀进程
+[root@cdh1 ~]$ ps -aux | grep ... | awk '{print $2}' | xargs kill -9
 
 # hdfs
 # 修改目录所属用户(组)
