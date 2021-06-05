@@ -39,8 +39,8 @@ HDFS采用机架感知策略,保证数据可靠性,并且mr会根据机架距离
 一个副本存放在本地机架节点,另一个副本存放在本地机架的另一个节点,第三个副本存放在不同机架的节点
 
 # HDFS小文件有什么影响？
-影响NameNode寿命,因为文件的元数据信息存放在NameNode的内存中
-浪费计算资源,每个小文件都会占用一个Map任务
+存储层面：影响NameNode寿命,因为文件的元数据信息存放在NameNode的内存中
+计算层面：浪费计算资源,每个小文件都会占用一个Map任务
 解决：使用SequenceFile和CombineFileInputFormat合并小文件代替hadoop默认的TextFile
 
 # HDFS安全模式？
