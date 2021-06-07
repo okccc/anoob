@@ -108,7 +108,7 @@ esac
 # 有的节点还没启动,已经启动的节点会努力寻找其它节点进行leader选举,正常现象等节点都启动就好了
 ```
 
-### kafka
+### kafka安装
 - [kafka官方文档](http://kafka.apache.org/0110/documentation.html)
 ```shell script
 # 下载
@@ -161,7 +161,10 @@ max.partition.fetch.bytes=1048576
 max.poll.records=500
 # the maximum amount of time the client will wait for the response of a request
 request.timeout.ms=305000
+```
 
+### kafka脚本
+```shell script
 # 启动kafka,默认是前台进程,可以在后台启动
 [root@cdh1 ~]$ kafka-server-start.sh -daemon /config/server.properties  # 日志默认存放在logs/server.log
 [root@cdh1 ~]$ nohup kafka-server-start.sh config/server.properties > (logs/server.log | /dev/null) 2>&1 &
@@ -209,11 +212,9 @@ offset
 # 消息偏移量：类似数组下标,如果由消费者维护消费者挂掉就丢失了,当分区或消费者发生变化时会触发rebalance机制在消费者组内重新分配,所以offset由消费者组维护
 ```
 
-### shell
+### kafka命令
 ```shell script
 # 创建topic,必须指定分区数和副本数,额外配置信息可选,不写就使用默认值
-# partition数 >= consumer数可以实现最大并发,但是分区过多也会导致 1.producer吞吐量降低(副本) 2.leader选举耗时增加 3.offset查询耗时增加
-# replication数会影响producer/consumer流量,比如3副本则实际流量 = 生产流量 × 3
 [root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2 [--config key=value]
 Topic creation {"version":1,"partitions":{"1":[1,2,0],"0":[0,1,2]}}
 Created topic "t01".
@@ -259,17 +260,38 @@ Note: This will have no impact if delete.topic.enable is not set to true.
 # 消费者
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --topic t01 [--from-beginning] [--max-messages 1]
 java bigdata
-# kafka压力测试：看看CPU/内存/网络IO哪里会出现性能瓶颈,一般都是网络IO达到瓶颈
-# 生产者压测,record-size是一条信息字节数,num-records是发送信息总条数,throughput是每秒发送条数
-[root@cdh1 ~]$ kafka-producer-perf-test.sh --producer-props bootstrap.servers=localhost:9092 --topic test --record-size 100 --num-records 100000 --throughput 1000
-# 消费者压测,fetch-size是每次消费的数据大小,messages是消费的消息总数
-[root@cdh1 ~]$ kafka-consumer-perf-test.sh --broker-list localhost:9092 --topic test --fetch-size 1000 --messages 100000 --threads 1
 
 # 查看consumer-group列表/详细信息
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 # 重置消费者组的offset
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
+```
+
+### kafka压测
+```shell script
+# kafka压力测试：看看CPU/内存/网络IO哪里会出现性能瓶颈,一般都是网络IO达到瓶颈
+# 生产者压测
+# record-size是一条信息字节数,num-records是发送信息总条数,throughput是每秒发送条数,-1表示不限流,可测出生产者的最大吞吐量
+# 本例中共写入100w条数据,吞吐量为87.90 MB/sec,每次写入的平均延迟为336.12毫秒,最大延迟为666.00毫秒
+[root@cdh1 ~]$ kafka-producer-perf-test.sh --producer-props bootstrap.servers=localhost:9092 --topic test --record-size 1000 --num-records 1000000 --throughput -1
+1000000 records sent, 92165.898618 records/sec (87.90 MB/sec), 336.12 ms avg latency, 666.00 ms max latency
+# 消费者压测
+# fetch-size是每次消费的数据大小,messages是消费的消息总数
+# 本例中共消费867MB数据,吞吐量为73 MB/sec,共消费1000000条,平均84516条/sec
+[root@cdh1 ~]$ kafka-consumer-perf-test.sh --broker-list localhost:9092 --topic test --fetch-size 10000 --messages 1000000 --threads 1
+start.time, end.time, data.consumed.in.MB, MB.sec, data.consumed.in.nMsg, nMsg.sec
+2021-06-07 10:43:13:883, 2021-06-07 10:43:25:715, 867.8436, 73.3472, 1000000, 84516.5652
+
+# kafka机器数量
+# Kafka机器数量 = 2 * (峰值生产速度 * 副本数 / 100) + 1
+# 比如峰值生产速度是50M/s,副本数为3,那么机器数量 = 2 * (50 * 3 / 100) + 1 = 4(台)
+
+# kafka分区数
+# kafka分区数 = 期望的总吞吐量 / min(生产者吞吐量, 消费者吞吐量)
+# 比如生产速度100M/s,消费速度50M/s,期望kafka集群的总吞吐量150M/s,那么分区数 = 150 / min(100, 50) = 3
+# 增加分区数可以提高吞吐量,partition数 >= consumer数可以实现最大并发,但是分区过多也会导致 1.内存开销增大 2.leader选举和offset查询耗时增加
+# replication数会影响producer/consumer流量,比如3副本则实际流量 = 生产流量 × 3
 ```
 
 ### kafka-manager
