@@ -1,7 +1,6 @@
-### maven
+### maven常用命令
 ```shell script
 # maven是一款自动化构建工具,用于项目的构建和依赖管理
-# maven常用命令
 mvn -v             # 查看maven版本
 mvn compile        # 编译项目源代码(多了target目录)
 mvn test-compile   # 编译测试源代码(查看target目录变化)
@@ -17,19 +16,11 @@ compile     # 参与项目的编译、测试、运行、打包,贯穿所有阶�
 provided    # 参与项目的编译、测试、运行,但是在打包阶段做了exclude,表示该依赖由jdk或服务器提供,避免jar包冲突,比如web开发的servlet-api.jar
 runtime     # 不参与项目的编译,只参与测试和运行,比如JDBC驱动包是不需要编译的,运行时才会使用到
 test        # 只参与项目的测试,比如Junit包
+```
 
-# pom丢失依赖不可用
-[WARNING] The POM for com.okccc:commons:jar:1.0-SNAPSHOT is missing, no dependency information available
-https://www.cnblogs.com/li150dan/p/11114773.html
-
-# maven jar包冲突
-SLF4J: Class path contains multiple SLF4J bindings.
-SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/org/slf4j/slf4j-log4j12/1.6.1/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/ch/qos/logback/logback-classic/1.0.7/logback-classic-1.0.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-显示slf4j-log4j12包和logback-classic包冲突,其中logback-classic是我在pom文件里引入的,说明有别的依赖引用了slf4j,找到它并在pom中排除
-mvn dependency:tree  # 查看工程依赖关系
-
-# maven配置文件
+### maven配置文件
+```xml
+<!-- 使用阿里云镜像下载 -->
 <mirrors>
   <mirror>
     <id>nexus-aliyun</id>
@@ -38,7 +29,6 @@ mvn dependency:tree  # 查看工程依赖关系
     <url>http://maven.aliyun.com/nexus/content/groups/public</url>
   </mirror>
 </mirrors>
-
 <profiles>
      <profile>
           <id>jdk-1.8</id>
@@ -53,10 +43,23 @@ mvn dependency:tree  # 查看工程依赖关系
           </properties>
      </profile>
 </profiles>
+```
 
+### maven常见错误
+```shell script
+# scala项目打jar包后找不到类
+原因：mvn clean package只会对java源码进行编译和打包,将jar包改成rar压缩文件点进去查看发现目标scala类并没有被打进jar包
+解决：手动执行 mvn clean scala:compile compile package,在compile前加入scala:compile,这是scala-maven-plugin提供的编译scala的选项,
+先编译scala再编译java最后打包,或者直接在pom文件的scala-maven-plugin添加execution
 
-# q1:mvn clean scala:compile compile package?
-# q2:provided?
-# q3:scala工程打jar包找不到类？
+# pom丢失依赖不可用
+[WARNING] The POM for com.okccc:commons:jar:1.0-SNAPSHOT is missing, no dependency information available
+https://www.cnblogs.com/li150dan/p/11114773.html
 
+# maven jar包冲突
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/org/slf4j/slf4j-log4j12/1.6.1/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/ch/qos/logback/logback-classic/1.0.7/logback-classic-1.0.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+显示slf4j-log4j12包和logback-classic包冲突,其中logback-classic是我在pom文件里引入的,说明有别的依赖引用了slf4j,找到它并在pom中排除
+mvn dependency:tree  # 查看工程依赖关系
 ```
