@@ -348,22 +348,6 @@
                 </configuration>
             </plugin>
 
-            <!-- maven编译scala源码插件 -->
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>4.4.0</version>
-                <executions>
-                    <execution>
-                        <!-- mvn clean package默认只编译java源码 -->
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- maven打jar包插件,assembly和shade都可以 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -381,6 +365,22 @@
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- maven编译scala源码插件 -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>4.4.0</version>
+                <executions>
+                    <execution>
+                        <!-- mvn clean package默认只编译java源码 -->
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>

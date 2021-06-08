@@ -12,11 +12,6 @@
     <artifactId>mock</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>com.okccc</groupId>
-            <artifactId>commons</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
         <!-- 日志生成框架 -->
         <dependency>
             <groupId>ch.qos.logback</groupId>

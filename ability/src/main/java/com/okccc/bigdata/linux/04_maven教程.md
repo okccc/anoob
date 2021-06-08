@@ -48,9 +48,12 @@ test        # 只参与项目的测试,比如Junit包
 ### maven常见错误
 ```shell script
 # scala项目打jar包后找不到类
-原因：mvn clean package只会对java源码进行编译和打包,将jar包改成rar压缩文件点进去查看发现目标scala类并没有被打进jar包
-解决：手动执行 mvn clean scala:compile compile package,在compile前加入scala:compile,这是scala-maven-plugin提供的编译scala的选项,
-先编译scala再编译java最后打包,或者直接在pom文件的scala-maven-plugin添加execution
+原因：mvn package只会对java源码进行编译和打包,将jar包改成rar压缩文件点进去就会发现目标scala类并没有被打进jar包
+解决：pom文件scala-maven-plugin添加execution标签,或者手动执行 mvn clean scala:compile compile package
+
+# idea使用maven插件打包没问题,mvn package打包提示jdk冲突
+原因：idea自带的maven版本是3.6.3,本地安装的maven版本是3.5.4,不同版本解决jar包冲突的方式不一样
+解决：brew install maven
 
 # pom丢失依赖不可用
 [WARNING] The POM for com.okccc:commons:jar:1.0-SNAPSHOT is missing, no dependency information available
