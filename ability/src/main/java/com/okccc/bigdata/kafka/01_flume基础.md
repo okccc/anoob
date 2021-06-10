@@ -51,6 +51,8 @@ do
 done
 
 # 启动flume(每个nginx节点都单独装flume,单个nginx节点配置是8核16g,4个节点峰值流量100M/S,稳定流量10M/S)
+# 运维每天凌晨会定时切割nginx日志,不然日志文件会无限增大,切割后监控的日志文件inode变了,所以flume进程也要重启,position从0开始
+[{"inode":70,"pos":10743524421,"file":"/data/logs/access_sdk.log"}]
 [root@cdh1 ~]$ vim flume.sh
 #!/bin/bash
 case $1 in
@@ -127,7 +129,7 @@ a1.sources.r1.selector.header = type           # headers的key,通过headers对e
 a1.sources.r1.selector.mapping.start = c1      # headers的value=start发往c1
 a1.sources.r1.selector.mapping.event = c2      # headers的value=event发往c2
 
-# 可以将数据发往多个channel,比如集群内的多个topic,或者不同kafka集群
+# 配置channel,可以将数据发往多个channel,比如集群内的多个topic,或者不同kafka集群
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka地址
 a1.channels.c1.kafka.topic = start                                      # 指定channel对应的topic,topic需提前创建
