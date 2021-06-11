@@ -1,6 +1,9 @@
 package com.okccc.util;
 
 import net.ipip.ipdb.City;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 
 /**
@@ -9,6 +12,10 @@ import java.util.Arrays;
  * Desc: 根据IP地址查询城市
  */
 public class IPUtil {
+
+    // 使用指定类初始化日志对象,控制台输出日志时会显示日志信息所属的类
+    private static final Logger logger = LoggerFactory.getLogger(IPUtil.class);
+
     private static City city;
 
     public static String[] find(String ip, String language) {
@@ -18,7 +25,8 @@ public class IPUtil {
             }
             return city.find(ip, language);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("parse ip failed: " + e);
         }
         return null;
     }
