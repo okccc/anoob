@@ -40,10 +40,10 @@ object S05_group {
     val words: List[String] = List("java","python","scala","java","python","scala","java", "com/okccc/spark" )
     // 先分组
     val wordToList: Map[String, List[String]] = words.groupBy((i: String) => i)
-    println(wordToList)  // Map(com.okccc.spark -> List(com.okccc.spark), scala -> List(scala, scala), java -> List(java, java, java), python -> List(python, python))
+    println(wordToList)  // Map(spark -> List(spark), scala -> List(scala, scala), java -> List(java, java, java), python -> List(python, python))
     // 再映射
     val wordToInt: Map[String, Int] = wordToList.map((t: (String, List[String])) => {(t._1, t._2.size)})
-    println(wordToInt)  // Map(com.okccc.spark -> 1, scala -> 2, java -> 3, python -> 2)
+    println(wordToInt)  // Map(spark -> 1, scala -> 2, java -> 3, python -> 2)
     // Map集合是无序的没有排序方法,需转换成List集合再排序
     val result: List[(String, Int)] = wordToInt.toList.sortWith((x: (String, Int), y: (String, Int)) => {x._2 > y._2}).take(3)
     println(result)  // List((java,3), (scala,2), (python,2))
@@ -54,21 +54,21 @@ object S05_group {
 //    val words: List[String] = List("hello java","hello python","hello scala")
 //    val words_new: List[String] = words.flatMap((i: String) => i.split(" "))
     // WordCount案例2
-    val text: List[(String, Int)] = List(("hello scala", 4),("hello python",3 ),("hello java",2),("hello com.okccc.spark",1))
-    println(text)  // List((hello scala,4), (hello python,3), (hello java,2), (hello com.okccc.spark,1))
+    val text: List[(String, Int)] = List(("hello scala", 4),("hello python",3 ),("hello java",2),("hello spark",1))
+    println(text)  // List((hello scala,4), (hello python,3), (hello java,2), (hello spark,1))
     // 先做扁平化拆分
     val flatMapList: List[(String, Int)] = text.flatMap((t: (String, Int)) => {
       val words: mutable.ArrayOps[String] = t._1.split(" ")
       println(words)
       words.map((w: String) => {(w, t._2)})
     })
-    println(flatMapList)  // List((hello,4), (scala,4), (hello,3), (python,3), (hello,2), (java,2), (hello,1), (com.okccc.spark,1))
+    println(flatMapList)  // List((hello,4), (scala,4), (hello,3), (python,3), (hello,2), (java,2), (hello,1), (spark,1))
     // 分组
     val groupWordMap: Map[String, List[(String, Int)]] = flatMapList.groupBy((t: (String, Int)) => {t._1})
-    println(groupWordMap)  // Map(java -> List((java,2)), com.okccc.spark -> List((com.okccc.spark,1)), scala -> List((scala,4)), python -> List((python,3)), hello -> List((hello,4), (hello,3), (hello,2), (hello,1)))
+    println(groupWordMap)  // Map(java -> List((java,2)), spark -> List((spark,1)), scala -> List((scala,4)), python -> List((python,3)), hello -> List((hello,4), (hello,3), (hello,2), (hello,1)))
     // 映射,mapValues方法可以只针对Map集合的value做操作而key保持不变
     val wordSumMap: Map[String, Int] = groupWordMap.mapValues((l: List[(String, Int)]) => {l.map((t: (String, Int)) => {t._2}).sum})
-    println(wordSumMap)  // Map(java -> 2, com.okccc.spark -> 1, scala -> 4, python -> 3, hello -> 10)
+    println(wordSumMap)  // Map(java -> 2, spark -> 1, scala -> 4, python -> 3, hello -> 10)
     // 排序
     val wordCount: List[(String, Int)] = wordSumMap.toList.sortWith((x: (String, Int), y: (String, Int)) => {x._2 > y._2}).take(3)
     println(wordCount)  // List((hello,10), (scala,4), (python,3))

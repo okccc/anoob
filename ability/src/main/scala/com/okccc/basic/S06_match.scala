@@ -108,12 +108,12 @@ object S06_match {
     val list2: List[Int] = list1.flatten
     println(list2)  // List(1, 2, 3, 4)
 
-    val list3: List[String] = List("hello scala", "hello com.okccc.spark")
+    val list3: List[String] = List("hello scala", "hello spark")
     val list4: List[Char] = list3.flatten
     println(list4)  // List(h, e, l, l, o,  , s, c, a, l, a, h, e, l, l, o,  , s, p, a, r, k)
     // 此处 (i: String) => i 可以简写成_: String,因为后面调用了split方法,说明_是参数而不是方法
     val list5: List[String] = list3.flatMap((i: String) => i.split(" "))
-    println(list5)  // List(hello, scala, hello, com.okccc.spark)
+    println(list5)  // List(hello, scala, hello, spark)
 
     // 需求：将集合中的数字数加一,非数字舍弃
     // 复杂版：filter + map

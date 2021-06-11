@@ -92,9 +92,11 @@ http://192.168.152.11/a.txt
 # 查看cpu信息
 [root@cdh1 ~]$ lscpu
 # 查看物理cpu个数
-[root@cdh1 ~]$ cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l
-# 查看每个cpu核数
+[root@cdh1 ~]$ cat /proc/cpuinfo | grep "physical id" | sort | uniq
+# 查看每个物理cpu的核数
 [root@cdh1 ~]$ cat /proc/cpuinfo | grep "cpu cores" | uniq
+# 查看逻辑cpu个数 = 物理cpu个数 * 每个物理cpu核数 * 超线程数 = 2 * 8 * 2 = 32核 (一般说的就是逻辑cpu个数)
+[root@cdh1 ~]$ cat /proc/cpuinfo | grep 'processor'
 # 系统负载：在特定时间间隔内运行队列中的平均进程数
 [root@cdh1 ~]$ cat /proc/loadavg  # 最近1,5,15分钟的系统负载, 正在运行进程数/系统总进程数, 最近运行的进程id
 # 查看系统运行时长

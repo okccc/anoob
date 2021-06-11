@@ -35,7 +35,7 @@ object S03_implicit {
     // 调用函数时不添加()表示调用的是不带参函数,不会使用默认参数值,为了使编译通过会在当前作用域搜索String类型的隐式值
     coding("java") // java:hadoop
     // 调用函数时添加()表示调用的是带参函数,会使用默认参数值使编译通过,此时不涉及隐式转换
-    coding("scala")()  // scala:com.okccc.spark
+    coding("scala")()  // scala:spark
     // 调用方法时添加()并且明确指定参数,就使用给定参数使编译通过,此时不涉及隐式转换
     coding("python")("django")  // python:django
   }
@@ -112,18 +112,18 @@ object Generics {
     // 创建Pair对象时没有指定泛型[T],scala会根据传入变量值自动推断返回值类型
     val p11: Pair01[String] = new Pair01("hadoop", "com/okccc/spark" )
 //    val p12: Pair01[Int] = new Pair01(100, 200)  // 报错：type mismatch
-    println(p11.bigger())  // com.okccc.spark
+    println(p11.bigger())  // spark
     val p21: Pair02[String] = new Pair02("hadoop", "com/okccc/spark" )
     val p22: Pair02[Int] = new Pair02(100, 200)
-    println(p21.bigger())  // com.okccc.spark
+    println(p21.bigger())  // spark
     println(p22.bigger())  // 200
     val p31: Pair03[String] = new Pair03("hadoop", "com/okccc/spark" )
     val p32: Pair03[Int] = new Pair03(100, 200)
-    println(p31.bigger())  // com.okccc.spark
+    println(p31.bigger())  // spark
     println(p32.bigger())  // 200
     val p41: Pair04[String] = new Pair04("hadoop", "com/okccc/spark" )
     val p42: Pair04[Int] = new Pair04(100, 200)
-    println(p41.bigger)  // com.okccc.spark
+    println(p41.bigger)  // spark
     println(p42.bigger)  // 200
     // 创建泛型数组
     def mkArray[T : ClassTag](elems: T*): Array[T] = Array[T](elems: _*)
