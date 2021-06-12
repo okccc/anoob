@@ -132,7 +132,7 @@ a1.sources.r1.selector.mapping.event = c2      # headers的value=event发往c2
 # 配置channel,可以将数据发往多个channel,比如集群内的多个topic,或者不同kafka集群
 a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel       # 使用KafkaChannel省去sink阶段
 a1.channels.c1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092  # kafka地址
-a1.channels.c1.kafka.topic = start                                      # 指定channel对应的topic,topic需提前创建
+a1.channels.c1.kafka.topic = start                                      # 指定channel对应的topic(需提前创建)
 a1.channels.c1.parseAsFlumeEvent = false                                # 是否给数据加flume前缀,一般不加,不然往表里存还要再截掉
 
 a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel

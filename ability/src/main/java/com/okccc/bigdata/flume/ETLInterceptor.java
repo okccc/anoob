@@ -1,5 +1,7 @@
 package com.okccc.bigdata.flume;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
@@ -23,25 +25,24 @@ public class ETLInterceptor implements Interceptor {
 
     @Override
     public Event intercept(Event event) {
+        // 判断event是否为空
         if (event == null) {
             return null;
         }
-        String line = new String(event.getBody(), StandardCharsets.UTF_8);
-        if (line.length() > 0) {
-            // 截取字符串
-            String msg = line.split("\"")[3];
-            try {
-                // java.lang.IllegalArgumentException: URLDecoder: Incomplete trailing escape (%) pattern
-                // url解码,%在url中是特殊字符,要先将单独出现的%替换成编码后的%25,再对整个字符串解码
-                String msg_new = URLDecoder.decode(msg.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "utf-8");
-                // 返回新的event
-                event.setBody(msg_new.getBytes(StandardCharsets.UTF_8));
-                return event;
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+
+        // 将event转换成字符串
+        String log = new String(event.getBody(), StandardCharsets.UTF_8);
+
+        // 判断字符串是否json格式
+        if (LogUtil.isJsonFormat(log)) {
+            // url解码
+            String log_decode = LogUtil.decode(log);
+            // 返回新的event
+            event.setBody(log_decode.getBytes(StandardCharsets.UTF_8));
+            return event;
+        } else {
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -63,6 +64,7 @@ public class ETLInterceptor implements Interceptor {
 
     }
 
+    // 按照agent配置文件中的interceptor类型,创建静态内部类生成拦截器对象
     public static class Builder implements Interceptor.Builder {
         @Override
         public Interceptor build() {
@@ -71,9 +73,8 @@ public class ETLInterceptor implements Interceptor {
 
         @Override
         public void configure(Context context) {
-
+            // 获取flume配置文件的参数,一般用不到
         }
     }
-
 
 }

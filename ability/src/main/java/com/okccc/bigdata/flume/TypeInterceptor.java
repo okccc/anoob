@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Author: okccc
  * Date: 2020/12/6 19:47
- * Desc: 给启动日志和事件日志添加header
+ * Desc: 给不同类型的日志添加header区分
  */
 public class TypeInterceptor implements Interceptor {
     @Override
@@ -31,9 +31,9 @@ public class TypeInterceptor implements Interceptor {
         Map<String, String> headers = event.getHeaders();
         // 填充header
         if (body.contains("start")) {
-            headers.put("topic", "start");
+            headers.put("type", "start");  // 启动日志
         } else {
-            headers.put("topic", "event");
+            headers.put("type", "event");  // 事件日志
         }
         // 返回填充headers后的Event
         return event;
