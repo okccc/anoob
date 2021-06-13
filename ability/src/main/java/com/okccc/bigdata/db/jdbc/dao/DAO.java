@@ -1,6 +1,6 @@
 package com.okccc.bigdata.db.jdbc.dao;
 
-import com.okccc.bigdata.db.jdbc.JdbcUtils;
+import com.okccc.bigdata.db.jdbc.JdbcUtil;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -32,7 +32,7 @@ public class DAO {
             e.printStackTrace();
         } finally {
             // 4.关闭ps,conn在外面单独关闭
-            JdbcUtils.close(null, ps, null);
+            JdbcUtil.close(null, ps, null);
         }
     }
 
@@ -46,7 +46,7 @@ public class DAO {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JdbcUtils.getC3P0Connection();
+            conn = JdbcUtil.getC3P0Connection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -79,7 +79,7 @@ public class DAO {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JdbcUtils.close(conn, ps, rs);
+            JdbcUtil.close(conn, ps, rs);
         }
         return null;
     }
@@ -95,7 +95,7 @@ public class DAO {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JdbcUtils.getDBCPConnection();
+            conn = JdbcUtil.getDBCPConnection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -128,7 +128,7 @@ public class DAO {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JdbcUtils.close(conn, ps, rs);
+            JdbcUtil.close(conn, ps, rs);
         }
         return null;
     }

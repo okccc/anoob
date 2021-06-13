@@ -53,7 +53,7 @@ object S03_DStream {
     //      System.err.println("Usage: ClassName <hostname> <port>")
     //      System.exit(1)
     //    }
-    //    官方案例：nc -lk 9999 & run-example org.apache.com.okccc.spark.examples.streaming.NetworkWordCount localhost 9999
+    //    官方案例：nc -lk 9999 & run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
 
     //    // scala中的滑动窗口函数
     //    val ints: List[Int] = List(1,2,3,4,5,6)
@@ -138,7 +138,7 @@ object S03_DStream {
       // saveAsObjectFiles：将DStream内容保存到序列化的java对象SequenceFiles
       // saveAsHadoopFiles：将DStream内容保存到Hadoop文件
       rdd.coalesce(1, shuffle = true).saveAsTextFile("ability/output/socket")
-      //      rdd.saveAsHadoopFile("hdfs://cdh1:9000/user/com.okccc.spark/streaming/socket", classOf[Text], classOf[IntWritable],
+      //      rdd.saveAsHadoopFile("hdfs://cdh1:9000/user/spark/streaming/socket", classOf[Text], classOf[IntWritable],
       //        classOf[TextOutputFormat[Text, IntWritable]], classOf[org.apache.hadoop.io.compress.GzipCodec])
     })
     // 2).写入mysql数据库

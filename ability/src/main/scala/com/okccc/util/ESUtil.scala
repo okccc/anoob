@@ -10,7 +10,7 @@ import org.elasticsearch.search.sort.SortOrder
 import java.util
 import java.util.Properties
 
-import com.okccc.spark.MovieInfo
+import com.okccc.common.MovieInfo
 
 import scala.collection.mutable
 

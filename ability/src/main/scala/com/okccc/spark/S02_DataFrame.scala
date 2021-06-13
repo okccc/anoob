@@ -67,7 +67,7 @@ object S02_DataFrame {
 
   def readFile(spark: SparkSession): Unit = {
     // a.Spark可以读写json/csv/parquet/orc/text/jdbc等多种格式数据源,返回DataFrame对象
-    // 通用读数据方法：com.okccc.spark.read.format("").load(path),可简写如下格式
+    // 通用读数据方法：spark.read.format("").load(path),可简写如下格式
     val df: DataFrame = spark.read.json("ability/input/people.json")
     // 通过jdbc读取外部数据源数据
     val jdbcDF: DataFrame = spark.read
@@ -93,9 +93,9 @@ object S02_DataFrame {
     //    println(ds.isStreaming)  // false
     //    println(ds.columns.mkString(","))  // age,name
     //    println(ds.dtypes.mkString(","))  // (age,LongType),(name,StringType)
-    //    println(ds.na)  // org.apache.com.okccc.spark.sql.DataFrameNaFunctions@5b7b0ada
+    //    println(ds.na)  // org.apache.spark.sql.DataFrameNaFunctions@5b7b0ada
     //    ds.na.drop().show()
-    //    println(ds.stat)  // org.apache.com.okccc.spark.sql.DataFrameStatFunctions@e460ca1
+    //    println(ds.stat)  // org.apache.spark.sql.DataFrameStatFunctions@e460ca1
     //    ds.stat.freqItems(Seq("name")).show()
     //    println(ds.storageLevel)  // StorageLevel(1 replicas)
 
@@ -142,7 +142,7 @@ object S02_DataFrame {
     // 除了API查询还可以创建临时视图(read-only)通过sql查询,View和RDD类似都是不可变的,临时表是session-scoped,可使用全局表global_temp.user
     ds.createOrReplaceTempView("user")
     // explain：true查看logical plan和physical plan | false只查看physical plan
-//    com.okccc.spark.sql("select avg(age) from user").as("avg").explain(true)
+//    spark.sql("select avg(age) from user").as("avg").explain(true)
   }
 
   def convertRDD(spark: SparkSession): Unit = {

@@ -1,8 +1,7 @@
-package com.okccc.spark.session
+package com.okccc.common
 
 import java.util.UUID
 
-import com.okccc.spark.common.{ProductInfo, StringUtils, UserInfo, UserVisitAction}
 import com.okccc.util.DateUtil
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -12,9 +11,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 /**
- * 模拟数据
+ * 模拟生成离线数据
  */
-object MockDataGenerate {
+object MockOfflineData {
 
   // 表名常量
   private val USER_INFO_TABLE: String = "user_info"
@@ -85,7 +84,7 @@ object MockDataGenerate {
     // 创建存放产品数据的可变数组
     val rows: ArrayBuffer[ProductInfo] = ArrayBuffer[ProductInfo]()
     // 创建随机数生成器对象
-    val random = new Random()
+    val random: Random = new Random()
     // 产品状态
     val productStatus: Array[Int] = Array(0, 1)
     // 随机产生100个产品信息

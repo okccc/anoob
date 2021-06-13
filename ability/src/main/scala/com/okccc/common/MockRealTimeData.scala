@@ -1,16 +1,20 @@
-package com.okccc.spark.session
+package com.okccc.common
 
 import java.util.Properties
 
-import com.okccc.spark.common.ConfigurationManager
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
+/**
+ * Author: okccc
+ * Date: 2021/5/28 下午3:52
+ * Desc:
+ */
 object MockRealTimeData {
   /**
-    * 模拟的数据
+    * 模拟生成实时数据
     * 时间点: 当前时间毫秒
     * userId: 0 - 99
     * 省份、城市 ID相同 ： 1 - 9

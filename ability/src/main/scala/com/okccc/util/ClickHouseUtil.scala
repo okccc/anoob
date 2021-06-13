@@ -22,12 +22,12 @@ object ClickHouseUtil {
    */
   def getConnection: Connection = {
     // 1.加载配置文件
-    val prop: Properties = PropertiesUtil.load("config.properties")
+    val prop: Properties = PropertiesUtil.load("config.properties1")
     // 2.获取连接信息
-    val driver: String = prop.getProperty("ck_driver")
-    val url: String = prop.getProperty("ck_url")
-    val user: String = prop.getProperty("ck_user")
-    val password: String = prop.getProperty("ck_password")
+    val driver: String = prop.getProperty("ck.driver")
+    val url: String = prop.getProperty("ck.url")
+    val user: String = prop.getProperty("ck.user")
+    val password: String = prop.getProperty("ck.password")
     // 3.通过反射加载驱动
     Class.forName(driver)
     // 4.获取连接

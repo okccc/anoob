@@ -9,7 +9,7 @@ import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
  * Date: 2020/12/13 10:31
  * Desc: 获取Jedis的工具类
  */
-object RedisUtil {
+object JedisUtil {
 
   // 声明jedis连接池
   private var jedisPool: JedisPool = _
@@ -17,15 +17,15 @@ object RedisUtil {
   // 从jedis连接池中获取jedis
   def getJedis(): Jedis = {
     if (jedisPool == null) {
-      jedisPool = build()
+      jedisPool = initJedisPool()
     }
     val jedis: Jedis = jedisPool.getResource
     jedis
   }
 
   // 创建jedis连接池
-  def build(): JedisPool = {
-    // 3.获取redis地址
+  def initJedisPool(): JedisPool = {
+    // 1.获取redis地址
     val prop: Properties = PropertiesUtil.load("config.properties")
     val host: String = prop.getProperty("redis.host")
     val port: String = prop.getProperty("redis.port")
@@ -39,13 +39,13 @@ object RedisUtil {
     config.setMaxWaitMillis(5000)  // 最大等待时长(ms)
     config.setTestOnBorrow(true)  // 每次获得连接进行测试
 
-    // 1.创建jedis连接池
+    // 3.创建jedis连接池
     val jedisPool: JedisPool = new JedisPool(config, host, port.toInt)
     jedisPool
   }
 
   def main(args: Array[String]): Unit = {
-    val jedis: Jedis = getJedis
+    val jedis: Jedis = getJedis()
     // 测试连接
     println(jedis.ping())  // PONG
     jedis.close()

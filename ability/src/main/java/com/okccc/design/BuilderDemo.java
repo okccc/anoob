@@ -13,13 +13,13 @@ public class BuilderDemo {
          * 2.Builder类的属性和外部类保持一致,由Builder类实现属性的setXxx方法,并最终提供build方法返回外部类对象
          * 优点：通过Builder类一步一步构建复杂对象,可以任意组合输入参数,避免多参数构造方法重载出错,还不用写过多的构造器
          *
-         * es/com.okccc.spark/flink都使用了构造者模式
+         * es/spark/flink都使用了构造者模式
          * io.searchbox.client.config.HttpClientConfig
          * io.searchbox.core.Index/Get/Update/Delete/Search
-         * org.apache.com.okccc.spark.sql.SparkSession
-         * org.apache.com.okccc.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
-         * org.apache.com.okccc.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig
-         * org.apache.com.okccc.flink.streaming.connectors.elasticsearch6.ElasticsearchSink
+         * org.apache.spark.sql.SparkSession
+         * org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
+         * org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig
+         * org.apache.flink.streaming.connectors.elasticsearch6.ElasticsearchSink
          */
         User user = new User.Builder().setName("fly").setMobile("111").setEmail("orc@qq.com").build();
         System.out.println(user.getName());

@@ -1,7 +1,7 @@
 package com.okccc.bigdata.db.jdbc.dao;
 
 import com.okccc.bigdata.db.jdbc.bean.User;
-import com.okccc.bigdata.db.jdbc.JdbcUtils;
+import com.okccc.bigdata.db.jdbc.JdbcUtil;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,7 +11,7 @@ import java.util.List;
 public class UserDAO extends DAO{
 
     public static void main(String[] args) throws SQLException {
-        Connection conn = JdbcUtils.getC3P0Connection();
+        Connection conn = JdbcUtil.getC3P0Connection();
         User cus = new User(1, "grubby", "orc@qq.com", new Date(1234567890L));
 //        addCustomer(conn, cus);
 //        deleteById(conn, 19);

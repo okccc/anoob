@@ -30,6 +30,7 @@ object Constants {
 
 	// kafka
 	val BOOTSTRAP_SERVERS: String = "bootstrap.servers"
-	val TOPIC: String = "topic"
+	val NGINX_TOPIC: String = "nginx.topic"
+	val MYSQL_TOPIC: String = "mysql.topic"
 	val GROUP_ID: String = "group.id"
 }

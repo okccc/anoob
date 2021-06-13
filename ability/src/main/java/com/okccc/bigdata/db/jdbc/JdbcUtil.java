@@ -1,4 +1,4 @@
-package com.okccc.bigdata.jdbc.util;
+package com.okccc.bigdata.db.jdbc;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.Properties;
 
 @SuppressWarnings("all")
-public class JDBCUtils {
+public class JdbcUtil {
     public static void main(String[] args) throws Exception {
         // 提供数据库连接和关闭操作的工具类
         getConnection();
@@ -19,12 +19,11 @@ public class JDBCUtils {
         getDruidConnection();
     }
 
-    // 手动获取连接
+    // 手动获取数据库连接
     public static Connection getConnection() throws Exception {
         // 1.读取配置文件
         Properties prop = new Properties();
-        FileReader fr = new FileReader("ability/src/main/resources/config.properties");
-        prop.load(fr);
+        prop.load(new FileReader("ability/src/main/resources/config.properties"));
         // 2.获取连接信息
         String driver = prop.getProperty("driver");
         String url = prop.getProperty("url");
@@ -53,7 +52,6 @@ public class JDBCUtils {
         try {
             // 1.加载配置文件
             Properties prop = new Properties();
-//            prop.load(JDBCUtils.class.getClassLoader().getResourceAsStream("dbcp.properties"));
             prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("dbcp.properties"));
             // 2.创建数据源
             source = BasicDataSourceFactory.createDataSource(prop);
@@ -70,13 +68,14 @@ public class JDBCUtils {
 
     // 使用druid数据库连接池(集C3P0和DBCP优点于一身的数据库连接池,推荐使用)
     private static DataSource dataSource;
-    // 连接池只需要一个就可以了,所以放静态代码块,随着类加载而加载,且只执行一次
+    // 连接池只需要一个就可以了,可以放静态代码块,随着类加载而加载,且只执行一次
     static {
         try {
             // 1.加载配置文件
             Properties prop = new Properties();
+//            prop.load(JdbcUtils.class.getClassLoader().getResourceAsStream("druid.properties"));
             prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("druid.properties"));
-            // 2.创建数据源(连接池)
+            // 2.创建数据源(连接池),这里使用了工厂模式加载配置文件创建对象
             dataSource = DruidDataSourceFactory.createDataSource(prop);
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,9 +88,8 @@ public class JDBCUtils {
         return conn;
     }
 
-    // 关闭数据库连接
+    // 手动关闭数据库连接
     public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
-        // 手动关闭
         if (conn != null) {
             try {
                 conn.close();

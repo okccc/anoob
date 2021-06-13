@@ -46,7 +46,7 @@ object S01_RDD {
      * The Shuffle is an expensive operation since it involves disk I/O, data serialization, and network I/O
      * 很多transform算子会对数据重新分区,通常伴随着数据跨节点移动的过程,Shuffle负责将Map端(宽依赖左侧)处理的中间结果传输到Reduce端
      * (宽依赖右侧)进行聚合,数据在网络传输过程中对象的序列化和反序列化是分布式计算框架的主要性能瓶颈
-     * "repartition"(coalesce,repartition) | "ByKey"(groupByKey,reduceByKey) | "join"(cogroup,join)
+     * 涉及shuffle操作的算子："repartition"(coalesce,repartition) | "ByKey"(groupByKey,reduceByKey) | "join"(cogroup,join)
      * shuffle生成的中间结果会消耗大量内存,当内存容不下时spark会将其溢出到磁盘,造成额外的磁盘io和垃圾回收,这些文件会一直保留到RDD不再使用
      * 然后被JVM Garbage Collector回收,然而垃圾回收很长时间才会执行一次,也就意味着shuffle会消耗大量磁盘空间,可设置spark.local.dir参数
      *
@@ -88,7 +88,7 @@ object S01_RDD {
 
     // 创建Spark配置信息
     // "local": 单线程  "local[4]": 4个线程  "local[*]": 线程数=cpu最大核数,最大化cpu计算能力 cat /proc/cpuinfo | grep 'cores'
-    // "com.okccc.spark://master:7077": standalone   "yarn": yarn集群,client/cluster模式
+    // "spark://master:7077": standalone   "yarn": yarn集群,client/cluster模式
     val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("RDD")
     // SparkContext是Spark所有功能的入口,可以创建RDD,Accumulator,Broadcast
     val sc: SparkContext = new SparkContext(conf)
@@ -107,7 +107,7 @@ object S01_RDD {
     // 算子(operator)：定义某种新的运算
     // RDD的通用类transform操作
     val rdd1: RDD[Int] = sc.makeRDD(1 to 10, 2)
-    val rdd2: RDD[String] = sc.makeRDD(Array("scala com.okccc.spark", "python pandas"))
+    val rdd2: RDD[String] = sc.makeRDD(Array("scala spark", "python pandas"))
 
     // map算子：将RDD的每个元素经过func转换后形成新的RDD,通常用于转换数据结构
     val mapRDD: RDD[Int] = rdd1.map((i: Int) => i * 2)
@@ -284,7 +284,7 @@ object S01_RDD {
   def fileRDD(sc: SparkContext): Unit = {
     // b.从本地或hdfs等文件系统创建RDD(常用),spark会为文件的每个block创建partition,所以分片数不能小于文件的分块数
     // local或standalone模式 -> file:///input/aaa.txt
-    // yarn模式 -> hdfs://cdh1:9000/user/com.okccc.spark/input/aaa.txt 或 hdfs:///user/com.okccc.spark/input/aaa.txt
+    // yarn模式 -> hdfs://cdh1:9000/user/spark/input/aaa.txt 或 hdfs:///user/spark/input/aaa.txt
     val lines: RDD[String] = sc.textFile("ability/input/aaa.txt", minPartitions=2)
     // 设置检查点保存目录,通常存hdfs有副本更安全
 //    sc.setCheckpointDir("hdfs://cdh1:9000/checkpoint")
@@ -302,7 +302,7 @@ object S01_RDD {
      * |  ability/input/aaa.txt MapPartitionsRDD[69] at textFile at S01_RDD.scala:215 [Memory Deserialized 1x Replicated]
      * |  ability/input/aaa.txt HadoopRDD[68] at textFile at S01_RDD.scala:215 [Memory Deserialized 1x Replicated]
      */
-    println(word_one.dependencies)  // List(org.apache.com.okccc.spark.OneToOneDependency@2e3f79a2)
+    println(word_one.dependencies)  // List(org.apache.spark.OneToOneDependency@2e3f79a2)
     // 分组聚合
     val word_sum: RDD[(String, Int)] = word_one.reduceByKey((x: Int, y: Int) => x + y)
     // 在此处做检查点容错
@@ -379,7 +379,7 @@ object S01_RDD {
 
     // 保存数据
     val dataRDD: RDD[(String, Int)] = sc.makeRDD(List(("grubby",18),("moon",19),("fly",20)),2)
-    // 1).在driver端预先创建好连接对象,但是driver端变量传递到executor端需要序列化,而Connection没有实现Serializable接口 org.apache.com.okccc.spark.SparkException: Task not serializable
+    // 1).在driver端预先创建好连接对象,但是driver端变量传递到executor端需要序列化,而Connection没有实现Serializable接口 org.apache.spark.SparkException: Task not serializable
     //    val conn: Connection = DriverManager.getConnection(url, user, password)
     //    // 遍历RDD所有元素
     //    dataRDD.foreach{
