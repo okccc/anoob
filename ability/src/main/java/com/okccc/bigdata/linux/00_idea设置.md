@@ -79,3 +79,17 @@ Condition 右键断点可以设置条件,比如代码循环了100次可以输入
 # idea关闭自动更新
 Intellij IDEA - Preferences - System Settings - Updates - 取消勾选Automatically check updates
 ```
+
+### plugins
+```shell script
+Translation           # 翻译
+Scala                 # scala
+Lombok                # 简化javabean开发
+Rainbow Brackets      # 彩虹括号
+Material Theme UI     # 主题
+Statistic             # 当前项目的统计信息
+Mongo Plugin          # mongodb的可视化数据库工具  View --> Tool Windows --> Mongo Explorer
+Regex Tester          # 正则测试
+JProfiler             # 性能分析
+Json Parser           # json解析
+```
