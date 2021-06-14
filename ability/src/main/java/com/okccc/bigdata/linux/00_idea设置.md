@@ -1,4 +1,4 @@
-### shortcut
+### idea快捷键
 ```shell script
 # idea调整内存大小
 Help - Edit Custom VM Options - -Xms256m(idea开始内存,提高启动速度)/-Xmx3072m(idea最大内存,提高性能)
@@ -24,6 +24,36 @@ Ctrl + Alt + *H*
 Alt + 数字
 # 折叠代码块
 Ctrl + -
+# idea断点调试
+step over 下一步,如果是方法不进入方法体直接跳过,就像超级玛丽跳过水管
+step into 下一步,如果是方法会进入方法体
+step out 跳出方法体
+resume program 恢复程序运行,但如果断点下面代码还有断点则会停在下一个断点处
+stop 停止
+mute breakpoints 使断点失效
+view breakpoints 查看断点
+Condition 右键断点可以设置条件,比如代码循环了100次可以输入条件直接跳到第60次,加快调试进度
+```
+
+### idea常用设置
+```shell script
+# idea安装Scala插件
+Intellij IDEA - Preferences - Plugins - Scala
+# idea配置maven环境
+Intellij IDEA - Preferences - Build - Build Tools - Maven
+# 创建maven工程
+File - New - Project - Maven Next - GroupId/ArtifactId - Finish
+# 给工程添加scala支持,不然无法创建scala类,查看scala源码会出现Decompile to java和Choose Sources
+Project/Module - Add Framework Support - Scala - Use library scala-sdk-2.11.8/Create
+File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
+# Project和Module
+Intellij IDEA中Project是顶级结构单元,一个Project由一个或多个Module组成
+# 管理Project中的Module
+File - Project Structure - Modules - add/delete module - 此时module还在磁盘上,右键发现出现delete按钮了
+# idea关闭自动更新
+Intellij IDEA - Preferences - System Settings - Updates - 取消勾选Automatically check updates
+# idea导入导出所有设置
+File - Manage IDE Settings - Import/Export Settings
 # duplicated code fragment
 Intellij IDEA - Preferences - Editor - Inspections - General - Duplicated Code fragment
 # dangling javadoc comment
@@ -40,8 +70,6 @@ Project/Module - 右键 - Local History - Show History - 找到删除文件 - Re
 Intellij IDEA - Preferences - Editor - File and Code Templates - Includes - FileHeader Author/Date/Desc
 # idea设置实时模板
 Intellij IDEA - Preferences - Editor - Live Templates - 选中模板比如plain或者新增模板 - 编辑模板内容 - Change指定模板适用范围
-# idea导入导出所有设置
-File - Manage IDE Settings - Import/Export Settings
 # 代码块用横线分开
 Intellij IDEA - Preferences - Editor - General - Appearance - Show method separators
 # idea添加jar包
@@ -52,35 +80,7 @@ pom.xml - 右键 - Diagrams - Show Dependencies
 Intellij IDEA - Preferences - Editor - Code Style - Java/Scala - Spaces - Within - Method call parentheses
 ```
 
-### idea-scala
-```shell script
-# idea安装Scala插件
-Intellij IDEA - Preferences - Plugins - Scala
-# idea配置maven环境
-Intellij IDEA - Preferences - Build - Build Tools - Maven
-# 创建maven工程
-File - New - Project - Maven Next - GroupId/ArtifactId - Finish
-# 给工程添加scala支持,不然无法创建scala类,查看scala源码会出现Decompile to java和Choose Sources
-Project/Module - Add Framework Support - Scala - Use library scala-sdk-2.11.8/Create
-File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
-# Project和Module
-Intellij IDEA中Project是顶级结构单元,一个Project由一个或多个Module组成
-# 管理Project中的Module
-File - Project Structure - Modules - add/delete module - 此时module还在磁盘上,右键发现出现delete按钮了
-# idea断点调试
-step over 下一步,如果是方法不进入方法体直接跳过,就像超级玛丽跳过水管
-step into 下一步,如果是方法会进入方法体
-step out 跳出方法体
-resume program 恢复程序运行,但如果断点下面代码还有断点则会停在下一个断点处
-stop 停止
-mute breakpoints 使断点失效
-view breakpoints 查看断点
-Condition 右键断点可以设置条件,比如代码循环了100次可以输入条件直接跳到第60次,加快调试进度
-# idea关闭自动更新
-Intellij IDEA - Preferences - System Settings - Updates - 取消勾选Automatically check updates
-```
-
-### plugins
+### idea常用插件
 ```shell script
 Translation           # 翻译
 Scala                 # scala
@@ -92,4 +92,27 @@ Mongo Plugin          # mongodb的可视化数据库工具  View --> Tool Window
 Regex Tester          # 正则测试
 JProfiler             # 性能分析
 Json Parser           # json解析
+```
+
+### chrome常用插件
+```shell script
+谷歌访问助手
+AdGuard                  # 广告拦截
+Clear Cache              # 清空缓存
+Extensity                # 管理chrome插件
+Enhanced Github          # 显式github上文件大小
+FeHelper                 # 前端助手
+Git History              # 炫酷的展示github中任意文件的修改历史
+Google translation       # 可保存单词本
+Isometric Contributions  # 渲染github贡献记录的等距像素视图(装X神器)
+JSONView                 # json格式化
+Momentum                 # 壁纸
+Octotree                 # 在github左侧显式当前工程目录结构
+OneTab                   # 打开网页列表节约内存
+Postman                  # 调试requests请求
+Proxy SwitchyOmega       # fiddler代理
+Tab Activate             # 打开新标签页后自动跳转,chrome默认是不跳转的
+Translate Man            # 翻译侠
+uBlock Origin            # 网络请求过滤工具占用极低的内存和CPU
+XPath Helper             # xpath助手
 ```
