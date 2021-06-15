@@ -1,15 +1,11 @@
 package com.okccc.bigdata.flume;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -48,15 +44,15 @@ public class ETLInterceptor implements Interceptor {
     @Override
     public List<Event> intercept(List<Event> list) {
         // 拦截器处理完后的event列表
-        List<Event> events = new ArrayList<>();
-        for (Event event : list) {
-            // 给每条event都用拦截器处理
-            Event event_new = intercept(event);
-            if (event_new != null) {
-                events.add(event_new);
+        Iterator<Event> iterator = list.iterator();
+        // ArrayList直接删除数据会报错: java.util.ConcurrentModificationException,需通过迭代器实现
+        while (iterator.hasNext()) {
+            // 将清洗过的数据移除
+            if (intercept(iterator.next()) == null) {
+                iterator.remove();
             }
         }
-        return events;
+        return list;
     }
 
     @Override

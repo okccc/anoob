@@ -41,7 +41,7 @@ public class TypeInterceptor implements Interceptor {
 
     @Override
     public List<Event> intercept(List<Event> events) {
-        // 创建存放添加拦截器后的event的列表
+        // 创建存放添加拦截器后的event的列表,这样会多创建对象,性能不如直接在迭代器里删除好
         List<Event> list = new ArrayList<>();
         // 遍历
         for (Event event : events) {
