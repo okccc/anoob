@@ -134,6 +134,7 @@ export PATH=$PATH:$KAFKA_HOME/bin
 
 # broker配置
 # The largest record batch size allowed by Kafka
+# message.max.bytes是broker的配置,max.message.bytes是topic的配置
 message.max.bytes=10485760
 # The minimum age of a log file to be eligible for deletion due to age
 log.retention.hours=168
