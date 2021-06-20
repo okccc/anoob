@@ -3,7 +3,6 @@ package com.okccc.bigdata.db.jdbc;
 import com.okccc.bigdata.db.jdbc.bean.User;
 import com.okccc.bigdata.db.jdbc.bean.Order;
 
-import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,11 +15,9 @@ public class MysqlDemo {
         /*
          * jdbc
          * java提供了操作数据库表的api(java.sql包和javax.sql包),使用jdbc可以连接任何提供了jdbc驱动的数据库系统
-         * jdbc是sun公司提供的一套操作数据库的接口,java程序员只需要面向接口编程即可,不同数据库厂商需要针对这套接口实现对应的驱动
+         * jdbc是sun公司提供的一套操作数据库的接口,开发人员只需面向接口编程,不同数据库厂商需要针对这套接口实现对应的驱动类
          *
-         * 将数据库连接信息放到配置文件好处
-         * a.更换数据库时只要改配置文件即可,不需要改动代码,jdbc接口是固定的
-         * b.修改配置文件不需要重新编译代码
+         * 将数据库连接信息放到配置文件好处: 更换不同数据库时只改配置文件不改代码,jdbc接口是固定的java.sql.Driver
          *
          * Statement弊端
          * a.需要拼接sql
@@ -30,7 +27,8 @@ public class MysqlDemo {
          * select user,password from user_table where user = '' or '1' = '1' and password = '';
          *
          * 异常处理
-         * getConnection()异常可以抛出,因为throws后面代码不会执行,数据库连不上也就不会有后面的一系列操作
+         * 框架中异常一般都会抛出做统一处理
+         * getConnection()异常可以抛出,因为throws后面代码不会执行,数据库连不上也就不会有后面一系列操作
          * close()异常必须try/catch,因为finally代码块是一定会执行的,不管是否捕获到异常最终都要关闭连接
          *
          * 事务处理
@@ -40,14 +38,12 @@ public class MysqlDemo {
          * a.执行DML操作,默认情况下一旦执行完会自动提交数据 -> set autocommit = false
          * b.一旦断开数据库连接,也会提交数据 -> 将获取conn步骤从update方法中剥离出来单独关闭
          *
-         * ORM(object relation mapping)思想
-         * 一个mysql表对应一个java类,表的一列对应类的一个属性,表的一行对应类的一个对象
+         * ORM(object relation mapping): 一个mysql表对应一个java类,表的一列对应类的一个属性,表的一行对应类的一个对象
          *
          * 传统模式
-         * java.sql.DriverManager连接数据库,每次连接都要将Connection加载到内存,消耗大量资源且连接无法重用
-         * 无法控制创建的连接对象数,连接过多或者程序异常未能及时关闭连接,可能导致内存泄漏甚至服务器崩溃
+         * java.sql.DriverManager每次连接都要将Connection加载到内存,消耗大量资源且连接无法重用,也无法控制创建的连接数,连接过多或程序异常未及时关闭,可能导致内存泄漏甚至服务器崩溃
          * 数据库连接池
-         * javax.sql.DataSource会保持最小的连接数,允许程序重复使用一个现有的数据库连接,当达到最大连接数时新的请求会被放入等待队列
+         * javax.sql.DataSource会保持最小连接数,允许程序重复使用现有数据库连接,当达到最大连接数时新的请求会被放入等待队列
          */
 
         testConnect();
@@ -75,8 +71,8 @@ public class MysqlDemo {
 //        String password = "root";
 //        // 通过反射加载mysql驱动
 //        Class<?> c = Class.forName(className);
-//        // java.sql.Driver接口的com.mysql.jdbc.Driver实现类将创建和注册驱动的逻辑写在静态代码块,随着驱动类的加载而加载,所以可以继续简化
-//        Driver driver = (Driver) c.newInstance();
+//        // java.sql.Driver接口的com.mysql.jdbc.Driver实现类已经将创建和注册驱动的逻辑写在了静态代码块,随着驱动类的加载而加载,可以省略
+//        Driver driver = (Driver) c.newInstance();  // 向上转型为java.sql.Driver接口类型
 //        DriverManager.registerDriver(driver);
 //        // 获取连接
 //        Connection conn = DriverManager.getConnection(url, user, password);
@@ -84,7 +80,7 @@ public class MysqlDemo {
 
         // 1.读取配置文件
         Properties prop = new Properties();
-        prop.load(new FileReader("ability/src/main/resources/config.properties"));
+        prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("config.properties"));
         // 2.获取连接信息
         String driver = prop.getProperty("driver");
         String url = prop.getProperty("url");
@@ -107,13 +103,13 @@ public class MysqlDemo {
         Connection conn = null;
         try {
             // 获取连接
-            conn = JdbcUtils.getDBCPConnection();
+            conn = JdbcUtil.getDruidConnection();
             // 关闭自动提交
             conn.setAutoCommit(false);
 
             // 1.演示更新单条记录
-            String sql2 = "update user_table set balance = balance - 100 where user = ?";
-            String sql3 = "update user_table set balance = balance + 100 where user = ?";
+            String sql2 = "update user_table set balance = balance - 1000 where user = ?";
+            String sql3 = "update user_table set balance = balance + 1000 where user = ?";
             // 事务操作1
             updateWithTx(conn, sql2, "AA");
             // 此处模拟异常情况
@@ -143,7 +139,7 @@ public class MysqlDemo {
             }
         } finally {
             // 关闭连接
-            JdbcUtils.close(conn, null, null);
+            JdbcUtil.close(conn, null, null);
         }
     }
 
@@ -181,7 +177,7 @@ public class MysqlDemo {
             e.printStackTrace();
         } finally {
             // 4.关闭ps,conn在外面单独关闭
-            JdbcUtils.close(null, ps, null);
+            JdbcUtil.close(null, ps, null);
         }
     }
 
@@ -194,8 +190,7 @@ public class MysqlDemo {
         ResultSet rs = null;
         try {
             // 1.获取连接
-//            conn = JDBCUtils.getConnection();
-            conn = JdbcUtils.getC3P0Connection();
+            conn = JdbcUtil.getDruidConnection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -228,7 +223,7 @@ public class MysqlDemo {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JdbcUtils.close(conn, ps, rs);
+            JdbcUtil.close(conn, ps, rs);
         }
         return null;
     }
@@ -243,8 +238,7 @@ public class MysqlDemo {
         List<T> list = new ArrayList<>();
         try {
             // 1.获取连接
-//            conn = JDBCUtils.getConnection();
-            conn = JdbcUtils.getDBCPConnection();
+            conn = JdbcUtil.getDruidConnection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -277,7 +271,7 @@ public class MysqlDemo {
             e.printStackTrace();
         } finally {
             // 6.关闭连接
-            JdbcUtils.close(conn, ps, rs);
+            JdbcUtil.close(conn, ps, rs);
         }
         return null;
     }

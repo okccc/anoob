@@ -29,7 +29,7 @@ import org.elasticsearch.client.Requests
 /**
  * @author okccc
  * @date 2021/2/14 11:18
- * @desc com.okccc.flink quick start
+ * @desc flink入门
  */
 object FlinkDemo {
   def main(args: Array[String]): Unit = {
@@ -44,7 +44,7 @@ object FlinkDemo {
      * 支持时间语义,EventTime + Watermark可以处理乱序数据
      * 支持窗口操作,各种灵活的窗口及触发条件处理复杂的流式计算
      * 容错性,轻量级的分布式快照在拥有高吞吐量的同时还能保证强一致性
-     * 批流结合,批处理和流处理公用一个引擎
+     * 批流结合,批处理和流处理共用一个引擎
      * 内存管理,flink在jvm中实现了自己的内存管理,应用可以超出主内存的大小限制,承受更小的垃圾回收开销
      *
      * API
@@ -94,7 +94,7 @@ object FlinkDemo {
      * spark本质上是批处理,将DAG划分成不同stage,一个完成后才可以计算下一个
      * flink是标准的流处理,一个事件在一个节点处理完之后可以直接发往下一个节点进行处理,有头没尾源源不断
      *
-     * Parallelism：算子的子任务个数,stream的并行度一般就是指所有算子中最大的并行度
+     * Parallelism：算子的子任务个数,stream的并行度一般就是指所有算子中最大的并行度,通常对应kafka的分区数
      * TaskManager：对应一个jvm进程,会在独立的线程上执行一个或多个子任务,能接收多少个task由task slot控制,代表了TaskManager的并发执行能力
      * Slot：不同子任务也可以共享slot,一个slot可以保存作业的整个管道
      *
@@ -102,7 +102,7 @@ object FlinkDemo {
      * flink运行的程序会被映射成逻辑数据流DataFlows,以一个或多个source开始以一个或多个sink结束,类似于有向无环图DAG
      *
      * 常见问题：
-     * 1.could not find implicit value for evidence parameter of type org.apache.com.okccc.flink.api.common.typeinfo.TypeInformation[String]
+     * 1.could not find implicit value for evidence parameter of type org.apache.flink.api.common.typeinfo.TypeInformation[String]
      * val result:DataSet[(String,Int)] = inputDataSet.flatMap(_.split(" "))
      * scala版本要和flink引用的scala版本保持一致,不然会冲突导致无法使用scala的隐式转换
      * 2.No ExecutorFactory found to execute the application.
@@ -138,7 +138,6 @@ object FlinkDemo {
     // 设置并行度,本地默认最大核数,生产环境一般可配置
     env.setParallelism(4)
 
-
     // 2.Source操作
 //    // a.读取集合数据
 //    val dataList: List[String] = List("aa", "bb", "cc")
@@ -169,7 +168,7 @@ object FlinkDemo {
     // a.输出到控制台,可以人为设置并行度控制资源分配
     mapStream.print().setParallelism(1)
     // b.输出到文件
-    val output: String = "/Users/okc/projects/anoob/ability/input"
+//    val output: String = "/Users/okc/projects/anoob/ability/input"
 //    mapStream.addSink(StreamingFileSink.forRowFormat(new Path(output), new SimpleStringEncoder[UserBehavior]()).build())
     // c.输出到mysql
 //    mapStream.addSink(new MyJdbcSink())

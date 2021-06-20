@@ -15,6 +15,7 @@ public class Test01 {
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd")));
         // DateTime
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
+        System.out.println(System.currentTimeMillis() - 3600*24*1000);
     }
 
     @Test
