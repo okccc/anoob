@@ -145,7 +145,7 @@ a1.channels.c2.parseAsFlumeEvent = false
 [root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic start --partitions 1 --replication-factor 1
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic start
 # 再启动flume-ng
-[root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/nginx-kafka.conf -n a1 -Dflume.root.logger=info,console > logs/flume.log 2>&1 &  # 输出到日志
+[root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/nginx-kafka.conf -n a1 -Dflume.root.logger=info,console > logs/flume.log 2>&1 &
 # 然后启动log,消费者能收到数据说明ok
 [root@cdh1 ~]$ nohup java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > /dev/null 2>&1 &
 # kafka挂了flume如何补数据？
@@ -206,7 +206,7 @@ a1.sources.r1.channels = c1  # 一个source可以接多个channel
 a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 
 # 启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=info,console  # 输出到控制台
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/nginx-hdfs.conf -n a1 -Dflume.root.logger=info,console
 # 往监测文件写数据
 [root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
 ```
@@ -232,9 +232,95 @@ a1.sources.r1.channels = c1
 a1.sinks.k1.channel = c1
 
 # 启动flume-ng
-[root@cdh1 ~]$ flume-ng agent -c conf -f conf/netcat-console.conf -n a1 -Dflume.root.logger=info,console
+[root@cdh1 ~]$ flume-ng agent -c conf -f conf/netcat-console.conf -n a1 -Dflume.root.logger=info,console  # 输出到控制台
 Event: { headers:{} body: 6A 61 76 61    java }
 # 往监听端口写数据
 [root@cdh1 ~]$ nc localhost 44444
 java
 ```
+
+### ganglia
+```shell script
+# flume可以在启动时添加http监控端口 -Dflume.monitoring.type=http -Dflume.monitoring.port=9999,也可以借助专业监控工具ganglia
+http://localhost:9999/metrics
+# 安装http服务于php
+[root@cdh1 ~]$ sudo yum -y install httpd php
+# 安装依赖
+[root@cdh1 ~]$ sudo yum -y install rrdtool perl-rrdtool rrdtool-devel apr-devel
+# 安装ganglia
+[root@cdh1 ~]$ sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+[root@cdh1 ~]$ sudo yum -y install ganglia-gmetad ganglia-web ganglia-gmond
+# ganglia由三个部分组成
+# gmond(ganglia monitoring daemon): 是一种轻量级服务,安装在每个收集数据的节点,可以收集CPU/内存/磁盘/网络/活跃进程等系统指标
+# gmetad(ganglia meta daemon): 整合所有信息,并将其以RRD格式存储至磁盘
+# gweb(ganglia web): 可视化工具,以图表方式展现集群的运行状态下收集的多种不同指标数据
+# 修改配置文件
+[root@cdh1 ~]$ sudo vim /etc/httpd/conf.d/ganglia.conf
+# Ganglia monitoring system php web frontend
+Alias /ganglia /usr/share/ganglia
+<Location /ganglia>
+  Order deny,allow
+  #Deny from all
+  Allow from all
+  # Allow from 127.0.0.1
+  # Allow from ::1
+  # Allow from .example.com
+</Location>
+[root@cdh1 ~]$ sudo vim /etc/ganglia/gmetad.conf
+data_source "cdh01" localhost
+[root@cdh1 ~]$ sudo vim /etc/ganglia/gmond.conf
+cluster {
+  name = "cdh01"
+  owner = "unspecified"
+  latlong = "unspecified"
+  url = "unspecified"
+}
+udp_send_channel {
+  #bind_hostname = yes # Highly recommended, soon to be default.
+                       # This option tells gmond to use a source address
+                       # that resolves to the machine's hostname.  Without
+                       # this, the metrics may appear to come from any
+                       # interface and the DNS names associated with
+                       # those IPs will be used to create the RRDs.
+  # mcast_join = 239.2.11.71
+  host = localhost
+  port = 8649
+  ttl = 1
+}
+udp_recv_channel {
+  # mcast_join = 239.2.11.71
+  port = 8649
+  bind = localhost
+  retry_bind = true
+  # Size of the UDP buffer. If you are handling lots of metrics you really
+  # should bump it up to e.g. 10MB or even higher.
+  # buffer = 10485760
+}
+[root@cdh1 ~]$ sudo vim /etc/selinux/config
+SELINUX=disabled  # 需重启生效,也可以临时生效sudo setenforce 0
+# 启动ganglia
+[root@cdh1 ~]$ sudo service httpd start
+[root@cdh1 ~]$ sudo service gmetad start
+[root@cdh1 ~]$ sudo service gmond start
+# web页面
+http://localhost/ganglia
+# 如果出现权限不足错误
+[root@cdh1 ~]$ sudo chmod -R 777 /var/lib/ganglia
+# 将ganglia添加到flume的配置
+[root@cdh1 ~]$ vim flume-env.sh
+JAVA_OPTS="-Dflume.monitoring.type=ganglia -Dflume.monitoring.hosts=localhost:8649 -Xms100m -Xmx200m"
+# 启动flume时添加ganglia
+[root@cdh1 ~]$ flume-ng ... -Dflume.monitoring.type=ganglia -Dflume.monitoring.hosts=localhost:8649
+```
+
+|          字段           |          解释           |     |     |
+|:---------------------:|:-----------------------:|:---:|:---:|
+| EventPutAttemptCount  | source尝试写入channel的事件总数量 |     |     |
+| EventPutSuccessCount  |  成功写入channel且提交的事件总数量   |     |     |
+| EventTakeAttemptCount | sink尝试从channel拉取事件的总数量  |     |     |
+| EventTakeSuccessCount |     sink成功读取的事件的总数量     |     |     |
+|       StartTime       |    channel启动的时间(ms)     |     |     |
+|       StopTime        |    channel停止的时间(ms)     |     |     |
+|      ChannelSize      |    目前channel中事件的总数量     |     |     |
+| ChannelFillPercentage |      channel占用百分比       |     |     |
+|    ChannelCapacity    |       channel的容量        |     |     |
