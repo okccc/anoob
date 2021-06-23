@@ -353,4 +353,7 @@ CM界面：hdfs - 实例 - NameNode(备用) - Federation与High Availability - �
 
 # Could not open client transport with JDBC Uri:jdbc:hive2://10.18.3.20:10000:java.net.ConnectException:Connection refused 
 原因：cdh没有设置yarn的mapreduce.map.memory.mb参数,默认只有1024M
+
+# cdh添加调度队列
+CM界面 - YARN - 资源池 - 配置 - 创建资源池
 ```
