@@ -20,6 +20,15 @@ object DateUtil {
   val DATE_HOUR_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH")
   val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
+  // 获取当前日期
+  def getCurrentDate: String = {
+    DateTime.now().toString(DATE_FORMATTER)
+  }
+  // 获取当前时间
+  def getCurrentTime: String = {
+    DateTime.now().toString(DATETIME_FORMATTER)
+  }
+
   // Long类型时间戳转换成字符串
   // timestamp -> "yyyy-MM-dd"
   def parseUnixToDate(timestamp: Long): String = {
@@ -81,11 +90,6 @@ object DateUtil {
     date + "_" + hour
   }
 
-  // 获取今天日期 "yyyy-MM-dd"
-  def getTodayDate: String = {
-    DateTime.now().toString(DATE_FORMATTER)
-  }
-
   // 今天日期 + n天/周/月/年
   def getPlusDay(n: Int): String = {
     DateTime.now().plusDays(n).toString(DATE_FORMATTER)
@@ -133,10 +137,8 @@ object DateUtil {
 
   def main(args: Array[String]): Unit = {
 //    println(new Timestamp(1511658661000L))
-//    println(parseUnixToDate(1618365760937L))
-//    println(parseUnixToHour(1608011762573L))
-//    println(parseUnixToDateHour(1608011762573L))
-    println(parseUnixToDateTime(1620813304000L))
+//    println(getCurrentTime)
 //    println(getWeekday)
+    println(parseUnixToDateTime(1624291203929L))
   }
 }
