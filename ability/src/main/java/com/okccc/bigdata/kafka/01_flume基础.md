@@ -57,8 +57,8 @@ done
 #!/bin/bash
 case $1 in
 "start"){
-    echo "================= 启动flume ================"
-    nohup flume-ng agent -c conf -f conf/nginx-kafka.conf -n a1 -C lib/Interceptor.jar -Dflume.root.logger=info,console > logs/flume.log 2>&1 &
+    echo "================= 启动flume,重定向日志使用追加模式便于追溯历史排查问题 ================"
+    nohup flume-ng agent -c conf -f conf/nginx-kafka.conf -n a1 -C lib/Interceptor.jar -Dflume.root.logger=info,console >> logs/flume.log 2>&1 &
 };;
 "stop"){
     echo "================= 停止flume ================"
@@ -86,23 +86,28 @@ a1.sources.r1.batchSize = 1000  # 控制往channel发送数据的批次大小,�
 a1.sources.ri.maxBatchCount = 1000  # 控制连续读取同一文件的最大批次,防止某个文件写入速度远快于其他文件,导致其他文件无法被读取
 a1.sources.r1.writePosInterval = 1000  # 控制往position.json写入inode和pos的频率,可以减少Agent故障重启时从position重复读取的数据量
 a1.sources.r1.ServerConnector.idleTimeout = 300  # 超过该时间没有新增行就关闭文件防止文件资源一直占用,有新的行写入会自动重新打开该文件
-a1.channels.c1.transactionCapacity = 5000  # batchSize <= transactionCapacity <= capacity,
+a1.channels.c1.transactionCapacity = 5000  # batchSize <= transactionCapacity <= capacity
 a1.channels.c1.capacity = 10000  # 可以适当调大提高吞吐量,还能避免The channel is full or unexpected failure异常
 a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防止channel处于时满时空状态
+```
 
-# flume常见错误
+### problems
+```shell script
 1.java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),再修改目录所属用户即可
+
 2.Caused by: java.lang.ClassNotFoundException: com.jiliguala.interceptor.InterceptorDemo$Builder
-# 分析：java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
+# java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
+
 3.Producer clientId=producer-1 Connection to node 0 could not be established. Broker may not be available.
 # flume往kafka写数据时,下游kafka挂了导致flume作为生产者一直连不上broker,重启kafka之后flume也要重启然后继续之前的position采集和发送数据
 # nginx-flume-kafka采集通道正常时flume日志的ClusterID和zookeeper的/cluster/id以及kafka日志的meta.properties的cluster.id应该相同
-4.Caused by: org.apache.kafka.common.errors.RecordTooLargeException: The message is 2262864 bytes when serialized 
-which is larger than the maximum request size you have configured with the max.request.size configuration.
+
+4.RecordTooLargeException: The request included a message 2262864 bytes which is larger than the max message size the server will accept.
 # flume发送消息大小超过了kafka生产者最大请求字节数(默认1M),agent添加配置a1.channels.c1.kafka.producer.max.request.size = 5242880
 # flume作为kafka生产者的配置信息在其运行日志flume.log通过ProducerConfig values可以找到
 # kafka消息大小有限制 max.request.size(producer端) < message.max.bytes(broker端) < max.partition.fetch.bytes(consumer端)
+# flume数据传输失败position位置是不更新的,直到修复问题重启脚本后继续之前的位置采集,Last read was never committed - resetting position
 ```
 
 #### nginx-kafka.conf
