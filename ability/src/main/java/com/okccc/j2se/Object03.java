@@ -1,5 +1,8 @@
 package com.okccc.j2se;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Object03 {
     public static void main(String[] args) {
         /*
@@ -177,21 +180,19 @@ enum Season {
 }
 
 // 异常
-class Excep {
+class MyException {
+    private static final Logger logger = LoggerFactory.getLogger(MyException.class);
     public static void main(String[] args) {
-        System.out.println(getNum());
-    }
-    public static int getNum() {
         int a = 10;
         int b = 0;
         try{
             b = a/0;
         } catch (Exception e) {
-            // 打印异常类名和信息  java.lang.ArithmeticException: / by zero
-            e.printStackTrace();
+            // 捕获到异常后可以输出也可以不输出
+            e.printStackTrace();  // 在控制台打印错误堆栈信息,本地调试用
+//            logger.error("error", e);  // 线上代码还是要记录下日志信息,方便排错
         } finally {
             System.out.println("...");
         }
-        return b;
     }
 }
