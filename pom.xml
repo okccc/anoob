@@ -18,7 +18,7 @@
         <!-- scala版本要和spark/flink引用的scala版本保持一致 -->
         <scala.version>2.12.12</scala.version>
         <hadoop.version>2.7.0</hadoop.version>
-        <spark.version>3.0.0</spark.version>
+        <spark.version>2.4.5</spark.version>
         <flink.version>1.12.0</flink.version>
         <kafka.version>2.4.1</kafka.version>
         <mysql.version>8.0.16</mysql.version>
