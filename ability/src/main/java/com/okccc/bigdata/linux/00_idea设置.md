@@ -43,13 +43,15 @@ Intellij IDEA - Preferences - Plugins - Scala
 Intellij IDEA - Preferences - Build - Build Tools - Maven
 # 创建maven工程
 File - New - Project - Maven Next - GroupId/ArtifactId - Finish
-# 给工程添加scala支持,不然无法创建scala类,查看scala源码会出现Decompile to java和Choose Sources
-Project/Module - Add Framework Support - Scala - Use library scala-sdk-2.11.8/Create
-File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
 # Project和Module
 Intellij IDEA中Project是顶级结构单元,一个Project由一个或多个Module组成
 # 管理Project中的Module
 File - Project Structure - Modules - add/delete module - 此时module还在磁盘上,右键发现出现delete按钮了
+# 给工程添加scala支持,不然无法创建scala类,查看scala源码会出现Decompile to java和Choose Sources
+Project/Module - Add Framework Support - Scala - Use library scala-sdk-2.11.8/Create
+File - Project Structure - Global Libraries - scala-sdk-2.11.8 - Add to Modules
+# idea自动提示scala变量类型
+Intellij IDEA - Preferences - Code Style - Scala - Type Annotations - Use for勾选
 # idea关闭自动更新
 Intellij IDEA - Preferences - System Settings - Updates - 取消勾选Automatically check updates
 # idea导入导出所有设置
