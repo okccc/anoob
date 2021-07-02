@@ -128,13 +128,13 @@ cat access.log | grep "23/Jan/2019" | awk '{print $2}' | cut -c 1-2 | sort | uni
 --color      # 高亮显示
 -A2/B2/C2    # 打印符合要求的行及下面/上面/上下两行  
 # 案例
-grep -n [0-9] a.txt             # 选取包含数字的行  
-grep -nv [0-9] a.txt            # 选取不包含数字的行  
-grep '[^r]' a.txt               # 选取不包含某个字符的行  
-grep '^import' a.txt            # 选取以import开头的行  
-grep 'bin$' a.txt               # 选取以bin结尾的行  
-grep -v '^$' a.txt              # 选取非空行  
-grep -a 'test' *.log            # 查看包含test的log文件  
+grep -n [0-9] a.txt             # 选取包含数字的行
+grep -nv [0-9] a.txt            # 选取不包含数字的行
+grep '[^r]' a.txt               # 选取不包含某个字符的行
+grep '^import' a.txt            # 选取以import开头的行
+grep 'bin$' a.txt               # 选取以bin结尾的行
+grep -v '^$' '^#' a.txt         # 选取非空非注释行(显示所有有效配置)
+grep -a 'test' *.log            # 查看包含test的log文件
 # 查找当前目录下用到debit_order表的sql文件并统计使用次数
 grep 'debit_order' *.sql | awk -F: '{print $1}' | uniq -c | sort -nr
 # 将当前目录下所有文件的jlgl替换成dev-jlgl
