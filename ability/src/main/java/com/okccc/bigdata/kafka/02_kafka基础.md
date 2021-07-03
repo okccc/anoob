@@ -117,7 +117,12 @@ esac
 [root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.12-2.4.1.tgz
 # 安装
 [root@cdh1~]$ tar -xvf kafka_2.12-2.4.1.tgz -C /opt/module
-
+# 新版本kafka自带zk,不需要单独安装
+[root@cdh1~]$ vim zookeeper.properties
+# 服务器编号=服务器地址:LF通信端口:选举端口
+server.1=cdh1:2888:3888
+server.2=cdh2:2888:3888
+server.3=cdh3:2888:3888
 # 修改配置文件
 [root@cdh1~]$ vim server.properties
 # broker的全局唯一编号,不能重复
@@ -270,7 +275,7 @@ java bigdata
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 GROUP    TOPIC    PARTITION    CURRENT-OFFSET    LOG-END-OFFSET    LAG    CONSUMER-ID    HOST    CLIENT-ID
 g01      nginx        0          206             206          0       consumer-g01-1  /172.18.1.111   consumer-g01-1
-# 重置消费者组的偏移量,to-earliest/to-latest/to-offset <Long>/shift-by <Long>/to-datetime <YYYY-MM-DDTHH:mm:SS.sss> 
+# 重置消费者组的偏移量,to-earliest/to-latest/to-offset <Long>/shift-by <Long>/to-datetime <YYYY-MM-DDTHH:mm:SS.sss>
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
 Error: Assignments can only be reset if the group 'g01' is inactive, but the current state is Stable.
 GROUP    TOPIC    PARTITION    NEW-OFFSET
