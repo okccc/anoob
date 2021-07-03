@@ -82,6 +82,8 @@ esac
 [zk: cdh1:2181(CONNECTED) 0] get /admin/delete_topics       # kafka删除的topic
 [zk: cdh1:2181(CONNECTED) 0] get /isr_change_notification   # isr变化通知
 [zk: cdh1:2181(CONNECTED) 0] get /latest_producer_id_block  # 最新生产者块信息
+[zk: cdh1:2181(CONNECTED) 0] delete /controller             # 删除节点
+[zk: cdh1:2181(CONNECTED) 0] rmr /brokers/topics/t1         # 删除目录
 
 # zk实现分布式锁: 当锁的持有者断开时锁会自动释放,zk的临时znode可以实现这个功能
 # 在cli1创建临时znode
@@ -112,9 +114,10 @@ esac
 - [kafka官方文档](http://kafka.apache.org/0110/documentation.html)
 ```shell script
 # 下载
-[root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.11-2.4.1.tgz
+[root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.12-2.4.1.tgz
 # 安装
-[root@cdh1~]$ tar -xvf kafka_2.11-2.4.1.tgz -C /opt/module
+[root@cdh1~]$ tar -xvf kafka_2.12-2.4.1.tgz -C /opt/module
+
 # 修改配置文件
 [root@cdh1~]$ vim server.properties
 # broker的全局唯一编号,不能重复
@@ -122,15 +125,15 @@ broker.id=0
 # 开启删除topic功能,否则只是标记删除并没有真正删除
 delete.topic.enable=true
 # kafka日志存放路径,消息也存放在该目录
-log.dirs=/Users/okc/modules/kafka_2.11-2.4.1/logs
+log.dirs=/Users/okc/modules/kafka_2.12-2.4.1/logs
 # zk地址
 zookeeper.connect=cdh1:2181,cdh2:2181,cdh3:2181
 # 添加到环境变量
 [root@cdh1 ~]$ vim /etc/profile
-export KAFKA_HOME=/Users/okc/modules/kafka_2.11-2.4.1
+export KAFKA_HOME=/Users/okc/modules/kafka_2.12-2.4.1
 export PATH=$PATH:$KAFKA_HOME/bin
 # 分发到其他节点并修改broker.id
-[root@cdh1 ~]$ xsync /Users/okc/modules/kafka_2.11-2.4.1 & broker.id=1/2
+[root@cdh1 ~]$ xsync /Users/okc/modules/kafka_2.12-2.4.1 & broker.id=1/2
 
 # broker配置
 # The largest record batch size allowed by Kafka
