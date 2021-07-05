@@ -83,7 +83,7 @@ esac
 [zk: cdh1:2181(CONNECTED) 0] get /isr_change_notification   # isr变化通知
 [zk: cdh1:2181(CONNECTED) 0] get /latest_producer_id_block  # 最新生产者块信息
 [zk: cdh1:2181(CONNECTED) 0] delete /controller             # 删除节点
-[zk: cdh1:2181(CONNECTED) 0] deleteall /brokers/topics/t1         # 删除目录
+[zk: cdh1:2181(CONNECTED) 0] deleteall /brokers/topics/t1   # 删除目录
 
 # zk实现分布式锁: 当锁的持有者断开时锁会自动释放,zk的临时znode可以实现这个功能
 # 在cli1创建临时znode
@@ -98,16 +98,24 @@ esac
 [zk: cdh1:2181(CONNECTED) 0] create /workers && ls -w /workers
 # 在cli2的/workers节点下创建临时znode并观察监控变化
 [zk: cdh1:2181(CONNECTED) 0] create -e /workers/w1 'w1:8888'
+```
 
-# zk常见问题
+### problems
+```shell script
 1.找不到或无法加载主类 org.apache.zookeeper.server.quorum.QuorumPeerMain
 # apache-zookeeper-3.6.1.tar.gz是未编译的包,要下载apache-zookeeper-3.6.1-bin.tar.gz
+
 2.org.apache.zookeeper.server.quorum.QuorumPeerConfig$ConfigException: Address unresolved: cdh1:3888
 # 3888后面有空格导致无法识别端口号,linux复制文件时要注意空格
+
 3.Caused by: java.lang.IllegalArgumentException: myid file is missing
 # data目录下缺少myid文件
+
 4.Cannot open channel to 3 at election address cdh3/192.168.152.13:3888
 # 有的节点还没启动,已经启动的节点会努力寻找其它节点进行leader选举,正常现象等节点都启动就好了
+
+5.The Cluster ID yaJab1yoRxaSZLzNUbID3g doesn not match stored clusterId Some(0effDevjT-eS3VPlDVeEsw) in meta.properties
+# kafka故障重启可能会导致kafka的logs/meta.properties的cluster.id和zk中的/cluster/id不一致,把这个干掉,kafka重启之后会重新生成该文件
 ```
 
 ### kafka安装
@@ -117,12 +125,6 @@ esac
 [root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.12-2.4.1.tgz
 # 安装
 [root@cdh1~]$ tar -xvf kafka_2.12-2.4.1.tgz -C /opt/module
-# 新版本kafka自带zk,不需要单独安装
-[root@cdh1~]$ vim zookeeper.properties
-# 服务器编号=服务器地址:LF通信端口:选举端口
-server.1=cdh1:2888:3888
-server.2=cdh2:2888:3888
-server.3=cdh3:2888:3888
 # 修改配置文件
 [root@cdh1~]$ vim server.properties
 # broker的全局唯一编号,不能重复
