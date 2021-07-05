@@ -128,6 +128,10 @@ object S01_function {
     // scala三元表达式：val res = if (a > b) a else b
 
     // 2.for循环
+    // 遍历数组
+    for (i <- "a=10&b=20&c=30".split("&")) {
+      println(i)
+    }
     // 左闭右闭
     for (i <- 1 to 3 reverse) {
       println(i)
