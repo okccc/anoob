@@ -83,7 +83,7 @@ esac
 [zk: cdh1:2181(CONNECTED) 0] get /isr_change_notification   # isr变化通知
 [zk: cdh1:2181(CONNECTED) 0] get /latest_producer_id_block  # 最新生产者块信息
 [zk: cdh1:2181(CONNECTED) 0] delete /controller             # 删除节点
-[zk: cdh1:2181(CONNECTED) 0] rmr /brokers/topics/t1         # 删除目录
+[zk: cdh1:2181(CONNECTED) 0] deleteall /brokers/topics/t1         # 删除目录
 
 # zk实现分布式锁: 当锁的持有者断开时锁会自动释放,zk的临时znode可以实现这个功能
 # 在cli1创建临时znode
