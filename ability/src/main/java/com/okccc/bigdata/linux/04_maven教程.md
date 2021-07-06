@@ -66,4 +66,7 @@ SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/org/slf4j/slf4j-log4
 SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/ch/qos/logback/logback-classic/1.0.7/logback-classic-1.0.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 显示slf4j-log4j12包和logback-classic包冲突,其中logback-classic是我在pom文件里引入的,说明有别的依赖引用了slf4j,找到它并在pom中排除
 mvn dependency:tree  # 查看工程依赖关系
+
+# Error: A JNI(Java Native Interface) error has occurred, please check your installation and try again
+运行时使用的java和编译时使用的javac版本不一致,卸载java重装
 ```
