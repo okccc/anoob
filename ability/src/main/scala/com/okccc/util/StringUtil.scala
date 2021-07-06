@@ -1,5 +1,7 @@
 package com.okccc.util
 
+import java.util
+
 import com.alibaba.fastjson.JSONObject
 
 import scala.collection.mutable
@@ -11,12 +13,13 @@ import scala.collection.mutable
  */
 object StringUtil {
 
-  // 将main方法传入的字符串参数解析成键值对
-  def string2HashMap(args: String): mutable.HashMap[String, String] = {
-    val hashMap: mutable.HashMap[String, String] = new mutable.HashMap[String, String]()
+  // 将main方法传入的字符串参数解析成键值对,类似hive函数str_to_map
+  def strToMap(args: String): util.HashMap[String, String] = {
+    // orc=grubby&ne=moon&hum=sky&ud=ted
+    val hashMap: util.HashMap[String, String] = new util.HashMap[String, String]()
     for (elem <- args.split("&")) {
-      val kvs: Array[String] = elem.split("=")
-      hashMap.put(kvs(0), kvs(1))
+      val arr: Array[String] = elem.split("=")
+      hashMap.put(arr(0), arr(1))
     }
     hashMap
   }
@@ -159,7 +162,8 @@ object StringUtil {
 
 
   def main(args: Array[String]): Unit = {
-    val hashMap: mutable.HashMap[String, String] = string2HashMap("jobName=userLabel&envType=online&topic=thrall$groupId=g01&parallelism=6")
-    println(hashMap)
+    val map: util.HashMap[String, String] = strToMap("jobName=userLabel&envType=online&topic=thrall&groupId=g01&parallelism=6")
+    println(map)  // {jobName=userLabel, envType=online, groupId=g01, parallelism=6, topic=thrall}
+    println(map.get("topic"))  // thrall
   }
 }

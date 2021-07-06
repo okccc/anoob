@@ -2,7 +2,7 @@ package com.okccc.util
 
 import java.util.Properties
 
-import com.okccc.realtime.common.Config
+import com.okccc.realtime.common.Configs
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
 
@@ -20,12 +20,12 @@ object KafkaProdUtil {
     // 1.kafka生产者配置
     private val prop: Properties = new Properties()
     // 必选参数
-    prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Config.get(Config.BOOTSTRAP_SERVERS))     // kafka地址
+    prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Configs.get(Configs.BOOTSTRAP_SERVERS))     // kafka地址
     prop.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])    // key的序列化器
     prop.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])  // value的序列化器
     // 可选参数
-    prop.put(ProducerConfig.ACKS_CONFIG, Config.get(Config.ACK))   // ack可靠性级别 0/1/-1(all)
-    prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, Config.get(Config.IDEMPOTENCE)) // 开启幂等性机制,配合ack=-1确保生产者exactly once
+    prop.put(ProducerConfig.ACKS_CONFIG, Configs.get(Configs.ACK))   // ack可靠性级别 0/1/-1(all)
+    prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, Configs.get(Configs.IDEMPOTENCE)) // 开启幂等性机制,配合ack=-1确保生产者exactly once
 
     // 2.创建Kafka生产者
     if (producer == null) {
@@ -40,7 +40,7 @@ object KafkaProdUtil {
 
   def main(args: Array[String]): Unit = {
     // 获取topic
-    val topic: String = Config.get(Config.NGINX_TOPICS)
+    val topic: String = Configs.get(Configs.NGINX_TOPICS)
 
 //    while (true) {
 //      // 随机生成实时数据

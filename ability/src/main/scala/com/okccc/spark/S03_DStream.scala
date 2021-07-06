@@ -1,5 +1,7 @@
 package com.okccc.spark
 
+import java.sql.{Connection, DriverManager, PreparedStatement}
+
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -61,9 +63,6 @@ object S03_DStream {
     //    val ints2: Iterator[List[Int]] = ints.sliding(size = 3, step = 3)
     //    println(ints1.mkString(","))  // List(1, 2, 3),List(2, 3, 4),List(3, 4, 5),List(4, 5, 6)
     //    println(ints2.mkString(","))  // List(1, 2, 3),List(4, 5, 6)
-
-    // 创建spark程序之前设置hadoop用户名,不然访问hdfs没有权限
-    System.setProperty("HADOOP_USER_NAME", "root")
 
     // 创建spark配置信息
     // receiver模式的DStream(socket/flume/kafka高阶)接收器要单独占一个线程,"local[n>1]",direct模式没有接收器"local"即可
@@ -142,40 +141,40 @@ object S03_DStream {
       //        classOf[TextOutputFormat[Text, IntWritable]], classOf[org.apache.hadoop.io.compress.GzipCodec])
     })
     // 2).写入mysql数据库
-    //    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
-    //      // 遍历所有分区,foreachPartition算子是action操作,以下代码是在executor端执行
-    //      rdd.foreachPartition((ite: Iterator[(String, Int)]) => {
-    //        // 创建数据库连接对象,有几个分区就创建几次连接,在executor端初始化连接对象避免网络传输导致的序列化问题
-    //        val conn: Connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root")
-    //        // 遍历每个分区中的所有元素
-    //        try {
-    //          ite.foreach((t: (String, Int)) => {
-    //            // 关闭自动提交
-    //            conn.setAutoCommit(false)
-    //            // sql语句
-    //            val sql1 = "insert into wv values(?,?)"
-    //            val sql2 = "insert into wv values('"+t._1+"','"+t._2+"')"
-    //            val sql: String = "insert into wc values("+t._1+", "+t._2+")"
-    //            // 创建PreparedStatement对象
-    //            val ps: PreparedStatement = conn.prepareStatement(sql)
-    //            // 执行更新操做
-    //            ps.executeUpdate()
-    //            ps.close()
-    //            // 手动提交
-    //            conn.commit()
-    //          })
-    //        } catch {
-    //          case e: Exception => println(e)
-    //            if (conn != null) {
-    //              // 如果异常就回滚
-    //              conn.rollback()
-    //            }
-    //        } finally {
-    //          // 关闭连接
-    //          conn.close()
-    //        }
-    //      })
-    //    })
+    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
+      // 遍历所有分区,foreachPartition算子是action操作,以下代码是在executor端执行
+      rdd.foreachPartition((ite: Iterator[(String, Int)]) => {
+        // 创建数据库连接对象,有几个分区就创建几次连接,在executor端初始化连接对象避免网络传输导致的序列化问题
+        val conn: Connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root")
+        // 遍历每个分区中的所有元素
+        try {
+          ite.foreach((t: (String, Int)) => {
+            // 关闭自动提交
+            conn.setAutoCommit(false)
+            // sql语句
+//            val sql1: String = "insert into wv values(?,?)"
+//            val sql2: String = "insert into wv values('"+t._1+"','"+t._2+"')"
+            val sql: String = "insert into wc values("+t._1+", "+t._2+")"
+            // 创建PreparedStatement对象
+            val ps: PreparedStatement = conn.prepareStatement(sql)
+            // 执行更新操做
+            ps.executeUpdate()
+            ps.close()
+            // 手动提交
+            conn.commit()
+          })
+        } catch {
+          case e: Exception => println(e)
+            if (conn != null) {
+              // 如果异常就回滚
+              conn.rollback()
+            }
+        } finally {
+          // 关闭连接
+          conn.close()
+        }
+      })
+    })
     // DStream中的RDD还可以转换成DataFrame通过SparkSql计算WordCount
     wordsDStream.foreachRDD((rdd: RDD[String]) => {
       // 创建SparkSession
