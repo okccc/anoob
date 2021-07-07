@@ -49,12 +49,13 @@ test        # 只参与项目的测试,比如Junit包
 ### maven常见错误
 ```shell script
 # scala项目打jar包后找不到类
-原因：mvn package只会对java源码进行编译和打包,将jar包改成rar压缩文件点进去就会发现目标scala类并没有被打进jar包
-解决：pom文件scala-maven-plugin添加execution标签,或者手动执行 mvn clean scala:compile compile package
+mvn package只会对java源码进行编译和打包,将jar包改成rar压缩文件就会发现目标scala类并没有被打进jar包
+pom文件scala-maven-plugin添加execution标签,或者手动执行 mvn clean scala:compile compile package
+mvn package只会对java源码包下的java代码和scala源码包下的scala代码进行编译和打包,所以java和scala代码不要混在一块
 
 # idea使用maven插件打包没问题,mvn package打包提示jdk冲突
-原因：idea自带的maven版本是3.6.3,本地安装的maven版本是3.5.4,不同版本解决jar包冲突的方式不一样
-解决：brew install maven
+idea自带的maven版本是3.6.3,本地安装的maven版本是3.5.4,不同版本解决jar包冲突的方式不一样
+brew install maven
 
 # pom丢失依赖不可用
 [WARNING] The POM for com.okccc:commons:jar:1.0-SNAPSHOT is missing, no dependency information available
@@ -69,4 +70,7 @@ mvn dependency:tree  # 查看工程依赖关系
 
 # Error: A JNI(Java Native Interface) error has occurred, please check your installation and try again
 运行时使用的java和编译时使用的javac版本不一致,卸载java重装
+
+# Error: Failed to execute goal net.alchim31.maven:scala-maven-plugin:4.4.0:compile (default) on project ability
+scala-maven-plugin版本是4.4.0但是maven版本是3.6.3
 ```
