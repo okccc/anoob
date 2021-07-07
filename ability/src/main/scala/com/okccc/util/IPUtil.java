@@ -35,8 +35,9 @@ public class IPUtil {
 //    }
 
     // 使用阿里云IP库解析
-    private static final String DATA_FILE_PATH = "ability/src/main/resources/geoip.dex";
-    private static final String LICENSE_FILE_PATH = "ability/src/main/resources/geoip.lic";
+    private static final String DATA_FILE_PATH = ClassLoader.getSystemResource("geoip.dex").getPath();
+    private static final String LICENSE_FILE_PATH = ClassLoader.getSystemResource("geoip.lic").getPath();
+
     public static String getCity(String ip) throws Exception {
         // 创建地理配置信息
         FastGeoConf geoConf = new FastGeoConf();
