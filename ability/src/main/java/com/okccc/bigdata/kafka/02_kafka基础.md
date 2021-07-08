@@ -272,11 +272,13 @@ Note: This will have no impact if delete.topic.enable is not set to true.
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --topic t01 [--from-beginning] [--max-messages 1]
 java bigdata
 
-# 查看消费者组列表/详细信息
+# 查看消费者组列表/详细信息/删除
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 GROUP    TOPIC    PARTITION    CURRENT-OFFSET    LOG-END-OFFSET    LAG    CONSUMER-ID    HOST    CLIENT-ID
-g01      nginx        0          206             206          0       consumer-g01-1  /172.18.1.111   consumer-g01-1
+g01      nginx        0             6845               6923        78     consumer-g01-1  /172.18.1.111   consumer-g01-1
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --delete --group g01
+Deletion of requested consumer groups ('g01') was successful.
 # 重置消费者组的偏移量,to-earliest/to-latest/to-offset <Long>/shift-by <Long>/to-datetime <YYYY-MM-DDTHH:mm:SS.sss>
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
 Error: Assignments can only be reset if the group 'g01' is inactive, but the current state is Stable.
