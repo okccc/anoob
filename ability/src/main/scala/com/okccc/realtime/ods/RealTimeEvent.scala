@@ -57,7 +57,7 @@ object RealTimeEvent {
       .builder()
       .appName("kafka-hive")
       .enableHiveSupport()
-      .config("spark.debug.maxToStringFields", 100)
+      .config("spark.debug.maxToStringFields", 200)
       .config("hive.exec.dynamic.partition", "true")
       .config("hive.exec.dynamic.partition.mode", "nonstrict")
       // spark集成kafka会有序列化问题
@@ -102,7 +102,105 @@ object RealTimeEvent {
       rdd
     })
 
+    // 4.Transform操作
+    // 获取ConsumerRecord的value部分
+    val recordDStream: DStream[String] = offsetDStream.map((record: ConsumerRecord[String, String]) => record.value())
+    // 由于request_body里面的e字段是数组,要先拆解开再拼接成一个个完整字符串,不然后面不好解析
+    val arrayBufferDStream: DStream[ArrayBuffer[JSONObject]] = recordDStream.map((str: String) => {
+      // 存放json对象的数组
+      val arrayBuffer: ArrayBuffer[JSONObject] = new ArrayBuffer[JSONObject]
+      // 解析字符串
+      if (LogParseUtil.isJsonFormat(str)) {
+        // 最外部的大json串
+        val jsonObj: JSONObject = JSON.parseObject(str)
+        // 获取common字段
+        val hm: util.HashMap[String, Object] = new util.HashMap[String, Object]()
+        hm.put("server_time", jsonObj.getString("@timestamp"))
+        hm.put("ip", jsonObj.getString("ip"))
+        hm.put("method", jsonObj.getString("Method"))
+        // 获取body字段
+        val request_body: String = jsonObj.getString("request_body")
+        // v=3&new_log_flag=true&client=234406d28efbc2041bc1f58a501cad17&e=...
+        if (request_body.length > 2) {
+          val map: util.HashMap[String, String] = StringUtil.strToMap(request_body)
+          for (field <- body.split(",")) {
+            hm.put(field, map.get(field))
+          }
+          // 获取e字段 e=[{},{},{}]
+          val e: String = map.get("e")
+          // 解码
+          val jsonArr: JSONArray = JSON.parseArray(LogParseUtil.decode(e))
+          for (i <- 0 until jsonArr.size()) {
+            // 包含多个小json串对象
+            val jsonObj: JSONObject = JSON.parseObject(jsonArr.get(i).toString)
+            // 添加common字段拼接成完整json对象
+            jsonObj.fluentPutAll(hm)
+            // 将该json对象添加到数组
+            arrayBuffer.append(jsonObj)
+          }
+        }
+      }
+      arrayBuffer
+    })
 
+    // 5.Output操作
+    arrayBufferDStream.foreachRDD((rdd: RDD[ArrayBuffer[JSONObject]]) => {
+      if (!rdd.isEmpty()) {
+        // 扁平化操作
+        val jsonRDD: RDD[JSONObject] = rdd.flatMap((ab: ArrayBuffer[JSONObject]) => ab)
+        // 以分区为单位处理RDD
+        val rowRDD: RDD[Row] = jsonRDD.mapPartitions((partition: Iterator[JSONObject]) => {
+          partition.map((jsonObj: JSONObject) => {
+            // 解析所有字段
+            val server_time: String = jsonObj.getString("server_time")
+            val ip: String = jsonObj.getString("ip")
+            val method: String = jsonObj.getString("method")
+            val v: String = jsonObj.getString("Method")
+            val client: String = jsonObj.getString("client")
+            val upload_time: String = jsonObj.getString("upload_time")
+            val checksum: String = jsonObj.getString("checksum")
+            val session_id: String = jsonObj.getString("session_id")
+            val user_properties: String = jsonObj.getString("user_properties")
+            val language: String = jsonObj.getString("language")
+            val event_type: String = jsonObj.getString("event_type")
+            val sequence_number: String = jsonObj.getString("sequence_number")
+            val user_id: String = jsonObj.getString("user_id")
+            val country: String = jsonObj.getString("country")
+            val api_properties: String = jsonObj.getString("api_properties")
+            val device_id: String = jsonObj.getString("device_id")
+            val event_properties: String = jsonObj.getString("event_properties")
+            val uuid: String = jsonObj.getString("uuid")
+            val device_manufacturer: String = jsonObj.getString("device_manufacturer")
+            val version_name: String = jsonObj.getString("version_name")
+            val library: String = jsonObj.getString("library")
+            val os_name: String = jsonObj.getString("os_name")
+            val platform: String = jsonObj.getString("platform")
+            val event_id: String = jsonObj.getString("event_id")
+            val carrier: String = jsonObj.getString("carrier")
+            val timestamp: String = jsonObj.getString("timestamp")
+            val groups: String = jsonObj.getString("groups")
+            val os_version: String = jsonObj.getString("os_version")
+            val device_model: String = jsonObj.getString("device_model")
+            // 根据ip解析城市
+            val res: String = IPUtil.getCity(ip)
+            val province: String = JSON.parseObject(res).getString("province")
+            val city: String = JSON.parseObject(res).getString("city")
+            // 分区字段
+            val dt: String = DateUtil.getCurrentDate.replace("-", "")
+            // 封装成Row对象
+            Row(client, v, upload_time, checksum, method, ip, session_id, user_properties, language, event_type,
+              sequence_number, user_id, country, api_properties, device_id, event_properties, uuid, device_manufacturer,
+              version_name, library, os_name, platform, event_id, carrier, timestamp, groups, os_version, device_model,
+              province, city, server_time, dt)
+          })
+        })
+        // 写入hive表
+        val columns: String = common + "," + body + "," + e
+        HiveUtil.write(rowRDD, spark, table, columns)
+        // 处理完本批次数据后要更新redis中的偏移量(先消费后提交at least once)
+        OffsetManageUtil.updateOffset(topics, groupId, offsetRanges)
+      }
+    })
 
     // 6.启动程序
     ssc.start()

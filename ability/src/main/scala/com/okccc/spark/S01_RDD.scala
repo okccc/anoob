@@ -94,11 +94,11 @@ object S01_RDD {
     val sc: SparkContext = new SparkContext(conf)
     // 创建RDD两种方式：内存创建(测试),读取文件(常用)
 
-    transform01(sc)
-    transform02(sc)
-    transform03(sc)
-    action(sc)
-//    fileRDD(sc)
+//    transform01(sc)
+//    transform02(sc)
+//    transform03(sc)
+//    action(sc)
+    fileRDD(sc)
 //    jdbcRDD(sc)
   }
 
@@ -122,10 +122,8 @@ object S01_RDD {
       iterator.map((data: Int) => (data, "分区号：" + i))
     })
     // flatMap算子：当集合中的元素是一个个整体时,可以将每个输入元素映射为0或多个输出元素(扁平化操作)
-    val flatMapRDD: RDD[String] = rdd2.flatMap((i: String) => {
-      val words: Array[String] = i.split(" ")
-      words
-    })
+    val flatMapRDD: RDD[String] = rdd2.flatMap((i: String) => i.split(" "))
+    flatMapRDD.foreach(println)
     // distinct算子：去重后数据减少,相应的可以减少默认分区数
     val distinctRDD: RDD[Int] = sc.makeRDD(List(1, 3, 5, 9, 3, 1)).distinct(2)
     // filter算子：返回func函数结果值为true的元素
