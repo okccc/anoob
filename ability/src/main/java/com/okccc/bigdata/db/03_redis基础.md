@@ -6,18 +6,18 @@
 [root@cdh1 ~]$ wget http://download.redis.io/releases/redis-4.0.10.tar.gz
 # 安装(mac下的brew install默认安装路径/usr/local/Cellar,并且自动将可执行命令添加到$PATH的/usr/local/bin,$PATH是可执行命令的查找顺序)
 [root@cdh1 ~]$ tar -xvf redis-4.0.10.tar.gz -C /usr/local/
-# 切换到redis目录  
-[root@cdh1 ~]$ cd /usr/local/redis-4.0.10  
-# 编译安装  
+# 切换到redis目录
+[root@cdh1 ~]$ cd /usr/local/redis-4.0.10
+# 编译安装
 [root@cdh1 ~]$ make && make install  # 安装完发现/usr/local/bin下多了几个可执行文件
 # 修改配置文件
-[root@cdh1 ~]$ vim redis.conf  
+[root@cdh1 ~]$ vim redis.conf
 bind 127.0.0.1     # 将bind注释掉,让其他机器可以通过ip访问,不然只能本地访问
-daemonize yes      # 允许redis后台启动  
-protected-mode no  # 关闭保护模式,不然要输入用户名和密码  
-requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a ***  
+daemonize yes      # 允许redis后台启动
+protected-mode no  # 关闭保护模式,不然要输入用户名和密码
+requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a ***
 # 启动redis要指定修改后的配置文件
-[root@cdh1 ~]$ redis-server /usr/local/redis-4.0.10/redis.conf 
+[root@cdh1 ~]$ redis-server /usr/local/redis-4.0.10/redis.conf
 # 关闭redis
 [root@cdh1 ~]$ redis-cli shutdown
 

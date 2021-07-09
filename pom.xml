@@ -24,7 +24,7 @@
         <mysql.version>8.0.16</mysql.version>
         <hive.version>1.2.1</hive.version>
         <flume.version>1.9.0</flume.version>
-        <fastjson.version>1.2.62</fastjson.version>
+        <fastjson.version>1.2.76</fastjson.version>
         <slf4j.version>1.7.25</slf4j.version>
         <lombok.version>1.18.20</lombok.version>
         <!-- maven编译源码时指定编码,不然会告警 -->
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.12.12</version>
+            <version>${scala.version}</version>
         </dependency>
         <!-- scala操作jdbc的工具 -->
         <dependency>
@@ -341,7 +341,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>4.4.0</version>
+                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <!-- mvn clean package默认只编译java源码 -->
@@ -354,53 +354,53 @@
             </plugin>
 
             <!-- maven打jar包插件,assembly和shade都可以 -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-assembly-plugin</artifactId>-->
-<!--                <version>3.3.0</version>-->
-<!--                <configuration>-->
-<!--                    <descriptorRefs>-->
-<!--                        &lt;!&ndash; idea自带的maven插件默认只打包我自己写的代码,不会添加pom里的依赖jar包 &ndash;&gt;-->
-<!--                        &lt;!&ndash; 会额外生成一个带所有依赖的jar包,因为服务器可能没有程序运行需要的相关依赖 &ndash;&gt;-->
-<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
-<!--                    </descriptorRefs>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>make-assembly</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>single</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <!-- idea自带的maven插件默认只打包我自己写的代码,不会添加pom里的依赖jar包 -->
+                        <!-- 会额外生成一个带所有依赖的jar包,因为服务器可能没有程序运行需要的相关依赖 -->
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>single</goal>
                         </goals>
-                        <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-shade-plugin</artifactId>-->
+<!--                <version>3.2.4</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>shade</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <filters>-->
+<!--                                <filter>-->
+<!--                                    <artifact>*:*</artifact>-->
+<!--                                    <excludes>-->
+<!--                                        <exclude>META-INF/*.SF</exclude>-->
+<!--                                        <exclude>META-INF/*.DSA</exclude>-->
+<!--                                        <exclude>META-INF/*.RSA</exclude>-->
+<!--                                    </excludes>-->
+<!--                                </filter>-->
+<!--                            </filters>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
