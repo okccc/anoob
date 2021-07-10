@@ -2,6 +2,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -10,10 +13,10 @@ import java.util.concurrent.Future;
 
 public class Test01 {
     @Test
-    public void testDate() {
-        // Date
+    public void testDate() throws ParseException {
+        // 2021-06-23
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd")));
-        // DateTime
+        // 2021-06-23 21:13:20
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
         System.out.println(System.currentTimeMillis() - 3600*24*1000);
     }

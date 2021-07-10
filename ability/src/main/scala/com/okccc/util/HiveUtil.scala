@@ -3,8 +3,10 @@ package com.okccc.util
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-
 import java.util
+
+import com.okccc.realtime.common.Configs
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
  * Author: okccc
@@ -13,8 +15,29 @@ import java.util
  */
 object HiveUtil {
 
+  private val logger: Logger = LoggerFactory.getLogger(HiveUtil.getClass)
+
   /**
-   * hive根据列创建表
+   * spark写数据到hive
+   */
+  def write(rowRdd: RDD[Row], spark: SparkSession, hiveTable: String, hiveColumns: String): Unit = {
+    // 根据列创建表结构
+    val schema: StructType = createSchema(hiveColumns)
+    // 根据RDD和对应的StructType创建DataFrame
+    val df: DataFrame = spark.createDataFrame(rowRdd, schema)
+    // 生成临时表
+    df.repartition(1).createOrReplaceTempView("RealTimeEvent")
+    // 将临时表数据插入正式表
+    try {
+      spark.sql("insert into table " + hiveTable + " partition(dt) select * from RealTimeEvent")
+    } catch {
+      case e: Exception => logger.error("error", e)
+        df.show()
+    }
+  }
+
+  /**
+   * hive根据列创建表结构
    */
   def createSchema(columns: String): StructType = {
     // 获取所有列
@@ -31,20 +54,10 @@ object HiveUtil {
     DataTypes.createStructType(fields)
   }
 
-  /**
-   * spark写数据到hive
-   */
-  def write(rowRdd: RDD[Row], spark: SparkSession, hiveTable: String, hiveColumns: String): Unit = {
-    // 根据列创建表结构
-    val schema: StructType = createSchema(hiveColumns)
-    // 将RDD转换成DataFrame
-    val df: DataFrame = spark.createDataFrame(rowRdd, schema)
-    // 生成临时表
-    df.repartition(1).createOrReplaceTempView(hiveTable + "_tmp")
-    // 将临时表数据插入正式表
-    val sqlStr: String = "insert into table " + hiveTable + " partition(dt) select * from " + hiveTable + "_tmp"
-    // 执行sparkSql
-    spark.sql(sqlStr)
-  }
 
+  def main(args: Array[String]): Unit = {
+    val columns: String = Configs.get(Configs.HIVE_COLUMNS)
+    val structType: StructType = createSchema(columns)
+    println(structType)
+  }
 }
