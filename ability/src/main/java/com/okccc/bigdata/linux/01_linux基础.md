@@ -347,26 +347,31 @@ root       2   0.0   0.0     0    0  ?    S     Apr21  0:00  [kthreadd]
 
 # top 动态显示进程信息
 [root@cdh1 ~]$ top
-# 系统时间 + 系统运行时间 + 用户数 + 1/5/15分钟系统平均负载
+# 系统当前时间 + 系统运行时间 + 用户数 + 1/5/15分钟系统平均负载
 top - 16:05:31 up 692 days, 37 min,  1 user,  load average: 0.20, 0.38, 0.32
 # 总进程数(total) + 正在运行进程数(running) + 睡眠进程数(sleeping) + 停止的进程数(stopped) + 僵尸进程数(zombie)
 Tasks: 218 total,   2 running, 215 sleeping,   0 stopped,   1 zombie
 # 用户空间CPU占比(us) + 内核空间CPU占比(sy) + CPU空置率(id)  
-%Cpu(s):  5.5 us,  0.5 sy,  0.0 ni, 94.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+%Cpu0  : 14.4 us,  1.0 sy,  0.0 ni, 84.3 id,  0.0 wa,  0.0 hi,  0.3 si,  0.0 st
+%Cpu1  : 14.1 us,  1.0 sy,  0.0 ni, 84.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+%Cpu2  : 15.3 us,  1.3 sy,  0.0 ni, 83.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+%Cpu3  : 13.7 us,  1.0 sy,  0.0 ni, 85.0 id,  0.0 wa,  0.0 hi,  0.3 si,  0.0 st
 KiB Mem : 32781920 total,  4626088 free, 14574136 used, 13581696 buff/cache
 KiB Swap:  2097148 total,  1604300 free,   492848 used. 15342624 avail Mem 
 # PR优先级, NI负值高优先级/正值低优先级, VIRT虚拟内存, RES真实内存, SHR共享内存, S linux进程5种状态(D=不可中断/R=运行/S=睡眠/T=停止/Z=僵尸)  
-# %CPU进程占用CPU百分比, %MEM进程占用内存百分比, TIME+进程启动后占用cpu总时间, COMMAND进程完整命令行
-  PID  USER      PR  NI    VIRT    RES    SHR  S  %CPU  %MEM    TIME+  COMMAND                                                                                  
-32106 clouder+  20   0  8639896   2.9g  84364  S   5.0   9.4    4498:02   java                                                                                     
-22292 clouder+  20   0  8347660   2.7g  13644  S   0.7   8.5    1372:14   java                                                                                     
-10943 clouder+  20   0  5981184   1.4g  65396  S   0.7   4.4    1207:21   java                                                                                     
-29364 hive      20   0  2358756   1.1g  41356  S   0.0   3.6   11:47.05   java                                                                                     
-25562 hdfs      20   0  4977904 939212  22764  S   0.0   2.9   13:23.43   java                                                                                     
-31207 impala    20   0  1895636 662760  37064  S   0.0   2.0    5:30.01   catalogd                                                                                 
-26409 yarn      20   0  1887780 578052  21820  S   0.7   1.8   15:12.75   java                                                                                     
-26473 mapred    20   0  1671052 542636  22188  S   0.0   1.7    8:59.98   java                                                                                     
-25264 zookeep+  20   0  4070744 451856  11896  S   0.0   1.4    3:12.09   java                                                                                           
+# %CPU是进程占用CPU总百分比,大于100%说明是多核cpu,比如4cpu最大利用率可达到400%
+# %MEM是进程占用内存百分比, TIME+进程启动后占用cpu总时间, COMMAND进程完整命令行
+  PID  USER     PR  NI    VIRT    RES    SHR  S  %CPU  %MEM    TIME+  COMMAND                                                                                  
+ 7245 deploy    20   0 8951836   1.0g  19288  S 156.4 13.5  15364:32 java
+20770 deploy    20   0 8265800 834000  19404  S  11.3 10.5   3797:23 java
+12071 deploy    20   0 7476252 781300  16028  S   1.3  9.8  33:55.86 java
+10525 deploy    20   0 8265800 778172  16292  S   1.0  9.8 655:34.92 java
+    9 root      20   0       0      0      0  S   0.3  0.0   0:21.90 ksoftirqd/0
+15443 deploy    20   0  162024   4440   3700  R   0.3  0.1   0:00.35 top
+27934 root      20   0  789000 100780   8800  S   0.3  1.3 103:00.97 n9e-collector
+    1 root      20   0  191180   5480   3892  S   0.0  0.1   0:29.06 systemd
+    2 root      20   0       0      0      0  S   0.0  0.0   0:01.55 kthreadd
+    3 root       0 -20       0      0      0  I   0.0  0.0   0:00.00 rcu_gp                                                                                          
 # 快捷键
 space刷新, c 显示完整命令行, i 不显示idle/zombie进程 
 P/M/T 根据CPU使用大小/内存使用大小/累计使用时间排序  
