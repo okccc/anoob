@@ -80,6 +80,8 @@ File - Project Structure - Libraries - 点击+将lib目录下的jar包都添加�
 pom.xml - 右键 - Diagrams - Show Dependencies
 # idea调用方法时会在括号中补全2个空格
 Intellij IDEA - Preferences - Editor - Code Style - Java/Scala - Spaces - Within - Method call parentheses
+# idea的java代码不显示蓝色图标而是橘色图标
+java - Make Directory as - Sources Root
 ```
 
 ### idea常用插件
