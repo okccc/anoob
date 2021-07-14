@@ -1,0 +1,85 @@
+### python3
+[参考文档](http://www.cnblogs.com/JahanGu/p/7452527.html)
+```shell script
+# 查看已有版本和安装路径
+[root@cdh1 ~]$ python -V && which python
+# 安装依赖  
+[root@cdh1 ~]$ yum install zlib-devel openssl-devel libffi-devel
+# 官网下载python3  
+[root@cdh1 ~]$ wget https://www.python.org/ftp/python/3.7.5/Python-3.7.5.tar.xz  
+# 解压  
+[root@cdh1 ~]$ tar -xvf Python-3.7.5.tar.xz
+# 进入python目录  
+[root@cdh1 ~]$ cd Python-3.7.5
+# 编译安装  
+[root@cdh1 ~]$ ./configure prefix=/usr/local/python3  
+[root@cdh1 ~]$ make && make install  # 安装完发现/usr/local目录下已经有python3
+# 添加软链接到执行目录/usr/bin  
+[root@cdh1 ~]$ ln -s /usr/local/python3/bin/python3 /usr/bin/python
+# python3自带pip3给pip添加软连接,以后pip安装的包都在/usr/local/python3/lib/python3.6/site-packages目录下,可以添加软连接
+[root@cdh1 ~]$ ln -s /usr/local/python3/bin/pip3 /usr/bin/pip
+# 由于CentOS7自带的yum采用的是python2.7,所以要指定python2作为yum的解释器  
+[root@cdh1 ~]$ vim /usr/bin/yum  
+#! /usr/bin/python --> #! /usr/bin/python2
+# 使用yum安装工具包时报错File "/usr/libexec/urlgrabber-ext-down", line 28 解决方法同上
+[root@cdh1 ~]$ vim /usr/libexec/urlgrabber-ext-down
+#! /usr/bin/python --> #! /usr/bin/python2
+
+# pip常用命令
+[root@cdh1 ~]$ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple  # 国内镜像
+[root@cdh1 ~]$ pip install requests  # 安装
+[root@cdh1 ~]$ pip uninstall requests  # 卸载
+[root@cdh1 ~]$ pip install --upgrade requests  # 升级
+[root@cdh1 ~]$ pip search requests  # 搜索包
+[root@cdh1 ~]$ pip list/freeze  # 查看所有包
+[root@cdh1 ~]$ pip list -o  # 查看可升级包
+[root@cdh1 ~]$ pip freeze > requirements.txt & pip install -r requirements.txt  # 导出所有包
+[root@cdh1 ~]$ pip show requests  # 查看包详细信息
+# 查看某个包信息
+[root@cdh1 ~]$ pip show requests
+Name: requests
+Version: 2.21.0
+Summary: Python HTTP for Humans.
+Home-page: http://python-requests.org
+Author: Kenneth Reitz
+Author-email: me@kennethreitz.org
+License: Apache 2.0
+Location: c:\users\admin\appdata\roaming\python\python36\site-packages
+Requires: certifi, idna, chardet, urllib3
+Required-by: moviepy, itchat, baidu-aip
+```
+
+### virtualenv
+```shell script
+# 不同项目使用的包版本可能不一样,最好每个项目单独使用一个虚拟环境,是真实python环境的复制版本
+# 安装virtualenv  
+[root@cdh1 ~]$ pip install virtualenv
+# 可能会碰到以下错误  
+pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='files.pythonhosted.org', port=443): Read timed out.  
+[root@cdh1 ~]$ pip install --trusted-host files.pythonhosted.org virtualenv  # 将报错的域名添加到信任列表 
+# 安装virtualenvwrapper  
+[root@cdh1 ~]$ pip install virtualenvwrapper
+# 将virtualenvwrapper.sh配入当前shell环境
+[root@cdh1 ~]$ vim ~/.bash_profile
+if [ -f /usr/local/python3/bin/virtualenvwrapper.sh ]; then
+    export WORKON_HOME=/home/.virtualenvs  #虚拟环境目录
+    source /usr/local/python3/bin/virtualenvwrapper.sh
+fi
+# 使环境变量生效  
+[root@cdh1 ~]$ source ~/.bash_profile
+# 添加软连接  
+[root@cdh1 ~]$ ln -s /usr/local/python3/bin/virtualenv /usr/bin/virtualenv
+# 查看是否可用  
+[root@cdh1 ~]$ mkvirtualenv --help
+# 常用命令  
+[root@cdh1 ~]$ mkvirtualenv test  # 创建  
+[root@cdh1 ~]$ rmvirtualenv test  # 删除
+[root@cdh1 ~]$ workon test  # 选择
+[root@cdh1 ~]$ deactivate  # 退出
+[root@cdh1 ~]$ lsvirtualenv  # 显示所有
+# 安装django  
+[root@cdh1 ~]$ pip install django==1.8.2
+# 打包工程依赖
+[root@cdh1 ~]$ pip freeze > requirements.txt  # 将当前环境依赖包生成到文件
+[root@cdh1 ~]$ pip install -r requirements.txt  # 在新环境安装文件中的所有包
+```
