@@ -84,6 +84,8 @@ Intellij IDEA - Preferences - Editor - Code Style - Java/Scala - Spaces - Within
 java - Make Directory as - Sources Root
 # idea的View - Tool Windows不显示Maven
 pom.xml - 右键 - add as maven project
+# idea修改代码不生效运行的还是之前的代码,必须mvn clean重新编译
+删除.idea和.iml,将项目从idea中关闭并重新导入
 ```
 
 ### idea常用插件
