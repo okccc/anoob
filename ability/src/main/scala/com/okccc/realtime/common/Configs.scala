@@ -42,6 +42,8 @@ object Configs {
   val IDEMPOTENCE: String = "idempotence"
   val ENABLE_AUTO_COMMIT: String = "enable.auto.commit"
   val AUTO_OFFSET_RESET: String = "auto.offset.reset"
+  val MAX_POLL_RECORDS: String = "max.poll.records"
+  val MAX_PARTITION_FETCH_BYTES: String = "max.partition.fetch.bytes"
 
   // hive
   val HIVE_TABLE: String = "nginx.hive.table"

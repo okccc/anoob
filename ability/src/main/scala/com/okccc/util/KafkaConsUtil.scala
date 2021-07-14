@@ -24,7 +24,9 @@ object KafkaConsUtil {
     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer], // value的反序列化器
     // 可选参数
     ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG -> Configs.get(Configs.ENABLE_AUTO_COMMIT), // true自动提交(默认),false手动提交
-    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG -> Configs.get(Configs.AUTO_OFFSET_RESET) // 没有offset就从latest(默认)/earliest/none开始消费
+    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG -> Configs.get(Configs.AUTO_OFFSET_RESET),  // 没有offset就从latest(默认)/earliest/none开始消费
+    ConsumerConfig.MAX_POLL_RECORDS_CONFIG -> Configs.get(Configs.MAX_POLL_RECORDS),  // 消费者每次poll拉取的最大消息条数
+    ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG -> Configs.get(Configs.MAX_PARTITION_FETCH_BYTES)  // 消费者获取数据的最大字节数
   )
 
   // 2.创建读取kafka数据的DStream

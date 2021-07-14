@@ -26,9 +26,7 @@ object LogParseUtil {
       JSON.parse(str)
       true
     } catch {
-      case e: JSONException =>
-//        e.printStackTrace()  // 打印异常信息
-        logger.error("error", e)  // 记录日志信息
+      case e: JSONException => logger.error("error", e)
         false
     }
   }
@@ -44,9 +42,7 @@ object LogParseUtil {
 //        return URLDecoder.decode(str, "utf-8");
         return URLDecoder.decode(str.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "utf-8")
       } catch {
-        case e: UnsupportedEncodingException =>
-//          e.printStackTrace()
-          logger.error("error", e)
+        case e: UnsupportedEncodingException => logger.error("error", e)
       }
     }
     str
@@ -91,7 +87,8 @@ object LogParseUtil {
           }
         } catch {
           case exception: Exception => exception.printStackTrace()
-          // 将解析失败的非json数据(脏数据)放到单独表
+          // 将解析失败的脏数据放到单独表(TODO)
+            println(e)
         }
       }
     }

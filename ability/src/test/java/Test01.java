@@ -39,7 +39,7 @@ public class Test01 {
             @Override
             public void run() {
                 // 待执行任务
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 0; i < 100; i++) {
                     System.out.println("i = " + i);
                 }
             }
