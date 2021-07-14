@@ -86,6 +86,8 @@ java - Make Directory as - Sources Root
 pom.xml - 右键 - add as maven project
 # idea修改代码不生效运行的还是之前的代码,必须mvn clean重新编译
 删除.idea和.iml,将项目从idea中关闭并重新导入
+# .iml和.idea会记录项目的配置信息,历史记录,版本控制信息等,不能随便删除,看不顺眼可以隐藏
+Intellij IDEA - Preferences - Editor - File Types - Ignore files and folders - *.iml;.idea
 ```
 
 ### idea常用插件
