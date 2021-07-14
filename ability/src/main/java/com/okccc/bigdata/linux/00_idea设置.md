@@ -82,6 +82,8 @@ pom.xml - 右键 - Diagrams - Show Dependencies
 Intellij IDEA - Preferences - Editor - Code Style - Java/Scala - Spaces - Within - Method call parentheses
 # idea的java代码不显示蓝色图标而是橘色图标
 java - Make Directory as - Sources Root
+# idea的View - Tool Windows不显示Maven
+pom.xml - 右键 - add as maven project
 ```
 
 ### idea常用插件
