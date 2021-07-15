@@ -53,6 +53,9 @@ mvn package只会对java源码进行编译和打包,将jar包改成rar压缩文�
 pom文件scala-maven-plugin添加execution标签,或者手动执行 mvn clean scala:compile compile package
 mvn package只会对java源码包下的java代码和scala源码包下的scala代码进行编译和打包,所以java和scala代码不要混在一块
 
+# 类加载器读不到resources目录配置文件
+maven打包默认会将java/resources/scala三个包的内容都打进去,查看target/classes发现资源文件没进来,idea环境出问题了
+
 # idea使用maven插件打包没问题,mvn package打包提示jdk冲突
 idea自带的maven版本是3.6.3,本地安装的maven版本是3.5.4,不同版本解决jar包冲突的方式不一样
 brew install maven
