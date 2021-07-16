@@ -280,7 +280,7 @@ g01      nginx        0             6845               6923        78     consum
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --delete --group g01
 Deletion of requested consumer groups ('g01') was successful.
 # 重置消费者组的偏移量,to-earliest/to-latest/to-offset <Long>/shift-by <Long>/to-datetime <YYYY-MM-DDTHH:mm:SS.sss>
-[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --group g01 --reset-offsets --all-topics --to-earliest --execute
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --reset-offsets --group g01 --all-topics(--topic nginx) --to-earliest --execute
 Error: Assignments can only be reset if the group 'g01' is inactive, but the current state is Stable.
 GROUP    TOPIC    PARTITION    NEW-OFFSET
 g01      nginx        0          0 
@@ -314,6 +314,7 @@ start.time, end.time, data.consumed.in.MB, MB.sec, data.consumed.in.nMsg, nMsg.s
 
 ### kafka-manager
 ```shell script
+
 # github官网只提供了kafka-manage的源码,需要手动编译
 # 修改配置文件
 [root@cdh1 ~]$ vim conf/application.conf
