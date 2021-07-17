@@ -314,7 +314,7 @@ start.time, end.time, data.consumed.in.MB, MB.sec, data.consumed.in.nMsg, nMsg.s
 
 ### kafka-manager
 ```shell script
-
+# 滴滴开源工具https://github.com/didi/LogiKM(推荐)
 # github官网只提供了kafka-manage的源码,需要手动编译
 # 修改配置文件
 [root@cdh1 ~]$ vim conf/application.conf
