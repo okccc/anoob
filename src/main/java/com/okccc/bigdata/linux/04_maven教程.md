@@ -75,5 +75,4 @@ mvn dependency:tree  # 查看工程依赖关系
 运行时使用的java和编译时使用的javac版本不一致,卸载java重装
 
 # Error: Failed to execute goal net.alchim31.maven:scala-maven-plugin:4.4.0:compile (default) on project ability
-scala-maven-plugin版本是4.4.0但是maven版本是3.6.3
 ```

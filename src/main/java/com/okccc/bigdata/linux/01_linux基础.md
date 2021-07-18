@@ -352,17 +352,17 @@ top - 16:05:31 up 692 days, 37 min,  1 user,  load average: 0.20, 0.38, 0.32
 # 总进程数(total) + 正在运行进程数(running) + 睡眠进程数(sleeping) + 停止的进程数(stopped) + 僵尸进程数(zombie)
 Tasks: 218 total,   2 running, 215 sleeping,   0 stopped,   1 zombie
 # 用户空间CPU占比(us) + 内核空间CPU占比(sy) + CPU空置率(id)  
-%Cpu0  : 14.4 us,  1.0 sy,  0.0 ni, 84.3 id,  0.0 wa,  0.0 hi,  0.3 si,  0.0 st
-%Cpu1  : 14.1 us,  1.0 sy,  0.0 ni, 84.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
-%Cpu2  : 15.3 us,  1.3 sy,  0.0 ni, 83.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
-%Cpu3  : 13.7 us,  1.0 sy,  0.0 ni, 85.0 id,  0.0 wa,  0.0 hi,  0.3 si,  0.0 st
+%Cpu0  : 58.4 us,  1.0 sy,  0.0 ni, 84.3 id,  0.0 wa,  0.0 hi,  0.3 si,  0.0 st
+%Cpu1  : 61.1 us,  1.0 sy,  0.0 ni, 84.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+%Cpu2  : 62.3 us,  1.3 sy,  0.0 ni, 83.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+%Cpu3  : 59.7 us,  1.0 sy,  0.0 ni, 85.0 id,  0.0 wa,  0.0 hi,  0.3 si,  0.0 st
 KiB Mem : 32781920 total,  4626088 free, 14574136 used, 13581696 buff/cache
 KiB Swap:  2097148 total,  1604300 free,   492848 used. 15342624 avail Mem 
 # PR优先级, NI负值高优先级/正值低优先级, VIRT虚拟内存, RES真实内存, SHR共享内存, S linux进程5种状态(D=不可中断/R=运行/S=睡眠/T=停止/Z=僵尸)  
 # %CPU是进程占用CPU总百分比,大于100%说明是多核cpu,比如4cpu最大利用率可达到400%
 # %MEM是进程占用内存百分比, TIME+进程启动后占用cpu总时间, COMMAND进程完整命令行
   PID  USER     PR  NI    VIRT    RES    SHR  S  %CPU  %MEM    TIME+  COMMAND                                                                                  
- 7245 deploy    20   0 8951836   1.0g  19288  S 156.4 13.5  15364:32 java
+ 7245 deploy    20   0 8951836   1.0g  19288  S 120.4 13.5  15364:32 java
 20770 deploy    20   0 8265800 834000  19404  S  11.3 10.5   3797:23 java
 12071 deploy    20   0 7476252 781300  16028  S   1.3  9.8  33:55.86 java
 10525 deploy    20   0 8265800 778172  16292  S   1.0  9.8 655:34.92 java
