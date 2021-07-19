@@ -98,7 +98,7 @@ object DauApp {
     // 1.遍历分区,涉及到数据库连接的操作,通常是以分区为单位处理数据,减少数据库连接次数
     val filteredDStream: DStream[JSONObject] = jsonDStream.mapPartitions((iterator: Iterator[JSONObject]) => {
       // 2.获取jedis客户端,有几个分区就创建几次连接,提高性能
-      val jedis: Jedis = JedisUtil.getJedis()
+      val jedis: Jedis = JedisUtil.getJedis
       // 3.遍历分区中的元素
       iterator.foreach((jsonObj: JSONObject) => {
         // 获取日期和设备号

@@ -15,7 +15,7 @@ object JedisUtil {
   private var jedisPool: JedisPool = _
 
   // 从jedis连接池中获取jedis
-  def getJedis(): Jedis = {
+  def getJedis: Jedis = {
     if (jedisPool == null) {
       jedisPool = initJedisPool()
     }
@@ -45,7 +45,7 @@ object JedisUtil {
   }
 
   def main(args: Array[String]): Unit = {
-    val jedis: Jedis = getJedis()
+    val jedis: Jedis = getJedis
     // 测试连接
     println(jedis.ping())  // PONG
     jedis.close()

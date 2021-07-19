@@ -24,7 +24,7 @@ object OffsetManageUtil {
     val offsetKey: String = groupId + ":" + topicName
 
     // 2.获取key的所有Map<field, value>
-    val jedis: Jedis = JedisUtil.getJedis()
+    val jedis: Jedis = JedisUtil.getJedis
     val offsetMap: util.Map[String, String] = jedis.hgetAll(offsetKey)
     jedis.close()
 
@@ -69,7 +69,7 @@ object OffsetManageUtil {
 
     // 3.更新数据
     if (offsetMap != null && offsetMap.size() > 0) {
-      val jedis: Jedis = JedisUtil.getJedis()
+      val jedis: Jedis = JedisUtil.getJedis
       jedis.hmset(offsetKey, offsetMap)
       jedis.close()
     }
