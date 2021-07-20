@@ -7,7 +7,7 @@ package com.okccc.design;
  */
 public class BuilderDemo {
     public static void main(String[] args) {
-        /**
+        /*
          * 构造者模式：解决多参数构造方法的初始化问题
          * 1.在类的内部创建静态或非静态内部类Builder
          * 2.Builder类的属性和外部类保持一致,由Builder类实现属性的setXxx方法,并最终提供build方法返回外部类对象

@@ -35,17 +35,6 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
-        <!-- scala操作jdbc的工具 -->
-        <dependency>
-            <groupId>org.scalikejdbc</groupId>
-            <artifactId>scalikejdbc_2.12</artifactId>
-            <version>3.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scalikejdbc</groupId>
-            <artifactId>scalikejdbc-config_2.12</artifactId>
-            <version>3.5.0</version>
-        </dependency>
         <!-- 阿里巴巴开源json解析框架 -->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -67,13 +56,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- 日志 -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.logging.log4j</groupId>-->
-        <!--            <artifactId>log4j-to-slf4j</artifactId>-->
-        <!--            <version>2.11.0</version>-->
-        <!--        </dependency>-->
-
         <!-- hadoop相关 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -86,28 +68,22 @@
             <version>${hadoop.version}</version>
         </dependency>
 
-        <!-- rdd -->
+        <!-- spark相关 -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
-
-        <!-- Spark on Yarn -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-yarn_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
-
-        <!-- SparkSql -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
-
-        <!-- SparkStreaming -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_2.12</artifactId>
@@ -116,6 +92,11 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka-0-10_2.12</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
 
@@ -132,18 +113,6 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>
-        </dependency>
-
-        <!-- hive -->
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_2.12</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-exec</artifactId>
-            <version>${hive.version}</version>
         </dependency>
 
         <!-- mysql -->
@@ -344,7 +313,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>4.4.0</version>
                 <executions>
                     <execution>
                         <!-- mvn clean package默认只编译java源码 -->

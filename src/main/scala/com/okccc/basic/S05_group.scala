@@ -73,16 +73,6 @@ object S05_group {
     val wordCount: List[(String, Int)] = wordSumMap.toList.sortWith((x: (String, Int), y: (String, Int)) => {x._2 > y._2}).take(3)
     println(wordCount)  // List((hello,10), (scala,4), (python,3))
 
-    // 扁平化案例
-    val list_any: List[Any] = List(1,List(2,3),4,List(5,6))
-    val list_any_new: List[Int] = list_any.flatMap((any: Any) => {
-      any match {
-        case any: Int => List(any)
-        case any: List[Int] => any
-      }
-    })
-    println(list_any_new)  // List(1, 2, 3, 4, 5, 6)
-
     // reduce化简
     val list: List[Int] = List(1,3,5,7)
     //    val i: Int = list.reduce((x: Int, y: Int) => {x-y})

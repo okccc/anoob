@@ -38,19 +38,16 @@ object S06_match {
     }
 
     // 匹配类型
-    val l: List[Any] = List(1, BigInt(3), "2", Array("aa"), Array(1,2,3), Array("aa",1), Map("aa" -> 1), Map(1 -> "aa"))
+    val l: List[Any] = List(1, BigInt(3), "2", Array("aa"), Array(1,2,3), Array("aa",1))
     for (obj <- l) {
       val res: Any = obj match {
-        case i: Int => "数字"
-        case i: BigInt => Int.MaxValue
-        case i: String => "字符串"
+        case _: Int => "数字"
+        case _: BigInt => Int.MaxValue
+        case _: String => "字符串"
         // i1和i2是不同结果,此处String和Int不是泛型,编译成.class文件会变成int[]和string[]
-        case i1: Array[String] => "字符串数组"
-        case i2: Array[Int] => "数字数组"
-        case i: Array[Any] => "任意类型数组"
-        // i3和i4是相同结果,在类型匹配时泛型不起作用
-        case i3: Map[String, Int] => "字符串-数字 Map集合"
-        case i4: Map[Int, String] => "数字-字符串 Map集合"
+        case _: Array[String] => "字符串数组"
+        case _: Array[Int] => "数字数组"
+        case _: Array[Any] => "任意类型数组"
         case _ => None
       }
       println(res)

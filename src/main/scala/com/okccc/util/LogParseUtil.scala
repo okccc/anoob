@@ -87,7 +87,7 @@ object LogParseUtil {
           }
         } catch {
           case exception: Exception => exception.printStackTrace()
-          // 将解析失败的脏数据放到单独表(TODO)
+            // 将解析失败的脏数据放到单独表(TODO)
             println(e)
         }
       }

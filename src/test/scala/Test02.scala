@@ -29,16 +29,16 @@ class Test02 {
     val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("RDD")
     val sc: SparkContext = new SparkContext(conf)
 
-//    val arrayBuffer: ArrayBuffer[JSONObject] = new ArrayBuffer[JSONObject]()
-//    val map: util.Map[String, Object] = new util.HashMap[String, Object]()
-//    map.put("orc", "grubby")
-//    map.put("ne", "moon")
-//    val jsonObj: JSONObject = new JSONObject()
-//    jsonObj.fluentPutAll(map)
-//    arrayBuffer.append(jsonObj)
-//    println("aaa = " + arrayBuffer)
-//    val rdd: RDD[JSONObject] = sc.makeRDD(arrayBuffer)
-//    println(rdd.foreach((j: JSONObject) => println("bbb = " + j)))
+    //    val arrayBuffer: ArrayBuffer[JSONObject] = new ArrayBuffer[JSONObject]()
+    //    val map: util.Map[String, Object] = new util.HashMap[String, Object]()
+    //    map.put("orc", "grubby")
+    //    map.put("ne", "moon")
+    //    val jsonObj: JSONObject = new JSONObject()
+    //    jsonObj.fluentPutAll(map)
+    //    arrayBuffer.append(jsonObj)
+    //    println("aaa = " + arrayBuffer)
+    //    val rdd: RDD[JSONObject] = sc.makeRDD(arrayBuffer)
+    //    println(rdd.foreach((j: JSONObject) => println("bbb = " + j)))
 
     val fileRDD: RDD[String] = sc.textFile("input/aaa.txt", minPartitions = 2)
     fileRDD.foreach(println)
@@ -46,16 +46,4 @@ class Test02 {
     lineRDD.foreach(println)
   }
 
-  @Test
-  def testScala(): Unit = {
-    // 扁平化案例
-    val list_any: List[Any] = List(1,List(2,3),4,List(5,6))
-    val list_any_new: List[Int] = list_any.flatMap((any: Any) => {
-      any match {
-        case any: Int => List(any)
-        case any: List[Int] => any
-      }
-    })
-    println(list_any_new)  // List(1, 2, 3, 4, 5, 6)
-  }
 }
