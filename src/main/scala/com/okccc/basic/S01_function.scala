@@ -128,9 +128,14 @@ object S01_function {
     // scala三元表达式：val res = if (a > b) a else b
 
     // 2.for循环
-    // 遍历数组
-    for (i <- "a=10&b=20&c=30".split("&")) {
+    // 方式一: 遍历数组元素
+    val arr: Array[String] = "aaa,bbb,ccc".split(",")
+    for (i <- arr) {
       println(i)
+    }
+    // 方式二: 根据索引取值
+    for (i <- arr.indices) {
+      println(arr(i))
     }
     // 左闭右闭
     for (i <- 1 to 3 reverse) {

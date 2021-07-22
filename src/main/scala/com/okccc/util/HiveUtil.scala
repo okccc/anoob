@@ -40,24 +40,25 @@ object HiveUtil {
    * hive根据列创建表结构
    */
   def createSchema(columns: String): StructType = {
-    // 获取所有列
-    val colArray: Array[String] = columns.split(",")
     // 存放结构字段的列表
-    val fields: util.ArrayList[StructField] = new util.ArrayList[StructField]()
+    val structFields: util.ArrayList[StructField] = new util.ArrayList[StructField]()
     // 遍历所有列
-    colArray.foreach((col: String) => {
+    for (column <- columns.split(",")) {
       // 创建结构字段
-      val field: StructField = DataTypes.createStructField(col, DataTypes.StringType, true)
-      fields.add(field)
-    })
+      val structField: StructField = DataTypes.createStructField(column, DataTypes.StringType, true)
+      // 添加到列表
+      structFields.add(structField)
+    }
     // 创建结构类型
-    DataTypes.createStructType(fields)
+    DataTypes.createStructType(structFields)
   }
 
 
   def main(args: Array[String]): Unit = {
-    val columns: String = Configs.get(Configs.HIVE_COLUMNS)
-    val structType: StructType = createSchema(columns)
-    println(structType)
+    val columns: String = Configs.get(Configs.NGINX_HIVE_COLUMNS)
+    println(createSchema(columns))
+
+    val row: Row = Row("aa", "bb", "cc")
+    println(row.getString(1))
   }
 }
