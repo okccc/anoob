@@ -6,24 +6,25 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 /**
  * Author: okccc
  * Date: 2021/4/28 上午9:56
- * Desc: 
+ * Desc: scala常用集合类
  */
 object S04_collection {
-
   def main(args: Array[String]): Unit = {
-    /**
-     * scala集合类scala.collection{immutable, mutable}
-     * Scala默认不可变集合Array/List/Map,可变集合需要显示指定mutable.{ArrayBuffer, ListBuffer, Map}
+    /*
+     * scala.collection.immutable.{Array, List, Map}
+     * scala.collection.mutable.{ArrayBuffer, ListBuffer, Map}
+     * Scala的Array[T]相当于Java的Array[T],属于不可变集合,长度固定,Scala数组和序列兼容,可以在要求Seq[T]的地方传入Array[T]
+     * Scala的ArrayBuffer[T]相当于Java的ArrayList[T],属于可变集合
      */
-
-//    testArray()
-//    testList()
-    testMap()
-//    testOther()
+    ArrayDemo()
+    ListDemo()
+    MapDemo()
+    Other()
   }
 
-  def testArray(): Unit = {
-    // Array(不可变)：是Scala的一种特殊集合,对应Java数组并且支持泛型,Scala数组和序列兼容(可以在要求Seq[T]的地方传入Array[T])
+  def ArrayDemo(): Unit = {
+    // Array(不可变)
+//    val arr: Array[Int] = new Array[Int](4)
     val arr: Array[Int] = Array(1,2,3,4)
     println(arr, arr.toSeq, arr.toList)  // [I@ea4a92b, WrappedArray(1, 2, 3, 4), List(1, 2, 3, 4)
     // Array可以隐式转换成WrappedArray
@@ -41,7 +42,7 @@ object S04_collection {
     println(arr sameElements arr1)  // false
     println(arr1.mkString(","))  // 1,2,3,4,5
     println(arr2.mkString(","))  // 5,1,2,3,4
-    // 修改,update操作说明Array其实是可变的
+    // 修改
     arr.update(0, 5)  // 或者array(0) = 5
     println(arr.mkString(","))  // 5,2,3,4
     // 删除
@@ -65,7 +66,7 @@ object S04_collection {
     println(ab.toArray)  // [I@ea1a8d5
   }
 
-  def testList(): Unit = {
+  def ListDemo(): Unit = {
     // List(不可变)
     val list: List[Int] = List(1,2,3,4)
     println(list)  // List(1, 2, 3, 4)
@@ -131,7 +132,7 @@ object S04_collection {
 //    val obj02: ListBuffer[Any] = s02  // Required:ListBuffer[Any] Found:ListBuffer[String]
   }
 
-  def testMap(): Unit = {
+  def MapDemo(): Unit = {
     // Map(不可变)：Map集合存储的元素是tuple()
     val map: Map[String, Int] = Map(("a", 1), ("b", 2), ("c", 3))
     val mapp: Map[String, Int] = Map("a" -> 1, "b" -> 2, "c" -> 3)
@@ -163,7 +164,7 @@ object S04_collection {
     println(map4 == map5)  // true
   }
 
-  def testOther(): Unit = {
+  def Other(): Unit = {
     // set集合
     val s1: Set[Int] = Set(1, 2, 3, 3, 4)
     val s2: mutable.Set[Int] = mutable.Set(1, 2, 3, 3, 4)

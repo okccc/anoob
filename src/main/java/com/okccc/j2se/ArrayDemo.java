@@ -7,7 +7,7 @@ public class ArrayDemo {
     public static void main(String[] args) {
         /*
          * 数组是引用数据类型,数组的元素可以是基本数据类型也可以是引用数据类型
-         * 数组长度是固定的,一旦初始化长度不可更改
+         * 数组长度是固定的,一旦初始化长度不可更改,但是可以更改元素值
          * 数组中的元素是在内存空间中连续存储的
          * 不同类型数组默认初始化值：整型 0 | 浮点型 0.0 | 字符型 '\u0000' | 布尔型 false | 引用类型 null
          */
@@ -17,6 +17,8 @@ public class ArrayDemo {
         arr1[0] = 11;
         arr1[1] = 22;
         arr1[2] = 33;
+        arr1[0] = 44;
+        System.out.println(Arrays.toString(arr1));  // [44, 22, 33]
 
         // 静态初始化：数组初始化和元素赋值同时进行,可简写
 //        int[] arr2 = new int[]{12,23,34,45,56};
