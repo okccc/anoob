@@ -25,6 +25,7 @@ object OffsetManageUtil {
 
     // 2.获取key的所有Map<field, value>
     val jedis: Jedis = JedisUtil.getJedis
+    // jedis是java写的,所以返回的结果是java类型
     val offsetMap: util.Map[String, String] = jedis.hgetAll(offsetKey)
     jedis.close()
 

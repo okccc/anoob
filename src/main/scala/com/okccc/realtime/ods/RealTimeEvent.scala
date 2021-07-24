@@ -81,8 +81,8 @@ object RealTimeEvent {
     val topics: String = Configs.get(Configs.NGINX_TOPICS)
     val groupId: String = Configs.get(Configs.GROUP_ID)
     // hive表
-    val table: String = Configs.get(Configs.HIVE_TABLE)
-    val columns: String = Configs.get(Configs.HIVE_COLUMNS)
+    val table: String = Configs.get(Configs.NGINX_HIVE_TABLE)
+    val columns: String = Configs.get(Configs.NGINX_HIVE_COLUMNS)
 
     // ==================== 功能1.SparkStreaming读取kafka数据 ====================
     // 1.每次启动时从redis读取偏移量
@@ -107,6 +107,7 @@ object RealTimeEvent {
       rdd
     })
 
+    // ============================== 功能2.将topic数据写入ods层 ==============================
     // 4.Transform操作
     val jsonDStream: DStream[ArrayBuffer[JSONObject]] = offsetDStream.map((record: ConsumerRecord[String, String]) => {
       // 获取ConsumerRecord的value部分
@@ -116,6 +117,7 @@ object RealTimeEvent {
     })
 
     // 5.Output操作
+    // DStream的输出操作通常由foreachRDD完成,RDD本身是一个集合,只不过存储的是逻辑抽象而不是具体数据
     jsonDStream.foreachRDD((rdd: RDD[ArrayBuffer[JSONObject]]) => {
       if (!rdd.isEmpty()) {
         // 扁平化操作
@@ -123,7 +125,7 @@ object RealTimeEvent {
         // 以分区为单位处理RDD
         val rowRDD: RDD[Row] = jsonRDD.mapPartitions((partition: Iterator[JSONObject]) => {
           // JSONObject -> Row
-          partition.map((jsonObj: JSONObject) => LogParseUtil.parseJSONObjectToRow(jsonObj))
+          partition.map((jsonObj: JSONObject) => Row.fromSeq(LogParseUtil.parseJSONObjectToArrayBuffer(jsonObj)))
         })
         // 写入hive表
         HiveUtil.write(rowRDD, spark, table, columns)

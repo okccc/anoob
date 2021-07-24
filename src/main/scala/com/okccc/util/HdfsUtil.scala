@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 2021/7/20 下午2:02
  * Desc: 监控hdfs的工具类
  */
-object HdfsUtils {
+object HdfsUtil {
 
   def monitor(): Unit = {
     // hdfs配置信息
@@ -23,7 +23,7 @@ object HdfsUtils {
     val path: Path = new Path("/data/hive/warehouse/ods.db")
     // 获取该路径下文件和子路径
     val fileStatuses: Array[FileStatus] = fs.listStatus(path)
-    // scala的ArrayBuffer相当于java的ArrayList
+    // 可变数组: scala的ArrayBuffer相当于java的ArrayList
     val paths: ArrayBuffer[Path] = new ArrayBuffer[Path]()
     for (fileStatus <- fileStatuses) {
       System.out.println(fileStatus.getPath)
@@ -32,7 +32,7 @@ object HdfsUtils {
     // 获取路径概要
     for (i <- paths) {
       val summary: ContentSummary = fs.getContentSummary(i)
-      // 获取路径大小,可以用来监控离线或实时任务是否跑成功,没数据就触发监控告警
+      // 获取路径大小(可以用来监控离线或实时任务是否跑成功,没数据就触发监控告警)
       System.out.println(i + " : " + summary.getLength / 1024 / 1024 + "M")
     }
   }

@@ -2,6 +2,8 @@ package com.okccc.spark
 
 import java.sql.{Connection, DriverManager, PreparedStatement}
 
+import org.apache.hadoop.io.{IntWritable, Text}
+import org.apache.hadoop.mapred.TextOutputFormat
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -133,12 +135,15 @@ object S03_DStream {
     // foreachRDD算子：将流中生成的每个RDD的数据推送到hdfs/数据库等外部系统(常用)
     // 1).写入hdfs文件
     wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
-      // saveAsTextFiles：将DStream内容保存到文本文件
-      // saveAsObjectFiles：将DStream内容保存到序列化的java对象SequenceFiles
-      // saveAsHadoopFiles：将DStream内容保存到Hadoop文件
-      rdd.coalesce(1, shuffle = true).saveAsTextFile("ability/output/socket")
-      //      rdd.saveAsHadoopFile("hdfs://cdh1:9000/user/spark/streaming/socket", classOf[Text], classOf[IntWritable],
-      //        classOf[TextOutputFormat[Text, IntWritable]], classOf[org.apache.hadoop.io.compress.GzipCodec])
+      // 分区数过多会产生大量小文件,写入hdfs之前先合并分区只输出到一个文件,但是会增加批处理时长,视实际情况而定
+      rdd.repartition(1).saveAsTextFile("ability/output/socket")
+      rdd.saveAsHadoopFile(
+        "hdfs://cdh1:9000/user/spark/streaming/socket",
+        classOf[Text],
+        classOf[IntWritable],
+        classOf[TextOutputFormat[Text, IntWritable]],
+        classOf[org.apache.hadoop.io.compress.GzipCodec]
+      )
     })
     // 2).写入mysql数据库
     wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
@@ -154,10 +159,10 @@ object S03_DStream {
             // sql语句
 //            val sql1: String = "insert into wv values(?,?)"
 //            val sql2: String = "insert into wv values('"+t._1+"','"+t._2+"')"
-            val sql: String = "insert into wc values("+t._1+", "+t._2+")"
+            val sql: String = "insert into wc values(" + t._1 + ", " + t._2 + ")"
             // 创建PreparedStatement对象
             val ps: PreparedStatement = conn.prepareStatement(sql)
-            // 执行更新操做
+            // 执行更新操作
             ps.executeUpdate()
             ps.close()
             // 手动提交

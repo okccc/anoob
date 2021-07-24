@@ -27,9 +27,9 @@ import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Requests
 
 /**
- * @author okccc
- * @date 2021/2/14 11:18
- * @desc flink入门
+ * Author: okccc
+ * Date: 2021/2/14 11:18
+ * Desc: flink入门
  */
 object FlinkDemo {
   def main(args: Array[String]): Unit = {
