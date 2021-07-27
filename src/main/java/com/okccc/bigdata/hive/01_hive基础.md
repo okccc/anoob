@@ -199,8 +199,8 @@ system:user.name=hdfs
 hive> set mapred.reduce.tasks;
 mapred.reduce.tasks=-1
 -- 查看执行引擎,包括mr/tez/spark
-hive> set hive.execution.engine;
-hive.execution.engine=mr
+hive> set hive.execution.engine=tez;
+hive> set tez.am.tez-ui.webservice.enable=false;
 -- 查看本地模式
 hive> set hive.exec.mode.local.auto;
 hive.exec.mode.local.auto=false
