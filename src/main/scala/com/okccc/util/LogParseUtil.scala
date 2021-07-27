@@ -51,13 +51,13 @@ object LogParseUtil {
   /**
    * 将json字符串解析成ArrayBuffer[JSONObject]
    */
-  def parseStrToArrayBuffer(str: String): ArrayBuffer[JSONObject] = {
+  def parseStrToArrayBuffer(jsonStr: String): ArrayBuffer[JSONObject] = {
     // 存放json对象的数组
     val arrayBuffer: ArrayBuffer[JSONObject] = new ArrayBuffer[JSONObject]
     // 解析字符串
-    if (isJsonFormat(str)) {
+    if (isJsonFormat(jsonStr)) {
       // 最外部的大json串
-      val jsonObj: JSONObject = JSON.parseObject(str)
+      val jsonObj: JSONObject = JSON.parseObject(jsonStr)
       // 存放公共字段的Map集合
       val common: util.HashMap[String, Object] = new util.HashMap[String, Object]()
       common.put("server_time", jsonObj.getString("@timestamp"))
@@ -96,50 +96,25 @@ object LogParseUtil {
   }
 
   /**
-   * 将JSONObject解析成Row对象
+   * 将JSONObject解析成ArrayBuffer[String]
    */
-  def parseJSONObjectToRow(jsonObj: JSONObject): Row = {
+  def parseJSONObjectToArrayBuffer(jsonObj: JSONObject, columns: String): ArrayBuffer[String] = {
+    // 存放所有字段的可变数组
+    val event: ArrayBuffer[String] = new ArrayBuffer[String]()
     // 获取所有字段
-    val server_time: String = jsonObj.getString("server_time")
-    val ip: String = jsonObj.getString("ip")
-    val method: String = jsonObj.getString("method")
-    val v: String = jsonObj.getString("Method")
-    val client: String = jsonObj.getString("client")
-    val upload_time: String = jsonObj.getString("upload_time")
-    val checksum: String = jsonObj.getString("checksum")
-    val session_id: String = jsonObj.getString("session_id")
-    val user_properties: String = jsonObj.getString("user_properties")
-    val language: String = jsonObj.getString("language")
-    val event_type: String = jsonObj.getString("event_type")
-    val sequence_number: String = jsonObj.getString("sequence_number")
-    val user_id: String = jsonObj.getString("user_id")
-    val country: String = jsonObj.getString("country")
-    val api_properties: String = jsonObj.getString("api_properties")
-    val device_id: String = jsonObj.getString("device_id")
-    val event_properties: String = jsonObj.getString("event_properties")
-    val uuid: String = jsonObj.getString("uuid")
-    val device_manufacturer: String = jsonObj.getString("device_manufacturer")
-    val version_name: String = jsonObj.getString("version_name")
-    val library: String = jsonObj.getString("library")
-    val os_name: String = jsonObj.getString("os_name")
-    val platform: String = jsonObj.getString("platform")
-    val event_id: String = jsonObj.getString("event_id")
-    val carrier: String = jsonObj.getString("carrier")
-    val timestamp: String = jsonObj.getString("timestamp")
-    val groups: String = jsonObj.getString("groups")
-    val os_version: String = jsonObj.getString("os_version")
-    val device_model: String = jsonObj.getString("device_model")
-    // 根据ip解析城市
-    val res: String = IPUtil.getCity(ip)
+    val arr: Array[String] = columns.split(",")
+    // Array[]是不可变类型,可以截取指定长度生成新的数组
+    for (column <- util.Arrays.copyOf(arr, arr.length - 3)) {
+      event.append(jsonObj.getOrDefault(column, "-").toString)
+    }
+    // 省份/城市/分区
+    val res: String = IPUtil.getCity(jsonObj.getString("ip"))
     val province: String = JSON.parseObject(res).getString("province")
     val city: String = JSON.parseObject(res).getString("city")
-    // 分区字段
     val dt: String = DateUtil.getCurrentDate.replace("-", "")
-    // 封装成Row对象
-    Row(client, v, upload_time, checksum, method, ip, session_id, user_properties, language, event_type,
-      sequence_number, user_id, country, api_properties, device_id, event_properties, uuid, device_manufacturer,
-      version_name, library, os_name, platform, event_id, carrier, timestamp, groups, os_version, device_model,
-      province, city, server_time, dt)
+    event.append(province, city, dt)
+    // 返回结果
+    event
   }
 
 
@@ -148,6 +123,18 @@ object LogParseUtil {
     val str02: String = "{ \"@timestamp\": \"22/Jun/2021:19:35:54 +0800\""
     println(isJsonFormat(str01))
     println(isJsonFormat(str02))
+    val ab: ArrayBuffer[String] = new ArrayBuffer[String]()
+    ab.append("aaa")
+    ab.append("bbb")
+    ab.append("ccc")
+    println(ab)
+    println(Row.fromSeq(ab))
+
+    val str: String = "server_time,ip,method,client,upload_time"
+    val arr: Array[String] = str.split(",")
+    for (i <- util.Arrays.copyOf(arr, arr.length-2)) {
+      println(i)
+    }
   }
 
 }
