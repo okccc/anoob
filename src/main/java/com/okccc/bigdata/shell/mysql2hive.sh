@@ -43,6 +43,7 @@ sqoop import
 --null-string '\\N'                                                   # 将字符串空值写成\N
 --null-non-string '\\N' &>> ${log_path}/${table}.log                  # 将非字符串空值写成\N
 
+# 注意：判断上一个指令的返回值要写在if/fi作用域里面,写外面取不到
 if [[ $? -eq 0 ]] ; then
      echo ${CURRENT} >> ${watch_path/$table}
      echo "sqoop import data succeed!" >> ${log_path}/${table}.log
