@@ -42,7 +42,7 @@ object DauApp {
 
     // 获取topic和groupId
     val topics: String = Configs.get(Configs.NGINX_TOPICS)
-    val groupId: String = Configs.get(Configs.GROUP_ID)
+    val groupId: String = Configs.get(Configs.NGINX_GROUP_ID)
 
     // ============================== 功能1.SparkStreaming读取kafka数据 =============================
     // 1.从redis读取偏移量起始点
@@ -52,9 +52,9 @@ object DauApp {
     // 2.加载偏移量起始点处的kafka数据
     var recordDStream: InputDStream[ConsumerRecord[String, String]] = null
     if(offsetMap != null && offsetMap.nonEmpty) {
-      recordDStream  = KafkaConsUtil.getKafkaDStream(ssc, topics, offsetMap)
+      recordDStream  = KafkaConsUtil.getKafkaDStream(ssc, topics, groupId, offsetMap)
     } else {
-      recordDStream = KafkaConsUtil.getKafkaDStream(ssc, topics)
+      recordDStream = KafkaConsUtil.getKafkaDStream(ssc, topics, groupId)
     }
     // 测试输出
 //    recordDStream.print()

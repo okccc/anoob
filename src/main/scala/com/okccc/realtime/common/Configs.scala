@@ -25,18 +25,22 @@ object Configs {
   val REDIS_HOST: String = "redis.host"
   val REDIS_PORT: String = "redis.port"
 
+  // hdfs
+  val HDFS_URL: String = "fs.defaultFS"
+
   // es
   val ES_SERVER: String = "es.server"
 
   // hbase
-//  val HBASE_DRIVER: String = "hbase.driver"
-//  val HBASE_URL: String = "hbase.url"
+  val HBASE_DRIVER: String = "hbase.driver"
+  val HBASE_URL: String = "hbase.url"
 
   // kafka
   val BOOTSTRAP_SERVERS: String = "bootstrap.servers"
   val NGINX_TOPICS: String = "nginx.topics"
+  val NGINX_GROUP_ID: String = "nginx.group.id"
   val MYSQL_TOPICS: String = "mysql.topics"
-  val GROUP_ID: String = "group.id"
+  val MYSQL_GROUP_ID: String = "mysql.group.id"
   val RESTART: String = "restart"
   val ACK: String = "ack"
   val IDEMPOTENCE: String = "idempotence"
@@ -45,9 +49,13 @@ object Configs {
   val MAX_POLL_RECORDS: String = "max.poll.records"
   val MAX_PARTITION_FETCH_BYTES: String = "max.partition.fetch.bytes"
 
-  // hive
-  val HIVE_TABLE: String = "nginx.hive.table"
-  val HIVE_COLUMNS: String = "nginx.hive.columns"
+  // hive表和列
+  val NGINX_HIVE_TABLE: String = "nginx.hive.table"
+  val NGINX_HIVE_COLUMNS: String = "nginx.hive.columns"
+  val ORDERS_HIVE_TABLE: String = "orders.hive.table"
+  val ORDERS_HIVE_COLUMNS: String = "orders.hive.columns"
+  val ORDERS_DETAIL_HIVE_TABLE: String = "orders_detail.hive.table"
+  val ORDERS_DETAIL_HIVE_COLUMNS: String = "orders_detail.hive.columns"
 
   // 加载配置文件
   private val prop: Properties = new Properties()
@@ -58,7 +66,7 @@ object Configs {
   }
 
   def main(args: Array[String]): Unit = {
-    println(get("jdbc.user"))
+    println(get(BOOTSTRAP_SERVERS))
   }
 
 }

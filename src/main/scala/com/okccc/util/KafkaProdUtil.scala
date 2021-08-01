@@ -20,12 +20,13 @@ object KafkaProdUtil {
     // 1.kafka生产者配置
     private val prop: Properties = new Properties()
     // 必选参数
-    prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Configs.get(Configs.BOOTSTRAP_SERVERS))     // kafka地址
-    prop.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])    // key的序列化器
-    prop.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])  // value的序列化器
+//    prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Configs.get(Configs.BOOTSTRAP_SERVERS))  // kafka地址
+    prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")  // kafka地址
+    prop.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])            // key的序列化器
+    prop.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])          // value的序列化器
     // 可选参数
     prop.put(ProducerConfig.ACKS_CONFIG, Configs.get(Configs.ACK))   // ack可靠性级别 0/1/-1(all)
-    prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, Configs.get(Configs.IDEMPOTENCE)) // 开启幂等性机制,配合ack=-1确保生产者exactly once
+    prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, Configs.get(Configs.IDEMPOTENCE)) // 开启幂等性机制
 
     // 2.创建Kafka生产者
     if (producer == null) {
@@ -41,39 +42,15 @@ object KafkaProdUtil {
   def main(args: Array[String]): Unit = {
     // 获取topic
     val topic: String = Configs.get(Configs.NGINX_TOPICS)
-
-//    while (true) {
-//      // 随机生成实时数据
-//      val sb: StringBuilder = new StringBuilder
-//      // 生成时间
-//      val time: String = DateTime.now.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
-//      // 随机生成用户ID
-//      val uid: String = "u-" + Random.nextInt(1000)
-//      // 随机生成行为
-//      val actions: Array[String] = Array("comment", "collect", "like", "follow", "coin")
-//      val action: String = actions(Random.nextInt(5))
-//      // 拼接字符串
-//      sb.append(time + "\t" + uid + "\t" + action)
-//      // 发送数据
-//      sendData(topic, sb.toString())
-//      Thread.sleep(100)
-//    }
-
     // 读取文件数据写入kafka
-    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/UserBehavior.csv")
-    //    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/AdClickLog.csv")
-    //    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/apache.log")
-    //    val bufferedSource: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/LoginLog.csv")
-    //    val bufferedSource01: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/OrderLog.csv")
-    //    val bufferedSource02: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/ability/input/ReceiptLog.csv")
-    for (line <- bufferedSource.getLines()) {
-      println(line)
+    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/UserBehavior.csv")
+//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/AdClickLog.csv")
+//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/apache.log")
+//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/LoginLog.csv")
+//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/OrderLog.csv")
+//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/ReceiptLog.csv")
+    for (line <- source.getLines()) {
       sendData(topic, line)
     }
-    //    for (line <- bufferedSource02.getLines()) {
-    //      println(line)
-    //      sendMsg("tx", line)
-    //    }
   }
-
 }

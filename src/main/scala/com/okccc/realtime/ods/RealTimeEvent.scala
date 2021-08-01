@@ -79,10 +79,10 @@ object RealTimeEvent {
 
     // topic和groupId
     val topics: String = Configs.get(Configs.NGINX_TOPICS)
-    val groupId: String = Configs.get(Configs.GROUP_ID)
-    // hive表
-    val table: String = Configs.get(Configs.NGINX_HIVE_TABLE)
-    val columns: String = Configs.get(Configs.NGINX_HIVE_COLUMNS)
+    val groupId: String = Configs.get(Configs.NGINX_GROUP_ID)
+    // hive表和列
+    val hiveTable: String = Configs.get(Configs.NGINX_HIVE_TABLE)
+    val hiveColumns: String = Configs.get(Configs.NGINX_HIVE_COLUMNS)
 
     // ==================== 功能1.SparkStreaming读取kafka数据 ====================
     // 1.每次启动时从redis读取偏移量
@@ -93,10 +93,10 @@ object RealTimeEvent {
     var inputDStream: InputDStream[ConsumerRecord[String, String]] = null
     if (offsetMap != null && offsetMap.nonEmpty) {
       // 如果redis已经有偏移量,就从偏移量处读取
-      inputDStream = KafkaConsUtil.getKafkaDStream(ssc, topics, offsetMap)
+      inputDStream = KafkaConsUtil.getKafkaDStream(ssc, topics, groupId, offsetMap)
     } else {
       // 如果redis还没有偏移量,auto.offset.reset参数会生效,从__consumer_offsets的latest处读取,消费到数据后会更新redis中的偏移量
-      inputDStream = KafkaConsUtil.getKafkaDStream(ssc, topics)
+      inputDStream = KafkaConsUtil.getKafkaDStream(ssc, topics, groupId)
     }
 
     // 3.获取本批次数据所在分区对应偏移量的起始点和结束点
@@ -125,10 +125,12 @@ object RealTimeEvent {
         // 以分区为单位处理RDD
         val rowRDD: RDD[Row] = jsonRDD.mapPartitions((partition: Iterator[JSONObject]) => {
           // JSONObject -> Row
-          partition.map((jsonObj: JSONObject) => Row.fromSeq(LogParseUtil.parseJSONObjectToArrayBuffer(jsonObj)))
+          partition.map((jsonObj: JSONObject) => {
+            Row.fromSeq(LogParseUtil.parseJSONObjectToArrayBuffer(jsonObj, hiveColumns))
+          })
         })
         // 写入hive表
-        HiveUtil.write(rowRDD, spark, table, columns)
+        HiveUtil.write(rowRDD, spark, hiveTable, hiveColumns)
         // 处理完本批次数据后要更新redis中的偏移量(先消费后提交at least once)
         OffsetManageUtil.updateOffset(topics, groupId, offsetRanges)
       }
