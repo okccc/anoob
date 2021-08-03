@@ -76,7 +76,7 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> zadd topN 100 p1 200 p2 300 p3 && zrange topN 0 -1 withscores
 
 
-# 哈希(hash): 字符串类型的field和value的映射表
+# 哈希(hash): 字符串类型的field和value的映射表,hash适合存储对象,类似java的HashMap<String, Object>
 127.0.0.1:6379> hlen <key>                         # 求hash长度
 127.0.0.1:6379> hgetall <key>                      # 根据key获取所有field及value
 127.0.0.1:6379> hexists <key> <field>              # 判断key的field是否存在,1表示true,0表示false
