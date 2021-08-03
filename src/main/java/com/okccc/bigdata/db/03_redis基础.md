@@ -3,6 +3,8 @@
 ```shell script
 # NoSQL(Not Only SQL)泛指非关系型数据库,不遵循RDBMS的设计范式和技术标准,专门为某些特定应用场景设计,从而提升性能/容量/扩展性
 # redis是分布式的高性能key-value数据库,数据完全基于内存读写速度极快(10万条/s),可以定期持久化到磁盘防止数据丢失,支持多种数据类型
+# redis单线程+多路IO复用技术: 利用select/poll/epoll可以同时监察多个IO流事件的能力,在空闲时会把当前线程阻塞,有IO事件发生时就从阻塞态中唤醒,
+# 在同一个进程内用单个线程处理多个IO流,可以处理大量的并发IO,而不需要消耗太多CPU/内存,memcached是多线程+锁
 # redis应用场景: 1.配合mysql做高速缓存降低数据库IO 2.大数据场景下高频率读写,数据量较小,用key查询的 缓存数据/临时数据/计算结果 3.特殊数据结构
 [root@cdh1 ~]$ wget http://download.redis.io/releases/redis-4.0.10.tar.gz
 # 安装(mac下的brew install默认安装路径/usr/local/Cellar,并且自动将可执行命令添加到$PATH的/usr/local/bin,$PATH是可执行命令的查找顺序)
@@ -17,10 +19,12 @@ bind 127.0.0.1     # 将bind注释掉,让其他机器可以通过ip访问,不然
 daemonize yes      # 允许redis后台启动
 protected-mode no  # 关闭保护模式,不然要输入用户名和密码
 requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a ***
-# 启动redis要指定修改后的配置文件
+# 后台启动redis(推荐)
 [root@cdh1 ~]$ redis-server /usr/local/redis-4.0.10/redis.conf
 # 关闭redis
 [root@cdh1 ~]$ redis-cli shutdown
+# 性能测试
+[root@cdh1 ~]$ redis-benchmark
 
 # db
 127.0.0.1:6379> flushdb                  # 清空当前数据库
