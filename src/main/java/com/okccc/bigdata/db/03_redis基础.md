@@ -1,8 +1,9 @@
 - [参考文档](https://www.cnblogs.com/freeweb/p/5276558.html)
 ### redis
 ```shell script
+# NoSQL(Not Only SQL)泛指非关系型数据库,不遵循RDBMS的设计范式和技术标准,专门为某些特定应用场景设计,从而提升性能/容量/扩展性
 # redis是分布式的高性能key-value数据库,数据完全基于内存读写速度极快(10万条/s),可以定期持久化到磁盘防止数据丢失,支持多种数据类型
-# 下载
+# redis应用场景: 1.配合mysql做高速缓存降低数据库IO 2.大数据场景下高频率读写,数据量较小,用key查询的 缓存数据/临时数据/计算结果 3.特殊数据结构
 [root@cdh1 ~]$ wget http://download.redis.io/releases/redis-4.0.10.tar.gz
 # 安装(mac下的brew install默认安装路径/usr/local/Cellar,并且自动将可执行命令添加到$PATH的/usr/local/bin,$PATH是可执行命令的查找顺序)
 [root@cdh1 ~]$ tar -xvf redis-4.0.10.tar.gz -C /usr/local/
@@ -29,7 +30,7 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> keys *                   # 查看所有key
 127.0.0.1:6379> type name                # 查看key类型
 127.0.0.1:6379> expire key 10            # 设置key的过期时间为10秒
-127.0.0.1:6379> ttl name                 # 查看key生命周期,-1永不过期,-2已经过期
+127.0.0.1:6379> ttl name                 # 查看key生命周期,-1表示永不过期,-2表示已经过期
 127.0.0.1:6379> exists name              # 判断key是否存在,1表示true,0表示false
 127.0.0.1:6379> del name                 # 删除键值对
 
@@ -44,20 +45,20 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 
 # 列表(list): 单键多值的字符串列表,按照插入顺序排序,底层是双向链表,两端操作性能很快,通过索引操作中间节点性能很查
 127.0.0.1:6379> llen <key>                            # 求list长度
+127.0.0.1:6379> lrange <key> <start> <end>            # 按照索引起始位置截取范围内元素,0 -1表示遍历列表
+127.0.0.1:6379> lindex <key> <index>                  # 根据索引取值
 127.0.0.1:6379> lpush/rpush <key> <value>             # 往列表左边/右边插入值
 127.0.0.1:6379> lpop/rpop <key>                       # 从列表左边/右边删除值
 127.0.0.1:6379> rpoplpush <key1> <key2>               # 从k1列表右边吐出一个值插入到k2列表左边
-127.0.0.1:6379> lrange <key> <start> <end>            # 按照索引起始位置截取范围内元素,0 -1表示遍历列表
-127.0.0.1:6379> lindex <key> <index>                  # 根据索引取值
 127.0.0.1:6379> lrem <key> <n> <value>                # 删除n个value值(n>0从左往右,n<0从右往左,n=0删除所有该值)
 127.0.0.1:6379> linsert <key> before/after <v1> <v2>  # 在v1前面/后面插入v2
 
 # 集合(set): 单键多值的字符串无序集合,可以去重和判存,底层是value为null的hash表,所以CRUD的复杂度都是O(1),随着数据增加操作时间不变
 127.0.0.1:6379> scard <key>                    # 求set长度
+127.0.0.1:6379> smembers <key>                 # 遍历集合
 127.0.0.1:6379> sismember <key> <value>        # 判断集合是否包含该value,1表示true,0表示false
 127.0.0.1:6379> sadd <key> <value>             # 往集合添加元素
 127.0.0.1:6379> srem <key> <v1> <v2>           # 删除集合元素
-127.0.0.1:6379> smembers <key>                 # 遍历集合
 127.0.0.1:6379> sinter/sunion/sdiff <k1> <k2>  # 求两个集合交集/并集/差集
  
 # 有序集合(zset): 有序的set,给每个元素都关联评分score,从低到高排序集合中的元素,因为有序所以可以根据score截取特定范围内的元素
@@ -71,13 +72,13 @@ requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a **
 127.0.0.1:6379> zadd topN 100 p1 200 p2 300 p3 && zrange topN 0 -1 withscores
 
 
-# 哈希(hash): 字符串类型的field和value的映射表,
+# 哈希(hash): 字符串类型的field和value的映射表
 127.0.0.1:6379> hlen <key>                         # 求hash长度
+127.0.0.1:6379> hgetall <key>                      # 根据key获取所有field及value
 127.0.0.1:6379> hexists <key> <field>              # 判断key的field是否存在,1表示true,0表示false
 127.0.0.1:6379> hset <key> <field> <value>         # 往key添加field及value
 127.0.0.1:6379> hget <key> <field>                 # 根据key和field获取value
 127.0.0.1:6379> hmset <key> <f1> <v1> <f2> <v2>    # 往key添加多个field及value
-127.0.0.1:6379> hgetall <key>                      # 根据key获取所有field及value
 127.0.0.1:6379> hmget <key> <f1> <f2>              # 根据key的多个field获取多个value
 127.0.0.1:6379> hkeys <key>                        # 获取key的所有field
 127.0.0.1:6379> hvals <key>                        # 获取key的所有value
