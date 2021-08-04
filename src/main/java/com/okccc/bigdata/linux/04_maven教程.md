@@ -1,3 +1,46 @@
+### maven配置文件
+```xml
+<!-- 使用阿里云镜像下载 -->
+<mirrors>
+    <mirror>
+        <id>nexus-aliyun</id>
+        <mirrorOf>central</mirrorOf>
+        <name>Nexus aliyun</name>
+        <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+    </mirror>
+
+    <mirror>
+        <id>aliyunmaven</id>
+        <mirrorOf>*</mirrorOf>
+        <name>阿里云spring插件仓库</name>
+        <url>https://maven.aliyun.com/repository/spring-plugin</url>
+    </mirror>
+
+    <mirror>
+        <id>repo2</id>
+        <mirrorOf>central</mirrorOf>
+        <name>Mirror from Maven Repo2</name>
+        <url>https://repo.spring.io/plugins-release/</url>
+    </mirror>
+</mirrors>
+
+<!-- 设置jdk版本 -->
+<profiles>
+     <profile>
+          <id>jdk-1.8</id>
+          <activation>
+            <activeByDefault>true</activeByDefault>
+            <jdk>1.8</jdk>
+          </activation>
+          <properties>
+            <maven.compiler.source>1.8</maven.compiler.source>
+            <maven.compiler.target>1.8</maven.compiler.target>
+            <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+          </properties>
+     </profile>
+</profiles>
+```
+
 ### maven常用命令
 ```shell script
 # maven是一款自动化构建工具,用于项目的构建和依赖管理
@@ -17,33 +60,6 @@ compile     # 参与项目的编译、测试、运行、打包,贯穿所有阶�
 provided    # 参与项目的编译、测试、运行,但是在打包阶段做了exclude,表示该依赖由jdk或服务器提供,避免jar包冲突,比如web开发的servlet-api.jar
 runtime     # 不参与项目的编译,只参与测试和运行,比如JDBC驱动包是不需要编译的,运行时才会使用到
 test        # 只参与项目的测试,比如Junit包
-```
-
-### maven配置文件
-```xml
-<!-- 使用阿里云镜像下载 -->
-<mirrors>
-  <mirror>
-    <id>nexus-aliyun</id>
-    <mirrorOf>central</mirrorOf>
-    <name>Nexus aliyun</name>
-    <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-  </mirror>
-</mirrors>
-<profiles>
-     <profile>
-          <id>jdk-1.8</id>
-          <activation>
-            <activeByDefault>true</activeByDefault>
-            <jdk>1.8</jdk>
-          </activation>
-          <properties>
-            <maven.compiler.source>1.8</maven.compiler.source>
-            <maven.compiler.target>1.8</maven.compiler.target>
-            <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-          </properties>
-     </profile>
-</profiles>
 ```
 
 ### maven常见错误
@@ -75,4 +91,8 @@ mvn dependency:tree  # 查看工程依赖关系
 运行时使用的java和编译时使用的javac版本不一致,卸载java重装
 
 # Error: Failed to execute goal net.alchim31.maven:scala-maven-plugin:4.4.0:compile (default) on project ability
+
+# udf报错: Could not find artifact org.pentaho:pentaho-aggdesigner-algorithm:jar:5.1.5-jhyde
+有些插件是第三方公司提供的,很多mvn仓库里没有,那就多加几个mvn仓库的镜像吧
+pom.xml - 右键 - Maven - Open 'settings.xml'
 ```
