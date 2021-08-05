@@ -1,11 +1,11 @@
 package com.okccc.util
 
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import java.util
 
 import com.okccc.realtime.common.Configs
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
@@ -26,12 +26,14 @@ object HiveUtil {
     // 根据RDD和对应的StructType创建DataFrame
     val df: DataFrame = spark.createDataFrame(rowRdd, schema)
     // 生成临时表
-    df.repartition(1).createOrReplaceTempView("RealTimeEvent")
+    val table: String = hiveTable.split("\\.")(1)
+    // 分区数过多会产生大量小文件,写入hdfs之前先合并分区只输出到一个文件,但是会增加批处理时间,视具体数据量而定
+    df.repartition(1).createOrReplaceTempView(table + "_tmp")
     // 将临时表数据插入正式表
     try {
-      spark.sql("insert into table " + hiveTable + " partition(dt) select * from RealTimeEvent")
+      spark.sql("insert into table " + hiveTable + " partition(dt) select * from " + table + "_tmp")
     } catch {
-      case e: Exception => logger.error("error", e)
+      case e: Exception => e.printStackTrace()
         df.show()
     }
   }
@@ -55,10 +57,28 @@ object HiveUtil {
 
 
   def main(args: Array[String]): Unit = {
-    val columns: String = Configs.get(Configs.NGINX_HIVE_COLUMNS)
-    println(createSchema(columns))
+//    val columns: String = Configs.get(Configs.ORDERS_HIVE_COLUMNS)
+//    println(createSchema(columns))
+//
+//    val row: Row = Row("aa", "bb", "cc")
+//    println(row)
+//    println(row.getString(1))
 
-    val row: Row = Row("aa", "bb", "cc")
-    println(row.getString(1))
+    val spark: SparkSession = SparkSession
+      .builder()
+      .master("local[*]")
+      .appName("mysql2hive")
+      .enableHiveSupport()
+      .config("spark.debug.maxToStringFields", 200)
+      .config("hive.exec.dynamic.partition", "true")
+      .config("hive.exec.dynamic.partition.mode", "nonstrict")
+      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .getOrCreate()
+    val columns: String = Configs.get("test")
+    val rows: util.List[Row] = new util.ArrayList[Row]()
+    rows.add(Row("aa","bb","cc"))
+    rows.add(Row("dd","ee","ff"))
+    val df: DataFrame = spark.createDataFrame(rows, createSchema(columns))
+    df.show()
   }
 }
