@@ -4,7 +4,7 @@
 <configuration>
     <property>
         <name>hive.metastore.uris</name>
-        <value>thrift://jiliguala-bigdata32:9083,thrift://jiliguala-bigdata33:9083</value>
+        <value>thrift://company-bigdata32:9083,thrift://company-bigdata33:9083</value>
     </property>
     <property>
         <name>hive.metastore.client.socket.timeout</name>
@@ -184,7 +184,7 @@
     </property>
     <property>
         <name>hive.zookeeper.quorum</name>
-        <value>jiliguala-bigdata03,jiliguala-bigdata01,jiliguala-bigdata02</value>
+        <value>company-bigdata03,company-bigdata01,company-bigdata02</value>
     </property>
     <property>
         <name>hive.zookeeper.client.port</name>

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 老集群hive导出表结构
-databases='jlgl_ads jlgl_dim jlgl_dw jlgl_dm jlgl_rpt ods tmp'
+databases='ads dim dw dm rpt ods tmp'
 for database in ${databases}
 do
     hive -e "use ${database}; show tables" > "${database}"-tables.txt
@@ -14,7 +14,7 @@ do
     done
 done
 sed -i '/WARN/d' "${database}"_tables_ddl.txt
-sed -i 's/jiliguala/dev-jiliguala/g' "${database}"_tables_ddl.txt
+sed -i 's/company/dev-company/g' "${database}"_tables_ddl.txt
 sed -i 's/CREATE TABLE/CREATE TABLE IF NOT EXISTS/g' "${database}"_tables_ddl.txt
 
 # 新集群hive导入表结构

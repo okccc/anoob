@@ -47,7 +47,7 @@ object HBaseUtil {
   }
 
   def main(args: Array[String]): Unit = {
-    val res: List[JSONObject] = queryList("select * from offset:jlgl_mysql_stream_knowledge_record_hive_offset")
+    val res: List[JSONObject] = queryList("select * from offset:mysql_stream_knowledge_record_hive_offset")
     println(res)
   }
 

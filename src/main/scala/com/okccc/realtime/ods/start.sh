@@ -9,7 +9,7 @@ elif [ "$1" == "token" ];then
 fi
 
 project=RealTimeEvent
-class=com.jlgl.realtime.ods.${className}
+class=com.okccc.realtime.ods.${className}
 path=/data1/projects-app/realtime/${project}
 
 # 先杀掉原进程
@@ -30,7 +30,7 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 60 >> ${path}/log/${project}.log &
 
 
 # 常用配置
---conf "spark.sql.warehouse.dir=hdfs://jiliguala/data/hive/warehouse"  \
+--conf "spark.sql.warehouse.dir=hdfs://test/data/hive/warehouse"  \
 --conf "spark.default.parallelism=200"  \  # 每个stage默认task数 = num-executors * executor-cores,推荐设置为CPU总core数的2~3倍
 --conf "spark.sql.auto.repartition=true"  \  # 自动重新分区,避免分区数过多导致单分区数据过少,每个task运算分区时要频繁调度消耗过多时间
 --conf "spark.sql.shuffle.partitions=400"  \  # 提高shuffle并行度,默认200,增加shuffle read task数量让每个task处理数据变少时间缩短
@@ -50,6 +50,6 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 60 >> ${path}/log/${project}.log &
 --conf "spark.core.connection.ack.wait.timeout=300" \
 # 开启日志
 --conf spark.eventLog.enabled=true \
---conf spark.eventLog.dir=hdfs://jiliguala/sparklogs \
+--conf spark.eventLog.dir=hdfs://test/sparklogs \
 --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j.properties -XX:+UseG1GC -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" \
 --conf "spark.streaming.kafka.maxRatePerPartition=1000000" \

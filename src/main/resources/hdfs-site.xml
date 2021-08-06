@@ -4,55 +4,55 @@
 <configuration>
     <property>
         <name>dfs.nameservices</name>
-        <value>jiliguala</value>
+        <value>company</value>
     </property>
     <property>
-        <name>dfs.client.failover.proxy.provider.jiliguala</name>
+        <name>dfs.client.failover.proxy.provider.company</name>
         <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
     </property>
     <property>
-        <name>dfs.ha.automatic-failover.enabled.jiliguala</name>
+        <name>dfs.ha.automatic-failover.enabled.company</name>
         <value>true</value>
     </property>
     <property>
         <name>ha.zookeeper.quorum</name>
-        <value>jiliguala-bigdata01:2181,jiliguala-bigdata02:2181,jiliguala-bigdata03:2181</value>
+        <value>company-bigdata01:2181,company-bigdata02:2181,company-bigdata03:2181</value>
     </property>
     <property>
-        <name>dfs.ha.namenodes.jiliguala</name>
+        <name>dfs.ha.namenodes.company</name>
         <value>namenode66,namenode68</value>
     </property>
     <property>
-        <name>dfs.namenode.rpc-address.jiliguala.namenode66</name>
-        <value>jiliguala-bigdata01:8020</value>
+        <name>dfs.namenode.rpc-address.company.namenode66</name>
+        <value>company-bigdata01:8020</value>
     </property>
     <property>
-        <name>dfs.namenode.servicerpc-address.jiliguala.namenode66</name>
-        <value>jiliguala-bigdata01:8022</value>
+        <name>dfs.namenode.servicerpc-address.company.namenode66</name>
+        <value>company-bigdata01:8022</value>
     </property>
     <property>
-        <name>dfs.namenode.http-address.jiliguala.namenode66</name>
-        <value>jiliguala-bigdata01:50070</value>
+        <name>dfs.namenode.http-address.company.namenode66</name>
+        <value>company-bigdata01:50070</value>
     </property>
     <property>
-        <name>dfs.namenode.https-address.jiliguala.namenode66</name>
-        <value>jiliguala-bigdata01:50470</value>
+        <name>dfs.namenode.https-address.company.namenode66</name>
+        <value>company-bigdata01:50470</value>
     </property>
     <property>
-        <name>dfs.namenode.rpc-address.jiliguala.namenode68</name>
-        <value>jiliguala-bigdata02:8020</value>
+        <name>dfs.namenode.rpc-address.company.namenode68</name>
+        <value>company-bigdata02:8020</value>
     </property>
     <property>
-        <name>dfs.namenode.servicerpc-address.jiliguala.namenode68</name>
-        <value>jiliguala-bigdata02:8022</value>
+        <name>dfs.namenode.servicerpc-address.company.namenode68</name>
+        <value>company-bigdata02:8022</value>
     </property>
     <property>
-        <name>dfs.namenode.http-address.jiliguala.namenode68</name>
-        <value>jiliguala-bigdata02:50070</value>
+        <name>dfs.namenode.http-address.company.namenode68</name>
+        <value>company-bigdata02:50070</value>
     </property>
     <property>
-        <name>dfs.namenode.https-address.jiliguala.namenode68</name>
-        <value>jiliguala-bigdata02:50470</value>
+        <name>dfs.namenode.https-address.company.namenode68</name>
+        <value>company-bigdata02:50470</value>
     </property>
     <property>
         <name>dfs.replication</name>

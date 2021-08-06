@@ -24,7 +24,7 @@ object RealTimeEvent {
 
     /**
      * 常见错误
-     * 1.java.net.UnknownHostException: jiliguala
+     * 1.java.net.UnknownHostException: company
      * idea本地访问远程hive要把hdfs-site.xml和hive-site.xml拷过来,不然报错
      *
      * 2.User okc does not have privileges for ALTERTABLE_ADDPARTS

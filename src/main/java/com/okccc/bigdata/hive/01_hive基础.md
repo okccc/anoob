@@ -111,7 +111,7 @@ map keys terminated by ':'          -- map中key和value的分隔符
 lines terminated by '\n'            -- 行分隔符
 -- orc将数据按行分块按列存储,保证同一条记录在一个块上,snappy压缩率能达到1:10左右
 stored as orc tblproperties ("orc.compress"="snappy")
-location 'hdfs://dev-jiliguala/user/flume/nginx_log';
+location 'hdfs://dev-cdh/user/flume/nginx_log';
 
 hive> load data local inpath '/home/hive/log.txt' overwrite into table t1 partition(dt=20200101);
 hive> select * from t1;
@@ -208,7 +208,7 @@ hive.exec.mode.local.auto=false
 hive> set hive.cli.print.header=true;
 -- 查看数据库信息
 hive> desc database ods;
-ods    hdfs://dev-jiliguala/user/hive/warehouse/ods.db deploy USER
+ods    hdfs://dev-cdh/user/hive/warehouse/ods.db deploy USER
 -- 删除库(加cascade可以删除含有表的数据库)
 hive> drop database test cascade;
 -- 模糊搜索表
