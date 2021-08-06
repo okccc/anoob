@@ -137,8 +137,8 @@ grep -v '^$' '^#' a.txt         # 选取非空非注释行(显示所有有效配
 grep -a 'test' *.log            # 查看包含test的log文件
 # 查找当前目录下用到debit_order表的sql文件并统计使用次数
 grep 'debit_order' *.sql | awk -F: '{print $1}' | uniq -c | sort -nr
-# 将当前目录下所有文件的jlgl替换成dev-jlgl
-sed -i 's/jlgl/dev-jlgl/g' `grep jlgl -rl ./*`
+# 将当前目录下所有文件的cdh替换成dev-cdh
+sed -i 's/cdh/dev-cdh/g' `grep cdh -rl ./*`
 # 高亮显示关键字所在行的前10行和后10行
 grep error mysql.log --color -A 10 -B 10
 # 输出两个文件都有的行(完全相同/部分相同)
