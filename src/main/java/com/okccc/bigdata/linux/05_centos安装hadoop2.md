@@ -443,11 +443,9 @@ hdfs://ns1  93.5 T  66.2 T   20.4 T    71%
 320.7 G  671.3 G  /user/hive/warehouse/ods.db
 # hdfs文件大小排序
 [root@cdh1 ~]$ hadoop fs -du /user/hive/warehouse/*.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="\t" | awk '$1 > 1G' | sort -nr
-72G  167G  /user/hive/warehouse/ods.db/debit_detail
-54G  110G  /user/hive/warehouse/ods.db/urge_record
-51G  105G  /user/hive/warehouse/ods.db/pay_repayment_detail
-48G  97G  /user/hive/warehouse/ods.db/debit_order
-23G  47G  /user/hive/warehouse/ods.db/debit_order_ext
+72G  160G  /user/hive/warehouse/ods.db/debit_detail
+54G  110G  /user/hive/warehouse/dw.db/urge_record
+51G  105G  /user/hive/warehouse/dm.db/pay_repayment_detail
 
 # trash
 # 类似linux系统回收站,hdfs会为每个用户创建一个回收站目录/user/当前用户/.Trash/
