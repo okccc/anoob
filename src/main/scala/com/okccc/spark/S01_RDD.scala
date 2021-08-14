@@ -31,3 +31,14 @@ object S01_RDD {
      * RDD两种算子
      * transform: 转换新的数据集,lazy模式调用action算子才触发计算,可以根据DAG做相应优化,合并窄依赖的转换算子减少executor与driver间通信
      * action: 对数据集执行计算操作并将结果返回给driver,判断算子是transform还是action就看返回结果类型是不是RDD
+     *
+     * Spark Shuffle
+     * The Shuffle is an expensive operation since it involves disk I/O, data serialization, and network I/O
+     * Shuffle: 将数据打乱重新组合(洗牌),会伴随着数据的跨节点移动,数据在网络传输过程中对象的序列化和反序列化是分布式计算框架的主要性能瓶颈
+     * 涉及Shuffle操作的算子: "repartition"(coalesce,repartition) | "join" | "ByKey"(groupByKey,reduceByKey) | "distinct"
+     * Shuffle负责将map端(宽依赖左侧)处理的中间结果传输到reduce端(宽依赖右侧)进行聚合,中间结果会消耗大量内存,容不下时spark会将其溢出到磁盘,
+     * 造成额外的磁盘io和垃圾回收,这些文件会一直保留到RDD不再使用然后被JVM GC回收,然而垃圾回收很长时间才会执行一次,所以同时也会消耗大量磁盘空间
+     *
+     * Spark数据倾斜
+     * 本质是shuffle过程中key分布不均匀,需要针对具体算子具体分析,可以在yarn监控页面查看Stages的task列表运行时间
+     * 1.提高并行度 | 2.使用map join代替reduce join | 3.给key增加随机前后缀 | 4.通过hive etl预处理
