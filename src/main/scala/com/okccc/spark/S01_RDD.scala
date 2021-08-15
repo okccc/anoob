@@ -42,3 +42,14 @@ object S01_RDD {
      * Spark数据倾斜
      * 本质是shuffle过程中key分布不均匀,需要针对具体算子具体分析,可以在yarn监控页面查看Stages的task列表运行时间
      * 1.提高并行度 | 2.使用map join代替reduce join | 3.给key增加随机前后缀 | 4.通过hive etl预处理
+     *
+     * RDD依赖类型
+     * 窄依赖(narrow): 子RDD分区与父RDD分区是一对一映射关系,不存在shuffle,所有计算都在分区所在节点完成,因此分区的转换可以放在一个stage
+     * 宽依赖(shuffle): 子RDD分区与父RDD分区是一对多映射关系,必然有shuffle,要等父RDD的所有依赖分区都处理完,因此宽依赖是划分stage的依据
+     * DAG: transform只记录RDD的血缘关系,driver会根据lineage生成有向无环图,action操作触发计算并从头开始计算
+     * 当某个分区故障时只要按照lineage重新计算即可,计算逻辑复杂时就会导致依赖链过长,checkpoint可以保存当前算好的中间结果从而缩短依赖链
+     *
+     * application/job -> stage -> task  每一层都是1对n的关系
+     * application/job: action操作会触发SparkContext的runJob方法,此时会生成一个job在yarn中叫application
+     * stage: DAG根据RDD依赖关系划分stage,宽依赖要等待shuffle执行完所以单独划分,stage个数 = 1(ResultStage) + shuffle次数
+     * task: stage是一个taskSet,stage里的每个partition都会发送到executor执行,task个数 = stage最后一个RDD的partition个数
