@@ -53,3 +53,10 @@ object S01_RDD {
      * application/job: action操作会触发SparkContext的runJob方法,此时会生成一个job在yarn中叫application
      * stage: DAG根据RDD依赖关系划分stage,宽依赖要等待shuffle执行完所以单独划分,stage个数 = 1(ResultStage) + shuffle次数
      * task: stage是一个taskSet,stage里的每个partition都会发送到executor执行,task个数 = stage最后一个RDD的partition个数
+     *
+     * RDD缓存与容错: RDD的血缘机制就是RDD的容错机制
+     * 缓存: 为了解决CPU和内存的速率差异问题,缓存的速率比内存快很多,内存中被CPU访问最频繁的数据和指令会被复制到CPU中的缓存
+     * 序列化: 存储和网络传输是通过IO流的字节序列实现,序列化就是将内存中的对象转换成字节进行持久化或网络传输,再次使用需将字节反序列化为对象
+     * cache: 迭代算法中间结果多次重用可以考虑持久化,cache就是调用的persist,def cache() = persist(StorageLevel.MEMORY_ONLY)
+     * LRU(least-recently-used)策略: spark会自动监控每个节点的cache使用状况并丢弃最近最少使用的数据分区,也可以unpersist()手动释放缓存
+     * checkPoint: 重用/重要数据/lineage过长都可以设置检查点将RDD持久化并移除前面的血缘关系,节点故障导致分区丢失时只要从检查点处重做即可
