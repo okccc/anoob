@@ -60,3 +60,18 @@ object S01_RDD {
      * cache: 迭代算法中间结果多次重用可以考虑持久化,cache就是调用的persist,def cache() = persist(StorageLevel.MEMORY_ONLY)
      * LRU(least-recently-used)策略: spark会自动监控每个节点的cache使用状况并丢弃最近最少使用的数据分区,也可以unpersist()手动释放缓存
      * checkPoint: 重用/重要数据/lineage过长都可以设置检查点将RDD持久化并移除前面的血缘关系,节点故障导致分区丢失时只要从检查点处重做即可
+     *
+     * yarn cluster和yarn client
+     * yarn中的每个Application实例都有一个ApplicationMaster进程,负责向ResourceManager请求资源,然后通知NodeManager为Application启动Container
+     * In client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.
+     * In cluster mode, the driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application.
+     *
+     * Partitioner
+     * An object that defines how the elements in a key-value pair RDD are partitioned by key.
+     * Maps each key to a partition ID, from 0 to numPartitions - 1.
+     * HashPartitioner: 按照key的hashcode值分区,可能会导致数据倾斜(默认)
+     * RangePartitioner: 能使数据尽量分布均匀,但是要求key必须可排序(不常用)
+     *
+     * Shared Variables
+     * 广播变量(read-only): map join就是将小表广播到每个executor的内存中供map函数使用,使计算本地化从而避免shuffle
+     * 累加器(add-only): executor运算时使用的全局变量其实是driver端变量的副本,其对变量的更新不会回传给driver,全局计算需要使用累加器
