@@ -75,3 +75,9 @@ object S01_RDD {
      * Shared Variables
      * 广播变量(read-only): map join就是将小表广播到每个executor的内存中供map函数使用,使计算本地化从而避免shuffle
      * 累加器(add-only): executor运算时使用的全局变量其实是driver端变量的副本,其对变量的更新不会回传给driver,全局计算需要使用累加器
+     *
+     * Spark序列化
+     * java.io.Serializable接口可以序列化任何类,但是比较重(字节多),不太适合大数据分布式应用场景
+     * Spark2.0支持Kryo序列化机制,速度提升10倍,RDD在shuffle数据时,数组和字符串等简单数据类型已经在spark内部使用Kryo序列化
+     */
+
