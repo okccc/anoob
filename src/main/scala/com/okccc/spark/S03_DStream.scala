@@ -13,8 +13,8 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 object S03_DStream {
   def main(args: Array[String]): Unit = {
     /*
-     * Spark -> RDD | SparkSql -> DataFrame/DataSet | SparkStreaming -> DStream(discretized stream)
-     * 实时处理是来一条处理一条,SparkStreaming是将live streaming data切分成batches处理(准实时),类似map/mapPartitions算子
+     * Spark -> RDD | SparkSql -> DataFrame/DataSet | SparkStreaming -> DStream
+     * 实时处理是来一条处理一条,SparkStreaming是将实时流数据按照batchDuration切分成微批准实时处理,类似map/mapPartitions算子
      *
      * DStream(离散化流)：a continuous series of RDDs 连续的RDD序列,一个时间批次的数据对应一个RDD
      * batchDuration(批处理时间间隔)：the time interval at which streaming data will be divided into batches
@@ -42,19 +42,38 @@ object S03_DStream {
      * spark1.6 + kafka0.8  -> 包含receiver模式和direct模式
      * spark2.3 + kafka0.11 -> 只有direct模式
      *
-     * kafka高低阶消费者？
+     * kafka高低阶消费者
      * 基于receiver方式,使用kafka高阶api在zk中保存消费过的offset,配合wa机制可以保证数据零丢失,但是可能重复消费,因为spark和zk并不同步
      * 基于direct方式,使用kafka低阶api由SparkStreaming自己追踪消费的offset并保存在checkpoint,保证数据只消费一次(常用)
      *
-     * spark消费kafka数据存到哪里？
+     * spark消费kafka数据存到哪里
      * mysql：不适合存大量数据速度也一般
      * hbase：能存储大量数据但是过于笨重
      * es：能存大量数据并且使用灵活,如果spark只是将kafka数据清洗过滤,数据量级并没有变,可以将明细数据存到es/clickhouse再做聚合
      * redis：只能存少量数据但速度极快,如果spark已经将数据聚合成少量结果集,可以存到redis,但是内存计算压力会较大,还有就是缓存偏移量这种中间结果
+     *
+     * SparkStreaming小文件问题
+     * 微批处理模式(batchDuration)和DStream/RDD分布式(partition)特性导致生成大量小文件
+     * 比如batchDuration=10s,每个输出的DStream有32个分区,那么一个小时产生的文件数=(3600/10)*32=11520
+     * 内部处理: 1.调大batchDuration减少batch数量,但会降低实时性 2.借助repartition算子减少partition数量,但并行度降低会导致批处理变慢
+     * 外部处理: 将已经落到hdfs的小文件按照dt/hour粒度手动合并
+     * hive.merge.mapredfiles = true;
+     * hive.merge.size.per.task = 256000000;
+     * hive.merge.smallfiles.avgsize = 128000000;
+     * hive.exec.compress.output = true;
+     * mapred.output.compress = true;
+     * mapred.output.compression.codec = org.apache.hadoop.io.compress.GzipCodec;
+     * a.每天合并一次(等所有文件落地就可以覆盖原表)
+     * insert overwrite table ods.access_log partition(dt=${dt})
+     * select * from ods.access_log where dt=${dt};
+     * b.每小时合并一次(写到小时表)
+     * insert overwrite table ods.access_log_h partition(dt=${dt},hr=${hr})
+     * select * from ods.access_log where from_unixtime(cast(server_time/1000 as int),'yyyyMMddHH') ='${hour}'
+     *
      */
 
     //    if (args.length < 2) {
-    //      System.err.println("Usage: ClassName <hostname> <port>")
+    //      System.err.println("Usage: ClassName <hostname> <port>"c)
     //      System.exit(1)
     //    }
     //    官方案例：nc -lk 9999 & run-example org.apache.spark.examples.streaming.NetworkWordCount localhost 9999
@@ -70,7 +89,7 @@ object S03_DStream {
     // receiver模式的DStream(socket/flume/kafka高阶)接收器要单独占一个线程,"local[n>1]",direct模式没有接收器"local"即可
     val conf: SparkConf = new SparkConf().setMaster("local[2]").setAppName("Spark Streaming")
     // 创建StreamingContext对象,指定批处理时间间隔(采集周期)
-    val ssc: StreamingContext = new StreamingContext(conf, batchDuration = Seconds(2))
+    val ssc: StreamingContext = new StreamingContext(conf, batchDuration=Seconds(2))
     // 设置日志级别
     ssc.sparkContext.setLogLevel("warn")
 
