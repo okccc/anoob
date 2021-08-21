@@ -79,5 +79,10 @@ object S01_RDD {
      * Spark序列化
      * java.io.Serializable接口可以序列化任何类,但是比较重(字节多),不太适合大数据分布式应用场景
      * Spark2.0支持Kryo序列化机制,速度提升10倍,RDD在shuffle数据时,数组和字符串等简单数据类型已经在spark内部使用Kryo序列化
+     *
+     * Spark调优
+     * 1.资源层面：spark-submit脚本的num-executors,executor-cores,executor-memory参数调节并行度
+     * 2.算子层面：mapPartitions/foreachPartition/filter+coalesce/repartition/reduceByKey
+     * 3.RDD层面：缓存和持久化/广播变量/kryo序列化/Shuffle数据倾斜/小文件处理
      */
 
