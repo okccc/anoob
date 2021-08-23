@@ -95,4 +95,8 @@ mvn dependency:tree  # 查看工程依赖关系
 # udf报错: Could not find artifact org.pentaho:pentaho-aggdesigner-algorithm:jar:5.1.5-jhyde
 有些插件是第三方公司提供的,很多mvn仓库里没有,那就多加几个mvn仓库的镜像吧
 pom.xml - 右键 - Maven - Open 'settings.xml'
+
+# Cannot resolve com.github.RoaringBitmap:RoaringBitmap:0.9.9
+点击idea右侧Maven插件,发现Dependencies中的ru.yandex.clickhouse:clickhouse-jdbc:0.3.0有报红
+通常都是高版本的jar包用到了不兼容的依赖,适当降低版本就可以了
 ```
