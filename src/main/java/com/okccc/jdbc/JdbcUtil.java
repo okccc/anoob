@@ -1,4 +1,4 @@
-package com.okccc.bigdata.db.jdbc;
+package com.okccc.jdbc;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -23,12 +23,12 @@ public class JdbcUtil {
     public static Connection getConnection() throws Exception {
         // 1.读取配置文件
         Properties prop = new Properties();
-        prop.load(new FileReader("ability/src/main/resources/config.properties"));
+        prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("config.properties"));
         // 2.获取连接信息
-        String driver = prop.getProperty("driver");
-        String url = prop.getProperty("url");
-        String user = prop.getProperty("user");
-        String password = prop.getProperty("password");
+        String driver = prop.getProperty("jdbc.driver");
+        String url = prop.getProperty("jdbc.url");
+        String user = prop.getProperty("jdbc.user");
+        String password = prop.getProperty("jdbc.password");
         // 3.通过反射加载驱动
         Class.forName(driver);
         // 4.获取连接

@@ -1,7 +1,7 @@
-package com.okccc.bigdata.db.jdbc;
+package com.okccc.jdbc;
 
-import com.okccc.bigdata.db.jdbc.bean.User;
-import com.okccc.bigdata.db.jdbc.bean.Order;
+import com.okccc.jdbc.bean.User;
+import com.okccc.jdbc.bean.Order;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -16,15 +16,16 @@ public class MysqlDemo {
          * jdbc
          * java提供了操作数据库表的api(java.sql包和javax.sql包),使用jdbc可以连接任何提供了jdbc驱动的数据库系统
          * jdbc是sun公司提供的一套操作数据库的接口,开发人员只需面向接口编程,不同数据库厂商需要针对这套接口实现对应的驱动类
-         *
          * 将数据库连接信息放到配置文件好处: 更换不同数据库时只改配置文件不改代码,jdbc接口是固定的java.sql.Driver
+         * ORM(object relation mapping): 一个mysql表对应一个java类,表的一列对应类的一个属性,表的一行对应类的一个对象
+         * 传统模式: java.sql.DriverManager每次连接都要将Connection加载到内存,消耗大量资源且连接无法重用,也无法控制创建的连接数,连接过多或程序异常未及时关闭,可能导致内存泄漏甚至服务器崩溃
+         * 数据库连接池: javax.sql.DataSource会保持最小连接数,允许程序重复使用现有数据库连接,当达到最大连接数时新的请求会被放入等待队列
          *
-         * Statement弊端
-         * a.需要拼接sql
-         * String sql = "SELECT user,password FROM user WHERE USER = '" + user + "' AND PASSWORD = '" + password + "'";
-         * b.sql注入问题(放到sql工具一看便知)
-         * select user,password from user_table where user = '' and password = '';
-         * select user,password from user_table where user = '' or '1' = '1' and password = '';
+         * PreparedStatement优点
+         * 1.预编译sql放入缓冲区提高效率,且下次执行相同sql时直接使用数据库缓冲区
+         * 2.预编译sql可以防止sql注入(放到sql工具一看便知)
+         * 手动拼接: sql经过解析器编译并执行,传递的参数也会参与编译,select * from user where name = 'tom' or '1=1'; 这里的 or '1=1' 会被当成sql指令运行,or被当成关键字了
+         * 预编译: sql预先编译好等待传参执行,传递的参数就只是变量值,select * from user where name = "tom' or '1=1"; 这里的 tom' or '1=1 是一个变量整体,or也就失效了
          *
          * 异常处理
          * 框架中异常一般都会抛出做统一处理
@@ -37,13 +38,6 @@ public class MysqlDemo {
          * 什么时候会提交数据？
          * a.执行DML操作,默认情况下一旦执行完会自动提交数据 -> set autocommit = false
          * b.一旦断开数据库连接,也会提交数据 -> 将获取conn步骤从update方法中剥离出来单独关闭
-         *
-         * ORM(object relation mapping): 一个mysql表对应一个java类,表的一列对应类的一个属性,表的一行对应类的一个对象
-         *
-         * 传统模式
-         * java.sql.DriverManager每次连接都要将Connection加载到内存,消耗大量资源且连接无法重用,也无法控制创建的连接数,连接过多或程序异常未及时关闭,可能导致内存泄漏甚至服务器崩溃
-         * 数据库连接池
-         * javax.sql.DataSource会保持最小连接数,允许程序重复使用现有数据库连接,当达到最大连接数时新的请求会被放入等待队列
          */
 
         testConnect();
@@ -82,10 +76,10 @@ public class MysqlDemo {
         Properties prop = new Properties();
         prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("config.properties"));
         // 2.获取连接信息
-        String driver = prop.getProperty("driver");
-        String url = prop.getProperty("url");
-        String user = prop.getProperty("user");
-        String password = prop.getProperty("password");
+        String driver = prop.getProperty("jdbc.driver");
+        String url = prop.getProperty("jdbc.url");
+        String user = prop.getProperty("jdbc.user");
+        String password = prop.getProperty("jdbc.password");
         // 3.通过反射加载mysql驱动
         Class.forName(driver);
         // 4.建立连接
