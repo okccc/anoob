@@ -54,6 +54,7 @@ mvn install:install-file -DgroupId=<自定义> -DartifactId=<自定义> -Dversio
 mvn clean package  # 编译项目并打jar包 -Dmaven.test.skip=true 表示跳过测试代码的编译和运行
 mvn clean install  # 打完包后部署到本地仓库
 mvn clean deploy   # 打完包后部署到本地仓库和远程仓库
+mvn dependency:tree  # 查看工程依赖树
 
 # scope控制依赖jar包的使用范围
 compile     # 参与项目的编译、测试、运行、打包,贯穿所有阶段,随项目一起发布(默认值)
@@ -85,7 +86,6 @@ SLF4J: Class path contains multiple SLF4J bindings.
 SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/org/slf4j/slf4j-log4j12/1.6.1/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/ch/qos/logback/logback-classic/1.0.7/logback-classic-1.0.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 显示slf4j-log4j12包和logback-classic包冲突,其中logback-classic是我在pom文件里引入的,说明有别的依赖引用了slf4j,找到它并在pom中排除
-mvn dependency:tree  # 查看工程依赖关系
 
 # Error: A JNI(Java Native Interface) error has occurred, please check your installation and try again
 运行时使用的java和编译时使用的javac版本不一致,卸载java重装
@@ -99,4 +99,7 @@ pom.xml - 右键 - Maven - Open 'settings.xml'
 # Cannot resolve com.github.RoaringBitmap:RoaringBitmap:0.9.9
 点击idea右侧Maven插件,发现Dependencies中的ru.yandex.clickhouse:clickhouse-jdbc:0.3.0有报红
 通常都是高版本的jar包用到了不兼容的依赖,适当降低版本就可以了
+
+# Caused by: com.fasterxml.jackson.databind.JsonMappingException: Incompatible Jackson version: 2.7.8
+查看工程依赖树发现是hadoop相关依赖用到了这个不兼容的jar包,可以在<dependency>里面添加<exclusion>去除或者直接降低hadoop版本
 ```
