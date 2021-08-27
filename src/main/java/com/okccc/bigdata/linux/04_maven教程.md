@@ -97,8 +97,7 @@ SLF4J: Found binding in [jar:file:/Users/okc/.m2/repository/ch/qos/logback/logba
 pom.xml - 右键 - Maven - Open 'settings.xml'
 
 # Cannot resolve com.github.RoaringBitmap:RoaringBitmap:0.9.9
-点击idea右侧Maven插件,发现Dependencies中的ru.yandex.clickhouse:clickhouse-jdbc:0.3.0有报红
-通常都是高版本的jar包用到了不兼容的依赖,适当降低版本就可以了
+点击idea右侧Maven依赖发现ru.yandex.clickhouse:clickhouse-jdbc:0.3.0报红,一般都是高版本jar包用到了不兼容的依赖,适当降低版本就行
 
 # Caused by: com.fasterxml.jackson.databind.JsonMappingException: Incompatible Jackson version: 2.7.8
 查看工程依赖树发现是hadoop相关依赖用到了这个不兼容的jar包,可以在<dependency>里面添加<exclusion>去除或者直接降低hadoop版本
