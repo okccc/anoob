@@ -1,4 +1,4 @@
-package com.okccc.bigdata.db.jdbc.bean;
+package com.okccc.jdbc.bean;
 
 import lombok.*;
 

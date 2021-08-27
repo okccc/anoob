@@ -1,7 +1,7 @@
-package com.okccc.bigdata.db.jdbc.dao;
+package com.okccc.jdbc.dao;
 
-import com.okccc.bigdata.db.jdbc.bean.User;
-import com.okccc.bigdata.db.jdbc.JdbcUtil;
+import com.okccc.jdbc.bean.User;
+import com.okccc.jdbc.JdbcUtil;
 
 import java.sql.Connection;
 import java.sql.Date;
