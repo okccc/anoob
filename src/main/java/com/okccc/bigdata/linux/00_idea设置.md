@@ -41,8 +41,16 @@ Condition 右键断点可以设置条件,比如代码循环了100次可以输入
 Intellij IDEA - Preferences - Plugins - Scala
 # idea配置maven环境
 Intellij IDEA - Preferences - Build - Build Tools - Maven
+# 导入maven工程时自动下载源码
+Intellij IDEA - Preferences - Build - Build Tools - Maven - Importing - Automatically download - Sources,documentation
 # 创建maven工程
 File - New - Project - Maven Next - GroupId/ArtifactId - Finish
+# idea的View选项Tool Windows工具栏不显示Maven
+pom.xml - 右键 - add as maven project
+# idea修改代码不生效运行的还是之前的代码,必须mvn clean重新编译
+删除.idea和.iml,将项目从idea中关闭并重新导入
+# .iml和.idea会记录项目的配置信息,历史记录,版本控制信息等,不能随便删除,看不顺眼可以隐藏
+Intellij IDEA - Preferences - Editor - File Types - Ignore files and folders - *.iml;.idea
 # Project和Module
 Intellij IDEA中Project是顶级结构单元,一个Project由一个或多个Module组成
 # 管理Project中的Module
@@ -82,12 +90,7 @@ pom.xml - 右键 - Diagrams - Show Dependencies
 Intellij IDEA - Preferences - Editor - Code Style - Java/Scala - Spaces - Within - Method call parentheses
 # idea的java代码不显示蓝色图标而是橘色图标
 java - Make Directory as - Sources Root
-# idea的View - Tool Windows不显示Maven
-pom.xml - 右键 - add as maven project
-# idea修改代码不生效运行的还是之前的代码,必须mvn clean重新编译
-删除.idea和.iml,将项目从idea中关闭并重新导入
-# .iml和.idea会记录项目的配置信息,历史记录,版本控制信息等,不能随便删除,看不顺眼可以隐藏
-Intellij IDEA - Preferences - Editor - File Types - Ignore files and folders - *.iml;.idea
+
 ```
 
 ### idea常用插件
