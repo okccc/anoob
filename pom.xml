@@ -14,7 +14,7 @@
         <scala.version>2.12.12</scala.version>
         <hadoop.version>2.7.0</hadoop.version>
         <spark.version>2.4.5</spark.version>
-        <flink.version>1.12.0</flink.version>
+        <flink.version>1.13.0</flink.version>
         <kafka.version>2.4.1</kafka.version>
         <mysql.version>8.0.16</mysql.version>
         <hive.version>1.2.1</hive.version>
@@ -57,6 +57,11 @@
         </dependency>
 
         <!-- hadoop相关 -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
@@ -105,7 +110,7 @@
             <groupId>org.apache.flume</groupId>
             <artifactId>flume-ng-core</artifactId>
             <version>${flume.version}</version>
-            <!-- 打包时会被排除但是本地调试代码需要: Edit Configurations - Include dependencies with "Provided" scope -->
+            <!-- 打包时排除,还能提升打包速度,本地调试代码: Edit Configurations - Include dependencies with "Provided" scope -->
             <scope>provided</scope>
         </dependency>
 
@@ -145,12 +150,23 @@
             <artifactId>druid</artifactId>
             <version>1.2.5</version>
         </dependency>
+        <!-- scala操作JDBC小工具,方便处理事务 -->
+        <dependency>
+            <groupId>org.scalikejdbc</groupId>
+            <artifactId>scalikejdbc_2.12</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalikejdbc</groupId>
+            <artifactId>scalikejdbc-config_2.12</artifactId>
+            <version>3.4.0</version>
+        </dependency>
 
         <!-- ClickHouse -->
         <dependency>
             <groupId>ru.yandex.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.3.0</version>
+            <version>0.2.4</version>
         </dependency>
 
         <!-- java操作redis的客户端工具jedis -->
@@ -194,10 +210,19 @@
         <!-- flink相关 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
+            <artifactId>flink-java</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-scala_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java_2.12</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-scala_2.12</artifactId>
@@ -239,6 +264,11 @@
             <version>${flink.version}</version>
         </dependency>
         <!-- flink操作表和sql -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+            <version>2.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-api-scala-bridge_2.12</artifactId>
