@@ -27,7 +27,7 @@ object HiveUtil {
     val df: DataFrame = spark.createDataFrame(rowRdd, schema)
     // 生成临时表
     val table: String = hiveTable.split("\\.")(1)
-    // 分区数过多会产生大量小文件,写入hdfs之前先合并分区只输出到一个文件,但是会增加批处理时间,视具体数据量而定
+    // 分区数过多会产生大量小文件,写入hdfs之前先合并分区只输出到一个文件,但是并行度降低会导致批处理时间增加,所以要视具体数据量而定
     df.repartition(1).createOrReplaceTempView(table + "_tmp")
     // 将临时表数据插入正式表
     try {

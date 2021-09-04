@@ -9,17 +9,20 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * Author: okccc
  * Date: 2021/7/20 下午2:02
- * Desc: 监控hdfs的工具类
+ * Desc: hdfs工具类
  */
 object HdfsUtil {
 
+  /**
+   * 监控hdfs文件大小
+   */
   def monitor(): Unit = {
     // hdfs配置信息
     val conf: Configuration = new Configuration
     conf.set("fs.defaultFS", Configs.get(Configs.HDFS_URL))
-    // 创建文件系统
+    // 获取文件系统
     val fs: FileSystem = FileSystem.get(conf)
-    // 文件路径
+    // 目标文件路径
     val path: Path = new Path("/data/hive/warehouse/ods.db")
     // 获取该路径下文件和子路径
     val fileStatuses: Array[FileStatus] = fs.listStatus(path)
