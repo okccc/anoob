@@ -15,9 +15,9 @@ import scala.collection.mutable.ListBuffer
  * Date: 2021/4/19 上午9:44
  * Desc: 读写mysql的工具类
  */
-object JdbcUtil {
+object MysqlUtil {
 
-  private val logger: Logger = LoggerFactory.getLogger(JdbcUtil.getClass)
+  private val logger: Logger = LoggerFactory.getLogger(MysqlUtil.getClass)
 
   /**
    * 手动获取数据库连接

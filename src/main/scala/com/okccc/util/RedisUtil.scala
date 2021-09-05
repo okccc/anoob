@@ -10,7 +10,7 @@ import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
  * Date: 2020/12/13 10:31
  * Desc: 获取Jedis的工具类
  */
-object JedisUtil {
+object RedisUtil {
 
   // 声明jedis连接池
   private var jedisPool: JedisPool = _
