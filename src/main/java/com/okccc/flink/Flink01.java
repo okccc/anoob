@@ -27,4 +27,6 @@ public class Flink01 {
          * 1.事件驱动：以事件的发生来驱动程序运行,通过event-log而不是rest调用进行通信,并将应用程序的数据保存为本地状态而不是写入外部数据库
          * flink是来一条数据就触发一次计算而ss是攒一批数据再计算,redis的多路io复用和nginx负载均衡底层都使用了linux内核的epoll(event-poll)
          * 2.基于流的世界观：flink认为一切都是由流组成,离线数据是有界流,实时数据是无界流,流批统一架构
-         * 3.分层api：顶层的table api和sql使用方便,中间层的DataStream是核心api,底层的ProcessFunction可以搞定一切
+         * 3.支持时间语义：EventTime + Watermark可以处理迟到和乱序数据保证结果准确,sparkStreaming没有时间语义概念,无法处理延迟数据
+         * 4.支持精准消费：exactly-once的状态一致性保证
+         * 5.分层api：顶层的table api和sql使用方便,中间层的DataStream是核心api,底层的ProcessFunction可以搞定一切
