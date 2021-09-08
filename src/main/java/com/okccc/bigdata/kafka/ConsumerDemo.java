@@ -40,6 +40,7 @@ public class ConsumerDemo {
          * kafka0.9版本以后保存在__consumer_offsets,弊端是提交偏移量的数据流必须是InputDStream[ConsumerRecord[String, String]]
          * 因为offset存储于HasOffsetRanges,只有kafkaRDD实现了该特质,转换成别的RDD就无法再获取offset,生产环境通常使用redis保存offset
          * kafka自己也会存一份,但是我们是从redis读写offset而不是使用kafka的latest/earliest/none
+         * 消费者提交的偏移量是当前消费到的最新消息的offset+1,因为偏移量记录的是下一条即将要消费的数据
          */
 
         // 1.消费者属性配置
@@ -59,15 +60,16 @@ public class ConsumerDemo {
         // 当kafka中没有初始偏移量或找不到当前偏移量(比如数据被删除)才会生效,此时会粗粒度地指定从latest(默认)/earliest/none(抛异常)开始消费
         prop.put("auto.offset.reset", "latest");
 
-        // 2.创建消费者对象,参数是topicName和eventLog
+        // 2.创建消费者对象,<String, String>是topics和record
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
 
         // 3.订阅topic集合
-        List<String> list = new ArrayList<>();
+        List<String> topics = new ArrayList<>();
 //        list.add("amplitude02");
-        list.add("eshop");
+//        list.add("eduplatform01");
+        topics.add("MongoJLGLStream");
 //        list.add("nginx");
-        consumer.subscribe(list);
+        consumer.subscribe(topics);
 
         // 4.从kafka拉取数据
         while (true) {
@@ -87,11 +89,11 @@ public class ConsumerDemo {
 //            for (TopicPartition tp : assignment) {
 //                consumer.seek(tp,10000);
 //            }
-            // d.从某个时间点开始消费(更符合实际需求)
+//            // d.从某个时间点开始消费(更符合实际需求)
 //            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
 //            for (TopicPartition tp : assignment) {
 //                // 设置查询分区的时间戳
-//                timestampsToSearch.put(tp, System.currentTimeMillis() - 24 * 3600 * 1000);
+//                timestampsToSearch.put(tp, System.currentTimeMillis() - 2 * 3600 * 1000);
 //            }
 //            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
 //            for (TopicPartition tp : assignment) {
@@ -107,9 +109,9 @@ public class ConsumerDemo {
             // 消息被封装成ConsumerRecord对象
             for (ConsumerRecord<String, String> record : records) {
                 // 获取每条消息的元数据信息
-                System.out.println("topic=" + record.topic() + ", partition=" + record.partition() + ", offset="
-                        + record.offset() + ", value=" + record.value());
-//                if (record.value().contains("e4d0e46863d445ef961379788abd836b")) {
+                System.out.println("ts=" + record.timestamp() + ", topic=" + record.topic() + ", partition=" +
+                        record.partition() + ", offset=" + record.offset() + ", value=" + record.value());
+//                if (record.value().contains("e90290e65207463a916c518a14909e3f")) {
 //                    System.out.println(record.value());
 //                }
             }
