@@ -30,3 +30,9 @@ public class Flink01 {
          * 3.支持时间语义：EventTime + Watermark可以处理迟到和乱序数据保证结果准确,sparkStreaming没有时间语义概念,无法处理延迟数据
          * 4.支持精准消费：exactly-once的状态一致性保证
          * 5.分层api：顶层的table api和sql使用方便,中间层的DataStream是核心api,底层的ProcessFunction可以搞定一切
+         *
+         * 为什么flink比spark延迟低？
+         * spark采用RDD数据结构,是离线数据集,所以spark是批处理,RDD将数据划分到不同分区进行计算,分区间由于数据量不一致等原因会存在速度差异,
+         * 比如同一个Stage内部多个分区间的map算子有快有慢,必须要等当前Stage内的所有算子全部执行完才能继续下一个Stage,所以spark有秒级延迟
+         * flink采用Integer/String/Long/POJO类等数据结构,是标准的流处理模式,map - keyBy - reduce一直往下运行不用等,所以flink没有延迟
+
