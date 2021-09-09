@@ -48,4 +48,17 @@ public class Test01 {
         executor.shutdown();
     }
 
+    @Test
+    public void testDouble() {
+        // java运算结果由被运算数的最高数据类型决定,比如两个int相除得到的结果也只能是int
+        System.out.println(10 / 3);  // 3
+        // 如果要返回小数的话需要将其中一个int向上转型为double,因为double能装下int但是int装不下double
+        System.out.println((double)10 / 3);  // 3.3333333333333335
+        System.out.println(10 / (double)3);  // 3.3333333333333335
+        System.out.println(10d / 3);         // 3.3333333333333335
+        System.out.println(10 / 3d);         // 3.3333333333333335
+        // 只改变运算结果的类型是不行滴
+        System.out.println((double)(10 / 3));  // 3.0
+    }
+
 }
