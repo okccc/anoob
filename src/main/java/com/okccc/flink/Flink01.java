@@ -7,12 +7,17 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
+
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Random;
 
 /**
  * Author: okccc
  * Date: 2021/9/1 下午2:35
- * Desc: WordCount
+ * Desc: WordCount案例、自定义数据源
  */
 public class Flink01 {
     public static void main(String[] args) throws Exception {
@@ -35,4 +40,11 @@ public class Flink01 {
          * spark采用RDD数据结构,是离线数据集,所以spark是批处理,RDD将数据划分到不同分区进行计算,分区间由于数据量不一致等原因会存在速度差异,
          * 比如同一个Stage内部多个分区间的map算子有快有慢,必须要等当前Stage内的所有算子全部执行完才能继续下一个Stage,所以spark有秒级延迟
          * flink采用Integer/String/Long/POJO类等数据结构,是标准的流处理模式,map - keyBy - reduce一直往下运行不用等,所以flink没有延迟
-
+         *
+         * flink架构
+         * JobManager：作业管理器,对应一个jvm进程,包括ResourceManager、Dispatcher和JobMaster三个线程
+         * ResourceManager：管理TaskManager的静态资源slot(插槽)
+         * Dispatcher：在web界面提交flink应用程序,并为提交的作业启动一个新的JobMaster,命令行提交不需要
+         * JobMaster：负责单个JobGraph的执行,flink可以同时运行多个作业,每个作业都有自己的JobMaster
+         * TaskManager：任务管理器,对应一个jvm进程,由task slot控制任务数,即并发执行能力,子任务可以共享slot,子任务就是程序中的各种算子
+         
