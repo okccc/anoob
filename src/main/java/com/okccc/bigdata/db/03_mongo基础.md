@@ -2,10 +2,8 @@
 ### mongodb
 ```shell script
 # mongodb是一个基于分布式文件存储的NoSQL数据库,旨在为web应用提供可扩展的高性能数据存储解决方案  
-
 # 优点：数据结构灵活(类json格式)、高性能(支持mr处理海量数据)、扩展性好  
 # 缺点：nosql不支持事务和表关联等操作、占用空间大  
-
 # 配置MongoDb的yum源  
 [root@master1 ~]# vim /etc/yum.repos.d/mongodb-org-3.4.repo
 [mongodb-org-3.4]  
