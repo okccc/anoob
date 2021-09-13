@@ -61,4 +61,89 @@ public class Flink01 {
         // reduce这种聚合算子最好是能通过提交脚本-p动态扩展,所以代码一般不设置全局并行度,不然会覆盖动态指定,而具体的算子并行度则不会
         env.setParallelism(1);
 
+        // 获取数据源
+        // 实时：监听socket数据流,先在终端开启`nc -lk 9999`
+        DataStreamSource<String> inputStream = env.socketTextStream("localhost", 9999);
+        DataStreamSource<Event> inputStream02 = env.addSource(new MySource());
+        // 离线：flink是流批统一的,即便是离线数据集也会当做流来处理,每来一条数据都会驱动一次整个程序运行并输出一个结果,ss批处理只会输出最终结果
+//        DataStreamSource<String> inputStream = env.fromElements("aaa bbb", "aaa bbb");
 
+
+    }
+
+    // POJO类必须满足三个条件：公有类,公有字段,公有无参构造  类似scala的case class
+    public static class WordCount {
+        public String word;
+        public Long count;
+
+        public WordCount() {
+        }
+
+        public WordCount(String word, Long count) {
+            this.word = word;
+            this.count = count;
+        }
+
+        @Override
+        public String toString() {
+            // 可以自定义WordCount对象的输出格式
+            return "WordCount{" +
+                    "word='" + word + '\'' +
+                    ", count=" + count +
+                    '}';
+        }
+    }
+
+    // 自定义数据源实现SourceFunction接口,数据源的泛型可以是Integer/Long/String/Double,也可以是POJO类
+    public static class MySource implements SourceFunction<Event> {
+        // 模拟数据
+        private boolean running = true;
+        private final String[] userArr = {"grubby", "moon", "sky", "fly", "ted"};
+        private final String[] urlArr = {"./home", "./cart", "./fav", "./prod?id=1", "./prod?id=2"};
+        private final Random random = new Random();
+
+        @Override
+        public void run(SourceContext<Event> ctx) throws Exception {
+            while (running) {
+                // 通过collect方法往下游发送数据
+                ctx.collect(new Event(
+                        userArr[random.nextInt(userArr.length)],
+                        urlArr[random.nextInt(urlArr.length)],
+                        Calendar.getInstance().getTimeInMillis()
+                ));
+                Thread.sleep(1000L);
+            }
+        }
+
+        @Override
+        public void cancel() {
+            running = false;
+        }
+    }
+
+    // POJO类
+    public static class Event {
+        public String user;
+        public String url;
+        public Long timestamp;
+
+        public Event() {
+        }
+
+        public Event(String user, String url, Long timestamp) {
+            this.user = user;
+            this.url = url;
+            this.timestamp = timestamp;
+        }
+
+        @Override
+        public String toString() {
+            return "Event{" +
+                    "user='" + user + '\'' +
+                    ", url='" + url + '\'' +
+                    // 转换Long类型的时间戳
+                    ", timestamp=" + new Timestamp(timestamp) +
+                    '}';
+        }
+    }
+}
