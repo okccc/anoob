@@ -17,7 +17,7 @@ import java.util.Random;
 /**
  * Author: okccc
  * Date: 2021/9/1 下午2:35
- * Desc: WordCount案例、自定义数据源
+ * Desc: WordCount案例、自定义数据源SourceFunction
  */
 public class Flink01 {
     public static void main(String[] args) throws Exception {
@@ -47,4 +47,18 @@ public class Flink01 {
          * Dispatcher：在web界面提交flink应用程序,并为提交的作业启动一个新的JobMaster,命令行提交不需要
          * JobMaster：负责单个JobGraph的执行,flink可以同时运行多个作业,每个作业都有自己的JobMaster
          * TaskManager：任务管理器,对应一个jvm进程,由task slot控制任务数,即并发执行能力,子任务可以共享slot,子任务就是程序中的各种算子
-         
+         *
+         * 并行度
+         * 算子的子任务subtask个数,流的并行度通常是所有算子的最大并行度,一个任务槽最多运行一个并行度,parallelism(动态) <= task slot(静态)
+         * one-to-one：map/filter/flatMap基本转换算子,元素个数和顺序保持不变,相同并行度的one-to-one算子可以形成任务链,减少网络io
+         * redistributing：keyBy键控流转换算子,基于hashCode按键分区,broadcast和rebalance随机重分区,类似spark的shuffle
+         */
+
+        // 创建流处理执行环境
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // 配置参数优先级：算子并行度(代码写死) > 全局并行度(代码写死) > flink run -p(动态指定) > flink-conf.yaml(集群配置)
+        // Source算子并行度设置为1可以保证数据有序
+        // reduce这种聚合算子最好是能通过提交脚本-p动态扩展,所以代码一般不设置全局并行度,不然会覆盖动态指定,而具体的算子并行度则不会
+        env.setParallelism(1);
+
+
