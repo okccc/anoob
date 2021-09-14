@@ -68,6 +68,20 @@ public class Flink01 {
         // 离线：flink是流批统一的,即便是离线数据集也会当做流来处理,每来一条数据都会驱动一次整个程序运行并输出一个结果,ss批处理只会输出最终结果
 //        DataStreamSource<String> inputStream = env.fromElements("aaa bbb", "aaa bbb");
 
+        // 数据处理
+        // 针对流中每个输入元素：map输出1个元素,filter输出0/1个元素,flatMap输出0/1/N个元素,flatMap是map和filter的泛化实现
+        SingleOutputStreamOperator<WordCount> mapStream = inputStream.flatMap(new FlatMapFunction<String, WordCount>() {
+            // 输入类型：流中元素String,输出类型：WordCount对象
+            @Override
+            public void flatMap(String value, Collector<WordCount> out) {
+                String[] words = value.split(" ");
+                // 通过collect方法向下游发送数据
+                for (String word : words) {
+                    out.collect(new WordCount(word, 1L));
+                }
+            }
+        }).setParallelism(1);
+
 
     }
 
