@@ -82,6 +82,17 @@ public class Flink01 {
             }
         }).setParallelism(1);
 
+        // 分组：shuffle操作
+        // 按照key将数据分发到不同的逻辑分区,相同key一定在同一个任务槽(物理分区),所以会有数据倾斜问题,不同key有可能在同一个任务槽
+        // key可以是输入元素本身,也可以是任意的Integer/String/Boolean,比如以1或者true这样的常量值作为key表示将数据都划分到同一个分区
+        KeyedStream<WordCount, String> keyedStream = mapStream.keyBy(new KeySelector<WordCount, String>() {
+            // 输入类型：流中元素WordCount对象,输出类型：分组字段String
+            @Override
+            public String getKey(WordCount value) {
+                return value.word;
+            }
+        });
+
 
     }
 
