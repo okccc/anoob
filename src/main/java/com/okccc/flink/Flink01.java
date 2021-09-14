@@ -93,7 +93,23 @@ public class Flink01 {
             }
         });
 
+        // 聚合：累加器编程思想,每个key都有自己的累加器,本质上是一个状态变量,每条数据进来和累加器滚动聚合完就丢掉,算子内部只维护累加器往下游发送
+        // 比如求平均值只存累加器和元素个数就行,spark要把所有数据都存下来计算,操作KeyedStream的滚动聚合算子包括sum/max/min/minBy/maxBy
+        // reduce是滚动算子的泛化实现,但是累加器和输入元素类型一致无法灵活修改,并且每次更新完都会往下游发送无法控制频率,所以还有更底层的process
+        SingleOutputStreamOperator<WordCount> result = keyedStream.reduce(new ReduceFunction<WordCount>() {
+            // 输入类型：流中元素WordCount对象,输出类型：WordCount对象
+            @Override
+            public WordCount reduce(WordCount value1, WordCount value2) {
+                // 定义聚合规则
+                return new WordCount(value1.word, value1.count + value2.count);
+            }
+        });
 
+        // 输出结果
+        result.print();
+
+        // 启动程序
+        env.execute("WordCount");
     }
 
     // POJO类必须满足三个条件：公有类,公有字段,公有无参构造  类似scala的case class
