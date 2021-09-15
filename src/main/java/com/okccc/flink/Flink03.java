@@ -49,6 +49,10 @@ public class Flink03 {
          * 遵循累加器思想,每来一条数据滚动聚合后返回新的累加器,优点是不用收集窗口内全部数据,缺点是无法访问窗口信息,不知道聚合结果属于哪个窗口
          * getResult(ACC accumulator)：窗口关闭时返回累加器
          * merge(ACC a, ACC b)：合并累加器,一般用不到
+         *
+         * 总结：
+         * 1.开窗需求通常都是结合两者一起使用,keyBy() + window() + aggregate(AggregateFunction(), ProcessWindowFunction())
+         * 窗口闭合时,增量聚合函数会将结果发送给全窗口函数,这样既不需要收集全部数据又能访问窗口信息,除非是求中位数这种必须收集所有数据的场景
          */
 
         // 创建流处理执行环境
@@ -59,6 +63,8 @@ public class Flink03 {
 //        demo01(env);
         // 演示AggregateFunction
 //        demo02(env);
+        // 演示两者结合使用
+        demo03(env);
 
         // 启动任务
         env.execute();
@@ -98,6 +104,16 @@ public class Flink03 {
                 .print();
     }
 
+    private static void demo03(StreamExecutionEnvironment env) {
+        // 需求：结合两者使用,统计每个用户每5秒钟的pv
+        // 分析：先增量聚合再全窗口聚合,前者的输出元素作为后者的输入元素
+        env.addSource(new Flink01.UserActionSource())
+                .keyBy(r -> r.user)
+                .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
+                .aggregate(new MyAggregateFunction(), new MyProcessWindowFunction())
+                .print();
+    }
+
     // 自定义增量聚合函数
     public static class MyAggregateFunction implements AggregateFunction<Flink01.Event, Integer, Integer> {
         // 创建累加器
@@ -122,4 +138,19 @@ public class Flink03 {
             return null;
         }
     }
+
+    // 自定义全窗口函数,输入类型是前面增量聚合函数的输出类型
+    public static class MyProcessWindowFunction extends ProcessWindowFunction<Integer, String, String, TimeWindow> {
+        @Override
+        public void process(String key, Context context, Iterable<Integer> elements, Collector<String> out) throws Exception {
+            // 收集窗口信息
+            long start = context.window().getStart();
+            long end = context.window().getEnd();
+            // 迭代器只包含一个元素,就是增量聚合函数发送过来的结果
+            Integer cnt = elements.iterator().next();
+            // 收集结果往下游发送
+            out.collect("用户 " + key + " 在窗口 " + new Timestamp(start) + " ~ " + new Timestamp(end) + " 的pv是 " + cnt);
+        }
+    }
+
 }
