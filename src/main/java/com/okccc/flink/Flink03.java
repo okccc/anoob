@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 /**
  * Author: okccc
  * Date: 2021/9/9 下午5:05
- * Desc: 全窗口函数ProcessWindowFunction
+ * Desc: 全窗口函数ProcessWindowFunction、增量聚合函数AggregateFunction
  */
 public class Flink03 {
     public static void main(String[] args) throws Exception {
@@ -38,6 +38,17 @@ public class Flink03 {
          * W：  窗口类型
          * process(KEY key, Context context, Iterable<IN> elements, Collector<OUT> out)
          * 窗口关闭时会驱动其运行,key是分组字段,context可以访问窗口元数据信息,elements保存窗口内所有元素,out收集结果往下游发送
+         *
+         * 增量聚合函数
+         * AggregateFunction<IN, ACC, OUT>
+         * IN： 输入元素类型
+         * ACC：累加器类型
+         * OUT：输出元素类型
+         * createAccumulator()：创建累加器
+         * add(IN value, ACC accumulator)
+         * 遵循累加器思想,每来一条数据滚动聚合后返回新的累加器,优点是不用收集窗口内全部数据,缺点是无法访问窗口信息,不知道聚合结果属于哪个窗口
+         * getResult(ACC accumulator)：窗口关闭时返回累加器
+         * merge(ACC a, ACC b)：合并累加器,一般用不到
          */
 
         // 创建流处理执行环境
@@ -46,6 +57,8 @@ public class Flink03 {
 
         // 演示ProcessWindowFunction
 //        demo01(env);
+        // 演示AggregateFunction
+//        demo02(env);
 
         // 启动任务
         env.execute();
@@ -75,4 +88,38 @@ public class Flink03 {
                 .print();
     }
 
+    private static void demo02(StreamExecutionEnvironment env) {
+        // 需求：使用增量聚合函数,统计每个用户每5秒钟的pv
+        // 分析：按照用户分组,窗口大小5秒,pv对应增量聚合函数的累加器,所以是keyBy(user) + window(5s) + aggregate(add)
+        env.addSource(new Flink01.UserActionSource())
+                .keyBy(r -> r.user)
+                .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
+                .aggregate(new MyAggregateFunction())
+                .print();
+    }
+
+    // 自定义增量聚合函数
+    public static class MyAggregateFunction implements AggregateFunction<Flink01.Event, Integer, Integer> {
+        // 创建累加器
+        @Override
+        public Integer createAccumulator() {
+            return 0;
+        }
+        // 定义累加器规则,返回更新后的累加器
+        @Override
+        public Integer add(Flink01.Event value, Integer accumulator) {
+            System.out.println("当前进来的元素是：" + value);
+            return accumulator + 1;
+        }
+        // 窗口关闭时返回累加器
+        @Override
+        public Integer getResult(Integer accumulator) {
+            return accumulator;
+        }
+        // 合并累加器,一般用不到
+        @Override
+        public Integer merge(Integer a, Integer b) {
+            return null;
+        }
+    }
 }
