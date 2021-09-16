@@ -53,6 +53,7 @@ public class Flink03 {
          * 总结：
          * 1.开窗需求通常都是结合两者一起使用,keyBy() + window() + aggregate(AggregateFunction(), ProcessWindowFunction())
          * 窗口闭合时,增量聚合函数会将结果发送给全窗口函数,这样既不需要收集全部数据又能访问窗口信息,除非是求中位数这种必须收集所有数据的场景
+         * 2.window()是flink的语法糖,实际上底层就是KeyedProcessFunction + 定时器,开发时一般直接开窗就行,除非特别复杂的需求才会用到大招
          */
 
         // 创建流处理执行环境
@@ -65,6 +66,8 @@ public class Flink03 {
 //        demo02(env);
         // 演示两者结合使用
         demo03(env);
+        // 使用KeyedProcessFunction模拟窗口
+//        demo04(env);
 
         // 启动任务
         env.execute();
@@ -151,6 +154,65 @@ public class Flink03 {
             // 收集结果往下游发送
             out.collect("用户 " + key + " 在窗口 " + new Timestamp(start) + " ~ " + new Timestamp(end) + " 的pv是 " + cnt);
         }
+    }
+
+    private static void demo04(StreamExecutionEnvironment env) {
+        // 需求：不准开窗,只能使用KeyedProcessFunction,统计每个用户每5秒钟的pv
+        // 分析：按照用户分组,模拟一个5秒的窗口,由定时器来触发计算,pv值对应累加器,所以是keyBy(user) + MapState<窗口, 累加器>
+        env.addSource(new Flink01.UserActionSource())
+                .keyBy(r -> r.user)
+                .process(new KeyedProcessFunction<String, Flink01.Event, String>() {
+                    // 声明一个MapState,key是窗口开始时间,value是累加器
+                    private MapState<Long, Integer> mapState;
+                    // 定义窗口大小为5秒
+                    private final Long windowSize = 5000L;
+
+                    @Override
+                    public void open(Configuration parameters) throws Exception {
+                        super.open(parameters);
+                        // 实例化状态变量
+                        mapState = getRuntimeContext().getMapState(
+                                new MapStateDescriptor<>("windowStart-pv", Types.LONG, Types.INT));
+                    }
+
+                    @Override
+                    public void processElement(Flink01.Event value, Context ctx, Collector<String> out) throws Exception {
+                        System.out.println("当前进来的元素是：" + value);
+                        // 计算当前元素所属窗口区间
+                        long curTime = ctx.timerService().currentProcessingTime();
+                        long windowStart = curTime - curTime % windowSize;
+                        long windowEnd = windowStart + windowSize;
+
+                        // 判断累加器状态
+                        if (!mapState.contains(windowStart)) {
+                            // 窗口不存在
+                            mapState.put(windowStart, 1);
+                        } else {
+                            // 窗口已存在
+                            mapState.put(windowStart, mapState.get(windowStart) + 1);
+                        }
+
+                        // 注册窗口结束时间触发的定时器,因为窗口左闭右开所以要减去1ms
+                        // 每个key在每个时间戳只能注册一个定时器,后面的时间戳进来发现该窗口已经有定时器了就不会再注册
+                        ctx.timerService().registerProcessingTimeTimer(windowEnd - 1L);
+                    }
+
+                    @Override
+                    public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
+                        super.onTimer(timestamp, ctx, out);
+                        // 窗口区间
+                        long windowEnd = timestamp + 1L;
+                        long windowStart = windowEnd - windowSize;
+                        // 累加器的值
+                        int cnt = mapState.get(windowStart);
+                        // 收集结果
+                        out.collect("用户 " + ctx.getCurrentKey() + " 在窗口 " + new Timestamp(windowStart)
+                                + " ~ " + new Timestamp(windowEnd) + " 的pv是 " + cnt);
+                        // 窗口用完就清空,节约内存
+                        mapState.remove(windowStart);
+                    }
+                })
+                .print();
     }
 
 }
