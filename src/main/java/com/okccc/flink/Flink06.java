@@ -6,17 +6,16 @@ import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.cep.CEP;
-import org.apache.flink.cep.PatternSelectFunction;
-import org.apache.flink.cep.PatternStream;
+import org.apache.flink.cep.*;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -27,7 +26,7 @@ import java.util.Map;
 /**
  * Author: okccc
  * Date: 2021/9/20 下午12:46
- * Desc: CEP检测连续3次登录失败
+ * Desc: 5秒内连续3次登录失败、15分钟内未支付的超时订单
  */
 public class Flink06 {
     public static void main(String[] args) throws Exception {
@@ -53,7 +52,8 @@ public class Flink06 {
         env.setParallelism(1);
 
 //        demo01(env);
-        demo02(env);
+//        demo02(env);
+        demo03(env);
 
         // 启动任务
         env.execute();
@@ -61,7 +61,7 @@ public class Flink06 {
 
     private static void demo01(StreamExecutionEnvironment env) {
         // 使用CEP检测5秒内连续三次登录失败
-        KeyedStream<Event, String> keyedStream = env
+        SingleOutputStreamOperator<Event> inputStream = env
                 .fromElements(
                         Event.of("sky", "fail", 1000L),
                         Event.of("sky", "fail", 2000L),
@@ -78,8 +78,7 @@ public class Flink06 {
                                         return element.timestamp;
                                     }
                                 })
-                )
-                .keyBy(r -> r.user);
+                );
 
         // 定义匹配模板,类似正则表达式(主要就是写这玩意)
         Pattern<Event, Event> pattern = Pattern
@@ -93,10 +92,10 @@ public class Flink06 {
                 .times(3).consecutive()
                 .within(Time.seconds(5));
 
-        // 将模板应用到数据流
-        PatternStream<Event> patternStream = CEP.pattern(keyedStream, pattern);
+        // 将pattern应用到数据流
+        PatternStream<Event> patternStream = CEP.pattern(inputStream.keyBy(r -> r.user), pattern);
 
-        // 提取匹配事件
+        // select提取匹配事件
         patternStream
                 .select(new PatternSelectFunction<Event, String>() {
                     @Override
@@ -105,7 +104,7 @@ public class Flink06 {
                         Event first = iterator.next();
                         Event second = iterator.next();
                         Event third = iterator.next();
-                        return "用户：" + first.user + " 在时间：" + first.timestamp + "、" + second.timestamp + "、"
+                        return "用户 " + first.user + " 在时间 " + first.timestamp + "、" + second.timestamp + "、"
                                 + third.timestamp + " 连续三次登录失败！";
                     }
                 })
@@ -113,7 +112,7 @@ public class Flink06 {
     }
 
     private static void demo02(StreamExecutionEnvironment env) {
-        // 使用状态机检测5秒内连续三次登录失败
+        // 使用状态机检测连续三次登录失败
         env
                 .fromElements(
                         Event.of("sky", "fail", 1000L),
@@ -156,7 +155,7 @@ public class Flink06 {
 
                     @Override
                     public void processElement(Event value, Context ctx, Collector<String> out) throws Exception {
-                        System.out.println("当前进来元素是：" + value);
+                        System.out.println("当前进来元素是 " + value);
                         // 判断当前状态
                         if (currentState.value() == null) {
                             // 刚开始状态为空
@@ -170,7 +169,7 @@ public class Flink06 {
                         } else if (nextState.equals("FAIL")) {
                             // 登录失败,重置为S2,输出结果
                             currentState.update("S2");
-                            out.collect("用户：" + value.user + " 在：" + value.timestamp + " 已经连续三次登录失败！");
+                            out.collect("用户 " + value.user + " 在时间 " + value.timestamp + " 已经连续三次登录失败！");
                         } else {
                             // 还处于中间状态,正常跳转
                             currentState.update(nextState);
@@ -186,6 +185,77 @@ public class Flink06 {
                     }
                 })
                 .print();
+    }
+
+    private static void demo03(StreamExecutionEnvironment env) {
+        // 使用CEP检测订单超时
+        SingleOutputStreamOperator<Event> inputstream = env
+                .fromElements(
+                        Event.of("fly", "create", 1000L),
+                        Event.of("fly", "pay", 300 * 1000L),
+                        Event.of("sky", "create", 1000L),
+                        Event.of("sky", "pay", 901 * 1000L)
+                )
+                // 提前时间戳生成水位线
+                .assignTimestampsAndWatermarks(
+                        WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofSeconds(0))
+                                .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
+                                    @Override
+                                    public long extractTimestamp(Event element, long recordTimestamp) {
+                                        return element.timestamp;
+                                    }
+                                })
+                );
+
+        // 定义匹配模板
+        Pattern<Event, Event> pattern = Pattern
+                .<Event>begin("create")
+                .where(new SimpleCondition<Event>() {
+                    @Override
+                    public boolean filter(Event value) throws Exception {
+                        return value.eventType.equals("create");
+                    }
+                })
+                // 连续事件必须用next,其它的就用followedBy
+                .followedBy("pay")
+                .where(new SimpleCondition<Event>() {
+                    @Override
+                    public boolean filter(Event value) throws Exception {
+                        return value.eventType.equals("pay");
+                    }
+                })
+                .within(Time.minutes(15));
+
+        // 将pattern应用到数据流
+        PatternStream<Event> patternStream = CEP.pattern(inputstream.keyBy(r -> r.user), pattern);
+
+        // flatSelect提取匹配事件(需要侧输出流时使用)
+        SingleOutputStreamOperator<String> result = patternStream
+                .flatSelect(
+                        // 设置侧输出流
+                        new OutputTag<String>("timeout") {
+                        },
+                        // 超时事件：只有create没有pay
+                        new PatternFlatTimeoutFunction<Event, String>() {
+                            @Override
+                            public void timeout(Map<String, List<Event>> pattern, long timeoutTimestamp, Collector<String> out) throws Exception {
+                                Event create = pattern.get("create").get(0);
+                                out.collect("订单 " + create.user + " 已超时！当前时间为" + timeoutTimestamp);
+                            }
+                        },
+                        // 正常事件：有pay那肯定就有create
+                        new PatternFlatSelectFunction<Event, String>() {
+                            @Override
+                            public void flatSelect(Map<String, List<Event>> pattern, Collector<String> out) throws Exception {
+                                Event pay = pattern.get("pay").get(0);
+                                out.collect("订单 " + pay.user + " 已支付！");
+                            }
+                        }
+                );
+
+        result.print();
+        result.getSideOutput(new OutputTag<String>("timeout"){}).print();
+
     }
 
     // 自定义POJO类
