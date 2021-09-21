@@ -2,16 +2,24 @@ package com.okccc.flink;
 
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.state.ValueState;
+import org.apache.flink.api.common.state.ValueStateDescriptor;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternSelectFunction;
 import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.Collector;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +43,8 @@ public class Flink06 {
          * .notFollowedBy()  不想让某个事件在两个事件之间发生
          * .times()          定义事件次数
          * .within()         定义时间窗口
+         *
+         * 总结：Pattern是flink的语法糖,实际上底层就是KeyedProcessFunction+状态变量,一般直接使用cep就行,除非特别复杂的需求才用到状态机
          */
 
         // 创建流处理执行环境
@@ -42,7 +52,15 @@ public class Flink06 {
         // 插入水位线之前要保证流的并行度是1,不然就乱套了
         env.setParallelism(1);
 
-        // 获取数据源
+//        demo01(env);
+        demo02(env);
+
+        // 启动任务
+        env.execute();
+    }
+
+    private static void demo01(StreamExecutionEnvironment env) {
+        // 使用CEP检测5秒内连续三次登录失败
         KeyedStream<Event, String> keyedStream = env
                 .fromElements(
                         Event.of("sky", "fail", 1000L),
@@ -92,9 +110,82 @@ public class Flink06 {
                     }
                 })
                 .print();
+    }
 
-        // 启动任务
-        env.execute();
+    private static void demo02(StreamExecutionEnvironment env) {
+        // 使用状态机检测5秒内连续三次登录失败
+        env
+                .fromElements(
+                        Event.of("sky", "fail", 1000L),
+                        Event.of("sky", "fail", 2000L),
+                        Event.of("sky", "fail", 5000L),
+                        Event.of("fly", "success", 1000L),
+                        Event.of("sky", "fail", 4000L)
+                )
+                // 提前时间戳生成水位线
+                .assignTimestampsAndWatermarks(
+                        WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofSeconds(0))
+                                .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
+                                    @Override
+                                    public long extractTimestamp(Event element, long recordTimestamp) {
+                                        return element.timestamp;
+                                    }
+                                })
+                )
+                .keyBy(r -> r.user)
+                .process(new KeyedProcessFunction<String, Event, String>() {
+                    // 创建一个状态机,key是当前状态和接收到的事件类型,value是即将跳转到的状态
+                    private final HashMap<Tuple2<String, String>, String> stateMachine = new HashMap<>();
+                    // 当前状态
+                    private ValueState<String> currentState;
+
+                    @Override
+                    public void open(Configuration parameters) throws Exception {
+                        super.open(parameters);
+                        // 初始化状态变量
+                        currentState = getRuntimeContext().getState(
+                                new ValueStateDescriptor<>("current-state", Types.STRING));
+                        // 添加元素生成状态转移矩阵,一切业务逻辑都可以抽象成状态机,写大量if/else很难调试,状态机可以实现0bug
+                        stateMachine.put(Tuple2.of("INITIAL", "success"), "SUCCESS");
+                        stateMachine.put(Tuple2.of("INITIAL", "fail"), "S1");
+                        stateMachine.put(Tuple2.of("S1", "success"), "SUCCESS");
+                        stateMachine.put(Tuple2.of("S1", "fail"), "S2");
+                        stateMachine.put(Tuple2.of("S2", "success"), "SUCCESS");
+                        stateMachine.put(Tuple2.of("S2", "fail"), "FAIL");
+                    }
+
+                    @Override
+                    public void processElement(Event value, Context ctx, Collector<String> out) throws Exception {
+                        System.out.println("当前进来元素是：" + value);
+                        // 判断当前状态
+                        if (currentState.value() == null) {
+                            // 刚开始状态为空
+                            currentState.update("INITIAL");
+                        }
+                        // 计算即将要跳转的状态
+                        String nextState = stateMachine.get(Tuple2.of(currentState.value(), value.eventType));
+                        if (nextState.equals("SUCCESS")) {
+                            // 登录成功,清空状态变量
+                            currentState.clear();
+                        } else if (nextState.equals("FAIL")) {
+                            // 登录失败,重置为S2,输出结果
+                            currentState.update("S2");
+                            out.collect("用户：" + value.user + " 在：" + value.timestamp + " 已经连续三次登录失败！");
+                        } else {
+                            // 还处于中间状态,正常跳转
+                            currentState.update(nextState);
+                            // 注册定时器
+                            ctx.timerService().registerEventTimeTimer(ctx.timerService().currentWatermark() + 5000L);
+                        }
+                    }
+
+                    @Override
+                    public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
+                        super.onTimer(timestamp, ctx, out);
+
+                    }
+                })
+                .print();
     }
 
     // 自定义POJO类
@@ -115,6 +206,15 @@ public class Flink06 {
         // 模拟flink源码常用的of语法糖
         public static Event of(String user, String eventType, Long timestamp) {
             return new Event(user, eventType, timestamp);
+        }
+
+        @Override
+        public String toString() {
+            return "Event{" +
+                    "user='" + user + '\'' +
+                    ", eventType='" + eventType + '\'' +
+                    ", timestamp=" + timestamp +
+                    '}';
         }
     }
 }
