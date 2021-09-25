@@ -1,6 +1,7 @@
 package com.okccc.flink;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -12,11 +13,14 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.CoFlatMapFunction;
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction;
+import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+
+import java.sql.Timestamp;
 
 /**
  * Author: okccc
@@ -53,6 +57,9 @@ public class Flink05 {
         // 演示connect
 //        demo03(env);
         demo04(env);
+        // 演示join
+//        demo05(env);
+//        demo06(env);
 
         // 启动任务
         env.execute();
@@ -149,7 +156,6 @@ public class Flink05 {
     }
 
     private static void demo04(StreamExecutionEnvironment env) {
-        // 演示connect连接两条流
         DataStreamSource<Tuple2<String, Integer>> stream01 = env.fromElements(Tuple2.of("fly", 18), Tuple2.of("ted", 19));
         DataStreamSource<Tuple2<String, String>> stream02 = env.fromElements(Tuple2.of("fly", "orc"), Tuple2.of("ted", "ud"));
         stream01
@@ -198,6 +204,96 @@ public class Flink05 {
                     }
                 })
                 .print();
+    }
+
+    private static void demo05(StreamExecutionEnvironment env) {
+        // 演示基于间隔的join
+        SingleOutputStreamOperator<Event> stream01 = env
+                .fromElements(
+                        Event.of("fly", "create", 10 * 60 * 1000L),
+                        Event.of("fly", "pay", 20 * 60 * 1000L)
+                )
+                .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forMonotonousTimestamps()
+                        .withTimestampAssigner((element, recordTimestamp) -> element.timestamp));
+        SingleOutputStreamOperator<Event> stream02 = env
+                .fromElements(
+                        Event.of("fly", "view", 5 * 60 * 1000L),
+                        Event.of("fly", "view", 10 * 60 * 1000L),
+                        Event.of("fly", "view", 12 * 60 * 1000L),
+                        Event.of("fly", "view", 22 * 60 * 1000L)
+                )
+                .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forMonotonousTimestamps()
+                        .withTimestampAssigner((element, recordTimestamp) -> element.timestamp));
+
+        stream01
+                .keyBy(r -> r.userId)
+                // A流的每个元素和B流某个时间段的所有元素进行连接,join间隔是对称的,反过来写也是一样的
+                .intervalJoin(stream02.keyBy(r -> r.userId))
+                .between(Time.minutes(-10), Time.minutes(5))
+                .process(new ProcessJoinFunction<Event, Event, String>() {
+                    @Override
+                    public void processElement(Event left, Event right, Context ctx, Collector<String> out) throws Exception {
+                        out.collect(left + " <=> " + right);
+                    }
+                })
+                .print();
+    }
+
+    private static void demo06(StreamExecutionEnvironment env) {
+        // 演示基于窗口的join(很少用)
+        SingleOutputStreamOperator<Tuple2<String, Integer>> stream01 = env
+                .fromElements(Tuple2.of("a", 1), Tuple2.of("b", 1))
+                .assignTimestampsAndWatermarks(
+                        WatermarkStrategy.<Tuple2<String, Integer>>forMonotonousTimestamps()
+                                .withTimestampAssigner((element, recordTimestamp) -> element.f1 * 1000)
+                );
+        SingleOutputStreamOperator<Tuple2<String, Integer>> stream02 = env
+                .fromElements(Tuple2.of("a", 2), Tuple2.of("b", 2), Tuple2.of("b", 3))
+                .assignTimestampsAndWatermarks(
+                        WatermarkStrategy.<Tuple2<String, Integer>>forMonotonousTimestamps()
+                                .withTimestampAssigner((element, recordTimestamp) -> element.f1 * 1000)
+                );
+
+        stream01
+                .join(stream02)
+                .where(r -> r.f0)
+                .equalTo(r -> r.f0)
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .apply(new JoinFunction<Tuple2<String, Integer>, Tuple2<String, Integer>, String>() {
+                    @Override
+                    public String join(Tuple2<String, Integer> first, Tuple2<String, Integer> second) throws Exception {
+                        return first + " <=> " + second;
+                    }
+                })
+                .print();
+    }
+
+    public static class Event {
+        public String userId;
+        public String eventType;
+        public Long timestamp;
+
+        public Event() {
+        }
+
+        public Event(String userId, String eventType, Long timestamp) {
+            this.userId = userId;
+            this.eventType = eventType;
+            this.timestamp = timestamp;
+        }
+
+        public static Event of(String userId, String eventType, Long timestamp) {
+            return new Event(userId, eventType, timestamp);
+        }
+
+        @Override
+        public String toString() {
+            return "Event{" +
+                    "userId='" + userId + '\'' +
+                    ", eventType='" + eventType + '\'' +
+                    ", timestamp=" + new Timestamp(timestamp) +
+                    '}';
+        }
     }
 
 }
