@@ -43,8 +43,8 @@ Intellij IDEA - Preferences - Plugins - Scala
 Intellij IDEA - Preferences - Build - Build Tools - Maven
 # 导入maven工程时自动下载源码
 Intellij IDEA - Preferences - Build - Build Tools - Maven - Importing - Automatically download - Sources,documentation
-# 创建maven工程
-File - New - Project - Maven Next - GroupId/ArtifactId - Finish
+# 创建maven工程/模块,创建时不要选中当前工程,不然会变成父工程的子模块
+File - New - Project/Module - Maven Next - GroupId/ArtifactId - Finish
 # idea的View选项Tool Windows工具栏不显示Maven
 pom.xml - 右键 - add as maven project
 # idea修改代码不生效运行的还是之前的代码,必须mvn clean重新编译
