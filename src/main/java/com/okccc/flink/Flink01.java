@@ -52,6 +52,11 @@ public class Flink01 {
          * 算子的子任务subtask个数,流的并行度通常是所有算子的最大并行度,一个任务槽最多运行一个并行度,parallelism(动态) <= task slot(静态)
          * one-to-one：map/filter/flatMap基本转换算子,元素个数和顺序保持不变,相同并行度的one-to-one算子可以形成任务链,减少网络io
          * redistributing：keyBy键控流转换算子,基于hashCode按键分区,broadcast和rebalance随机重分区,类似spark的shuffle
+         *
+         * 状态管理
+         * 算子状态(Operator State)：可见范围是当前任务槽(范围太广,没什么用)
+         * 键控状态(Keyed State)：可见范围是当前key,包括ValueState/ListState/MapState/ReducingState & AggregatingState
+         * 状态后端：默认内存级别(MemoryStateBackend),负责本地状态的存储、访问和维护,以及将检查点checkpoint状态写入远程hdfs存储
          */
 
         // 创建流处理执行环境
@@ -60,15 +65,20 @@ public class Flink01 {
         // Source算子并行度设置为1可以保证数据有序
         // reduce这种聚合算子最好是能通过提交脚本-p动态扩展,所以代码一般不设置全局并行度,不然会覆盖动态指定,而具体的算子并行度则不会
         env.setParallelism(1);
+        // 设置状态后端,通常是在工程中统一配置
+//        env.setStateBackend(new FsStateBackend("file:///Users/okc/projects/anoob/input/cp", false));
+        // 10秒保存一次检查点,flink默认只保存最近一次检查点即可正确恢复程序
+//        env.enableCheckpointing(10 * 1000L);
 
-        // 获取数据源
+        // Source
         // 实时：监听socket数据流,先在终端开启`nc -lk 9999`
         DataStreamSource<String> inputStream = env.socketTextStream("localhost", 9999);
-        DataStreamSource<Event> inputStream02 = env.addSource(new MySource());
         // 离线：flink是流批统一的,即便是离线数据集也会当做流来处理,每来一条数据都会驱动一次整个程序运行并输出一个结果,ss批处理只会输出最终结果
-//        DataStreamSource<String> inputStream = env.fromElements("aaa bbb", "aaa bbb");
+        DataStreamSource<String> inputStream02 = env.fromElements("aaa bbb", "aaa bbb");
+        // 自定义数据源
+        DataStreamSource<Event> inputStream03 = env.addSource(new UserActionSource());
 
-        // 数据处理
+        // Transform
         // 针对流中每个输入元素：map输出1个元素,filter输出0/1个元素,flatMap输出0/1/N个元素,flatMap是map和filter的泛化实现
         SingleOutputStreamOperator<WordCount> mapStream = inputStream.flatMap(new FlatMapFunction<String, WordCount>() {
             // 输入类型：流中元素String,输出类型：WordCount对象
@@ -77,14 +87,14 @@ public class Flink01 {
                 String[] words = value.split(" ");
                 // 通过collect方法向下游发送数据
                 for (String word : words) {
-                    out.collect(new WordCount(word, 1L));
+                    out.collect(new WordCount(word, 1));
                 }
             }
         }).setParallelism(1);
 
         // 分组：shuffle操作
         // 按照key将数据分发到不同的逻辑分区,相同key一定在同一个任务槽(物理分区),所以会有数据倾斜问题,不同key有可能在同一个任务槽
-        // key可以是输入元素本身,也可以是任意的Integer/String/Boolean,比如以1或者true这样的常量值作为key表示将数据都划分到同一个分区
+        // key可以是输入元素本身,也可以是任意的Integer/String/Boolean,比如1或者true这样的常量值作为key表示将数据都划分到同一个分区
         KeyedStream<WordCount, String> keyedStream = mapStream.keyBy(new KeySelector<WordCount, String>() {
             // 输入类型：流中元素WordCount对象,输出类型：分组字段String
             @Override
@@ -105,38 +115,15 @@ public class Flink01 {
             }
         });
 
-        // 输出结果
+        // 输出到控制台
         result.print();
 
         // 启动程序
         env.execute("WordCount");
     }
 
-    // POJO类必须满足三个条件：公有类,公有字段,公有无参构造  类似scala的case class
-    public static class WordCount {
-        public String word;
-        public Long count;
-
-        public WordCount() {
-        }
-
-        public WordCount(String word, Long count) {
-            this.word = word;
-            this.count = count;
-        }
-
-        @Override
-        public String toString() {
-            // 可以自定义WordCount对象的输出格式
-            return "WordCount{" +
-                    "word='" + word + '\'' +
-                    ", count=" + count +
-                    '}';
-        }
-    }
-
     // 自定义数据源实现SourceFunction接口,数据源的泛型可以是Integer/Long/String/Double,也可以是POJO类
-    public static class MySource implements SourceFunction<Event> {
+    public static class UserActionSource implements SourceFunction<Event> {
         // 模拟数据
         private boolean running = true;
         private final String[] userArr = {"grubby", "moon", "sky", "fly", "ted"};
@@ -162,6 +149,48 @@ public class Flink01 {
         }
     }
 
+    public static class NumberSource implements SourceFunction<Integer> {
+        // 模拟数据
+        private boolean running = true;
+        private final Random random = new Random();
+
+        @Override
+        public void run(SourceContext<Integer> ctx) throws Exception {
+            while (running) {
+                ctx.collect(random.nextInt(10));
+                Thread.sleep(1000L);
+            }
+        }
+
+        @Override
+        public void cancel() {
+            running = false;
+        }
+    }
+
+    // POJO类必须满足三个条件：公有类,公有字段,公有无参构造  类似scala的case class
+    public static class WordCount {
+        public String word;
+        public Integer count;
+
+        public WordCount() {
+        }
+
+        public WordCount(String word, Integer count) {
+            this.word = word;
+            this.count = count;
+        }
+
+        @Override
+        public String toString() {
+            // 可以自定义WordCount对象的输出格式
+            return "WordCount{" +
+                    "word='" + word + '\'' +
+                    ", count=" + count +
+                    '}';
+        }
+    }
+
     // POJO类
     public static class Event {
         public String user;
@@ -177,9 +206,14 @@ public class Flink01 {
             this.timestamp = timestamp;
         }
 
+        // 模拟flink源码里大量使用的of语法糖,这样就不用每次都去写new()
+        public static Event of(String user, String url, Long timestamp) {
+            return new Event(user,url,timestamp);
+        }
+
         @Override
         public String toString() {
-            return "Event{" +
+            return "OrderEvent{" +
                     "user='" + user + '\'' +
                     ", url='" + url + '\'' +
                     // 转换Long类型的时间戳
