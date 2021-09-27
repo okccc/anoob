@@ -57,6 +57,13 @@ public class Flink01 {
          * 算子状态(Operator State)：可见范围是当前任务槽(范围太广,没什么用)
          * 键控状态(Keyed State)：可见范围是当前key,包括ValueState/ListState/MapState/ReducingState & AggregatingState
          * 状态后端：默认内存级别(MemoryStateBackend),负责本地状态的存储、访问和维护,以及将检查点checkpoint状态写入远程hdfs存储
+         *
+         * 一致性检查点
+         * flink故障恢复机制的核心就是应用状态的一致性检查点,就是当所有任务恰好处理完一个相同输入数据时(检查点屏障),会将当前状态做一份拷贝(快照)
+         * 故障恢复机制保证flink内部的精确一次性：1.重启应用 2.从checkpoint读取状态,将状态重置 3.开始消费并处理检查点到发生故障之间的所有数据
+         * 检查点的实现算法
+         * 同步实现：暂停应用,保存状态到检查点,再重新恢复应用(sparkStreaming)
+         * 异步实现：基于Chandy-Lamport的分布式异步快照算法,将检查点的保存和数据处理分开,不暂停应用(flink)
          */
 
         // 创建流处理执行环境
