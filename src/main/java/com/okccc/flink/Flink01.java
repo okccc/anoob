@@ -64,6 +64,14 @@ public class Flink01 {
          * 检查点的实现算法
          * 同步实现：暂停应用,保存状态到检查点,再重新恢复应用(sparkStreaming)
          * 异步实现：基于Chandy-Lamport的分布式异步快照算法,将检查点的保存和数据处理分开,不暂停应用(flink)
+         *
+         * 端到端的一致性
+         * Source端：kafka-consumer会保存偏移量,故障恢复时由连接器重置偏移量
+         * 流处理端：flink一致性检查点checkpoint,分布式异步快照算法,保证内部状态一致性
+         * Sink端：从故障恢复时数据不会重复写入外部系统,幂等写入或事务写入,kafka-producer采用两阶段提交
+         * 幂等写入：不管操作重复执行多少次结果都不会改变
+         * 两阶段提交：sink任务会将每个checkpoint接收到的数据添加到下游系统(mysql/kafka)的事务里,将这些数据写入外部sink系统但不提交,
+         * 当收到checkpoint完成的通知时才正式提交事务将数据写入,flink提供了TwoPhaseCommitSinkFunction接口
          */
 
         // 创建流处理执行环境
