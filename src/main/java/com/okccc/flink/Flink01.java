@@ -1,15 +1,21 @@
 package com.okccc.flink;
 
+import com.okccc.util.MysqlUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Random;
@@ -132,6 +138,8 @@ public class Flink01 {
 
         // 输出到控制台
         result.print();
+        // 输出到mysql
+        result.addSink(new MyJdbcSink());
 
         // 启动程序
         env.execute("WordCount");
@@ -236,4 +244,43 @@ public class Flink01 {
                     '}';
         }
     }
+
+    // 自定义SinkFunction
+    public static class MyJdbcSink extends RichSinkFunction<WordCount> {
+        // 声明连接和预编译
+        private Connection conn;
+        private PreparedStatement insertPS;
+        private PreparedStatement updatePS;
+
+        @Override
+        public void open(Configuration parameters) throws Exception {
+            super.open(parameters);
+            // 初始化
+            conn = MysqlUtil.getConnection();
+            insertPS = conn.prepareStatement("insert into wc values(?, ?)");
+            updatePS = conn.prepareStatement("update wc set count = ? where word = ?");
+        }
+
+        @Override
+        public void invoke(WordCount value, Context context) throws Exception {
+            // crud操作
+            updatePS.setInt(1, value.count);
+            updatePS.setString(2, value.word);
+            if (updatePS.executeUpdate() == 0) {
+                insertPS.setString(1, value.word);
+                insertPS.setInt(2, value.count);
+                insertPS.execute();
+            }
+        }
+
+        @Override
+        public void close() throws Exception {
+            // 关闭预编译和连接
+            super.close();
+            insertPS.close();
+            updatePS.close();
+            conn.close();
+        }
+    }
+
 }
