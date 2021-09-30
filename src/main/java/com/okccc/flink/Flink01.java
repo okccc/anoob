@@ -12,6 +12,11 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.connectors.redis.RedisSink;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDescription;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 import org.apache.flink.util.Collector;
 
 import java.sql.Connection;
@@ -140,6 +145,9 @@ public class Flink01 {
         result.print();
         // 输出到mysql
         result.addSink(new MyJdbcSink());
+        // 输出到redis
+        result.addSink(new RedisSink<>(
+                new FlinkJedisPoolConfig.Builder().setHost("localhost").build(), new MyRedisMapper()));
 
         // 启动程序
         env.execute("WordCount");
@@ -275,11 +283,27 @@ public class Flink01 {
 
         @Override
         public void close() throws Exception {
-            // 关闭预编译和连接
+            // 关闭预编译和连接信息
             super.close();
             insertPS.close();
             updatePS.close();
             conn.close();
+        }
+    }
+
+    // 自定义RedisMapper
+    public static class MyRedisMapper implements RedisMapper<WordCount> {
+        @Override
+        public RedisCommandDescription getCommandDescription() {
+            return new RedisCommandDescription(RedisCommand.HSET, "wc");
+        }
+        @Override
+        public String getKeyFromData(WordCount data) {
+            return data.word;
+        }
+        @Override
+        public String getValueFromData(WordCount data) {
+            return data.count.toString();
         }
     }
 
