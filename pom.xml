@@ -20,7 +20,7 @@
         <hive.version>1.2.1</hive.version>
         <flume.version>1.9.0</flume.version>
         <fastjson.version>1.2.76</fastjson.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <slf4j.version>1.7.30</slf4j.version>
         <lombok.version>1.18.20</lombok.version>
         <!-- maven编译源码时指定编码,不然会告警 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,6 +54,12 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <optional>true</optional>
+        </dependency>
+        <!-- 读取压缩文件 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.20</version>
         </dependency>
 
         <!-- hadoop相关 -->
@@ -99,11 +105,11 @@
             <artifactId>spark-streaming-kafka-0-10_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_2.12</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.spark</groupId>-->
+<!--            <artifactId>spark-hive_2.12</artifactId>-->
+<!--            <version>${spark.version}</version>-->
+<!--        </dependency>-->
 
         <!-- flume -->
         <dependency>
@@ -228,7 +234,6 @@
             <artifactId>flink-streaming-scala_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink1.11.0以后的版本flink-clients从flink-streaming-java中独立出来了,要单独添加依赖 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_2.12</artifactId>
@@ -240,34 +245,11 @@
             <artifactId>flink-connector-kafka_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink操作redis -->
-        <dependency>
-            <groupId>org.apache.bahir</groupId>
-            <artifactId>flink-connector-redis_2.11</artifactId>
-            <version>1.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.flink</groupId>
-                    <artifactId>flink-streaming-java_2.11</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!-- flink操作es -->
+        <!-- flink sql -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch6_2.12</artifactId>
+            <artifactId>flink-table-api-java-bridge_2.12</artifactId>
             <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <!-- flink操作表和sql -->
-        <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -284,6 +266,29 @@
             <artifactId>flink-table-common</artifactId>
             <version>${flink.version}</version>
         </dependency>
+        <!-- flink操作redis -->
+        <dependency>
+            <groupId>org.apache.bahir</groupId>
+            <artifactId>flink-connector-redis_2.11</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- flink操作es -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-elasticsearch6_2.12</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <!-- flink操作mysql -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+            <version>2.0.0</version>
+        </dependency>
         <!-- flink操作csv -->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -295,12 +300,6 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-json</artifactId>
             <version>${flink.version}</version>
-        </dependency>
-        <!-- 布隆过滤器 -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
         </dependency>
         <!-- flink专门处理复杂事件的包 -->
         <dependency>
