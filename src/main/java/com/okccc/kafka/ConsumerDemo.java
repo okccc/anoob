@@ -1,4 +1,4 @@
-package com.okccc.bigdata.kafka;
+package com.okccc.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
