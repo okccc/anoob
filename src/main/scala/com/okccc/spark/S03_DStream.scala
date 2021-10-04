@@ -86,6 +86,7 @@ object S03_DStream {
     //    println(ints2.mkString(","))  // List(1, 2, 3),List(4, 5, 6)
 
     // 创建spark配置信息
+    // 配置参数优先级：SparkConf(代码写死) > spark-submit --conf(动态指定) > spark-defaults.conf(集群配置)
     // receiver模式的DStream(socket/flume/kafka高阶)接收器要单独占一个线程,"local[n>1]",direct模式没有接收器"local"即可
     val conf: SparkConf = new SparkConf().setMaster("local[2]").setAppName("Spark Streaming")
     // 创建StreamingContext对象,指定批处理时间间隔(采集周期)
@@ -96,10 +97,10 @@ object S03_DStream {
     // DStream的有状态更新操作需要设置checkpoint将数据落盘保存内存中的状态,频率是 max(batchDuration, 10s)
     // checkpoint可以保存：1.conf配置信息 2.DStream处理逻辑 3.batch处理的位置信息,比如kafka的offset
     // 但是checkpoint存在小文件等问题,生产环境中通常使用redis去重和存储偏移量
-    ssc.checkpoint("ability/cp")
+    ssc.checkpoint("cp")
 
     // 创建DStream两种方式：接收输入数据流,从其他DStream转换
-    // 1).socket套接字, yum -y install nc 开启nc -lk 9999写入数据
+    // 1).socket套接字, yum -y install nc 在终端开启`nc -lk 9999`写入数据
     val socketDStream: ReceiverInputDStream[String] = ssc.socketTextStream("localhost", 9999)
     // 2).监控文件或目录,没有采用Receiver接收器模式,所以local[n]不需要设置n > 1
 //    val hdfsDStream: DStream[String] = ssc.textFileStream("hdfs://cdh1:9000/test")
@@ -122,6 +123,8 @@ object S03_DStream {
     val pairsDStream: DStream[(String, Int)] = wordsDStream.map((word: String) => (word, 1))
     // 1).DStream的无状态转化操作(点)：只计算当前时间批次内的数据,数据曲线平稳
     val wcDStream: DStream[(String, Int)] = pairsDStream.reduceByKey((x: Int, y: Int) => x + y)
+    // print算子：在driver节点打印DStream中生成的每个RDD的前10个元素(调试)
+    wcDStream.print()
     // 2).DStream的有状态转化操作(射线)：计算自数据采集以来的所有数据,是一个累加的过程,数据呈线性增长
     val stateDStream: DStream[(String, Int)] = pairsDStream.updateStateByKey((seq: Seq[Int], opt: Option[Int]) => {
       // seq是当前时间批次单词频度,opt是前面时间批次单词频度
@@ -149,70 +152,68 @@ object S03_DStream {
     wordDStream.print()
 
     // DStream的output操作
-    // print算子：在driver节点打印DStream中生成的每个RDD的前10个元素(调试)
-    wcDStream.print()
     // foreachRDD算子：将流中生成的每个RDD的数据推送到hdfs/数据库等外部系统(常用)
     // 1).写入hdfs文件
-    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
-      // 分区数过多会产生大量小文件,写入hdfs之前先合并分区只输出到一个文件,但是会增加批处理时长,视实际情况而定
-      rdd.repartition(1).saveAsTextFile("ability/output/socket")
-      rdd.saveAsHadoopFile(
-        "hdfs://cdh1:9000/user/spark/streaming/socket",
-        classOf[Text],
-        classOf[IntWritable],
-        classOf[TextOutputFormat[Text, IntWritable]],
-        classOf[org.apache.hadoop.io.compress.GzipCodec]
-      )
-    })
-    // 2).写入mysql数据库
-    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
-      // 遍历所有分区,foreachPartition算子是action操作,以下代码是在executor端执行
-      rdd.foreachPartition((ite: Iterator[(String, Int)]) => {
-        // 创建数据库连接对象,有几个分区就创建几次连接,在executor端初始化连接对象避免网络传输导致的序列化问题
-        val conn: Connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root")
-        // 遍历每个分区中的所有元素
-        try {
-          ite.foreach((t: (String, Int)) => {
-            // 关闭自动提交
-            conn.setAutoCommit(false)
-            // sql语句
-//            val sql1: String = "insert into wv values(?,?)"
-//            val sql2: String = "insert into wv values('"+t._1+"','"+t._2+"')"
-            val sql: String = "insert into wc values(" + t._1 + ", " + t._2 + ")"
-            // 创建PreparedStatement对象
-            val ps: PreparedStatement = conn.prepareStatement(sql)
-            // 执行更新操作
-            ps.executeUpdate()
-            ps.close()
-            // 手动提交
-            conn.commit()
-          })
-        } catch {
-          case e: Exception => println(e)
-            if (conn != null) {
-              // 如果异常就回滚
-              conn.rollback()
-            }
-        } finally {
-          // 关闭连接
-          conn.close()
-        }
-      })
-    })
-    // DStream中的RDD还可以转换成DataFrame通过SparkSql计算WordCount
-    wordsDStream.foreachRDD((rdd: RDD[String]) => {
-      // 创建SparkSession
-      val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
-      // 导入隐式转换
-      import spark.implicits._
-      // 将RDD转换成DataFrame
-      val df: DataFrame = rdd.toDF("word")
-      // a.通过DataFrame的api查询
-      //      df.groupBy("word").count().show()
-      // b.将DataFrame注册成视图通过sql查询
-      df.createOrReplaceTempView("words")
-      spark.sql("select word,count(*) from words group by word").show(false)
-    })
+//    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
+//      // 分区数过多会产生大量小文件,写入hdfs之前先合并分区只输出到一个文件,但是会增加批处理时长,视实际情况而定
+//      rdd.repartition(1).saveAsTextFile("ability/output/socket")
+//      rdd.saveAsHadoopFile(
+//        "hdfs://cdh1:9000/user/spark/streaming/socket",
+//        classOf[Text],
+//        classOf[IntWritable],
+//        classOf[TextOutputFormat[Text, IntWritable]],
+//        classOf[org.apache.hadoop.io.compress.GzipCodec]
+//      )
+//    })
+//    // 2).写入mysql数据库
+//    wcDStream.foreachRDD((rdd: RDD[(String, Int)]) => {
+//      // 遍历所有分区,foreachPartition算子是action操作,以下代码是在executor端执行
+//      rdd.foreachPartition((ite: Iterator[(String, Int)]) => {
+//        // 创建数据库连接对象,有几个分区就创建几次连接,在executor端初始化连接对象避免网络传输导致的序列化问题
+//        val conn: Connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root")
+//        // 遍历每个分区中的所有元素
+//        try {
+//          ite.foreach((t: (String, Int)) => {
+//            // 关闭自动提交
+//            conn.setAutoCommit(false)
+//            // sql语句
+////            val sql1: String = "insert into wv values(?,?)"
+////            val sql2: String = "insert into wv values('"+t._1+"','"+t._2+"')"
+//            val sql: String = "insert into wc values(" + t._1 + ", " + t._2 + ")"
+//            // 创建PreparedStatement对象
+//            val ps: PreparedStatement = conn.prepareStatement(sql)
+//            // 执行更新操作
+//            ps.executeUpdate()
+//            ps.close()
+//            // 手动提交
+//            conn.commit()
+//          })
+//        } catch {
+//          case e: Exception => println(e)
+//            if (conn != null) {
+//              // 如果异常就回滚
+//              conn.rollback()
+//            }
+//        } finally {
+//          // 关闭连接
+//          conn.close()
+//        }
+//      })
+//    })
+//    // DStream中的RDD还可以转换成DataFrame通过SparkSql计算WordCount
+//    wordsDStream.foreachRDD((rdd: RDD[String]) => {
+//      // 创建SparkSession
+//      val spark: SparkSession = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
+//      // 导入隐式转换
+//      import spark.implicits._
+//      // 将RDD转换成DataFrame
+//      val df: DataFrame = rdd.toDF("word")
+//      // a.通过DataFrame的api查询
+//      //      df.groupBy("word").count().show()
+//      // b.将DataFrame注册成视图通过sql查询
+//      df.createOrReplaceTempView("words")
+//      spark.sql("select word,count(*) from words group by word").show(false)
+//    })
 
     // 启动程序
     ssc.start()

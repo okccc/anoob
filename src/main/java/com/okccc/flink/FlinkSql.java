@@ -17,7 +17,7 @@ import java.sql.Timestamp;
  * Date: 2021/9/20 下午12:47
  * Desc: flink sql实现实时热门商品统计
  */
-public class Flink07 {
+public class FlinkSql {
     public static void main(String[] args) throws Exception {
         /*
          * flink sql像mysql和hive一样也对标准sql语法做了些扩展,可以实现简单需求,复杂的还得用DataStream提供的api

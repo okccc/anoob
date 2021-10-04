@@ -26,10 +26,10 @@ object MysqlUtil {
     // 1.加载配置文件
     val prop: Properties = PropertiesUtil.load("config.properties")
     // 2.获取连接信息
-    val driver: String = prop.getProperty("driver")
-    val url: String = prop.getProperty("url")
-    val user: String = prop.getProperty("user")
-    val password: String = prop.getProperty("password")
+    val driver: String = prop.getProperty("jdbc.driver")
+    val url: String = prop.getProperty("jdbc.url")
+    val user: String = prop.getProperty("jdbc.user")
+    val password: String = prop.getProperty("jdbc.password")
     // 3.通过反射加载驱动
     Class.forName(driver)
     // 4.建立连接

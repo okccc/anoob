@@ -4,6 +4,7 @@ import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -14,11 +15,14 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Properties;
 
 /**
  * Author: okccc
@@ -29,13 +33,19 @@ import java.util.Comparator;
  */
 public class HotItems {
     public static void main(String[] args) throws Exception {
-        // 创建流处理执行唤醒
+        // 创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // 设置并行度
         env.setParallelism(1);
 
         // 获取数据源
-        env.readTextFile("input/UserBehavior.csv")
+        Properties prop = new Properties();
+        prop.setProperty("bootstrap.servers", "localhost:9092");
+        prop.setProperty("group.id", "g01");
+        prop.setProperty("key.deserializer", StringDeserializer.class.toString());
+        prop.setProperty("value.deserializer", StringDeserializer.class.toString());
+        env
+                .addSource(new FlinkKafkaConsumer<>("nginx", new SimpleStringSchema(), prop))
                 // 将流数据封装成POJO类
                 .map(new MapFunction<String, UserBehavior>() {
                     @Override
@@ -61,7 +71,7 @@ public class HotItems {
                 )
                 // 按照商品分组
                 .keyBy(r -> r.itemId)
-                // 设置滑动窗口,窗口大小1小时,滑动间隔5分钟,一个EventTime可以属于窗口大小(1hour)/滑动间隔(5min)=12个窗口
+                // 有刷新频率就是滑动窗口,窗口大小1小时,滑动间隔5分钟,一个EventTime可以属于窗口大小(1hour)/滑动间隔(5min)=12个窗口
                 .window(SlidingEventTimeWindows.of(Time.hours(1), Time.minutes(5)))
                 // 统计每个商品在每个窗口的访问量
                 .aggregate(new CountAgg(), new WindowResult())

@@ -47,7 +47,7 @@ object DateUtil {
     new DateTime(new Date(timestamp)).toString(DATETIME_FORMATTER)
   }
 
-  // 字符串和日期
+  // 字符串和日期相互转换
   // "yyyy-MM-dd" -> Date
   def parseDate(date: String): Date = {
     DATE_FORMATTER.parseDateTime(date).toDate
@@ -94,6 +94,15 @@ object DateUtil {
   def getPlusDay(n: Int): String = {
     DateTime.now().plusDays(n).toString(DATE_FORMATTER)
   }
+  def getPlusWeek(n: Int): String = {
+    DateTime.now().plusWeeks(n).toString(DATE_FORMATTER)
+  }
+  def getPlusMonth(n: Int): String = {
+    DateTime.now().plusMonths(n).toString(DATE_FORMATTER)
+  }
+  def getPlusYear(n: Int): String = {
+    DateTime.now().plusYears(n).toString(DATE_FORMATTER)
+  }
   // 今天日期 - n天/周/月/年
   def getMinusDay(n: Int): String = {
     DateTime.now().minusDays(n).toString(DATE_FORMATTER)
@@ -118,7 +127,6 @@ object DateUtil {
   def getFirstDateOfYear: String = {
     DateTime.now().dayOfYear().withMinimumValue().toString(DATE_FORMATTER)
   }
-
   // 周/月/年的最后一天
   def getLastDateOfWeek: String = {
     DateTime.now().dayOfWeek().withMaximumValue().toString(DATE_FORMATTER)
@@ -139,6 +147,6 @@ object DateUtil {
 //    println(new Timestamp(1511658661000L))
 //    println(getCurrentTime)
 //    println(getWeekday)
-    println(parseUnixToDateTime(1626255615600L))
+    println(parseUnixToDateTime(1626674509660L))
   }
 }

@@ -68,17 +68,17 @@ object S02_DataFrame {
   def readFile(spark: SparkSession): Unit = {
     // a.Spark可以读写json/csv/parquet/orc/text/jdbc等多种格式数据源,返回DataFrame对象
     // 通用读数据方法：spark.read.format("").load(path),可简写如下格式
-    val df: DataFrame = spark.read.json("ability/input/people.json")
+    val df: DataFrame = spark.read.json("input/people.json")
     // 通过jdbc读取外部数据源数据
     val jdbcDF: DataFrame = spark.read
       .format("jdbc")
       .option("url", "jdbc:mysql://localhost:3306/test")
       .option("user", "root")
-      .option("password", "root")
+      .option("password", "root@123")
       .option("dbtable", "user")
       .load()
-    // 通用写数据方法：df.write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式 append/overwrite/ignore
-    df.write.mode(SaveMode.Append).option("header",value = true).csv("ability/output/people.csv")
+    // 通用写数据方法：df.write.format("").mode("").save(path),可简写如下格式,重复写数据会报错,需指定模式append/overwrite/ignore
+    df.write.mode(SaveMode.Append).option("header",value = true).csv("output/people.csv")
     df.write.mode(SaveMode.Overwrite).saveAsTable("people")  // overwrite模式下第一次写入数据会报错路径不存在
 //    df.write.mode(SaveMode.Append).insertInto("ods.people")
 
@@ -149,7 +149,7 @@ object S02_DataFrame {
     // b.从RDD转换
     // SparkSession包含Spark上下文对象
     val sc: SparkContext = spark.sparkContext
-    val rdd: RDD[Array[String]] = sc.textFile("ability/input/people.txt").map((row: String) => row.split(","))
+    val rdd: RDD[Array[String]] = sc.textFile("input/people.txt").map((row: String) => row.split(","))
     // 导入隐式转换,将Scala对象或RDD转换成DataFrame/Dataset
     import spark.implicits._
     // 1).先通过样例类反射schema,将RDD[Array]映射成RDD[Person],再隐式转换成DataFrame/Dataset

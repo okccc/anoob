@@ -31,11 +31,11 @@ object MockOfflineData {
     val sc: SparkContext = spark.sparkContext
 
     // 调用方法生成模拟数据
-    val userInfoData: Array[UserInfo] = this.mockUserInfo()
+    val userInfoData: Array[User] = this.mockUserInfo()
     val productInfoData: Array[ProductInfo] = this.mockProductInfo()
     val userVisitActionData: Array[UserVisitAction] = this.mockUserVisitActionData()
     // 将模拟数据转换为RDD
-    val userInfoRDD: RDD[UserInfo] = sc.makeRDD(userInfoData)
+    val userInfoRDD: RDD[User] = sc.makeRDD(userInfoData)
     val productInfoRDD: RDD[ProductInfo] = sc.makeRDD(productInfoData)
     val userVisitActionRDD: RDD[UserVisitAction] = sc.makeRDD(userVisitActionData)
 
@@ -56,9 +56,9 @@ object MockOfflineData {
   /**
    * 模拟用户数据
    */
-  private def mockUserInfo(): Array[UserInfo] = {
+  private def mockUserInfo(): Array[User] = {
     // 创建存放用户数据的可变数组
-    val rows: ArrayBuffer[UserInfo] = ArrayBuffer[UserInfo]()
+    val rows: ArrayBuffer[User] = ArrayBuffer[User]()
     // 创建随机数生成器对象
     val random: Random = new Random()
     // 用户性别
@@ -73,7 +73,7 @@ object MockOfflineData {
       val city: String = "city" + random.nextInt(100)
       val sex: String = sexes(random.nextInt(2))
       // 往数组添加数据
-      rows += UserInfo(userid, username, name, age, professional, city, sex)
+      rows += User(userid, username, name, age, professional, city, sex)
     }
     // 该数组是用来创建RDD,因为RDD是不可变的,所以要将ArrayBuffer转换成Array
     rows.toArray

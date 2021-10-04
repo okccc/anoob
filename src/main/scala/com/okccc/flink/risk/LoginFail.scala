@@ -1,18 +1,15 @@
 package com.okccc.flink.risk
 
+import java.time.Duration
 import java.util
-import java.util.Properties
 
-import org.apache.flink.api.common.serialization.SimpleStringSchema
+import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.cep.PatternSelectFunction
 import org.apache.flink.cep.scala.pattern.Pattern
 import org.apache.flink.cep.scala.{CEP, PatternStream}
-import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.scala.{DataStream, KeyedStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.windowing.time.Time
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 
 /**
  * Author: okccc
@@ -28,13 +25,8 @@ case class LoginFailWarning(userId: String, firstFail: Long, lastFail: Long, msg
 object LoginFail {
   def main(args: Array[String]): Unit = {
     /**
-     * com.okccc.flink-CEP(Complex Event Processing)专门针对连续多次这种复杂事件处理
-     * 目标：从有序的简单事件流中发现一些高阶特征
-     * 输入：一个或多个由简单事件构成的事件流
-     * 处理：识别简单事件之间的内在联系,多个符合一定规则的简单事件构成复杂事件
-     * 输出：满足规则的复杂事件
-     *
-     * 处理事件的规则叫Pattern,对输入流数据进行复杂事件规则定义,用来提取符合规则的事件序列
+     * flink-CEP(Complex Event Processing)专门处理连续多次这种复杂事件
+     * 处理事件的规则叫Pattern,定义输入流中的复杂事件,用来提取符合规则的事件序列,类似正则表达式
      * .begin()          模式序列必须以begin开始,且不能以notFollowedBy结束,not类型模式不能被optional修饰
      * .where()          筛选条件 .where().or().until()
      * .next()           严格近邻,事件必须严格按顺序出现  模式"a next b"  事件序列[a,c,b1,b2]不匹配
@@ -49,27 +41,22 @@ object LoginFail {
     // 1.创建流处理执行环境
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     env.setParallelism(1)
-    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
-    // 2.Source操作
-    val prop: Properties = new Properties()
-    prop.put("bootstrap.servers", "localhost:9092")
-    prop.put("group.id", "consumer-group")
-//    prop.put("key.deserializer", classOf[StringDeserializer])
-//    prop.put("value.deserializer", classOf[StringDeserializer])
-    val inputStream: DataStream[String] = env.addSource(new FlinkKafkaConsumer[String]("login", new SimpleStringSchema(), prop))
-
-    // 3.Transform操作
-    // 将流数据封装成样例类对象
-    val keyedStream: KeyedStream[LoginEvent, String] = inputStream
+    // 2.获取数据
+    val keyedStream: KeyedStream[LoginEvent, String] = env
+      .readTextFile("input/LoginLog.csv")
+      // 将流数据封装成样例类对象
       .map((data: String) => {
         val words: Array[String] = data.split(",")
         LoginEvent(words(0), words(1), words(2), words(3).toLong)
       })
       // 提取事件时间生成水位线
-      .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[LoginEvent](Time.seconds(1)) {
-        override def extractTimestamp(element: LoginEvent): Long = element.timestamp * 1000
-      })
+      .assignTimestampsAndWatermarks(
+        WatermarkStrategy.forBoundedOutOfOrderness[LoginEvent](Duration.ofSeconds(0))
+          .withTimestampAssigner(new SerializableTimestampAssigner[LoginEvent] {
+            override def extractTimestamp(element: LoginEvent, recordTimestamp: Long): Long = element.timestamp * 1000
+          })
+      )
       // 按照userId分组
       .keyBy((le: LoginEvent) => le.userId)
 
@@ -97,12 +84,7 @@ object LoginFail {
   }
 }
 
-/*
- * 自定义模式选择函数
- * interface PatternSelectFunction<IN, OUT>
- * IN: 输入元素类型,LoginEvent
- * OUT: 输出元素类型,LoginFailWarning
- */
+// 自定义模式选择函数
 class LoginSelect() extends PatternSelectFunction[LoginEvent, LoginFailWarning] {
   // 模式匹配到的事件序列保存在util.Map<String(事件名称), util.List(事件序列)>
   override def select(pattern: util.Map[String, util.List[LoginEvent]]): LoginFailWarning = {

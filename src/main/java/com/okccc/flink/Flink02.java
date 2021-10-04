@@ -19,25 +19,25 @@ import java.sql.Timestamp;
 public class Flink02 {
     public static void main(String[] args) throws Exception {
         /*
-         * 富函数
+         * RichFunction
          * DataStream API提供的转换算子都有其Rich版本,都继承自RichFunction接口,有额外三个方法
          * open()：生命周期初始化,比如创建数据库连接,在map/filter这些算子之前被调用
          * getRuntimeContext()：处理数据时可以获取函数执行的上下文信息,比如任务并行度、子任务名称和索引、访问分区状态等
          * close()：生命周期结束,比如关闭数据库连接、清空状态
          *
-         * 处理函数
+         * ProcessFunction
          * DataStream API提供的转换算子功能有限,更底层的处理函数可以访问时间戳、水位线、注册定时事件
          * flink提供了8个ProcessFunction,都继承自RichFunction接口,最常用的是操作KeyedStream的KeyedProcessFunction<K, I, O>
          * KeyedProcessFunction<K, I, O>
          * K：分组字段类型
          * I：输入元素类型
          * O：输出元素类型
-         * processElement(I value, Context ctx, Collector<O> out)：
+         * processElement(I value, Context ctx, Collector<O> out)
          * 每来一条数据都会驱动其运行,然后输出0/1/N个元素,ctx可以访问元素的时间戳和key、注册定时器、写侧输出流,out收集结果往下游发送
-         * onTimer(long timestamp, OnTimerContext ctx, Collector<O> out)：
+         * onTimer(long timestamp, OnTimerContext ctx, Collector<O> out)
          * 定时器timestamp会驱动该回调函数运行,ctx功能同上,out收集结果往下游发送
          *
-         * Context和OnTimerContext持有的TimerService对象拥有以下方法：
+         * Context和OnTimerContext持有的TimerService对象拥有以下方法
          * currentProcessingTime()返回当前处理时间
          * currentWatermark()返回当前水位线的时间戳
          * registerEventTimeTimer(long time)注册当前key的事件时间定时器,水位线>=定时器就会触发执行回调函数
@@ -52,14 +52,15 @@ public class Flink02 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        // 演示RichFunction
+        // 演示富函数
 //        demo01(env);
-        // 演示KeyedProcessFunction
+        // 演示定时器
 //        demo02(env);
-        demo03(env);
+        // 演示状态变量
+//        demo03(env);
 //        demo04(env);
 //        demo05(env);
-//        demo06(env);
+        demo06(env);
 
         // 启动任务
         env.execute();
@@ -116,7 +117,7 @@ public class Flink02 {
 
     private static void demo03(StreamExecutionEnvironment env) {
         // 需求：每隔5秒钟发送一次平均值
-        // 分析：每隔5秒就是要设置5秒后的定时器,后面学完窗口函数后可以直接开窗,平均值需要累加器,所以是keyBy() + process()
+        // 分析：每隔5秒就是要设置5秒后的定时器,平均值需要累加器,学完窗口函数后可以直接开窗
         env.addSource(new Flink01.NumberSource())
                 .keyBy(r -> true)
                 .process(new KeyedProcessFunction<Boolean, Integer, Double>() {
@@ -181,66 +182,6 @@ public class Flink02 {
     }
 
     private static void demo04(StreamExecutionEnvironment env) {
-        // 需求：类似温度传感器、股票价格这些连续3秒上升就报警(写的有问题！)
-        env.addSource(new Flink01.NumberSource())
-                .keyBy(r -> 1)
-                .process(new KeyedProcessFunction<Integer, Integer, String>() {
-                    // 声明一个ValueState作为最近一条数据
-                    private ValueState<Integer> lastData;
-                    // 声明一个ValueState作为定时器
-                    private ValueState<Long> timer;
-
-                    @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
-                        // 实例化状态变量
-                        lastData = getRuntimeContext().getState(new ValueStateDescriptor<>("lastInt", Types.INT));
-                        timer = getRuntimeContext().getState(new ValueStateDescriptor<>("timer", Types.LONG));
-                    }
-
-                    @Override
-                    public void processElement(Integer value, Context ctx, Collector<String> out) throws Exception {
-                        System.out.println("当前进来的数据是：" + value);
-                        // 上一条数据
-                        Integer prevData = null;
-                        if (lastData.value() != null) {
-                            // 最近一条数据已存在
-                            prevData = lastData.value();
-                        }
-                        lastData.update(value);
-
-                        Long ts = null;
-                        if (timer.value() != null) {
-                            // 定时器已存在
-                            ts = timer.value();
-                        }
-
-                        // 如果是第一条数据或者温度出现下降了
-                        if (prevData == null || value < prevData) {
-                            if (ts != null) {
-                                // 删除定时器并清空状态
-                                ctx.timerService().deleteProcessingTimeTimer(ts);
-                                timer.clear();
-                            }
-                            // 如果温度出现上升且定时器不存在
-                        } else if (value > prevData && ts == null) {
-                            // 注册1秒后的定时器并更新状态
-                            long oneSecLater = ctx.timerService().currentProcessingTime() + 3 * 1000L;
-                            ctx.timerService().registerProcessingTimeTimer(oneSecLater);
-                            timer.update(oneSecLater);
-                        }
-                    }
-
-                    @Override
-                    public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                        super.onTimer(timestamp, ctx, out);
-                        out.collect("连续上升3秒了！");
-                    }
-                })
-                .print();
-    }
-
-    private static void demo05(StreamExecutionEnvironment env) {
         // 需求：使用ListState求平均值
         env.addSource(new Flink01.NumberSource())
                 .keyBy(r -> 1)
@@ -276,12 +217,12 @@ public class Flink02 {
                 .print();
     }
 
-    private static void demo06(StreamExecutionEnvironment env) {
+    private static void demo05(StreamExecutionEnvironment env) {
         // 需求：使用MapState求网站pv平均值 = 总访问次数/用户数
         env.addSource(new Flink01.UserActionSource())
                 .keyBy(r -> 1)
                 .process(new KeyedProcessFunction<Integer, Flink01.Event, Double>() {
-                    // 声明一个MapState作为累加器,key是用户,value是累加器
+                    // 声明一个MapState作为累加器,key是用户,value是其访问次数
                     // hash表是最经典的数据结构,复杂度O(1),读写速度非常快,hbase/redis/es都用到,不知道怎么实现需求时就考虑一下HashMap
                     private MapState<String, Integer> mapState;
 
@@ -314,6 +255,41 @@ public class Flink02 {
                         }
                         // 收集结果往下游发送
                         out.collect((double)pvSum / userNum);
+                    }
+                })
+                .print();
+    }
+
+    private static void demo06(StreamExecutionEnvironment env) {
+        // 需求：类似温度传感器、股票价格这些连续三次上升就报警(写的有问题！)
+        env.addSource(new Flink01.NumberSource())
+                .keyBy(r -> 1)
+                .process(new KeyedProcessFunction<Integer, Integer, String>() {
+                    // 第一条数据
+                    private ValueState<Integer> firstData;
+                    // 第二条数据
+                    private ValueState<Integer> secondData;
+                    // 声明一个ValueState作为定时器
+                    private ValueState<Long> timer;
+
+                    @Override
+                    public void open(Configuration parameters) throws Exception {
+                        super.open(parameters);
+                        // 实例化状态变量
+                        firstData = getRuntimeContext().getState(new ValueStateDescriptor<>("first", Types.INT));
+                        secondData = getRuntimeContext().getState(new ValueStateDescriptor<>("second", Types.INT));
+                        timer = getRuntimeContext().getState(new ValueStateDescriptor<>("timer", Types.LONG));
+                    }
+
+                    @Override
+                    public void processElement(Integer value, Context ctx, Collector<String> out) throws Exception {
+                        System.out.println("当前进来的数据是：" + value);
+                    }
+
+                    @Override
+                    public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
+                        super.onTimer(timestamp, ctx, out);
+                        out.collect("连续三次上升了！");
                     }
                 })
                 .print();

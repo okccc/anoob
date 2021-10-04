@@ -36,8 +36,7 @@ public class Flink04 {
          * 水位线
          * 是一种延迟触发机制,watermark >= windowEnd就关闭窗口执行计算,表示流中时间戳小于等于水位线的数据都已到达,后面迟到的数据会丢弃
          * watermark = 进入flink的最大时间戳 - 最大延迟时间(手动设置) - 1ms(窗口左闭右开,[0,5s)其实是[0,4999ms])
-         * 水位线是由程序插入到流中的逻辑时钟,插入水位线之前要保证流的并行度是1,不然就乱套了
-         * 水位线是流中的一个特殊事件,会随着数据一起向下游流动
+         * 水位线是程序插入到流中的逻辑时钟,是一个特殊事件,会随着数据流向下流动,数据进来驱动processElement方法,水位线进来推高逻辑时钟
          * 水位线是事件时间世界的唯一标尺,窗口何时关闭、定时器何时触发
          * flink会在流的最开始插入一个负无穷大的水位线,在流的最末尾插入一个正无穷大的水位线,流结束了要闭合所有窗口触发计算
          *
@@ -58,6 +57,7 @@ public class Flink04 {
 
         // 创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // 插入水位线之前要保证流的并行度是1,不然就乱套了
         env.setParallelism(1);
 
         // 演示水位线
@@ -102,12 +102,9 @@ public class Flink04 {
                 .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
                     @Override
                     public void process(String key, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> out) throws Exception {
-                        // 窗口信息
                         long start = context.window().getStart();
                         long end = context.window().getEnd();
-                        // 迭代器信息
                         long cnt = elements.spliterator().getExactSizeIfKnown();
-                        // 收集结果
                         out.collect("元素 " + key + " 在窗口 " + new Timestamp(start) + " ~ " + new Timestamp(end) + " 出现次数是 " + cnt);
                     }
                 })
@@ -196,6 +193,7 @@ public class Flink04 {
     }
 
     private static void demo04(StreamExecutionEnvironment env) {
+        // 迟到事件处理方式
         SingleOutputStreamOperator<String> result = env.socketTextStream("localhost", 9999)
                 // 将`a,1`映射成Tuple<a, 1000>
                 .map(new MapFunction<String, Tuple2<String, Long>>() {

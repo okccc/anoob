@@ -3,7 +3,7 @@ package com.okccc.realtime.app
 import java.lang
 
 import com.alibaba.fastjson.{JSON, JSONObject}
-import com.okccc.realtime.common.{Configs, DauInfo}
+import com.okccc.realtime.common.DauInfo
 import com.okccc.util._
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
@@ -19,7 +19,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * Author: okccc
  * Date: 2020/12/13 11:24
- * Desc: DailyActiveUser日活统计
+ * Desc: 实时需求一日活统计DailyActiveUser
  */
 object DauApp {
 
@@ -31,7 +31,6 @@ object DauApp {
     }
 
     // 创建sparkConf对象
-    // 配置参数优先级：SparkConf(代码写死) > spark-submit(动态指定) > spark-defaults.conf(集群配置)
     val conf: SparkConf = new SparkConf()
       .setAppName("nginx-kafka-spark-es/redis")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
@@ -41,8 +40,8 @@ object DauApp {
     ssc.sparkContext.setLogLevel("warn")
 
     // 获取topic和groupId
-    val topics: String = Configs.get(Configs.NGINX_TOPICS)
-    val groupId: String = Configs.get(Configs.NGINX_GROUP_ID)
+    val topics: String = "nginx"
+    val groupId: String = "dau_group"
 
     // ============================== 功能1.SparkStreaming读取kafka数据 =============================
     // 1.从redis读取偏移量起始点
@@ -98,7 +97,7 @@ object DauApp {
     // 1.遍历分区,涉及到数据库连接的操作,通常是以分区为单位处理数据,减少数据库连接次数
     val filteredDStream: DStream[JSONObject] = jsonDStream.mapPartitions((iterator: Iterator[JSONObject]) => {
       // 2.获取jedis客户端,有几个分区就创建几次连接,提高性能
-      val jedis: Jedis = JedisUtil.getJedis
+      val jedis: Jedis = RedisUtil.getJedis
       // 3.遍历分区中的元素
       iterator.foreach((jsonObj: JSONObject) => {
         // 获取日期和设备号
