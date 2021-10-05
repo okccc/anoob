@@ -491,13 +491,13 @@ ERROR 1317 (70100): Query execution was interrupted
 ### binlog
 ```shell script
 # binlog以事件形式记录除select和show以外的所有DDL和DML语句,binlog日志是事务安全的,常用于mysql的主从复制和数据恢复
-# mysql主从复制原理：master主库将更新记录写进binary log中,slave从库拷贝binary log并重做其中的事件,canal就是伪装成slave
+# mysql主从复制原理：master主库将更新记录写进binary log中,slave从库拷贝binary log并重做其中的事件,canal和maxwell就是伪装成slave
 # 开启binlog
 [root@cdh1 ~]$ vim /etc/my.cnf && systemctl restart mysqld
 [mysqld]
 server_id=1        # 配置mysql replication时定义,不能和canal的slaveId重复
 log-bin=mysql-bin  # binlog日志前缀
-binlog_format=row  # binlog格式为row,只记录行记录变化后的结果,保证数据绝对一致性,canal的配置也只针对row格式才生效
+binlog_format=row  # binlog格式为row,只记录行记录变化后的结果,保证数据绝对一致性,canal和maxwell的配置也只针对row格式才生效
 # 查看是否开启
 mysql> show variables like '%log_bin%' \g  # sql语句结尾加上\g表示界定符相当于分号,加上\G表示将查询结果按列打印输出内容过多时使用
 +---------------------------------+---------------------------------------+
@@ -533,24 +533,25 @@ mysql> show binlog events [in 'mysql-bin.000002'] \G
 # 清空binlog
 mysql> reset master;
 # 先导入初始测试数据,不然canal启动时读不到数据
-mysql> create database canal charset=utf8;
+mysql> create database canal/maxwell charset=utf8;
 mysql> source mock.sql
 # 模拟更新数据
 [root@cdh1 ~]$ vim application.properties
 [root@cdh1 ~]$ java -jar mock-db.jar
-# 注意：要给canal账号读binlog的权限,主要是REPLICATION SLAVE
-mysql> grant all privileges on *.* to 'canal'@'%' identified by 'canal';
+# 注意：要给canal/maxwell账号读binlog的权限,主要是REPLICATION SLAVE
+mysql> grant all on *.* to 'canal'@'%' identified by 'canal';
+mysql> grant all on *.* to 'maxwell'@'%' identified by 'maxwell';
 ```
 
 ### canal
 ```shell script
-# 安装canal(单机版,canal很少宕机且单节点足够用所以不需要HA)
+# 安装(单机版,canal很少宕机且单节点足够用所以不需要HA)
 # 集群：多台服务器干相同的活(两个厨师炒菜) | 分布式：多台服务器干不同的活(一个厨师炒菜一个小二传菜) | 高可用：多台服务器一个干活别的备份
-[root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules/canal.deployer-1.1.4
+[root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules
 # canal服务端配置(修改后先stop再startup,不然bin/canal.pid一直存在,example/meta.dat会记录mysql-bin.xxx的position,所以不会丢数据)
 [root@cdh1 ~]$ vim conf/canal.properties
 canal.serverMode = kafka                 # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
-canal.mq.servers = cdh1:9092,cdh1:9092   # kafka地址,逗号分隔
+canal.mq.servers = cdh1:9092,cdh2:9092   # kafka地址,逗号分隔
 canal.destinations = example1,example2   # canal默认单实例,可以拷贝conf/example配置多实例,通常一个ip对应一个instance
 # instance实例配置(修改后直接生效不用重启)
 [root@cdh1 ~]$ vim conf/example/instance.properties
@@ -562,11 +563,11 @@ canal.instance.filter.regex=.*\\..*      # 白名单表 .*\\..* 所有表 | ods\
 canal.instance.filter.black.regex=       # 黑名单表
 canal.mq.topic=canal                     # 指定kafka的topic
 # binlog是有序的,如何保证写入mq的消息也有序？
-# 方案1.将消息都发往同一个partition,这样就不会因为网络延迟导致分区之间消息无序
-canal.mq.partition=0                     # binlog是有序的,为了保证写入mq的数据有序,默认只发送到kafka的一个partition,吞吐量低性能较差
+# 方案1.将消息发往一个partition,避免因为网络延迟导致分区间消息无序,但是吞吐量低性能较差(默认)
+canal.mq.partition=0
 # 方案2.将消息发往多个partition,按照主键进行hash保证相同id的更新记录进入同一个partition(推荐)
 canal.mq.partitionsNum=3
-canal.mq.partitionHash=.*\\..*:id        # 设置regex匹配到的表的hash字段 .*\\..*:id | .*\\..*:$pk$ | ${db}.${table}:${pk}
+canal.mq.partitionHash=.*\\..*:id  # 设置regex匹配到的表的hash字段 .*\\..*:id | .*\\..*:$pk$ | ${db}.${table}:${pk}
 # 启动canal
 [root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题canal
 # 关闭canal
@@ -578,7 +579,24 @@ canal.mq.partitionHash=.*\\..*:id        # 设置regex匹配到的表的hash字�
 "sqlType":{"id":-5,"user_name":12,"tel":12},"table":"z_user_info","ts":1608384750686,"type":"INSERT"}
 # 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
 mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
+```
 
-# SparkStreaming对topic分流
-# canal会追踪mysql所有数据库的变更,把所有变化数据都发到一个topic,为了方便下游处理,应该根据不同库的不同表对topic进行分流
+### maxwell
+```shell script
+# 安装(单机版)
+# 优点：1.能抓历史数据 2.数据格式更加轻量级,canal返回的是sql影响的多条记录组成的数组,maxwell返回的是一条一条记录,而且canal有很多冗余字段
+# 缺点：要修改/etc/my.cnf添加binlog-do-db=xxx并重启后才能生效,对数据库侵入性太强,慎用！
+[root@cdh1 ~]$ tar -xvf maxwell-1.25.0.tar.gz -C /User/okc/modules
+# 修改配置文件
+[root@cdh1 ~]$ vim config.properties
+producer=kafka
+kafka.bootstrap.servers=cdh1:9092,cdh2:9092                     # kafka地址,逗号分隔
+kafka_topic=ods_base_db                                         # 指定kafka的topic
+host=localhost                                                  # mysql地址
+user=maxwell                                                    # 连接mysql的用户名和密码
+password=maxwell
+client_id=maxwell_1                                             # 初始化时用到
+producer_partition_by=database|table|primary_key|random|column  # 按照指定规则hash将消息发往多个partition
+# 启动maxwell
+[root@cdh1 ~]$ bin/maxwell --config config.properties > maxwell.log 2>&1 &
 ```
