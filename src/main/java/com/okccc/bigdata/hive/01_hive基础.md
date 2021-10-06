@@ -246,6 +246,7 @@ hive> desc function extended parse_url;
 -- 视图
 hive> create view v01 as select * from debit_info where dt=regexp_replace(date_sub(current_date,1),'-','');
 -- 注册udf,将开发的udf打成jar包上传到HDFS指定目录,然后创建函数
+-- udf使用场景：1.加密、解密、解析IP地址这种系统函数处理不了的 2.专门处理json数据的fastjson这种方便通过程序debug定位问题的
 -- 专门处理json数据的udf地址：https://github.com/klout/brickhouse/tree/master/src/main/java/brickhouse/udf/json
 hive> create function url_decode as 'com.qbao.udf.decodeurl' using jar 'hdfs:///lib/decodeurl.jar';
 -- 删除函数
