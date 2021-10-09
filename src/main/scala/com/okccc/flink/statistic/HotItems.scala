@@ -28,9 +28,9 @@ import scala.collection.mutable.ListBuffer
  * Desc: 实时统计1小时内的热门商品排名,5分钟刷新一次
  */
 
-// 定义输入数据样例类
+// 输入数据样例类
 case class UserBehavior(userId: String, itemId: String, categoryId: String, behavior: String, timestamp: Long)
-// 定义输出结果样例类
+// 输出结果样例类
 case class ItemViewCount(itemId: String, windowStart: Long, windowEnd: Long, count: Int)
 
 object HotItems {
@@ -46,7 +46,8 @@ object HotItems {
     prop.put("group.id", "consumer-group")                       // 消费者组
     prop.put("key.deserializer", classOf[StringDeserializer])    // key反序列化器
     prop.put("value.deserializer", classOf[StringDeserializer])  // value反序列化器
-    env.addSource(new FlinkKafkaConsumer[String]("nginx", new SimpleStringSchema(), prop))
+    env
+      .addSource(new FlinkKafkaConsumer[String]("nginx", new SimpleStringSchema(), prop))
       // 将流数据封装成样例类
       .map((line: String) => {
         // 662708,1177318,4756105,pv,1511690399
@@ -68,11 +69,11 @@ object HotItems {
       // 开窗,有刷新频率就是滑动窗口
       .window(SlidingEventTimeWindows.of(Time.hours(1), Time.minutes(5)))
       // 统计每个商品在每个窗口的访问量
-      .aggregate(new CountAgg(), new WindowResult())
+      .aggregate(new ItemCountAgg(), new ItemWindowResult())
       // 按照窗口分组
       .keyBy((i: ItemViewCount) => i.windowStart)
       // 对窗口内所有商品的访问量排序取前3
-      .process(new TopN(3))
+      .process(new ItemTopN(3))
       .print("topN")
 
     // 启动任务
@@ -81,7 +82,7 @@ object HotItems {
 }
 
 // 自定义预聚合函数
-class CountAgg() extends AggregateFunction[UserBehavior, Int, Int] {
+class ItemCountAgg() extends AggregateFunction[UserBehavior, Int, Int] {
   override def createAccumulator(): Int = 0
   override def add(value: UserBehavior, accumulator: Int): Int = accumulator + 1
   override def getResult(accumulator: Int): Int = accumulator
@@ -97,21 +98,21 @@ class AvgAgg extends AggregateFunction[UserBehavior, (Long, Int), Long]{
 }
 
 // 自定义全窗口函数
-class WindowResult() extends ProcessWindowFunction[Int, ItemViewCount, String, TimeWindow] {
+class ItemWindowResult() extends ProcessWindowFunction[Int, ItemViewCount, String, TimeWindow] {
   override def process(key: String, context: Context, elements: Iterable[Int], out: Collector[ItemViewCount]): Unit = {
     out.collect(ItemViewCount(key, context.window.getStart, context.window.getEnd, elements.iterator.next()))
   }
 }
 
 // 自定义处理函数
-class TopN(n: Int) extends KeyedProcessFunction[Long, ItemViewCount, String] {
+class ItemTopN(n: Int) extends KeyedProcessFunction[Long, ItemViewCount, String] {
   // 因为涉及排序操作,所以要收集流中所有元素
   var listState: ListState[ItemViewCount] = _
   // flink状态是从运行时上下文中获取,在类中直接调用getRuntimeContext是不生效的,要等到类初始化时才能调用,所以获取状态的操作要放在open方法中
   // 或者采用懒加载模式,lazy只是先声明变量,等到使用这个状态时才会做赋值操作,processElement方法使用状态的时候肯定已经能getRuntimeContext了
   override def open(parameters: Configuration): Unit = {
     listState = getRuntimeContext.getListState(
-      new ListStateDescriptor[ItemViewCount]("itemViewCount-list", classOf[ItemViewCount])
+      new ListStateDescriptor[ItemViewCount]("listState", classOf[ItemViewCount])
     )
   }
 

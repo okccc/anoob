@@ -1,6 +1,5 @@
 package com.okccc.flink;
 
-import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.ValueState;
@@ -50,7 +49,7 @@ public class Flink04 {
          * 迟到事件
          * 当水位线越过windowEnd,窗口关闭开始计算然后销毁,再进来的事件就是迟到事件,其乱序程度超出了水位线的预计,有三种处理方式
          * 1.直接丢弃时间戳小于水位线的事件(默认)
-         * 2.allowLateness允许迟到事件更新已经计算完的窗口结果,当水位线越过windowEnd + allowLateness窗口才会销毁,窗口保存状态需要更多内存
+         * 2.allowLateness允许迟到事件更新已经累加完的窗口结果,当水位线越过windowEnd+allowLateness时窗口才会销毁,窗口保存状态需要更多内存
          * 3.sideOutPut是最后的兜底操作,所有过期的延迟数据在窗口彻底销毁后会被放到另一条流即侧输出流
          * 乱序数据三重保证：window - watermark - allowLateness - sideOutput
          */
@@ -75,24 +74,17 @@ public class Flink04 {
         // 需求：基于事件时间,统计每个元素每5秒钟出现次数
         env.socketTextStream("localhost",9999)
                 // 事件时间要求数据源必须包含时间戳,先将输入元素`a 1`映射成Tuple2(a, 1000L)
-                .map(new MapFunction<String, Tuple2<String, Long>>() {
-                    @Override
-                    public Tuple2<String, Long> map(String value) throws Exception {
-                        String[] words = value.split("\\s");
-                        return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000L);
-                    }
+                .map((MapFunction<String, Tuple2<String, Long>>) value -> {
+                    String[] words = value.split("\\s");
+                    return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000L);
                 })
+                .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 // flink默认每200ms机器时间插入一次水位线,比如每1秒来一条数据,那么两条数据之间会插入5次相同数值的水位线,因为计算公式是固定的
                 .assignTimestampsAndWatermarks(
                         // 设置乱序数据的最大延迟时间为5秒
                         WatermarkStrategy.<Tuple2<String, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(5))
                         // 从元素中提取时间戳(ms)作为事件时间
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple2<String, Long>>() {
-                            @Override
-                            public long extractTimestamp(Tuple2<String, Long> element, long recordTimestamp) {
-                                return element.f1;
-                            }
-                        })
+                        .withTimestampAssigner((element, recordTimestamp) -> element.f1)
                 )
                 // 分组
                 .keyBy(r -> r.f0)
@@ -122,12 +114,7 @@ public class Flink04 {
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<Tuple2<String, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(5))
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple2<String, Long>>() {
-                            @Override
-                            public long extractTimestamp(Tuple2<String, Long> element, long recordTimestamp) {
-                                return element.f1;
-                            }
-                        })
+                        .withTimestampAssigner((element, recordTimestamp) -> element.f1)
                 )
                 .keyBy(r -> r.f0)
                 // 输入`a 1` `a 12` `a 23`查看输出结果,可以深刻理解水位线
@@ -165,12 +152,7 @@ public class Flink04 {
                         // 假设进来的数据是有序的,最大延迟时间设置为0秒
                         WatermarkStrategy.<Tuple2<String, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(0))
                                 // 从元素中提取时间戳(ms)作为事件时间
-                                .withTimestampAssigner(new SerializableTimestampAssigner<Tuple2<String, Long>>() {
-                                    @Override
-                                    public long extractTimestamp(Tuple2<String, Long> element, long recordTimestamp) {
-                                        return element.f1;
-                                    }
-                                })
+                                .withTimestampAssigner((element, recordTimestamp) -> element.f1)
                 )
                 // 分组
                 .keyBy(r -> r.f0)
@@ -196,29 +178,21 @@ public class Flink04 {
         // 迟到事件处理方式
         SingleOutputStreamOperator<String> result = env.socketTextStream("localhost", 9999)
                 // 将`a,1`映射成Tuple<a, 1000>
-                .map(new MapFunction<String, Tuple2<String, Long>>() {
-                    @Override
-                    public Tuple2<String, Long> map(String value) throws Exception {
-                        String[] words = value.split(",");
-                        return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000);
-                    }
+                .map((MapFunction<String, Tuple2<String, Long>>) value -> {
+                    String[] words = value.split(",");
+                    return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000);
                 })
+                .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 // 提取时间戳生成水位线
                 .assignTimestampsAndWatermarks(
-                        // 乱序数据设置最大延迟时间
                         WatermarkStrategy.<Tuple2<String, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(5))
-                                .withTimestampAssigner(new SerializableTimestampAssigner<Tuple2<String, Long>>() {
-                                    @Override
-                                    public long extractTimestamp(Tuple2<String, Long> element, long recordTimestamp) {
-                                        return element.f1;
-                                    }
-                                })
+                                .withTimestampAssigner((element, recordTimestamp) -> element.f1)
                 )
                 // 分组
                 .keyBy(r -> r.f0)
                 // 开窗
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))
-                // 允许迟到事件,水位线越过windowEnd + allowLateness时窗口销毁
+                // 允许迟到事件,水位线越过windowEnd + allowLateness时窗口才销毁
                 .allowedLateness(Time.seconds(5))
                 // 设置侧输出流,此处必须写成{}匿名类的形式,不然报错：The types of the interface org.apache.flink.util.OutputTag could not be inferred
                 .sideOutputLateData(new OutputTag<Tuple2<String, Long>>("late"){})
