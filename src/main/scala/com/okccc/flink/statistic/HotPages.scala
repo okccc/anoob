@@ -2,230 +2,174 @@ package com.okccc.flink.statistic
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.util
-import java.util.Properties
 
+import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.functions.AggregateFunction
-import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.common.state.{MapState, MapStateDescriptor}
-import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.scala._
-import org.apache.flink.streaming.api.scala.function.WindowFunction
+import org.apache.flink.streaming.api.scala.function.ProcessWindowFunction
+import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 import org.apache.flink.util.Collector
-import org.apache.kafka.common.serialization.StringDeserializer
 
 import scala.collection.mutable.ListBuffer
 
 /**
  * Author: okccc
  * Date: 2021/3/4 2:46 下午
- * Desc: 实时统计10min内的热门页面,5s刷新一次
+ * Desc: 实时统计10分钟内的热门页面排名,5秒钟刷新一次(乱序数据)
  */
 
-// 定义输入数据的样例类
+// 输入数据样例类
 case class LogEvent(ip: String, userId: String, timestamp: Long, method: String, url: String)
-// 定义输出窗口聚合结果的样例类
-case class HotPageCount(url: String, windowEnd: Long, count: Int)
+// 输出结果样例类
+case class PageViewCount(url: String, windowEnd: Long, count: Int)
 
 object HotPages {
   def main(args: Array[String]): Unit = {
-    // 1.创建流处理执行环境
+    // 创建流处理执行环境
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     // 设置并行度
-//    env.setParallelism(1)
-    // 设置时间语义,查看源码发现水位线生成间隔ProcessingTime默认是0,其它默认是200
-    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    env.setParallelism(1)
     // 可以自定义水位线生成间隔
-    env.getConfig.setAutoWatermarkInterval(100)
+//    env.getConfig.setAutoWatermarkInterval(100)
     // 设置侧输出流
-    val outputTag: OutputTag[LogEvent] = new OutputTag[LogEvent]("late-data")
+    val outputTag: OutputTag[LogEvent] = new OutputTag[LogEvent]("output")
 
-    // 2.Source操作
-    val prop: Properties = new Properties()
-    prop.put("bootstrap.servers", "localhost:9092")
-    prop.put("group.id", "consumer-group")
-    prop.put("key.deserializer", classOf[StringDeserializer])
-    prop.put("value.deserializer", classOf[StringDeserializer])
-    val inputStream: DataStream[String] = env.addSource(new FlinkKafkaConsumer[String]("pages", new SimpleStringSchema(), prop))
-
-    // 3.Transform操作
-    // 1).将流数据封装成样例类对象,并提取事件时间生成watermark
-    val dataStream: DataStream[LogEvent] = inputStream
+    // 获取数据源
+    val result: DataStream[String] = env
+      // 83.149.9.216 - - 17/05/2015:10:05:49 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:50 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:46 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:51 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:31 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:52 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:31 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:53 +0000 GET /presentations
+      // 83.149.9.216 - - 17/05/2015:10:05:49 +0000 GET /present
+      // 83.149.9.216 - - 17/05/2015:10:05:54 +0000 GET /presentations
+      // socket方便调试代码,没问题再替换成kafka
+//      .socketTextStream("localhost", 9999)
+      .readTextFile("input/apache.log")
+      // 将流数据封装成样例类
       .map((line: String) => {
-        // 83.149.9.216 - - 17/05/2015:10:05:03 +0000 GET /presentations/logstash-2013/images/kibana-search.png
-        val words: Array[String] = line.split(" ")
+        // 83.149.9.216 - - 17/05/2015:10:05:03 +0000 GET /presentations/kibana-search.png
+        val arr: Array[String] = line.split(" ")
         // 将日志中的时间字符串转换成Long类型的时间戳
-        val simpleDateFormat: SimpleDateFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss")
-        val ts: Long = simpleDateFormat.parse(words(3)).getTime
-        LogEvent(words(0), words(1), ts, words(5), words(6))
+        val sdf: SimpleDateFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss")
+        val ts: Long = sdf.parse(arr(3)).getTime
+        // LogEvent(93.114.45.13,-,1431828317000,GET,/images/jordan-80.png)
+        LogEvent(arr(0), arr(1), ts, arr(5), arr(6))
       })
-      // 观察数据乱序程度发现最大延迟接近1min,但是整体上符合正态分布大部分延迟几秒,如果设置maxOutOfOrderness=1min那么触发窗口计算就要等很久
-      // 而且窗口的滑动间隔才5s但是延迟却设置了1min显然不合理,实际上watermark应该小一些,然后窗口状态保存久一些,剩下还没处理的数据放到侧输出流
-      .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[LogEvent](Time.seconds(1)) {
-        // 每来一条数据都抽取其时间戳
-        override def extractTimestamp(element: LogEvent): Long = element.timestamp
-      })
-    // 每来一条数据都会输出
-    dataStream.print("data")  // data> LogEvent(93.114.45.13,-,1431828317000,GET,/images/jordan-80.png)
-
-    // 2).将DataStream[LogEvent]按照url分组聚合
-    val filterStream: DataStream[LogEvent] = dataStream.filter((logEvent: LogEvent) => logEvent.method == "GET")
-    val keyedByUrlStream: KeyedStream[LogEvent, String] = filterStream.keyBy((logEvent: LogEvent) => logEvent.url)
-
-    /*
-     * 窗口分配器: 定义窗口,KeyedStream对应timeWindow方法(推荐),non-KeyedStream对应timeWindowAll方法
-     * class WindowedStream[T, K, W <: Window]
-     * T: 输入元素类型,LogEvent
-     * K: 分组字段类型,url字符串
-     * W: 窗口分配器分配的窗口类型,一般都是时间窗口,W <: Window表示上边界,即W必须是Window类型或其子类
-     */
-    val windowStream: WindowedStream[LogEvent, String, TimeWindow] = keyedByUrlStream
-      // 分配窗口tumbling window/sliding window,有刷新频率的就是滑动窗口,一个EventTime可以属于窗口大小(10min)/滑动间隔(5s)=120个窗口
-      .timeWindow(Time.minutes(10), Time.seconds(5))
-      // 设置允许延迟时长：保持窗口状态1min,只要是在这1分钟时间内进来的迟到数据都会叠加在原先的统计结果上
+      .filter((l: LogEvent) => l.method == "GET")
+      // 提取时间戳生成水位线,观察数据乱序程度发现最大延迟接近1min,但整体上符合正态分布大部分延迟都在几秒钟
+      .assignTimestampsAndWatermarks(
+        // 为了保证实时性通常将watermark设置小一些,然后allowedLateness设置大一些
+        WatermarkStrategy.forBoundedOutOfOrderness[LogEvent](Duration.ofSeconds(1))
+          .withTimestampAssigner(new SerializableTimestampAssigner[LogEvent] {
+            override def extractTimestamp(element: LogEvent, recordTimestamp: Long): Long =
+              element.timestamp
+          })
+      )
+      // 按照页面分组
+      .keyBy((l: LogEvent) => l.url)
+      // 开窗,有刷新频率的就是滑动窗口,一个EventTime可以属于窗口大小(10min)/滑动间隔(5s)=120个窗口
+      .window(SlidingEventTimeWindows.of(Time.minutes(10), Time.seconds(5)))
+      // 允许迟到事件,水位线越过windowEnd + allowLateness时窗口才销毁
       .allowedLateness(Time.seconds(60))
-      // 开启侧输出流
+      // 设置侧输出流
       .sideOutputLateData(outputTag)
+      // 统计每个页面在每个窗口的访问量
+      .aggregate(new PageCountAgg(), new PageWindowResult())
+      // 再按照窗口分组
+      .keyBy((p: PageViewCount) => p.windowEnd)
+      // 对窗口内所有页面的访问量排序取前3
+      .process(new PageTopN(3))
 
-    /*
-     * 窗口函数: 窗口关闭后的聚合操作
-     * flink函数式编程提供了所有udf函数(实现方式为接口或抽象类),MapFunction/AggregateFunction/WindowFunction/ProcessFunction...
-     * AggregateFunction是一个底层通用函数,直接聚合(url, count)无法判断属于哪个窗口,需结合WindowFunction使用,先来一条处理一条做增量聚合
-     * 等窗口关闭时再调用窗口函数,拿到预聚合状态并添加窗口信息将其封装成HotPageCount(url, windowEnd, count)得到每个页面在每个窗口的点击量
-     */
-    val aggStream: DataStream[HotPageCount] = windowStream.aggregate(new HotPageCountAgg(), new HotPageCountWindow())
-    // 有窗口关闭时就会生成聚合结果
-    aggStream.print("agg")
-    // 当EventTime所属的所有窗口都已经关闭时就会进入侧输出流,比如事件时间10:25:51属于[10:15:55, 10:25:55) ~ [10:25:50, 10:35:50)
-    // 之间的所有窗口,当最后一个窗口[10:25:50, 10:35:50)也关闭,等到下一个窗口[10:25:55, 10:35:55)时它就再也进不来了,只能放到侧输出流
-    aggStream.getSideOutput(outputTag).print("late-data")
+    result.print("topN")
+    result.getSideOutput(outputTag).print("output")
 
-    // 3).将DataStream[HotPageCount]按照windowEnd分组聚合
-    val keyedByWindowEndStream: KeyedStream[HotPageCount, Long] = aggStream.keyBy((p: HotPageCount) => p.windowEnd)
-    // map/filter/window这些普通转换算子无法做状态管理和定时器操作,因DataStream API提供了最底层的low-level算子process
-    // 属于终极大招,可以构建基于事件驱动的应用,自定义所有功能,最常用的是KeyedProcessFunction,用来操作KeyedStream
-    val resultStream: DataStream[String] = keyedByWindowEndStream.process(new TopNHotPages(3))
-
-    // 4.Sink操作
-    resultStream.print("topN")
-    // 5.启动任务,流处理有头没尾源源不断,开启后一直监听直到手动关闭
-    env.execute("hot pages")
+    // 启动任务,流处理有头没尾源源不断,开启后一直监听直到手动关闭
+    env.execute()
   }
 }
 
-/*
- * 自定义预聚合函数
- * interface AggregateFunction<IN, ACC, OUT>
- * IN:  输入待聚合元素的类型,LogEvent
- * ACC: 累加器中间聚合状态的类型,Int
- * OUT: 输出聚合结果的类型,Int
- */
-class HotPageCountAgg() extends AggregateFunction[LogEvent, Int, Int] {
+// 自定义预聚合函数
+class PageCountAgg extends AggregateFunction[LogEvent, Int, Int] {
   override def createAccumulator(): Int = 0
-  // 聚合状态就是当前页面的count值,来一条数据调用一次add方法,count值+1
   override def add(value: LogEvent, accumulator: Int): Int = accumulator + 1
   override def getResult(accumulator: Int): Int = accumulator
-  override def merge(a: Int, b: Int): Int = a + b
+  override def merge(a: Int, b: Int): Int = 0
 }
 
-/*
- * 自定义全窗口函数
- * trait WindowFunction[IN, OUT, KEY, W <: Window]
- * IN:  输入元素类型,就是前面的预聚合结果,Int
- * OUT: 输出元素类型,是窗口聚合结果的样例类HotPageCount(url, windowEnd, count)
- * KEY: 分组字段类型,url字符串
- * W:   窗口分配器分配的窗口类型,一般都是时间窗口,W <: Window表示上边界,即W必须是Window类型或其子类
- */
-class HotPageCountWindow() extends WindowFunction[Int, HotPageCount, String, TimeWindow] {
-  override def apply(key: String, window: TimeWindow, input: Iterable[Int], out: Collector[HotPageCount]): Unit = {
-    // 获取页面url、窗口结束时间、累加值
-    val url: String = key
-    val windowEnd: Long = window.getEnd
-    val count: Int = input.iterator.next()  // 或者直接取迭代器的第一个值input.head
-    // 收集结果封装成样例类对象
-    out.collect(HotPageCount(url, windowEnd, count))
+// 自定义全窗口函数
+class PageWindowResult extends ProcessWindowFunction[Int, PageViewCount, String, TimeWindow] {
+  override def process(key: String, context: Context, elements: Iterable[Int], out: Collector[PageViewCount]): Unit = {
+    out.collect(PageViewCount(key, context.window.getEnd, elements.iterator.next()))
   }
 }
 
-/*
- * 自定义处理函数
- * abstract class KeyedProcessFunction<K, I, O>
- * K: 分组字段类型,windowEnd
- * I: 输入元素类型,HotPageCount
- * O: 输出元素类型,这里拼接成字符串展示
- */
-class TopNHotPages(i: Int) extends KeyedProcessFunction[Long, HotPageCount, String] {
-  // 先定义状态：每个窗口都应该有一个状态来保存当前窗口内所有页面对应的count值
-  // 由于迟到数据的存在,每来一条迟到数据都会有对应等待窗口的HotPageCount更新,如果某个窗口连续来几条相同url的迟到数据,就会生成多个相同url的
-  // HotPageCount进入process方法的定时器排序,ListState状态无法做到键相同值覆盖,会导致同一个url被多次排序,针对迟到数据场景的状态管理应该
-  // 使用键值对存储,先判断进来的迟到数据的url是否已存在,存在就更新不存在就新增,MapState接口体系包含put/get/remove/entries/clear等方法
-  lazy val hotPageCountMapState: MapState[String, Int] = super.getRuntimeContext
-    .getMapState(new MapStateDescriptor[String, Int]("HotPageCount-map", classOf[String], classOf[Int]))
+// 自定义处理函数
+class PageTopN(n: Int) extends KeyedProcessFunction[Long, PageViewCount, String] {
+  // 由于迟到数据的存在,窗口的统计结果会不断更新,而ListState状态无法判断进来的url是否存在,这就可能导致多个相同url的PageViewCount
+  // 进入process方法的定时器排序,所以迟到数据场景下应该使用MapState管理状态,当迟到数据进来时先判断url是否存在,存在就更新不存在就添加
+  var mapState: MapState[String, Int] = _
 
-  /**
-   * 处理每个进来的HotPageCount
-   * @param value 输入元素类型,HotPageCount
-   * @param ctx KeyedProcessFunction的内部类Context,提供了流的一些上下文信息,可以获取当前key和时间戳、注册定时服务、侧输出流等
-   * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素,processElement方法一般用不到out
-   */
-  override def processElement(value: HotPageCount, ctx: KeyedProcessFunction[Long, HotPageCount, String]#Context, out: Collector[String]): Unit = {
+  override def open(parameters: Configuration): Unit = {
+    mapState = getRuntimeContext.getMapState(
+      new MapStateDescriptor[String, Int]("mapState", classOf[String], classOf[Int])
+    )
+  }
+
+  override def processElement(value: PageViewCount, ctx: KeyedProcessFunction[Long, PageViewCount, String]#Context, out: Collector[String]): Unit = {
     // 添加或更新状态
-    hotPageCountMapState.put(value.url, value.count)
-    // 每来一个HotPageCount就会注册一个定时器,水位线传递机制是更新了才会往下游传递,不然还是之前的水位线,下游收不到新的水位线就不会触发定时器
-    // 注册一个windowEnd + 1(毫秒)触发的定时器,比如到达09:30:50这个watermark了再延迟1毫秒就执行定时器
+    mapState.put(value.url, value.count)
+    // 注册一个windowEnd + 1(ms)触发的定时器,比如[0,4999]窗口加1ms就是[0,5000],当watermark>=5000时就触发
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 1)
-    // 注册一个windowEnd + 1(分钟)触发的定时器,此时窗口等待1分钟后已经彻底关闭,不会再有聚合结果输出,这时候就可以清空状态了
+    // 注册一个windowEnd + 1(min)触发的定时器,此时窗口等待1分钟后已经彻底关闭,不会再有迟到数据进来,这时候就可以清空状态了
     ctx.timerService().registerEventTimeTimer(value.windowEnd + 60000)
   }
 
-  /**
-   * 触发定时器时调用
-   * @param timestamp processElement方法中设定的触发定时器的时间戳
-   * @param ctx KeyedProcessFunction的内部类OnTimerContext,提供了流的一些上下文信息,包括当前定时器的时间域和key
-   * @param out Collector接口提供了collect方法收集结果,可以输出0个或多个元素,onTimer方法会用到out
-   */
-  override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Long, HotPageCount, String]#OnTimerContext, out: Collector[String]): Unit = {
-    // 当有多个定时器时可以先根据触发时间判断是哪个定时器,这里触发定时器的key就是HotPageCount对象的windowEnd
+  override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Long, PageViewCount, String]#OnTimerContext, out: Collector[String]): Unit = {
+    // 当有多个定时器时可以先根据触发时间判断是哪个定时器,这里触发定时器的key就是PageViewCount对象的windowEnd
     if (timestamp == ctx.getCurrentKey + 60000) {
-      // 如果已经是窗口关闭又等待了1min之后,就不会再有迟到数据进来了,也就不会再执行下面属于windowEnd + 1定时器的操作,此时可以清空状态结束程序
-      hotPageCountMapState.clear()
+      // 后面的定时器触发时,前面的定时器肯定已经触发执行完了,此时可以清空状态结束程序
+      mapState.clear()
       return
     }
 
     // MapState本身没有排序功能,需额外定义ListBuffer存放MapState中的数据
-    val urlCounts: ListBuffer[(String, Int)] = new ListBuffer[(String, Int)]
+    val urlcounts: ListBuffer[(String, Int)] = new ListBuffer[(String, Int)]
     // 获取MapState的迭代器
-    val iterator: util.Iterator[util.Map.Entry[String, Int]] = hotPageCountMapState.entries().iterator()
+    val iterator: util.Iterator[util.Map.Entry[String, Int]] = mapState.entries().iterator()
     // 遍历迭代器
     while (iterator.hasNext) {
       // 将MapState数据添加到ListBuffer
       val entry: util.Map.Entry[String, Int] = iterator.next()
-      urlCounts += ((entry.getKey, entry.getValue))
+      urlcounts += ((entry.getKey, entry.getValue))
     }
 
     // 按count值排序取前n个,默认升序,排序可以使用sortBy()或sortWith()
-    val sortedUrlCounts: ListBuffer[(String, Int)] = urlCounts.sortWith((t1: (String, Int), t2: (String, Int)) => t1._2 > t2._2).take(i)
+    val topN: ListBuffer[(String, Int)] = urlcounts.sortWith((t1: (String, Int), t2: (String, Int)) => t1._2 > t2._2).take(n)
+
+    // 窗口信息
+    val windowEnd: Long = timestamp - 1
+    val windowStart: Long = windowEnd - 3600 * 1000
 
     // 将排名信息拼接成字符串展示,实际应用场景可以写入数据库
     val sb: StringBuilder = new StringBuilder
-    sb.append("窗口结束时间：").append(new Timestamp(timestamp - 1)).append("\n")
-    // 遍历当前窗口结果列表中的每个HotPageCount,输出到一行
-    for (i <- sortedUrlCounts.indices) {
-      val currentUrlCount: (String, Int) = sortedUrlCounts(i)
-      sb.append("NO").append(i + 1).append(": ")
-        .append("页面url=").append(currentUrlCount._1).append("\t")
-        .append("流量=").append(currentUrlCount._2).append("\n")
+    sb.append("========================================\n")
+    sb.append("窗口区间：" + new Timestamp(windowStart) + " ~ " + new Timestamp(windowEnd) + "\n")
+    for (i <- topN.indices) {
+      val curUrlCount: (String, Int) = topN(i)
+      sb.append("NO " + (i + 1) + " 的页面 " + curUrlCount._1 + " 访问次数 " + curUrlCount._2 + "\n")
     }
-    sb.append("\n==================================\n")
-    // 输出一个窗口后停1秒
-    Thread.sleep(1000)
-
-    // 收集结果
+    // 收集结果往下游发送
     out.collect(sb.toString())
   }
 }
