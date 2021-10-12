@@ -78,6 +78,7 @@ public class Flink04 {
                     String[] words = value.split("\\s");
                     return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000L);
                 })
+                // java的Tuple2类型使用lambda表达时会泛型丢失,需要显式指定返回类型,或者直接使用匿名内部类
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 // flink默认每200ms机器时间插入一次水位线,比如每1秒来一条数据,那么两条数据之间会插入5次相同数值的水位线,因为计算公式是固定的
                 .assignTimestampsAndWatermarks(
