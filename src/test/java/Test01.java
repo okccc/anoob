@@ -1,5 +1,3 @@
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
@@ -7,6 +5,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,12 +13,17 @@ import java.util.concurrent.Future;
 
 public class Test01 {
     @Test
+    public void testStr() {
+        System.out.println(UUID.randomUUID().toString());
+    }
+
+    @Test
     public void testDate() {
         // 2021-06-23
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd")));
         // 2021-06-23 21:13:20
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
-        System.out.println(System.currentTimeMillis() - 3600*24*1000);
+        System.out.println(System.currentTimeMillis());
     }
 
     @Test
@@ -29,6 +33,8 @@ public class Test01 {
         System.out.println(random.nextInt(10));
         // 0~1之间的任意小数
         System.out.println(random.nextDouble());
+        // 随机字符串
+        System.out.println("str" + random.nextInt(10));
     }
 
     @Test
@@ -79,27 +85,6 @@ public class Test01 {
             }
         });
         System.out.println(list);  // [10, 20, 30]
-    }
-
-    @Test
-    public void testFlink() throws Exception {
-        // 创建流处理执行环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        // 设置并行度
-        env.setParallelism(1);
-
-        env
-                .readTextFile("input/result")
-                .map(new MapFunction<String, String>() {
-                    @Override
-                    public String map(String value) throws Exception {
-                        String[] arr = value.split("\\s");
-                        return arr[1];
-                    }
-                })
-                .print();
-
-        env.execute();
     }
 
 }
