@@ -34,7 +34,7 @@ public class Flink05 {
          * union可以合并多条流,流中的元素类型必须相同
          * connect只能连接两条流,流中的元素类型可以不同
          *
-         * 两大处理函数：KeyedProcessFunction操作KeyedStream,CoProcessFunction操作ConnectedStreams
+         * flink两大处理函数：KeyedProcessFunction操作KeyedStream,CoProcessFunction操作ConnectedStreams
          * CoProcessFunction<IN1, IN2, OUT>
          * IN1：第一条流输入元素类型
          * IN2：第二条流输入元素类型
