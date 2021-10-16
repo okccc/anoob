@@ -1,4 +1,4 @@
-package com.okccc.flink.risk
+package com.okccc.flinkdemo
 
 import java.sql.Timestamp
 import java.time.Duration
@@ -21,7 +21,7 @@ import org.apache.flink.util.Collector
  */
 
 // 输入数据样例类
-case class ClickLog(userId: String, adId: String, province: String, city: String, timestamp: Long)
+case class ClickEvent(userId: String, adId: String, province: String, city: String, timestamp: Long)
 // 输出结果样例类
 case class ClickCount(windowStart: Timestamp, windowEnd: Timestamp, province: String, city: String, count: Int)
 // 黑名单样例类,刷单是指短时间内的大量重复请求
@@ -34,33 +34,33 @@ object MaliceClick {
     env.setParallelism(1)
 
     // 获取数据源
-    val filterStream: DataStream[ClickLog] = env
+    val filterStream: DataStream[ClickEvent] = env
       .readTextFile("input/ClickLog.csv")
       // 将流数据封装成样例类对象
       .map((data: String) => {
         // 561558,3611281,guangdong,shenzhen,1511658120
         val arr: Array[String] = data.split(",")
-        ClickLog(arr(0), arr(1), arr(2), arr(3), arr(4).toLong * 1000)
+        ClickEvent(arr(0), arr(1), arr(2), arr(3), arr(4).toLong * 1000)
       })
       // 提取时间戳生成水位线
       .assignTimestampsAndWatermarks(
-        WatermarkStrategy.forBoundedOutOfOrderness[ClickLog](Duration.ofSeconds(0))
-          .withTimestampAssigner(new SerializableTimestampAssigner[ClickLog] {
-            override def extractTimestamp(element: ClickLog, recordTimestamp: Long): Long =
+        WatermarkStrategy.forBoundedOutOfOrderness[ClickEvent](Duration.ofSeconds(0))
+          .withTimestampAssigner(new SerializableTimestampAssigner[ClickEvent] {
+            override def extractTimestamp(element: ClickEvent, recordTimestamp: Long): Long =
               element.timestamp
           })
       )
       // 先处理刷单行为,按照(userId, adId)分组
-      .keyBy((ad: ClickLog) => (ad.userId, ad.adId))
+      .keyBy((ad: ClickEvent) => (ad.userId, ad.adId))
       // 将刷单数据放到侧输出流,将刷单用户添加到黑名单,涉及状态管理和定时器操作直接上大招
       .process(new BlackListFilter())
 
     filterStream
       // 分组
-      .keyBy((ad: ClickLog) => (ad.province, ad.city))
+      .keyBy((ad: ClickEvent) => (ad.province, ad.city))
       // 开窗
       .window(TumblingEventTimeWindows.of(Time.minutes(5)))
-      // 聚合,结果显示beijing地区数据明显偏多,有大量相同的(userId, adId)属于刷单行为,应该在统计之前就过滤掉
+      // 聚合,结果显示beijing地区数据明显偏多,有大量相同的(userId,adId)属于刷单行为,应该在数据统计之前就过滤掉
       .aggregate(new ClickCountAgg(), new ClickWindowResult())
       .print()
 
@@ -73,9 +73,9 @@ object MaliceClick {
 }
 
 // 自定义预聚合函数
-class ClickCountAgg extends AggregateFunction[ClickLog, Int, Int] {
+class ClickCountAgg extends AggregateFunction[ClickEvent, Int, Int] {
   override def createAccumulator(): Int = 0
-  override def add(value: ClickLog, accumulator: Int): Int = accumulator + 1
+  override def add(value: ClickEvent, accumulator: Int): Int = accumulator + 1
   override def getResult(accumulator: Int): Int = accumulator
   override def merge(a: Int, b: Int): Int = a + b
 }
@@ -89,7 +89,7 @@ class ClickWindowResult extends WindowFunction[Int, ClickCount, (String, String)
 }
 
 // 自定义处理函数
-class BlackListFilter extends KeyedProcessFunction[(String, String), ClickLog, ClickLog] {
+class BlackListFilter extends KeyedProcessFunction[(String, String), ClickEvent, ClickEvent] {
   // 定义状态记录用户点击广告次数
   lazy val clickNumState: ValueState[Int] = getRuntimeContext.getState(new ValueStateDescriptor[Int]("click-num", classOf[Int]))
   // 定义状态标记当前用户是否已经在黑名单
@@ -101,7 +101,7 @@ class BlackListFilter extends KeyedProcessFunction[(String, String), ClickLog, C
   val maxCount: Int = 30
   val warningMsg: String = "WARNING: ad click over " + maxCount + " times today!"
 
-  override def processElement(value: ClickLog, ctx: KeyedProcessFunction[(String, String), ClickLog, ClickLog]#Context, out: Collector[ClickLog]): Unit = {
+  override def processElement(value: ClickEvent, ctx: KeyedProcessFunction[(String, String), ClickEvent, ClickEvent]#Context, out: Collector[ClickEvent]): Unit = {
     // 1.第一次点击
     if (clickNumState.value() == 0) {
       // 获取明天0点的时间戳,默认是伦敦时间,北京时间要减8小时
@@ -132,7 +132,7 @@ class BlackListFilter extends KeyedProcessFunction[(String, String), ClickLog, C
     out.collect(value)
   }
 
-  override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[(String, String), ClickLog, ClickLog]#OnTimerContext, out: Collector[ClickLog]): Unit = {
+  override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[(String, String), ClickEvent, ClickEvent]#OnTimerContext, out: Collector[ClickEvent]): Unit = {
     // 第二天0点时清空所有状态
     clickNumState.clear()
     isBlackState.clear()

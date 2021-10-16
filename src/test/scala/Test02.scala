@@ -1,5 +1,3 @@
-import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkConf, SparkContext}
 import org.junit.Test
 
 import scala.util.Random
@@ -22,28 +20,6 @@ class Test02 {
     val str: String = "2020-12-14 14:39:23"
     println(str.substring(0, 10))
     println(str.substring(11, 13))
-  }
-
-  @Test
-  def testRDD(): Unit = {
-    val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("RDD")
-    val sc: SparkContext = new SparkContext(conf)
-
-    //    val arrayBuffer: ArrayBuffer[JSONObject] = new ArrayBuffer[JSONObject]()
-    //    val map: util.Map[String, Object] = new util.HashMap[String, Object]()
-    //    map.put("orc", "grubby")
-    //    map.put("ne", "moon")
-    //    val jsonObj: JSONObject = new JSONObject()
-    //    jsonObj.fluentPutAll(map)
-    //    arrayBuffer.append(jsonObj)
-    //    println("aaa = " + arrayBuffer)
-    //    val rdd: RDD[JSONObject] = sc.makeRDD(arrayBuffer)
-    //    println(rdd.foreach((j: JSONObject) => println("bbb = " + j)))
-
-    val fileRDD: RDD[String] = sc.textFile("input/aaa.txt", minPartitions = 2)
-    fileRDD.foreach(println)
-    val lineRDD: RDD[String] = fileRDD.flatMap((line: String) => line.split(" "))
-    lineRDD.foreach(println)
   }
 
 }

@@ -2,6 +2,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
@@ -24,6 +25,9 @@ public class Test01 {
         // 2021-06-23 21:13:20
         System.out.println(DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
         System.out.println(System.currentTimeMillis());
+        // Long -> String
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        System.out.println(sdf.format(1634284702000L));
     }
 
     @Test

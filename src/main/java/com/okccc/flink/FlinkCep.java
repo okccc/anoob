@@ -1,6 +1,5 @@
 package com.okccc.flink;
 
-import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.ValueState;
@@ -28,9 +27,9 @@ import java.util.Map;
 /**
  * Author: okccc
  * Date: 2021/9/20 下午12:46
- * Desc: 5秒内连续3次登录失败、15分钟内未支付的超时订单
+ * Desc: 5秒内连续3次登录失败(严格近邻)、15分钟内未支付的超时订单(宽松近邻)
  */
-public class FlinkCEP {
+public class FlinkCep {
     public static void main(String[] args) throws Exception {
         /*
          * Flink-CEP(Complex Event Processing)专门处理连续多次这种复杂事件
@@ -45,7 +44,7 @@ public class FlinkCEP {
          * .times()          定义事件次数
          * .within()         定义时间窗口
          *
-         * 总结：Pattern是flink的语法糖,实际上底层就是KeyedProcessFunction+状态变量,一般直接使用cep就行,除非特别复杂的需求才用到状态机
+         * 总结：Pattern是flink的语法糖,实际上底层就是KeyedProcessFunction+状态变量+定时器,一般直cep就行,除非特别复杂的需求才会用到大招
          */
 
         // 创建流处理执行环境
@@ -54,8 +53,8 @@ public class FlinkCEP {
         env.setParallelism(1);
 
 //        demo01(env);
-        demo02(env);
-//        demo03(env);
+//        demo02(env);
+        demo03(env);
 
         // 启动任务
         env.execute();
@@ -64,20 +63,12 @@ public class FlinkCEP {
     private static void demo01(StreamExecutionEnvironment env) {
         // 使用CEP检测5秒内连续三次登录失败
         SingleOutputStreamOperator<LoginEvent> inputStream = env
-//                .fromElements(
-//                        LoginEvent.of("sky", "fail", 1000L),
-//                        LoginEvent.of("sky", "fail", 2000L),
-//                        LoginEvent.of("sky", "fail", 5000L),
-//                        LoginEvent.of("fly", "success", 1000L),
-//                        LoginEvent.of("sky", "fail", 4000L)
-//                )
                 .readTextFile("input/LoginLog.csv")
-                .map(new MapFunction<String, LoginEvent>() {
-                    @Override
-                    public LoginEvent map(String value) throws Exception {
-                        String[] arr = value.split(",");
-                        return LoginEvent.of(arr[0], arr[2], Long.parseLong(arr[3]) * 1000);
-                    }
+                // 将数据封装成POJO类
+                .map((MapFunction<String, LoginEvent>) value -> {
+                    // 5402,83.149.11.115,success,1558430815
+                    String[] arr = value.split(",");
+                    return LoginEvent.of(arr[0], arr[2], Long.parseLong(arr[3]) * 1000);
                 })
                 // 提前时间戳生成水位线
                 .assignTimestampsAndWatermarks(
@@ -102,16 +93,13 @@ public class FlinkCEP {
 
         // select提取匹配事件
         patternStream
-                .select(new PatternSelectFunction<LoginEvent, String>() {
-                    @Override
-                    public String select(Map<String, List<LoginEvent>> pattern) throws Exception {
-                        Iterator<LoginEvent> iterator = pattern.get("fail").iterator();
-                        LoginEvent first = iterator.next();
-                        LoginEvent second = iterator.next();
-                        LoginEvent third = iterator.next();
-                        return "用户 " + first.userId + " 在时间 " + first.timestamp + "、" + second.timestamp + "、"
-                                + third.timestamp + " 连续三次登录失败！";
-                    }
+                .select((PatternSelectFunction<LoginEvent, String>) pattern1 -> {
+                    Iterator<LoginEvent> iterator = pattern1.get("fail").iterator();
+                    LoginEvent first = iterator.next();
+                    LoginEvent second = iterator.next();
+                    LoginEvent third = iterator.next();
+                    return "用户 " + first.userId + " 在时间 " + first.timestamp + ", " + second.timestamp + ", " +
+                            third.timestamp + " 连续三次登录失败！";
                 })
                 .print();
     }
@@ -119,24 +107,21 @@ public class FlinkCEP {
     private static void demo02(StreamExecutionEnvironment env) {
         // 使用状态机检测连续三次登录失败
         env
-                .fromElements(
-                        LoginEvent.of("sky", "fail", 1000L),
-                        LoginEvent.of("sky", "fail", 2000L),
-                        LoginEvent.of("sky", "fail", 5000L),
-                        LoginEvent.of("fly", "success", 1000L),
-                        LoginEvent.of("sky", "fail", 4000L)
-                )
+                .readTextFile("input/LoginLog.csv")
+                // 将数据封装成POJO类
+                .map((MapFunction<String, LoginEvent>) value -> {
+                    // 5402,83.149.11.115,success,1558430815
+                    String[] arr = value.split(",");
+                    return LoginEvent.of(arr[0], arr[2], Long.parseLong(arr[3]) * 1000);
+                })
                 // 提前时间戳生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<LoginEvent>forBoundedOutOfOrderness(Duration.ofSeconds(0))
-                                .withTimestampAssigner(new SerializableTimestampAssigner<LoginEvent>() {
-                                    @Override
-                                    public long extractTimestamp(LoginEvent element, long recordTimestamp) {
-                                        return element.timestamp;
-                                    }
-                                })
+                                .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
                 )
+                // 按照用户分组
                 .keyBy(r -> r.userId)
+                // 处理函数
                 .process(new KeyedProcessFunction<String, LoginEvent, String>() {
                     // 创建一个状态机,key是当前状态和接收到的事件类型,value是即将跳转到的状态
                     private final HashMap<Tuple2<String, String>, String> stateMachine = new HashMap<>();
@@ -177,14 +162,7 @@ public class FlinkCEP {
                         } else {
                             // 还处于中间状态,正常跳转
                             currentState.update(nextState);
-                            // 注册定时器
-                            ctx.timerService().registerEventTimeTimer(ctx.timerService().currentWatermark() + 5000L);
                         }
-                    }
-
-                    @Override
-                    public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                        super.onTimer(timestamp, ctx, out);
                     }
                 })
                 .print();
@@ -192,22 +170,19 @@ public class FlinkCEP {
 
     private static void demo03(StreamExecutionEnvironment env) {
         // 使用CEP检测超时订单
+        // 业务系统需要不停判断订单支付时间是否超时,类似618这种促销场景数据量很大时对系统压力很大,可以考虑使用低延迟高吞吐的flink处理
         SingleOutputStreamOperator<OrderEvent> inputStream = env
-                .fromElements(
-                        OrderEvent.of("order01", "create", 1000L),
-                        OrderEvent.of("order01", "pay", 300 * 1000L),
-                        OrderEvent.of("order02", "create", 1000L),
-                        OrderEvent.of("order02", "pay", 901 * 1000L)
-                )
+                .readTextFile("input/OrderLog.csv")
+                // 将数据封装成POJO类
+                .map((MapFunction<String, OrderEvent>) value -> {
+                    // 34729,create,,1558430842 | 34729,pay,sd76f87d6,1558430844
+                    String[] arr = value.split(",");
+                    return OrderEvent.of(arr[0], arr[1], Long.parseLong(arr[3]) * 1000);
+                })
                 // 提前时间戳生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<OrderEvent>forBoundedOutOfOrderness(Duration.ofSeconds(0))
-                                .withTimestampAssigner(new SerializableTimestampAssigner<OrderEvent>() {
-                                    @Override
-                                    public long extractTimestamp(OrderEvent element, long recordTimestamp) {
-                                        return element.timestamp;
-                                    }
-                                })
+                                .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
                 );
 
         // 定义匹配模板
@@ -219,7 +194,7 @@ public class FlinkCEP {
                         return value.eventType.equals("create");
                     }
                 })
-                // 连续事件必须用next,其它的就用followedBy
+                // 连续事件必须用next,其它的用followedBy
                 .followedBy("pay")
                 .where(new SimpleCondition<OrderEvent>() {
                     @Override
@@ -256,7 +231,7 @@ public class FlinkCEP {
                         }
                 );
 
-        result.print("print");
+        result.print();
         result.getSideOutput(new OutputTag<String>("timeout"){}).print("output");
     }
 
@@ -284,7 +259,7 @@ public class FlinkCEP {
             return "LoginEvent{" +
                     "userId='" + userId + '\'' +
                     ", eventType='" + eventType + '\'' +
-                    ", timestamp=" + timestamp +
+                    ", timestamp=" + new Timestamp(timestamp) +
                     '}';
         }
     }

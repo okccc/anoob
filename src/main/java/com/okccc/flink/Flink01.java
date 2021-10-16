@@ -5,7 +5,6 @@ import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -22,7 +21,6 @@ import org.apache.flink.util.Collector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.Random;
 
 /**
@@ -33,6 +31,11 @@ import java.util.Random;
 public class Flink01 {
     public static void main(String[] args) throws Exception {
         /*
+         * 电商用户行为分析
+         * 统计分析(实时)：热门商品、热门页面、访问流量、app市场推广统计、页面广告点击量
+         * 风险控制(实时)：页面广告黑名单过滤、恶意登录监控、订单支付失效监控、支付实时对账
+         * 偏好分析(离线)：点赞、收藏、评价、用户画像、推荐系统
+         *
          * 数据处理架构演变
          * OLTP - OLAP - LAMBDA - Flink(有状态的流处理,在本地维护状态并定期checkpoint到远端hdfs等文件系统)
          * OLTP：初期数据很少,mysql搞定一切
@@ -79,10 +82,10 @@ public class Flink01 {
          * 端到端的一致性
          * Source端：kafka-consumer会保存偏移量,故障恢复时由连接器重置偏移量
          * 流处理端：flink一致性检查点checkpoint,分布式异步快照算法,保证内部状态一致性
-         * Sink端：从故障恢复时数据不会重复写入外部系统,幂等写入或事务写入,kafka-producer采用两阶段提交
+         * Sink端：从故障恢复时数据不会重复写入外部系统,幂等写入或事务写入,FlinkKafkaProducer采用两阶段提交
          * 幂等写入：不管操作重复执行多少次结果都不会改变
          * 两阶段提交：sink任务会将每个checkpoint接收到的数据添加到下游系统(mysql/kafka)的事务里,将这些数据写入外部sink系统但不提交,
-         * 当收到checkpoint完成的通知时才正式提交事务将数据写入,flink提供了TwoPhaseCommitSinkFunction接口
+         * 当收到checkpoint完成的通知时才正式提交事务将数据写入,flink提供了TwoPhaseCommitSinkFunction
          */
 
         // 创建流处理执行环境
@@ -164,12 +167,12 @@ public class Flink01 {
         @Override
         public void run(SourceContext<Event> ctx) throws Exception {
             while (running) {
+                // 随机生成数据
+                String userId = userArr[random.nextInt(userArr.length)];
+                String url = urlArr[random.nextInt(urlArr.length)];
+                long timestamp = System.currentTimeMillis();
                 // 通过collect方法往下游发送数据
-                ctx.collect(new Event(
-                        userArr[random.nextInt(userArr.length)],
-                        urlArr[random.nextInt(urlArr.length)],
-                        Calendar.getInstance().getTimeInMillis()
-                ));
+                ctx.collect(new Event(userId, url, timestamp));
                 Thread.sleep(1000L);
             }
         }
@@ -244,7 +247,7 @@ public class Flink01 {
 
         @Override
         public String toString() {
-            return "OrderEvent{" +
+            return "Event{" +
                     "user='" + user + '\'' +
                     ", url='" + url + '\'' +
                     // 转换Long类型的时间戳

@@ -1,4 +1,4 @@
-package com.okccc.flink.risk
+package com.okccc.flinkdemo
 
 import java.time.Duration
 

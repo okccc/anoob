@@ -1,4 +1,4 @@
-package com.okccc.flink.statistic
+package com.okccc.flinkdemo
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat

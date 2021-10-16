@@ -59,8 +59,8 @@ public class Flink02 {
         // 演示状态变量
 //        demo03(env);
 //        demo04(env);
-//        demo05(env);
-        demo06(env);
+        demo05(env);
+//        demo06(env);
 
         // 启动任务
         env.execute();
@@ -75,12 +75,10 @@ public class Flink02 {
                         // 子任务索引和并行度有关,一个并行度索引就是0,两个并行度索引就是0和1
                         System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
                     }
-
                     @Override
                     public Integer map(Integer value) throws Exception {
                         return value * value;
                     }
-
                     @Override
                     public void close() throws Exception {
                         super.close();
