@@ -108,7 +108,7 @@ jdbc:phoenix:localhost:2181> CREATE TABLE IF NOT EXISTS dim.student(
   id VARCHAR primary key,  # 指定单列作为RowKey
   name VARCHAR,
   addr VARCHAR);
-# 插入数据
+# 更新数据
 jdbc:phoenix:localhost:2181> upsert into dim.student values('1001','grubby','上海');
 # 查询数据
 jdbc:phoenix:localhost:2181> select * from dim.student;
