@@ -22,7 +22,7 @@ object ClickHouseUtil {
    */
   def getConnection: Connection = {
     // 1.加载配置文件
-    val prop: Properties = PropertiesUtil.load("config.properties1")
+    val prop: Properties = PropertiesUtil.load("config.properties")
     // 2.获取连接信息
     val driver: String = prop.getProperty("ck.driver")
     val url: String = prop.getProperty("ck.url")
