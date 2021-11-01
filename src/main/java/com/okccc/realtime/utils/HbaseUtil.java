@@ -1,12 +1,12 @@
 package com.okccc.realtime.utils;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.okccc.realtime.common.MyConfig;
+import org.apache.commons.beanutils.BeanUtils;
 
 import java.sql.*;
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: okccc
@@ -15,20 +15,20 @@ import java.util.Properties;
  */
 public class HbaseUtil {
 
-    public static final Logger logger = LoggerFactory.getLogger(HbaseUtil.class);
+    private static Connection conn;
 
     // 获取数据库连接
-    public static Connection getConnection() throws Exception {
-        // 1.读取配置文件
-        Properties prop = new Properties();
-        prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("config.properties"));
-        // 2.获取连接信息
-        String driver = prop.getProperty("hbase.driver");
-        String url = prop.getProperty("hbase.url");
-        // 3.通过反射加载驱动
-        Class.forName(driver);
-        // 4.创建连接
-        return DriverManager.getConnection(url);
+    public static void initConnection() {
+        try {
+            // 通过反射加载驱动
+            Class.forName(MyConfig.PHOENIX_DRIVER);
+            // 创建连接
+            conn = DriverManager.getConnection(MyConfig.PHOENIX_SERVER);
+            // 设置namespace
+            conn.setSchema(MyConfig.HBASE_SCHEMA);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // 关闭数据库连接
@@ -57,17 +57,17 @@ public class HbaseUtil {
     }
 
     // 批量查询
-    public static JSONArray query(String sql) {
-        // 存放结果集的json数组
-        JSONArray jsonArray = new JSONArray();
-        // 声明数据库连接信息
-        Connection conn = null;
+    public static <T> List<T> queryList(String sql, Class<T> clazz) {
+        // 存放结果集的列表
+        List<T> list = new ArrayList<>();
+        // 声明连接、预编译和结果集
+        if (conn == null) {
+            initConnection();
+//            System.out.println(conn);  // org.apache.phoenix.jdbc.PhoenixConnection@1bd81830
+        }
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            // 创建连接
-            conn = getConnection();
-//            System.out.println(conn);  // org.apache.phoenix.jdbc.PhoenixConnection@1bd81830
             // 预编译sql
             ps = conn.prepareStatement(sql);
 //            System.out.println(ps);  // select * from realtime.dim_base_trademark
@@ -75,54 +75,56 @@ public class HbaseUtil {
             rs = ps.executeQuery();
 //            System.out.println(rs);  // org.apache.phoenix.jdbc.PhoenixResultSet@392a04e7
             // 获取结果集的元数据信息
-            ResultSetMetaData metaData = rs.getMetaData();
+            ResultSetMetaData md = rs.getMetaData();
             // 遍历结果集
             while (rs.next()) {
-                // 将查询数据封装成json对象
-                JSONObject jsonObject = new JSONObject();
-                for (int i = 0; i < metaData.getColumnCount(); i++) {
+                // 通过反射创建对应封装类型的对象
+                T obj = clazz.newInstance();
+                for (int i = 0; i < md.getColumnCount(); i++) {
                     // 从元数据获取字段名称,从结果集获取字段值
-                    jsonObject.put(metaData.getColumnName(i + 1), rs.getObject(i + 1));
+                    String columnName = md.getColumnName(i + 1);
+                    Object columnValue = rs.getObject(i + 1);
+                    // 使用java bean工具类给对象的属性赋值
+                    BeanUtils.setProperty(obj, columnName, columnValue);
                 }
-                // 添加到json数组
-                jsonArray.add(jsonObject);
+                // 添加到列表
+                list.add(obj);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getMessage());
         } finally {
             // 释放资源
-            close(conn, ps, rs);
+            close(null, ps, rs);
         }
         // 返回结果集
-        return jsonArray;
+        return list;
     }
 
     // 更新操作
     public static void upsert(String sql) {
-        // 声明数据库连接信息
-        Connection conn = null;
+        if (conn == null) {
+            initConnection();
+        }
         PreparedStatement ps = null;
         try {
-            // 创建连接
-            conn = getConnection();
             // 预编译sql
             ps = conn.prepareStatement(sql);
             // 执行更新,返回影响行数
             ps.executeUpdate();
+            // 执行程序不报错但是数据没写进去,在客户端命令行手动执行sql就没问题,那么两者区别在哪？已知在命令行执行sql会自动提交事务
             // 查看Connection接口的实现类PhoenixConnection源码发现属性isAutoCommit=false,需要手动提交事务
             conn.commit();
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getMessage());
         } finally {
             // 释放资源
-            close(conn, ps, null);
+            close(null, ps, null);
         }
     }
 
     public static void main(String[] args) {
-        upsert("upsert into realtime.dim_base_trademark values('13', '小米')");
-        System.out.println(query("select * from realtime.dim_base_trademark"));
+        upsert("upsert into realtime.dim_base_trademark values('13', '华为')");
+        List<JSONObject> jsonObjects = queryList("select * from realtime.dim_base_trademark", JSONObject.class);
+        System.out.println(jsonObjects);
     }
 }

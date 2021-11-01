@@ -1,9 +1,11 @@
 package com.okccc.realtime.utils;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.beanutils.BeanUtils;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -13,11 +15,13 @@ import java.util.Properties;
  */
 public class ClickHouseUtil {
 
+    private static Connection conn;
+
     // 手动获取数据库连接
-    public static Connection getConnection() throws Exception {
+    public static void initConnection() throws Exception {
         // 1.读取配置文件
         Properties prop = new Properties();
-        prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("config.properties1"));
+        prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("config.properties"));
         // 2.获取连接信息
         String driver = prop.getProperty("ck.driver");
         String url = prop.getProperty("ck.url");
@@ -26,7 +30,7 @@ public class ClickHouseUtil {
         // 3.通过反射加载驱动
         Class.forName(driver);
         // 4.创建连接
-        return DriverManager.getConnection(url, user, password);
+        conn = DriverManager.getConnection(url, user, password);
     }
 
     // 关闭数据库连接
@@ -55,17 +59,17 @@ public class ClickHouseUtil {
     }
 
     // 批量查询
-    public static JSONArray query(String sql) {
-        // 存放结果集的json数组
-        JSONArray jsonArray = new JSONArray();
-        // 声明数据库连接信息
-        Connection conn = null;
+    public static <T> List<T> queryList(String sql, Class<T> clazz) throws Exception {
+        // 存放结果集的列表
+        List<T> list = new ArrayList<>();
+        // 声明连接、预编译和结果集
+        if (conn == null) {
+            initConnection();
+//            System.out.println(conn);  // ru.yandex.clickhouse.ClickHouseConnectionImpl@46fa7c39
+        }
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            // 创建连接
-            conn = getConnection();
-//            System.out.println(conn);  // ru.yandex.clickhouse.ClickHouseConnectionImpl@46fa7c39
             // 预编译sql
             ps = conn.prepareStatement(sql);
 //            System.out.println(ps);  // ru.yandex.clickhouse.ClickHousePreparedStatementImpl@7e9131d5
@@ -73,29 +77,33 @@ public class ClickHouseUtil {
             rs = ps.executeQuery();
 //            System.out.println(rs);  // ClickHouseResultSet...
             // 获取结果集的元数据信息
-            ResultSetMetaData metaData = rs.getMetaData();
+            ResultSetMetaData md = rs.getMetaData();
             // 遍历结果集
             while (rs.next()) {
-                // 将查询数据封装成json对象
-                JSONObject jsonObject = new JSONObject();
-                for (int i = 0; i < metaData.getColumnCount(); i++) {
+                // 通过反射创建对应封装类型的对象
+                T obj = clazz.newInstance();
+                for (int i = 0; i < md.getColumnCount(); i++) {
                     // 从元数据获取字段名称,从结果集获取字段值
-                    jsonObject.put(metaData.getColumnName(i + 1), rs.getObject(i + 1));
+                    String columnName = md.getColumnName(i + 1);
+                    Object columnValue = rs.getObject(i + 1);
+                    // 使用java bean工具类给对象的属性赋值
+                    BeanUtils.setProperty(obj, columnName, columnValue);
                 }
-                // 添加到json数组
-                jsonArray.add(jsonObject);
+                // 添加到列表
+                list.add(obj);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             // 释放资源
-            close(conn, ps, rs);
+            close(null, ps, rs);
         }
         // 返回结果集
-        return jsonArray;
+        return list;
     }
 
-    public static void main(String[] args) {
-        System.out.println(query("select * from events"));
+    public static void main(String[] args) throws Exception {
+        List<JSONObject> jsonObjects = queryList("select * from events", JSONObject.class);
+        System.out.println(jsonObjects);
     }
 }

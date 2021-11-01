@@ -30,8 +30,8 @@ public class ReflectDemo {
         test02();
     }
 
+    // 获取Class类对象的三种方式
     private static void getClassObject() throws Exception {
-        // 获取Class类对象的三种方式
         // 1.使用类加载器,传入类/接口字符串
         Class<?> c1 = Class.forName("java.lang.String");
         System.out.println(c1.getName());  // java.lang.String
@@ -42,8 +42,8 @@ public class ReflectDemo {
         Class<? extends String> c3 = "abc".getClass();
     }
 
+    // 通过反射获取类的属性
     private static void getClassField() throws Exception {
-        // 通过反射获取类的属性
         Class<?> clazz = Class.forName("com.okccc.j2se.Person");
 //        Field[] fields = clazz.getFields();  // 只能获取public修饰的属性
         Field[] fields = clazz.getDeclaredFields();  // 获取所有属性
@@ -58,8 +58,8 @@ public class ReflectDemo {
         }
     }
 
+    // 通过反射获取类的方法
     private static void getClassMethod() throws Exception {
-        // 通过反射获取类的方法
         Class<?> clazz = Class.forName("com.okccc.j2se.Person");
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
@@ -85,8 +85,8 @@ public class ReflectDemo {
         }
     }
 
+    // 通过反射获取类的构造器
     private static void getClassConstructor() throws Exception {
-        // 通过反射获取类的构造器
         Class<?> clazz = Class.forName("com.okccc.j2se.Person");
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
@@ -110,8 +110,8 @@ public class ReflectDemo {
         }
     }
 
+    // 通过反射获取类的其它结构：包、父类、接口、泛型、注解
     private static void getClassOther() throws Exception {
-        // 通过反射获取类的其它结构：包、父类、接口、泛型、注解
         Class<?> clazz = Class.forName("com.okccc.j2se.Person");
         // 获取包
         Package pack = clazz.getPackage();
@@ -144,13 +144,13 @@ public class ReflectDemo {
     }
 
     private static void test01() throws Exception {
-        // 通过反射创建类的对象
+        // 使用类加载器加载类
         Class<?> clazz = Class.forName("com.okccc.j2se.Person");
         System.out.println(clazz);  // class com.okccc.j2se.Person
-        // 1.调用Class类的newInstance()方法,实例化一个带空参构造的类(推荐)
+        // 调用Class类的newInstance()方法,实例化一个带空参构造的对象(推荐)
         Person person = (Person) clazz.newInstance();
         System.out.println(person);  // null: 0: null
-        // 2.如果该类没有空参构造,需使用Constructor类的newInstance(Object ... initargs)方法
+        // 如果该类没有空参构造,需使用Constructor类的newInstance(Object ... initargs)方法
         Constructor<?> constructor = clazz.getDeclaredConstructor(String.class, int.class, String.class);
         Person p1 = (Person) constructor.newInstance("grubby", 18, "123456");
         System.out.println(p1);  // grubby: 18: 123456
