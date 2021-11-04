@@ -2,6 +2,7 @@ package com.okccc.realtime.app.func;
 
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.common.MyConfig;
+import com.okccc.realtime.utils.DimUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
@@ -68,6 +69,13 @@ public class DimSinkFunction extends RichSinkFunction<JSONObject> {
             if (ps != null) {
                 ps.close();
             }
+        }
+
+        // 如果维度数据执行的是update/delete操作
+        String type = value.getString("type").toLowerCase();
+        if (type.equals("update") || type.equals("delete")) {
+            // 此时redis中的缓存数据已经失效,要及时清除
+            DimUtil.deleteCache(tableName, data.getString("id"));
         }
     }
 }

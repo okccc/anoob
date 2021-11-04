@@ -110,6 +110,18 @@ public class DimUtil {
         return jsonObject;
     }
 
+    // 删除redis缓存数据
+    public static void deleteCache(String tableName, String id) {
+        String key = tableName.toLowerCase() + ":" + id;
+        try {
+            Jedis jedis = RedisUtil.getJedis();
+            jedis.del(key);
+            jedis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("---删除redis缓存异常---");
+        }
+    }
 
     public static void main(String[] args) {
 //        JSONObject dimInfo = getDimInfo("dim_base_trademark", Tuple2.of("id", "12"));
