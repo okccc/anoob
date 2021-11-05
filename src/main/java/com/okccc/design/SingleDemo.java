@@ -33,64 +33,33 @@ public class SingleDemo {
          * Runtime类将构造函数私有化,对外提供getRuntime()方法获取单例对象,访问类中的非静态方法
          */
 
-        Single01 s1 = Single01.getInstance();
-        Single01 s2 = Single01.getInstance();
+        Single s1 = Single.getInstance();
+        Single s2 = Single.getInstance();
         System.out.println(s1==s2);  // 结果是true说明是同一个对象
-
-        Single02 s3 = Single02.getInstance();
-        Single02 s4 = Single02.getInstance();
-        System.out.println(s3==s4);  // 结果是true说明是同一个对象
-
-        SingleTest t1 = SingleTest.getInstance();
-        SingleTest t2 = SingleTest.getInstance();
-        t1.setNum(10);
-        t2.setNum(20);
-        System.out.println(t1.getNum() + " " + t2.getNum());  //  结果都是20,说明t1和t2是同一个对象
     }
-}
 
-class Single01 {
-    // 饿汉式：类一加载,对象就已经创建好
-    private static final Single01 s = new Single01();
-    private Single01(){
+    public static class Single {
+//        // 饿汉式：类一加载就创建好对象
+//        public static final Single single = new Single();
+//        private Single() {}
+//        public static Single getInstance() {
+//            return single;
+//        }
 
-    }
-    static Single01 getInstance(){
-        return s;
-    }
-}
-
-class Single02 {
-    // 懒汉式：类加载时没有对象,要用的时候才创建(延迟加载)
-    private static Single02 s = null;
-    private Single02(){
-
-    }
-    static Single02 getInstance(){
-        // 外面套一层if可以提高效率,先判断对象是否存在,存在就直接返回,不用每次进来都判断锁
-        if(s==null){
-            // 同步代码块保证线程安全,由于该方法是静态方法不能使用this,可通过反射获取对象
-            synchronized (Single02.class) {
-                if(s==null){
-                    s = new Single02();
+        // 懒汉式：要用的时候再创建对象(延迟加载)
+        public static Single single = null;
+        private Single() {}
+        public static Single getInstance() {
+            // A进来拿到锁创建对象,B在外面一直等直到拿到锁,发现对象已经存在岂不是白等了？先判断对象是否存在,存在就直接返回,不用每次都判断锁
+            if (single == null) {
+                // A和B同时进来,判断为空岂不是都要创建对象？同步代码块保证线程安全,由于该方法是静态方法不能使用this,可通过反射获取对象
+                synchronized (Single.class) {
+                    if (single == null) {
+                        single = new Single();
+                    }
                 }
             }
+            return single;
         }
-        return s;
-    }
-}
-
-class SingleTest {
-    private int num;
-    private static final SingleTest t = new SingleTest();
-    private SingleTest(){}
-    static SingleTest getInstance(){
-        return t;
-    }
-    void setNum(int num){
-        this.num = num;
-    }
-    int getNum(){
-        return num;
     }
 }
