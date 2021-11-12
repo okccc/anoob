@@ -111,6 +111,17 @@ public class Test01 {
         keySet.removeIf(s -> !columns.contains(s));
         // {"database":"maxwell","data":[{"name":"aaa","id":"001"}],"type":"INSERT","table":"comment_info"}
         System.out.println(jsonObject);
+
+        // 往json对象添加包含json的字符串会转译生成反斜杠
+        JSONObject json01 = new JSONObject();
+        JSONObject json02 = new JSONObject();
+        JSONObject json03 = new JSONObject();
+        json01.put("k1", "v1");
+        json02.put("k1", json01);
+        json03.put("k1", json01.toJSONString());
+        System.out.println(json01);  // {"k1":"v1"}
+        System.out.println(json02);  // {"k1":{"k1":"v1"}}
+        System.out.println(json03);  // {"k1":"{\"k1\":\"v1\"}"}
     }
 
 }
