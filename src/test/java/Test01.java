@@ -1,12 +1,11 @@
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,6 +88,29 @@ public class Test01 {
             }
         });
         System.out.println(list);  // [10, 20, 30]
+    }
+
+    @Test
+    public void testJSON() {
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("id", "1001");
+//        jsonObject.put("name", "grubby");
+//        System.out.println(jsonObject.keySet());  // [name, id]
+//        System.out.println(jsonObject.values());  // [grubby, 1001]
+//        System.out.println(StringUtils.join(jsonObject.values(), ","));  // grubby,1001
+//        System.out.println(jsonObject.entrySet());  // [name=grubby, id=1001]
+
+        // json对象过滤键值对
+        String value = "{\"data\":[{\"age\":\"19\",\"id\":\"001\",\"name\":\"aaa\"}],\"database\":\"maxwell\",\"table\":\"comment_info\",\"type\":\"INSERT\"}";
+        JSONObject jsonObject = JSON.parseObject(value);
+        // {"database":"maxwell","data":[{"age":"19","name":"aaa","id":"001"}],"type":"INSERT","table":"comment_info"}
+        System.out.println(jsonObject);
+        JSONObject data = jsonObject.getJSONArray("data").getJSONObject(0);
+        List<String> columns = Arrays.asList("id,name".split(","));
+        Set<String> keySet = data.keySet();
+        keySet.removeIf(s -> !columns.contains(s));
+        // {"database":"maxwell","data":[{"name":"aaa","id":"001"}],"type":"INSERT","table":"comment_info"}
+        System.out.println(jsonObject);
     }
 
 }
