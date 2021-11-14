@@ -5,7 +5,7 @@ import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,9 +23,12 @@ public class TypeInterceptor implements Interceptor {
     @Override
     public Event intercept(Event event) {
         // Event: {headers:{} body: 61 61 61  aaa} headers默认是空,根据body中的日志类型填充headers
+        if (event == null) {
+            return null;
+        }
         // 获取body
         byte[] bytes = event.getBody();
-        // 将数组转换成字符串
+        // 将字节数组转换成字符串
         String body = new String(bytes, StandardCharsets.UTF_8);
         // 获取header
         Map<String, String> headers = event.getHeaders();
@@ -40,16 +43,31 @@ public class TypeInterceptor implements Interceptor {
     }
 
     @Override
-    public List<Event> intercept(List<Event> events) {
-        // 创建存放添加拦截器后的event的列表,这样会多创建对象,性能不如直接在迭代器里删除好
-        List<Event> list = new ArrayList<>();
-        // 遍历
-        for (Event event : events) {
-            // 给每一条event添加拦截器处理
-            Event event_new = intercept(event);
-            list.add(event_new);
+    public List<Event> intercept(List<Event> list) {
+//        // 1.ArrayList直接删除数据会有线程安全问题: java.util.ConcurrentModificationException
+//        for (Event event : list) {
+//            if (intercept(event) == null) {
+//                list.remove(event);
+//            }
+//        }
+
+//        // 2.存放拦截器处理过后的event,这样会多创建对象,性能不如直接在迭代器里删除好
+//        List<Event> events = new ArrayList<>();
+//        for (Event event : list) {
+//            Event newEvent = intercept(event);
+//            if (newEvent != null) {
+//                events.add(newEvent);
+//            }
+//        }
+//        return events;
+
+        // 3.迭代器
+        Iterator<Event> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            if (intercept(iterator.next()) == null) {
+                iterator.remove();
+            }
         }
-        // 返回新的event列表
         return list;
     }
 

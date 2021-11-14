@@ -15,7 +15,7 @@
 # 测试配置文件
 [root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -t
 # 启动/停止/重启
-[root@****cdh1 ~]$ /usr/local/nginx/sbin/nginx
+[root@cdh1 ~]$ /usr/local/nginx/sbin/nginx
 [root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s stop
 [root@cdh1 ~]$ /usr/local/nginx/sbin/nginx -s reload
 # 查看nginx进程,jps显示的是java进程,nginx是c++写的
@@ -96,7 +96,7 @@ a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防�
 1.java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),再修改目录所属用户即可
 
-2.Caused by: java.lang.ClassNotFoundException: com.company.interceptor.InterceptorDemo$Builder
+2.Caused by: java.lang.ClassNotFoundException: com.okccc.interceptor.InterceptorDemo$Builder
 # java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
 
 3.Producer clientId=producer-1 Connection to node 0 could not be established. Broker may not be available.
@@ -126,8 +126,8 @@ a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也
 a1.sources.r1.channels = c1 c2
 # 拦截器(jar包放到flume的lib目录)
 a1.sources.r1.interceptors = i1 i2
-a1.sources.r1.interceptors.i1.type = flume.ETLInterceptor$Builder
-a1.sources.r1.interceptors.i2.type = flume.TypeInterceptor$Builder
+a1.sources.r1.interceptors.i1.type = com.okccc.interceptor.ETLInterceptor$Builder
+a1.sources.r1.interceptors.i2.type = com.okccc.interceptor.TypeInterceptor$Builder
 # 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing     # 根据日志类型指定channel
 a1.sources.r1.selector.header = type           # headers的key,通过headers对event分流
@@ -176,7 +176,7 @@ a1.sources.r1.interceptors.regex.regex=^.+uid=.+&uname=.+spuId=.+$
 a1.sources.r1.interceptors.regex.excludeEvents=false
 # 自定义拦截器(可选)
 a1.sources.r1.interceptors = i1
-a1.sources.r1.interceptors.i1.type = com.company.interceptor.InterceptorDemo$Builder
+a1.sources.r1.interceptors.i1.type = com.okccc.interceptor.InterceptorDemo$Builder
 
 # memory channel
 a1.channels.c1.type = memory
@@ -192,7 +192,7 @@ a1.channels.c1.keep-alive = 6                  # 等待put操作的超时时间(
 
 # 配置sink
 a1.sinks.k1.type = hdfs
-a1.sinks.k1.hdfs.path = hdfs://dev-company/user/flume/%Y-%m-%d  # hdfs路径
+a1.sinks.k1.hdfs.path = hdfs://bigdata/user/flume/%Y-%m-%d  # hdfs路径
 a1.sinks.k1.hdfs.filePrefix = log              # 指定文件前缀
 a1.sinks.k1.hdfs.useLocalTimeStamp = true      # 是否使用本地时间戳代替event header的时间戳
 a1.sinks.k1.hdfs.batchSize = 1000              # 有1000个event写入文件就flush到hdfs
