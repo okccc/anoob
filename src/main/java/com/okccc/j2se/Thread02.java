@@ -66,184 +66,186 @@ public class Thread02 {
         new Thread(new Input(pis)).start();
         new Thread(new Output(pos)).start();
     }
-}
 
-// 共享数据
-class Data1 {
-    int count = 0;
+    // 共享数据
+    public static class Data1 {
+        int count = 0;
 
-    // wait和notify要放在同步代码块/方法中,不然报错java.lang.IllegalMonitorStateException
-    public synchronized void produce() {
-        // count >= 10表示生产10个再消费,count >= 1就是生产1个就消费
-        while (count >= 10) {
-            try {
-                // 数据满了就等待一下
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            // 控制一下生产速度
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(Thread.currentThread().getName() + "生产了一个数据,目前库存为：" + (++count));
-        // 唤醒消费者去消费数据
-        notifyAll();
-    }
-
-    public synchronized void consume() {
-        while (count <= 0) {
-            try {
-                // 没有数据就等一下
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            // 控制一下消费速度
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(Thread.currentThread().getName() + "消费了一个数据,目前库存为：" + (--count));
-        // 唤醒生产者去生产数据
-        notifyAll();
-    }
-}
-
-class Data {
-    int count = 0;
-
-    // 通过Lock接口的子类ReentrantLock创建锁对象
-    Lock lock = new ReentrantLock();
-    // 用已有的锁对象创建两组监视器,分别监视生产者和消费者
-    Condition c1 = lock.newCondition();
-    Condition c2 = lock.newCondition();
-
-    public void produce() {
-        // 获取锁
-        lock.lock();
-        // count >= 10表示生产10个再消费,count >= 1就是生产1个就消费
-        while (count >= 1) {
-            try {
-                // 生产者监视器
-                c1.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            // 控制一下生产速度
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(Thread.currentThread().getName() + "生产了一个数据,目前库存为：" + (++count));
-        // 消费者监视器
-        c2.signal();
-        // 释放锁
-        lock.unlock();
-    }
-
-    public void consume() {
-        // 获取锁
-        lock.lock();
-        while (count <= 0) {
-            try {
-                // 消费者监视器
-                c2.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            // 控制一下消费速度
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(Thread.currentThread().getName() + "消费了一个数据,目前库存为：" + (--count));
-        // 生产者监视器
-        c1.signal();
-        // 释放锁
-        lock.unlock();
-    }
-}
-
-// 生产者
-class Producer implements Runnable{
-    Data data;
-    public Producer(Data data) {
-        this.data = data;
-    }
-    @Override
-    public void run() {
-        while (true) {
-            // 生产数据
-            data.produce();
-        }
-    }
-}
-
-// 消费者
-class Consumer implements Runnable{
-    Data data;
-    public Consumer(Data data) {
-        this.data = data;
-    }
-    @Override
-    public void run() {
-        while (true) {
-            // 消费数据
-            data.consume();
-        }
-    }
-}
-
-// 操作管道输入流的线程
-class Input implements Runnable{
-    // 将管道输入流作为参数传入
-    private final PipedInputStream pis;
-    public Input(PipedInputStream pis) {
-        this.pis = pis;
-    }
-    @Override
-    public void run() {
-        byte[] arr = new byte[1024];
-        try {
-            while(pis.read(arr) != -1){
-                System.out.println(new String(arr));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-// 操作管道输出流的线程
-class Output implements Runnable{
-    // 将管道输出流作为参数传入
-    private final PipedOutputStream pos;
-    public Output(PipedOutputStream pos) {
-        this.pos = pos;
-    }
-    @Override
-    public void run() {
-        while(true){
-            try {
-                pos.write("往管道输出流写数据\r\n".getBytes());
+        // wait和notify要放在同步代码块/方法中,不然报错java.lang.IllegalMonitorStateException
+        public synchronized void produce() {
+            // count >= 10表示生产10个再消费,count >= 1就是生产1个就消费
+            while (count >= 10) {
                 try {
-                    Thread.sleep(10);
+                    // 数据满了就等待一下
+                    wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+            }
+            try {
+                // 控制一下生产速度
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + "生产了一个数据,目前库存为：" + (++count));
+            // 唤醒消费者去消费数据
+            notifyAll();
+        }
+
+        public synchronized void consume() {
+            while (count <= 0) {
+                try {
+                    // 没有数据就等一下
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                // 控制一下消费速度
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + "消费了一个数据,目前库存为：" + (--count));
+            // 唤醒生产者去生产数据
+            notifyAll();
+        }
+    }
+
+    public static class Data {
+        int count = 0;
+
+        // 通过Lock接口的子类ReentrantLock创建锁对象
+        Lock lock = new ReentrantLock();
+        // 用已有的锁对象创建两组监视器,分别监视生产者和消费者
+        Condition c1 = lock.newCondition();
+        Condition c2 = lock.newCondition();
+
+        public void produce() {
+            // 获取锁
+            lock.lock();
+            // count >= 10表示生产10个再消费,count >= 1就是生产1个就消费
+            while (count >= 1) {
+                try {
+                    // 生产者监视器
+                    c1.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                // 控制一下生产速度
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + "生产了一个数据,目前库存为：" + (++count));
+            // 消费者监视器
+            c2.signal();
+            // 释放锁
+            lock.unlock();
+        }
+
+        public void consume() {
+            // 获取锁
+            lock.lock();
+            while (count <= 0) {
+                try {
+                    // 消费者监视器
+                    c2.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                // 控制一下消费速度
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + "消费了一个数据,目前库存为：" + (--count));
+            // 生产者监视器
+            c1.signal();
+            // 释放锁
+            lock.unlock();
+        }
+    }
+
+    // 生产者
+    public static class Producer implements Runnable{
+        Data data;
+        public Producer(Data data) {
+            this.data = data;
+        }
+        @Override
+        public void run() {
+            while (true) {
+                // 生产数据
+                data.produce();
+            }
+        }
+    }
+
+    // 消费者
+    public static class Consumer implements Runnable{
+        Data data;
+        public Consumer(Data data) {
+            this.data = data;
+        }
+        @Override
+        public void run() {
+            while (true) {
+                // 消费数据
+                data.consume();
+            }
+        }
+    }
+
+    // 操作管道输入流的线程
+    public static class Input implements Runnable{
+        // 将管道输入流作为参数传入
+        private final PipedInputStream pis;
+        public Input(PipedInputStream pis) {
+            this.pis = pis;
+        }
+        @Override
+        public void run() {
+            byte[] arr = new byte[1024];
+            try {
+                while(pis.read(arr) != -1){
+                    System.out.println(new String(arr));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
+    // 操作管道输出流的线程
+    public static class Output implements Runnable{
+        // 将管道输出流作为参数传入
+        private final PipedOutputStream pos;
+        public Output(PipedOutputStream pos) {
+            this.pos = pos;
+        }
+        @Override
+        public void run() {
+            while(true){
+                try {
+                    pos.write("往管道输出流写数据\r\n".getBytes());
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
+
+

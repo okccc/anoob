@@ -6,7 +6,6 @@ import java.net.*;
 @SuppressWarnings("unused")
 public class IONetDemo {
     public static void main(String[] args) throws Exception {
-
         /*
          * 网络模型
          * OSI七层模型                       TCP/IP模型
@@ -76,7 +75,7 @@ public class IONetDemo {
         // 获取打开该url连接的输入流
         InputStream is = url.openStream();
         // 创建输出流
-        FileOutputStream fos = new FileOutputStream("ability/output/baidu",true);
+        FileOutputStream fos = new FileOutputStream("output/baidu",true);
         // 读写数据
         byte[] arr = new byte[1024];
         while(is.read(arr) != -1){
@@ -87,33 +86,31 @@ public class IONetDemo {
         fos.close();
     }
 
-}
+    public static class TCPServer {
+        public static void main(String[] args) throws IOException {
+            // 创建服务端Socket服务,绑定端口
+            ServerSocket ss = new ServerSocket(9999);
+            // 监听Socket,该方法阻塞直到建立连接为止
+            Socket s = ss.accept();
+            // 检测是否有客户端连接
+            String ip = s.getInetAddress().getHostAddress();
+            String host = s.getInetAddress().getHostName();
+            int port = s.getPort();
+            System.out.println(ip +" - "+ host +" - "+ port +"...已连接");
 
-class TCPServer {
-    public static void main(String[] args) throws IOException {
-        // 创建服务端Socket服务,绑定端口
-        ServerSocket ss = new ServerSocket(9999);
-        // 监听Socket,该方法阻塞直到建立连接为止
-        Socket s = ss.accept();
-        // 检测是否有客户端连接
-        String ip = s.getInetAddress().getHostAddress();
-        String host = s.getInetAddress().getHostName();
-        int port = s.getPort();
-        System.out.println(ip +" - "+ host +" - "+ port +"...已连接");
+            // Socket输入流
+            InputStream is = s.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            // Socket输出流
+            OutputStream os = s.getOutputStream();
+            PrintWriter pw = new PrintWriter(s.getOutputStream(),true);
+            // 字节文件输出流
+            File file = new File("output/aaa.png");
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+            // 字符文件输出流
+            BufferedWriter bw = new BufferedWriter(new FileWriter("output/aaa.txt"));
 
-        // Socket输入流
-        InputStream is = s.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-        // Socket输出流
-        OutputStream os = s.getOutputStream();
-        PrintWriter pw = new PrintWriter(s.getOutputStream(),true);
-        // 字节文件输出流
-        File file = new File("ability/output/avatar.jpg");
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-        // 字符文件输出流
-        BufferedWriter bw = new BufferedWriter(new FileWriter("ability/output/aaa.txt"));
-
-        // 1.聊天信息
+            // 1.聊天信息
 //        String line;
 //        while ((line = br.readLine()) != null) {
 //            // 结束标记
@@ -126,7 +123,7 @@ class TCPServer {
 //            pw.println(line.toUpperCase());
 //        }
 
-        // 2.接收文本文件
+            // 2.接收文本文件
 //        String line1;
 //        while ((line1 = br.readLine()) != null) {
 //            bw.write(line1);
@@ -135,46 +132,46 @@ class TCPServer {
 //        // 响应客户端
 //        pw.println("上传成功");
 
-        // 3.接收二进制文件
-        byte[] buf = new byte[1024];
-        while (is.read(buf) != -1) {
-            bos.write(buf);
-            // 可以限制文件大小
-            if (file.length() > 102400) {
-                bos.close();
-                pw.println("上传失败,文件大小超过限制" + file.delete());
-                break;
+            // 3.接收二进制文件
+            byte[] buf = new byte[1024];
+            while (is.read(buf) != -1) {
+                bos.write(buf);
+                // 可以限制文件大小
+                if (file.length() > 1024 * 1024) {
+                    bos.close();
+                    pw.println("上传失败,文件大小超过限制" + file.delete());
+                    break;
+                }
             }
-        }
-        // 响应客户端
-        pw.println("上传成功");
+            // 响应客户端
+            pw.println("上传成功");
 
-        // 关闭流和套接字,缓冲输出流的close()方法会调用flush(),所以一定要关流,不然数据还在缓冲区没有刷出去,或者write()之后手动flush()
-        bos.close();
-        bw.close();
+            // 关闭流和套接字,缓冲输出流的close()方法会调用flush(),所以一定要关流,不然数据还在缓冲区没有刷出去,或者write()之后手动flush()
+            bos.close();
+            bw.close();
 //        ss.close();
+        }
     }
-}
 
-class TCPClient {
-    public static void main(String[] args) throws IOException {
-        // 创建客户端Socket服务,指定ip和端口
-        Socket s = new Socket(InetAddress.getLocalHost(), 9999);
+    public static class TCPClient {
+        public static void main(String[] args) throws IOException {
+            // 创建客户端Socket服务,指定ip和端口
+            Socket s = new Socket(InetAddress.getLocalHost(), 9999);
 
-        // 标准输入流
-        BufferedReader br1 = new BufferedReader(new InputStreamReader(System.in));
-        // 字节文件输入流
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("ability/input/avatar.jpg"));
-        // 字符文件输入流
-        BufferedReader br2 = new BufferedReader(new FileReader("ability/input/aaa.txt"));
-        // Socket输入流
-        InputStream is = s.getInputStream();
-        BufferedReader br3 = new BufferedReader(new InputStreamReader(s.getInputStream()));
-        // Socket输出流
-        OutputStream os = s.getOutputStream();
-        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+            // 标准输入流
+            BufferedReader br1 = new BufferedReader(new InputStreamReader(System.in));
+            // 字节文件输入流
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream("input/aaa.png"));
+            // 字符文件输入流
+            BufferedReader br2 = new BufferedReader(new FileReader("input/aaa.txt"));
+            // Socket输入流
+            InputStream is = s.getInputStream();
+            BufferedReader br3 = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            // Socket输出流
+            OutputStream os = s.getOutputStream();
+            PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
 
-        // 1.聊天信息
+            // 1.聊天信息
 //        String line;
 //        while ((line = br1.readLine()) != null) {
 //            // 客户端先发送数据,PrintStream/PrintWriter类的 println() = write() + flush() + newLine()
@@ -188,7 +185,7 @@ class TCPClient {
 //            System.out.println(res);
 //        }
 
-        // 2.上传文本文件
+            // 2.上传文本文件
 //        String line1;
 //        while ((line1 = br2.readLine()) != null) {
 //            pw.println(line1);
@@ -198,69 +195,70 @@ class TCPClient {
 //        // 接收服务端响应
 //        System.out.println(br3.readLine());
 
-        // 3.上传二进制文件
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = bis.read(buf)) != -1) {
-            os.write(buf, 0, len);
-        }
-        // 禁用该Socket的输出流,将先前写入的数据发送出去
-        s.shutdownOutput();
-        // 接收服务端响应
-        System.out.println(br3.readLine());
-
-        // 关闭套接字
-        s.close();
-    }
-}
-
-class UDPSend {
-    public static void main(String[] args) throws IOException {
-        // 创建数据报Socket对象,绑定到本地主机的任意可用端口
-        DatagramSocket ds = new DatagramSocket();
-        // 标准输入流
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        // 读写数据
-        String line;
-        while ((line = br.readLine()) != null) {
-            // 转换成字节数组
-            byte[] buf = line.getBytes();
-            // 创建数据包对象,封装要发送的数据,发送到指定主机的指定端口
-            DatagramPacket dp = new DatagramPacket(buf, buf.length, InetAddress.getLocalHost(), 7777);
-            // 使用套接字发送数据包
-            ds.send(dp);
-            // 结束标记
-            if ("over".equalsIgnoreCase(line)) {
-                break;
-            }
-        }
-        // 关闭套接字
-        ds.close();
-    }
-}
-
-class UDPReceive {
-    public static void main(String[] args) throws IOException {
-        // 创建数据报Socket服务,绑定到指定主机的指定端口
-        DatagramSocket ds = new DatagramSocket(7777);
-        while (true) {
+            // 3.上传二进制文件
             byte[] buf = new byte[1024];
-            // 创建空数据包对象,准备接收数据
-            DatagramPacket dp = new DatagramPacket(buf, buf.length);
-            // 从套接字中接收数据包,该方法阻塞直到接收到一个datagram
-            ds.receive(dp);
-            // 拆解数据包
-            String ip = dp.getAddress().getHostAddress();
-            String host = dp.getAddress().getHostName();
-            int port = dp.getPort();
-            String data = new String(dp.getData(), 0, dp.getLength());
-            // 结束标记
-            if ("over".equalsIgnoreCase(data)) {
-                break;
+            int len;
+            while ((len = bis.read(buf)) != -1) {
+                os.write(buf, 0, len);
             }
-            System.out.println(ip +" - "+ host +" - "+ port +" - "+ data);
+            // 禁用该Socket的输出流,将先前写入的数据发送出去
+            s.shutdownOutput();
+            // 接收服务端响应
+            System.out.println(br3.readLine());
+
+            // 关闭套接字
+            s.close();
         }
-        // 关闭套接字
-        ds.close();
+    }
+
+    public static class UDPSend {
+        public static void main(String[] args) throws IOException {
+            // 创建数据报Socket对象,绑定到本地主机的任意可用端口
+            DatagramSocket ds = new DatagramSocket();
+            // 标准输入流
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            // 读写数据
+            String line;
+            while ((line = br.readLine()) != null) {
+                // 转换成字节数组
+                byte[] buf = line.getBytes();
+                // 创建数据包对象,封装要发送的数据,发送到指定主机的指定端口
+                DatagramPacket dp = new DatagramPacket(buf, buf.length, InetAddress.getLocalHost(), 7777);
+                // 使用套接字发送数据包
+                ds.send(dp);
+                // 结束标记
+                if ("over".equalsIgnoreCase(line)) {
+                    break;
+                }
+            }
+            // 关闭套接字
+            ds.close();
+        }
+    }
+
+    public static class UDPReceive {
+        public static void main(String[] args) throws IOException {
+            // 创建数据报Socket服务,绑定到指定主机的指定端口
+            DatagramSocket ds = new DatagramSocket(7777);
+            while (true) {
+                byte[] buf = new byte[1024];
+                // 创建空数据包对象,准备接收数据
+                DatagramPacket dp = new DatagramPacket(buf, buf.length);
+                // 从套接字中接收数据包,该方法阻塞直到接收到一个datagram
+                ds.receive(dp);
+                // 拆解数据包
+                String ip = dp.getAddress().getHostAddress();
+                String host = dp.getAddress().getHostName();
+                int port = dp.getPort();
+                String data = new String(dp.getData(), 0, dp.getLength());
+                // 结束标记
+                if ("over".equalsIgnoreCase(data)) {
+                    break;
+                }
+                System.out.println(ip +" - "+ host +" - "+ port +" - "+ data);
+            }
+            // 关闭套接字
+            ds.close();
+        }
     }
 }

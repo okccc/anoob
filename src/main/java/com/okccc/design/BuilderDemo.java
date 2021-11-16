@@ -24,73 +24,72 @@ public class BuilderDemo {
         User user = new User.Builder().setName("fly").setMobile("111").setEmail("orc@qq.com").build();
         System.out.println(user.getName());
     }
-}
 
-// 普通模式
-class User01 {
-    private String name;
-    private String address;
-    private String email;
-
-    // 包含name和address的构造方法
-    public User01(String name, String address) {
-        this.name = name;
-        this.address = address;
-    }
-    // 包含name和email的构造方法
-    // 当构造方法的参数个数和参数类型完全一样时,方法重载会报错：User01(String, String) is already defined in com.okccc.design.User
-//    public User01(String name, String email) {
-//        this.name = name;
-//        this.address = address;
-//    }
-}
-
-// 构造者模式
-class User {
-    private String name;
-    private String mobile;
-    private String email;
-
-    public User(Builder builder) {
-        this.name = builder.name;
-        this.mobile = builder.mobile;
-        this.email = builder.email;
+    // 普通模式
+    public static class User01 {
+        private String name;
+        private String address;
+        private String email;
+        // 包含name和address的构造方法
+        public User01(String name, String address) {
+            this.name = name;
+            this.address = address;
+        }
+        // 包含name和email的构造方法
+        // 当构造方法的参数个数和参数类型完全一样时,方法重载会报错：User01(String, String) is already defined in com.okccc.design.User
+//        public User01(String name, String email) {
+//            this.name = name;
+//            this.address = address;
+//        }
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public static class Builder {
+    // 构造者模式
+    public static class User {
         private String name;
         private String mobile;
         private String email;
 
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
+        public User(Builder builder) {
+            this.name = builder.name;
+            this.mobile = builder.mobile;
+            this.email = builder.email;
         }
 
-        public Builder setMobile(String mobile) {
-            this.mobile = mobile;
-            return this;
+        public String getName() {
+            return name;
         }
 
-        public Builder setEmail(String email) {
-            this.email = email;
-            return this;
+        public String getMobile() {
+            return mobile;
         }
 
-        public User build() {
-            return new User(this);
+        public String getEmail() {
+            return email;
+        }
+
+        public static class Builder {
+            private String name;
+            private String mobile;
+            private String email;
+
+            public Builder setName(String name) {
+                this.name = name;
+                return this;
+            }
+
+            public Builder setMobile(String mobile) {
+                this.mobile = mobile;
+                return this;
+            }
+
+            public Builder setEmail(String email) {
+                this.email = email;
+                return this;
+            }
+
+            public User build() {
+                return new User(this);
+            }
         }
     }
 }

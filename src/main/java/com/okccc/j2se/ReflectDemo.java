@@ -179,7 +179,7 @@ public class ReflectDemo {
         // 创建属性集合
         Properties prop = new Properties();
         // 关联输入流,从文件读取属性
-        FileReader fr = new FileReader(new File("ability/input/pci.properties"));
+        FileReader fr = new FileReader(new File("input/pci.properties"));
         prop.load(fr);
         // 遍历集合
         Set<String> keys = prop.stringPropertyNames();
@@ -202,52 +202,53 @@ public class ReflectDemo {
         }
     }
 
-}
+    // 主板
+    public static class MainBoard {
+        // 主板自身功能
+        public void run(){
+            System.out.println("我是主板");
+        }
 
-// 主板
-class MainBoard {
-    // 主板自身功能
-    public void run(){
-        System.out.println("我是主板");
-    }
-
-    // 主板对外提供添加接口功能
-    public void invokePCI(PCI p){
-        if (p != null) {
-            p.open();
-            p.close();
+        // 主板对外提供添加接口功能
+        public void invokePCI(PCI p){
+            if (p != null) {
+                p.open();
+                p.close();
+            }
         }
     }
-}
 
-// 网卡、声卡等组件都具备开启关闭功能,向上抽取成接口
-interface PCI {
-    void open();
-    void close();
-}
-
-// 网卡
-class NetCard implements PCI {
-    @Override
-    public void open() {
-        System.out.println("net open");
+    // 网卡、声卡等组件都具备开启关闭功能,向上抽取成接口
+    public interface PCI {
+        void open();
+        void close();
     }
 
-    @Override
-    public void close() {
-        System.out.println("net close");
+    // 网卡
+    public static class NetCard implements PCI {
+        @Override
+        public void open() {
+            System.out.println("net open");
+        }
+
+        @Override
+        public void close() {
+            System.out.println("net close");
+        }
     }
+
+    // 声卡
+    public static class SoundCard implements PCI{
+        @Override
+        public void open() {
+            System.out.println("sound open");
+        }
+
+        @Override
+        public void close() {
+            System.out.println("sound close");
+        }
+    }
+
 }
 
-// 声卡
-class SoundCard implements PCI{
-    @Override
-    public void open() {
-        System.out.println("sound open");
-    }
-
-    @Override
-    public void close() {
-        System.out.println("sound close");
-    }
-}

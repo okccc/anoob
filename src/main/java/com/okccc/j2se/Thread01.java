@@ -143,71 +143,72 @@ public class Thread01 {
             }
         }
     }
-}
 
-// 继承Thread类
-class Tickets01 extends Thread {
-    // tickets是共享数据,要定义成静态,不然3个窗口会卖300张票,但是静态随着类的加载而加载生命周期过长
-    static int tickets = 100;
-    @Override
-    public void run() {
-        while (true) {
-            if (tickets <= 0) {
-                System.out.println("票已售完");
-                break;
-            }
-            System.out.println(Thread.currentThread().getName() + " 卖了一张票,剩余票数为: " + (--tickets));
-        }
-    }
-}
-
-// 实现Runnable接口
-class Tickets02 implements Runnable {
-    int tickets = 100;
-    @Override
-    public void run() {
-        while (true) {
-            // 同步代码块,给操作共享数据的代码块上锁
-            synchronized (this) {
+    // 继承Thread类
+    public static class Tickets01 extends Thread {
+        // tickets是共享数据,要定义成静态,不然3个窗口会卖300张票,但是静态随着类的加载而加载生命周期过长
+        static int tickets = 100;
+        @Override
+        public void run() {
+            while (true) {
                 if (tickets <= 0) {
                     System.out.println("票已售完");
                     break;
                 }
-                try {
-                    // 线程运行太快了暂停一下,释放cpu执行权和执行资格,让别的线程也能执行
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                // 不加锁的话可能会卖-1,-2张票,取款机取钱同理
                 System.out.println(Thread.currentThread().getName() + " 卖了一张票,剩余票数为: " + (--tickets));
             }
         }
     }
-}
 
-class Bank implements Runnable {
-    int sum = 0;
-    @Override
-    public void run() {
-        synchronized (this) {
-            for (int i=1; i<=5; i++) {
-                sum += 1000;
-                System.out.println(Thread.currentThread().getName() + "银行余额: " + sum);
+    // 实现Runnable接口
+    public static class Tickets02 implements Runnable {
+        int tickets = 100;
+        @Override
+        public void run() {
+            while (true) {
+                // 同步代码块,给操作共享数据的代码块上锁
+                synchronized (this) {
+                    if (tickets <= 0) {
+                        System.out.println("票已售完");
+                        break;
+                    }
+                    try {
+                        // 线程运行太快了暂停一下,释放cpu执行权和执行资格,让别的线程也能执行
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // 不加锁的话可能会卖-1,-2张票,取款机取钱同理
+                    System.out.println(Thread.currentThread().getName() + " 卖了一张票,剩余票数为: " + (--tickets));
+                }
+            }
+        }
+    }
+
+    public static class Bank implements Runnable {
+        int sum = 0;
+        @Override
+        public void run() {
+            synchronized (this) {
+                for (int i=1; i<=5; i++) {
+                    sum += 1000;
+                    System.out.println(Thread.currentThread().getName() + "银行余额: " + sum);
+                }
+            }
+        }
+    }
+
+    public static class Stop implements Runnable {
+        boolean flag = true;
+        public void setFlag(boolean flag) {
+            this.flag = flag;
+        }
+        @Override
+        public void run() {
+            while (flag) {
+                System.out.println(Thread.currentThread().getName() + "..." + "thread is running");
             }
         }
     }
 }
 
-class Stop implements Runnable {
-    boolean flag = true;
-    public void setFlag(boolean flag) {
-        this.flag = flag;
-    }
-    @Override
-    public void run() {
-        while (flag) {
-            System.out.println(Thread.currentThread().getName() + "..." + "thread is running");
-        }
-    }
-}
