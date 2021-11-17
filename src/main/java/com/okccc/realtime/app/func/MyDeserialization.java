@@ -16,7 +16,7 @@ import org.apache.kafka.connect.source.SourceRecord;
  */
 public class MyDeserialization implements DebeziumDeserializationSchema<String> {
     @Override
-    public void deserialize(SourceRecord sourceRecord, Collector<String> collector) throws Exception {
+    public void deserialize(SourceRecord sourceRecord, Collector<String> collector) {
         Struct valueStruct = (Struct) sourceRecord.value();
         Struct sourceStrut = valueStruct.getStruct("source");
         // 获取数据库
@@ -25,15 +25,15 @@ public class MyDeserialization implements DebeziumDeserializationSchema<String> 
         String table = sourceStrut.getString("table");
         // 获取类型
         String type = Envelope.operationFor(sourceRecord).toString().toLowerCase();
-        if(type.equals("create")){
-            type="insert";
+        if ("create".equals(type)) {
+            type = "insert";
         }
 
         // 封装成JSON对象
         JSONObject jsonObj = new JSONObject();
-        jsonObj.put("database",database);
-        jsonObj.put("table",table);
-        jsonObj.put("type",type);
+        jsonObj.put("database", database);
+        jsonObj.put("table", table);
+        jsonObj.put("type", type);
 
         // 获取影响的数据data
         // 源格式：id=1, name=aaa, age=17

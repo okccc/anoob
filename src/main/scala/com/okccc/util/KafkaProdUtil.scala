@@ -39,18 +39,23 @@ object KafkaProdUtil {
   }
 
   def main(args: Array[String]): Unit = {
-    // 获取topic
-    val topic: String = Configs.get(Configs.NGINX_TOPICS)
     // 读取文件数据写入kafka
-    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/UserBehavior.csv")
-//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/AdClickLog.csv")
-//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/apache.log")
-//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/LoginLog.csv")
-//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/OrderLog.csv")
-//    val source: BufferedSource = scala.io.Source.fromFile("/Users/okc/projects/anoob/input/ReceiptLog.csv")
+    val source: BufferedSource = scala.io.Source.fromFile("input/UserBehavior.csv")  // 热门商品排行
+//    val source: BufferedSource = scala.io.Source.fromFile("input/apache.log")  // 热门页面排行
+    //    val source: BufferedSource = scala.io.Source.fromFile("input/AdClickLog.csv")  // 广告点击事件
+//    val source: BufferedSource = scala.io.Source.fromFile("input/LoginLog.csv")  // 登录事件
+    val source1: BufferedSource = scala.io.Source.fromFile("input/OrderLog.csv")  // 订单事件
+    val source2: BufferedSource = scala.io.Source.fromFile("input/ReceiptLog.csv")  // 到账事件
     for (line <- source.getLines()) {
-      sendData(topic, line)
+      println(line)
+      sendData("nginx", line)
     }
+//    for (line <- source1.getLines()) {
+//      sendData("order", line)
+//    }
+//    for (line <- source2.getLines()) {
+//      sendData("receipt", line)
+//    }
   }
 
 }

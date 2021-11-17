@@ -5,7 +5,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +19,9 @@ public class RedisUtil {
     // 声明jedis连接池
     private static JedisPool jedisPool;
 
-    // 从jedis连接池中获取jedis
+    /**
+     * 从jedis连接池中获取jedis
+     */
     public static Jedis getJedis() {
         if (jedisPool == null) {
             initJedisPool();
@@ -28,7 +29,9 @@ public class RedisUtil {
         return jedisPool.getResource();
     }
 
-    // 创建jedis连接池
+    /**
+     * 创建jedis连接池
+     */
     public static void initJedisPool() {
         // 设置连接池配置信息
         JedisPoolConfig poolConfig = new JedisPoolConfig();
@@ -42,7 +45,7 @@ public class RedisUtil {
         jedisPool =  new JedisPool(poolConfig, MyConfig.REDIS_HOST, MyConfig.REDIS_PORT);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // 测试连接
         Jedis jedis = getJedis();
         System.out.println(jedis.ping());  // PONG

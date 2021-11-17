@@ -5,6 +5,7 @@ import java.net.URLDecoder
 import java.util
 
 import com.alibaba.fastjson.{JSON, JSONArray, JSONException, JSONObject}
+import com.okccc.realtime.utils.StringUtil
 import org.apache.spark.sql.Row
 import org.slf4j.{Logger, LoggerFactory}
 

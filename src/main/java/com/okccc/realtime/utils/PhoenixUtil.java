@@ -13,11 +13,14 @@ import java.util.List;
  * Date: 2021/10/22 下午3:17
  * Desc: 使用phoenix读写hbase的工具类
  */
-public class HbaseUtil {
+public class PhoenixUtil {
 
+    // 声明数据库连接
     private static Connection conn;
 
-    // 获取数据库连接
+    /**
+     * 获取数据库连接
+     */
     public static void initConnection() {
         try {
             // 通过反射加载驱动
@@ -31,7 +34,9 @@ public class HbaseUtil {
         }
     }
 
-    // 关闭数据库连接
+    /**
+     * 关闭数据库连接
+     */
     public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
         if (conn != null) {
             try {
@@ -56,7 +61,9 @@ public class HbaseUtil {
         }
     }
 
-    // 批量查询
+    /**
+     * 批量查询
+     */
     public static <T> List<T> queryList(String sql, Class<T> clazz) {
         // 存放结果集的列表
         List<T> list = new ArrayList<>();
@@ -100,7 +107,9 @@ public class HbaseUtil {
         return list;
     }
 
-    // 更新操作
+    /**
+     * 更新操作
+     */
     public static void upsert(String sql) {
         if (conn == null) {
             initConnection();
@@ -123,8 +132,8 @@ public class HbaseUtil {
     }
 
     public static void main(String[] args) {
-        upsert("upsert into realtime.dim_base_trademark values('13', '华为')");
-        List<JSONObject> jsonObjects = queryList("select * from realtime.dim_base_trademark", JSONObject.class);
+        upsert("upsert into dim_base_trademark values('13', '小米')");
+        List<JSONObject> jsonObjects = queryList("select * from dim_base_trademark", JSONObject.class);
         System.out.println(jsonObjects);
     }
 }
