@@ -8,7 +8,6 @@ import io.debezium.data.Envelope;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Struct;
@@ -17,7 +16,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 /**
  * Author: okccc
  * Date: 2021/8/27 上午10:22
- * Desc: 动态读取mysql数据
+ * Desc: flink-cdc动态读取mysql数据
  */
 public class FlinkCdc {
     public static void main(String[] args) throws Exception {
@@ -37,22 +36,13 @@ public class FlinkCdc {
         // 设置并行度
         env.setParallelism(1);
 
-        // DataStream-api方式(常用)
-        demo01(env);
-        // Table/Sql-api方式,1.12版本可以,1.13版本有点问题
-//        demo02(env);
-
-        // 启动任务
-        env.execute();
-    }
-
-    private static void demo01(StreamExecutionEnvironment env) {
+        // DataStream-api方式(推荐)
         // 获取数据源
         SourceFunction<String> sourceFunction = MySQLSource.<String>builder()
                 .hostname("localhost")
                 .port(3306)
                 .databaseList("realtime")
-                .tableList("realtime.t_user, realtime.table_process")
+//                .tableList("realtime.t_user, realtime.table_process")
                 .username("root")
                 .password("root@123")
                 .startupOptions(StartupOptions.initial())  // initial启动时会扫描历史数据,然后继续读取最新的binlog
@@ -62,38 +52,40 @@ public class FlinkCdc {
         env
                 .addSource(sourceFunction)
                 .print();
-    }
 
-    private static void demo02(StreamExecutionEnvironment env) {
-        // 创建表执行环境
-        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
-        // 转换动态表
-        tableEnv.executeSql(
-                "CREATE TABLE user_info (" +
-                        " id INT NOT NULL," +
-                        " name STRING," +
-                        " age INT" +
-                        ") WITH (" +
-                        " 'connector' = 'mysql-cdc'," +
-                        " 'hostname' = 'localhost'," +
-                        " 'port' = '3306'," +
-                        " 'username' = 'root'," +
-                        " 'password' = 'root@123'," +
-                        " 'database-name' = 'realtime'," +
-                        " 'table-name' = 't_user'" +
-                        ")"
-        );
+        // Table/Sql-api方式(1.12版本可以,1.13版本不行)
+//        // 创建表执行环境
+//        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+//        // 转换动态表
+//        tableEnv.executeSql(
+//                "CREATE TABLE user_info (" +
+//                        " id INT NOT NULL," +
+//                        " name STRING," +
+//                        " age INT" +
+//                        ") WITH (" +
+//                        " 'connector' = 'mysql-cdc'," +
+//                        " 'hostname' = 'localhost'," +
+//                        " 'port' = '3306'," +
+//                        " 'username' = 'root'," +
+//                        " 'password' = 'root@123'," +
+//                        " 'database-name' = 'realtime'," +
+//                        " 'table-name' = 't_user'" +
+//                        ")"
+//        );
+//
+//        // 查询数据
+//        tableEnv
+//                .executeSql("select * from user_info")
+//                .print();
 
-        // 查询数据
-        tableEnv
-                .executeSql("select * from user_info")
-                .print();
+        // 启动任务
+        env.execute();
     }
 
     // 自定义反序列化器,封装返回的数据格式,方便解析
     public static class MyStringDeserializationSchema implements DebeziumDeserializationSchema<String> {
         @Override
-        public void deserialize(SourceRecord sourceRecord, Collector<String> collector) throws Exception {
+        public void deserialize(SourceRecord sourceRecord, Collector<String> collector) {
             Struct valueStruct = (Struct) sourceRecord.value();
             Struct sourceStrut = valueStruct.getStruct("source");
             // 获取数据库
@@ -102,15 +94,15 @@ public class FlinkCdc {
             String table = sourceStrut.getString("table");
             // 获取类型
             String type = Envelope.operationFor(sourceRecord).toString().toLowerCase();
-            if(type.equals("create")){
-                type="insert";
+            if ("create".equals(type)) {
+                type = "insert";
             }
 
             // 封装成JSON对象
             JSONObject jsonObj = new JSONObject();
-            jsonObj.put("database",database);
-            jsonObj.put("table",table);
-            jsonObj.put("type",type);
+            jsonObj.put("database", database);
+            jsonObj.put("table", table);
+            jsonObj.put("type", type);
 
             // 获取影响的数据data
             // 源格式：id=1, name=aaa, age=17

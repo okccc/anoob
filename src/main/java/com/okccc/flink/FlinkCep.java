@@ -207,12 +207,13 @@ public class FlinkCep {
         // 将pattern应用到数据流
         PatternStream<OrderEvent> patternStream = CEP.pattern(inputStream.keyBy(r -> r.orderId), pattern);
 
-        // flatSelect也能提取匹配事件
+        // 声明侧输出流标签
+        OutputTag<String> outputTag = new OutputTag<String>("timeout") {};
+        // flatSelect也可以提取匹配事件
         SingleOutputStreamOperator<String> result = patternStream
                 .flatSelect(
                         // 将超时订单放到侧输出流
-                        new OutputTag<String>("timeout") {
-                        },
+                        outputTag,
                         // 超时订单：创建后未支付或超时支付
                         new PatternFlatTimeoutFunction<OrderEvent, String>() {
                             @Override
@@ -231,8 +232,10 @@ public class FlinkCep {
                         }
                 );
 
+        // 打印测试
         result.print();
-        result.getSideOutput(new OutputTag<String>("timeout"){}).print("output");
+        // 获取侧输出流
+        result.getSideOutput(outputTag).print("output");
     }
 
     // POJO类

@@ -74,7 +74,7 @@ public class Flink01 {
          *
          * 一致性检查点
          * flink故障恢复机制的核心就是应用状态的一致性检查点,就是当所有任务恰好处理完一个相同输入数据时(检查点屏障),会将当前状态做一份拷贝(快照)
-         * 故障恢复机制保证flink内部的精确一次性：1.重启应用 2.从checkpoint读取状态,将状态重置 3.开始消费并处理检查点到发生故障之间的所有数据
+         * 故障恢复机制保证flink内部的精确一次性：重启应用 -> 从checkpoint读取状态,将状态重置 -> 开始消费并处理检查点到发生故障之间的所有数据
          * 检查点的实现算法
          * 同步实现：暂停应用,保存状态到检查点,再重新恢复应用(sparkStreaming)
          * 异步实现：基于Chandy-Lamport的分布式异步快照算法,将检查点的保存和数据处理分开,不暂停应用(flink)
@@ -83,7 +83,6 @@ public class Flink01 {
          * Source端：kafka-consumer会保存偏移量,故障恢复时由连接器重置偏移量
          * 流处理端：flink一致性检查点checkpoint,分布式异步快照算法,保证内部状态一致性
          * Sink端：从故障恢复时数据不会重复写入外部系统,幂等写入或事务写入,FlinkKafkaProducer采用两阶段提交
-         * 幂等写入：不管操作重复执行多少次结果都不会改变
          * 两阶段提交：sink任务会将每个checkpoint接收到的数据添加到下游系统(mysql/kafka)的事务里,将这些数据写入外部sink系统但不提交,
          * 当收到checkpoint完成的通知时才正式提交事务将数据写入,flink提供了TwoPhaseCommitSinkFunction
          */
