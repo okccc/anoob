@@ -62,7 +62,7 @@ public class PhoenixUtil {
     }
 
     /**
-     * 批量查询
+     * 批量查询,通过phoenix操作的schema/table/field都会变成大写
      */
     public static <T> List<T> queryList(String sql, Class<T> clazz) {
         // 存放结果集的列表
@@ -132,8 +132,8 @@ public class PhoenixUtil {
     }
 
     public static void main(String[] args) {
-        upsert("upsert into dim_base_trademark values('13', '小米')");
+        upsert("upsert into dim_base_trademark values('12', '小米')");
         List<JSONObject> jsonObjects = queryList("select * from dim_base_trademark", JSONObject.class);
-        System.out.println(jsonObjects);
+        System.out.println(jsonObjects);  // [{"ID":"12","TM_NAME":"小米"}]
     }
 }
