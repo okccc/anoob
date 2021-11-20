@@ -55,6 +55,12 @@
             <version>${lombok.version}</version>
             <optional>true</optional>
         </dependency>
+        <!-- 操作java bean的工具类 -->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.3</version>
+        </dependency>
         <!-- 读取压缩文件 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -77,6 +83,19 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
             <version>${hadoop.version}</version>
+        </dependency>
+
+        <!-- hbase相关 -->
+        <dependency>
+            <groupId>org.apache.phoenix</groupId>
+            <artifactId>phoenix-spark</artifactId>
+            <version>5.0.0-HBase-2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish</groupId>
+                    <artifactId>javax.el</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- spark相关 -->
@@ -284,11 +303,11 @@
             <version>${flink.version}</version>
         </dependency>
         <!-- flink操作mysql -->
-        <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>2.0.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.ververica</groupId>-->
+<!--            <artifactId>flink-connector-mysql-cdc</artifactId>-->
+<!--            <version>2.0.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.alibaba.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
