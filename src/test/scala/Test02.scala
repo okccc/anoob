@@ -22,4 +22,11 @@ class Test02 {
     println(str.substring(11, 13))
   }
 
+  @Test
+  def testSplit() : Unit = {
+    val str: String = "aaa"
+    val arr: Array[String] = str.split(",")
+    println(arr(0))
+  }
+
 }

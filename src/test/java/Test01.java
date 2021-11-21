@@ -124,4 +124,11 @@ public class Test01 {
         System.out.println(json03);  // {"k1":"{\"k1\":\"v1\"}"}
     }
 
+    @Test
+    public void testSplit() {
+        String str = "aaa";
+        String[] arr = str.split(",");
+        System.out.println(arr[0]);  // aaa
+    }
+
 }
