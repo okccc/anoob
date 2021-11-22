@@ -3,6 +3,7 @@ package com.okccc.j2se;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ArrayDemo {
     public static void main(String[] args) {
         /*
@@ -10,6 +11,21 @@ public class ArrayDemo {
          * 数组长度是固定的,一旦初始化长度不可更改,但是可以更改元素值
          * 数组中的元素是在内存空间中连续存储的
          * 不同类型数组默认初始化值：整型 0 | 浮点型 0.0 | 字符型 '\u0000' | 布尔型 false | 引用类型 null
+         *
+         * public：权限必须是最大的
+         * static：JVM调用主函数是不需要对象的,直接用主函数所属类名调用即可
+         * void：主函数没有具体返回值
+         * main：jvm识别的固定名字
+         * String[] args：主函数的参数列表,数组类型的参数,里面的元素都是字符串类型,args是arguments
+         *
+         * System.out.println(args);           // [Ljava.lang.String;@3781efb9
+         * System.out.println(args.length);    // 0
+         * System.out.println(args[0]);        // java.lang.ArrayIndexOutOfBoundsException: 0
+         *
+         * break：跳出当前循环
+         * continue：跳出本次循环,继续下次循环
+         * return：退出当前执行的函数,如果是main函数就退出整个程序
+         * do while和while的区别在于不管条件是否满足,do while循环体至少执行一次
          */
 
         // 动态初始化：数组初始化和元素赋值分开进行
@@ -117,6 +133,58 @@ public class ArrayDemo {
                     arr[y + 1] = temp;
                 }
             }
+        }
+    }
+
+    // 斐波那契数列
+    public static int fibonacci(int i) {
+        if(i == 1 | i == 2) {
+            return 1;
+        } else {
+            return fibonacci(i - 1) + fibonacci(i - 2);
+        }
+    }
+
+    // 画矩形
+    public static void rectangle(){
+        // 外循环控制行数
+        for(int x = 1; x <= 4; x++){
+            // 内循环控制每行列数
+            for(int y = 1; y <= 5; y++){
+                System.out.print("*");
+            }
+            // 打印完一行换到下一行
+            System.out.println();
+        }
+    }
+
+    // 画正三角形
+    public static void triangle01(){
+        for(int x = 1; x <= 4; x++){
+            for (int y = 1; y <= x; y++){
+                System.out.print("*");
+            }
+            System.out.println();
+        }
+    }
+
+    // 画倒三角形
+    public static void triangle02(){
+        for(int x = 1; x <= 4; x++){
+            for (int y = x; y <= 4; y++){
+                System.out.print("*");
+            }
+            System.out.println();
+        }
+    }
+
+    // 打印乘法表
+    public static void printCFB(){
+        for(int x = 1; x <= 9; x++){
+            for(int y = 1; y <= x; y++){
+                System.out.print(y + "*" + x + "=" + y * x + "\t");
+            }
+            System.out.println();
         }
     }
 
