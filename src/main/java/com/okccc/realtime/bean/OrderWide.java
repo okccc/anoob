@@ -9,51 +9,54 @@ import java.math.BigDecimal;
 /**
  * Author: okccc
  * Date: 2021/10/28 下午6:20
- * Desc: 订单和订单明细关联宽表实体类
+ * Desc: 订单宽表实体类
  */
 @Data
 @AllArgsConstructor
 public class OrderWide {
 
-    Long detail_id;
-    Long order_id ;
-    Long sku_id;
-    BigDecimal order_price ;
-    Long sku_num ;
-    String sku_name;
-    Long province_id;
+    // 订单表字段
+    Long order_id;
     String order_status;
     Long user_id;
-
+    Long province_id;
     BigDecimal total_amount;
     BigDecimal activity_reduce_amount;
     BigDecimal coupon_reduce_amount;
     BigDecimal original_total_amount;
     BigDecimal feight_fee;
-    BigDecimal split_feight_fee;
+    String create_time;
+    String create_date;
+
+    // 订单明细表字段
+    Long detail_id;
+    Long sku_id;
+    Long sku_num;
+    BigDecimal order_price;
+    String sku_name;
+    BigDecimal split_total_amount;
     BigDecimal split_activity_amount;
     BigDecimal split_coupon_amount;
-    BigDecimal split_total_amount;
 
-    String expire_time;
-    String create_time;
-    String operate_time;
-    String create_date;  // 把其他字段处理得到
-    String create_hour;
+    // 用户维度
+    String user_gender;
+    Integer user_age;
 
-    String province_name;  // 查询维表得到
+    // 地区维度
+    String province_name;
     String province_area_code;
     String province_iso_code;
     String province_3166_2_code;
 
-    Integer user_age ;
-    String user_gender;
-
-    Long spu_id;  // 作为维度数据,要关联进来
+    // sku维度
+    Long spu_id;
     Long tm_id;
     Long category3_id;
+    // spu维度
     String spu_name;
+    // 品牌维度
     String tm_name;
+    // 类别维度
     String category3_name;
 
     public OrderWide(OrderInfo orderInfo, OrderDetail orderDetail){
@@ -65,15 +68,15 @@ public class OrderWide {
         if (orderInfo != null) {
             this.order_id = orderInfo.id;
             this.order_status = orderInfo.order_status;
-            this.create_time = orderInfo.create_time;
-            this.create_date = orderInfo.create_date;
+            this.user_id = orderInfo.user_id;
+            this.province_id = orderInfo.province_id;
+            this.total_amount =  orderInfo.total_amount;
             this.activity_reduce_amount = orderInfo.activity_reduce_amount;
             this.coupon_reduce_amount = orderInfo.coupon_reduce_amount;
             this.original_total_amount = orderInfo.original_total_amount;
             this.feight_fee = orderInfo.feight_fee;
-            this.total_amount =  orderInfo.total_amount;
-            this.province_id = orderInfo.province_id;
-            this.user_id = orderInfo.user_id;
+            this.create_time = orderInfo.create_time;
+            this.create_date = orderInfo.create_date;
         }
     }
 
@@ -84,9 +87,9 @@ public class OrderWide {
             this.sku_name = orderDetail.sku_name;
             this.order_price = orderDetail.order_price;
             this.sku_num = orderDetail.sku_num;
+            this.split_total_amount=orderDetail.split_total_amount;
             this.split_activity_amount=orderDetail.split_activity_amount;
             this.split_coupon_amount=orderDetail.split_coupon_amount;
-            this.split_total_amount=orderDetail.split_total_amount;
         }
     }
 
