@@ -18,8 +18,10 @@ bind 127.0.0.1     # 将bind注释掉,让其他机器可以通过ip访问,不然
 daemonize yes      # 允许redis后台启动
 protected-mode no  # 关闭保护模式,不然要输入用户名和密码
 requirepass        # 可以设置密码 redis-cli -h 192.168.19.11 -p 6379 -a ***
-# 后台启动redis(推荐)
+# 启动redis服务端
 [root@cdh1 ~]$ redis-server /usr/local/redis-4.0.10/redis.conf
+# 启动redis客户端,--raw解决中文显示问题
+[root@cdh1 ~]$ redis-cli --raw
 # 关闭redis
 [root@cdh1 ~]$ redis-cli shutdown
 # 性能测试
