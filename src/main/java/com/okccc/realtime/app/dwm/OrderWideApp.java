@@ -2,6 +2,7 @@ package com.okccc.realtime.app.dwm;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.okccc.realtime.app.func.DimAsyncFunction;
 import com.okccc.realtime.bean.OrderDetail;
 import com.okccc.realtime.bean.OrderInfo;
@@ -9,6 +10,7 @@ import com.okccc.realtime.bean.OrderWide;
 import com.okccc.realtime.utils.MyKafkaUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
@@ -23,6 +25,7 @@ import org.apache.flink.util.Collector;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,11 +37,11 @@ public class OrderWideApp {
     public static void main(String[] args) throws Exception {
         /*
          * 事实数据(kafka)：订单表 & 订单明细表
-         * 维度数据(hbase)：订单表(用户表 & 地区表)、订单明细表(商品表 -> 品牌表/分类表/SPU表)
+         * 维度数据(hbase)：订单表(用户表 & 地区表)、订单明细表(商品表 -> 品牌表/类别表/SPU表)
          * 实时数仓会将订单相关的事实数据和维度数据关联整合成一张订单宽表
          * 事实数据和事实数据关联：双流join
          * 事实数据和维度数据关联：维表关联,就是在流计算中查询hbase数据,用维度表补全事实表中的字段,比如userId关联用户维度,skuId关联商品维度
-         * areaId关联地区维度,外部数据源的查询往往是流计算性能瓶颈所在,可以通过加入旁路缓存模式和异步查询进行优化
+         * areaId关联地区维度,外部数据源的查询往往是流计算性能瓶颈所在,可以通过旁路缓存和异步查询进行优化
          *
          * 旁路缓存：先查询redis缓存,命中直接返回,没有命中再去查询mysql/hbase数据库同时将结果写入缓存
          * 注意事项：1.缓存要设置过期时间,防止冷数据常驻缓存浪费资源 2.数据库数据更新时要及时清除失效缓存
@@ -49,9 +52,9 @@ public class OrderWideApp {
          * c.先更新数据库,再更新缓存：A更新数据为V1,B更新数据为V2,B更新缓存为V2,A更新缓存为V1,A先操作但是网络延迟B先更新了缓存,导致脏数据
          * d.先更新缓存,再更新数据库：如果缓存更新成功但数据库异常导致回滚,而缓存是无法回滚的,导致数据不一致(不考虑)
          *
-         * 异步IO：flink算子默认同步,比如MapFunction向外部数据源hbase请求数据,IO阻塞,等待响应,然后再发送下一个请求,等待请求会耗费大量时间
-         * 为了提高效率可以增加MapFunction并行度,但是会消耗更多计算资源,可以引入Async I/O,单个并行度也可以连续发送多个请求,谁先响应就处理谁
-         * 减少等待耗时,如果数据库本身没有支持异步请求的客户端,可以通过线程池自己实现
+         * 异步IO：flink默认同步,比如MapFunction算子内部实时计算影响不大,但是向外部数据源hbase请求数据会IO阻塞,等待响应后再发送下一个请求
+         * 等待请求会耗费大量时间,为了提高效率可以增加算子并行度,但同时也会消耗更多计算资源,可以引入Async I/O,单个并行度也可以连续发送多个请求
+         * 谁先响应就处理谁,减少等待耗时,如果数据库本身没有支持异步请求的客户端,可以通过线程池自己实现
          *
          * flink中的流join分两种
          * 基于时间窗口的join
@@ -169,11 +172,11 @@ public class OrderWideApp {
 //        orderWideStream.map(new MapFunction<OrderWide, OrderWide>() {
 //            @Override
 //            public OrderWide map(OrderWide orderWide) throws Exception {
-//                // 从流对象获取维度关联的key
+//                // 1).从流对象获取维度关联的key
 //                String userId = orderWide.getUser_id().toString();
-//                // 根据key去维度表查询维度数据
+//                // 2).根据key去维度表查询维度数据
 //                JSONObject dimInfo = DimUtil.getDimInfoWithCache("dim_user_info", userId);
-//                // 将维度数据赋值给流对象的属性
+//                // 3).将维度数据赋值给流对象的属性
 //                orderWide.setUser_gender(dimInfo.getString("gender"));
 //                return orderWide;
 //            }
@@ -188,16 +191,121 @@ public class OrderWideApp {
                     public String getKey(OrderWide orderWide) {
                         return orderWide.getUser_id().toString();
                     }
+
+                    @Override
+                    public void join(OrderWide orderWide, JSONObject dimInfo) {
+                        // dimInfo = {"GENDER":"F","ID":"217","CREATE_TIME":"1607112386000","NAME":"张三"...}
+//                        System.out.println("dimInfo = " + dimInfo);
+                        // 性别
+                        orderWide.setUser_gender(dimInfo.getString("GENDER"));
+                        // 年龄
+                        String birthday = dimInfo.getString("BIRTHDAY");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        Date date;
+                        try {
+                            date = sdf.parse(birthday);
+                            long between = System.currentTimeMillis() - date.getTime();
+                            long age = between / 365L / 24L / 3600L / 1000L;
+                            orderWide.setUser_age((int)age);
+                        } catch (ParseException e) {
+//                            e.printStackTrace();
+                        }
+                    }
+                },
+                60,
+                TimeUnit.SECONDS
+        );
+        // 打印测试
+        orderWideWithUserStream.print("order_wide_user");
+
+        // 地区维度
+        SingleOutputStreamOperator<OrderWide> orderWideWithProvinceStream = AsyncDataStream.unorderedWait(
+                orderWideWithUserStream,
+                new DimAsyncFunction<OrderWide>("dim_base_province") {
+                    @Override
+                    public String getKey(OrderWide orderWide) {
+                        return orderWide.getProvince_id().toString();
+                    }
+
+                    @Override
+                    public void join(OrderWide orderWide, JSONObject dimInfo) {
+                        orderWide.setProvince_name(dimInfo.getString("NAME"));
+                        orderWide.setProvince_area_code(dimInfo.getString("AREA_CODE"));
+                        orderWide.setProvince_iso_code(dimInfo.getString("ISO_CODE"));
+                        orderWide.setProvince_3166_2_code(dimInfo.getString("ISO_3166_2"));
+                    }
+                },
+                60,
+                TimeUnit.SECONDS
+        );
+
+        // sku维度
+        SingleOutputStreamOperator<OrderWide> orderWideWithSkuStream = AsyncDataStream.unorderedWait(
+                orderWideWithProvinceStream,
+                new DimAsyncFunction<OrderWide>("dim_sku_info") {
+                    @Override
+                    public String getKey(OrderWide orderWide) {
+                        return orderWide.getSku_id().toString();
+                    }
+
                     @Override
                     public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
-                        // 性别
-                        orderWide.setUser_gender(dimInfo.getString("gender"));
-                        // 年龄
-                        String birthday = dimInfo.getString("birthday");
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                        long time = sdf.parse(birthday).getTime();
-                        int age = (int) (System.currentTimeMillis() - time) / (365 * 24 * 3600 * 1000);
-                        orderWide.setUser_age(age);
+                        orderWide.setSpu_id(dimInfo.getLong("SPU_ID"));
+                        orderWide.setTm_id(dimInfo.getLong("TM_ID"));
+                        orderWide.setCategory3_id(dimInfo.getLong("CATEGORY3_ID"));
+                    }
+                },
+                60,
+                TimeUnit.SECONDS);
+
+        // spu维度
+        SingleOutputStreamOperator<OrderWide> orderWideWithSpuStream = AsyncDataStream.unorderedWait(
+                orderWideWithSkuStream,
+                new DimAsyncFunction<OrderWide>("dim_spu_info") {
+                    @Override
+                    public String getKey(OrderWide orderWide) {
+                        return orderWide.getSpu_id().toString();
+                    }
+
+                    @Override
+                    public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
+                        orderWide.setSpu_name(dimInfo.getString("SPU_NAME"));
+                    }
+                },
+                60,
+                TimeUnit.SECONDS
+        );
+
+        // 品牌维度
+        SingleOutputStreamOperator<OrderWide> orderWideWithTmStream = AsyncDataStream.unorderedWait(
+                orderWideWithSpuStream,
+                new DimAsyncFunction<OrderWide>("dim_base_trademark") {
+                    @Override
+                    public String getKey(OrderWide orderWide) {
+                        return orderWide.getTm_id().toString();
+                    }
+
+                    @Override
+                    public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
+                        orderWide.setTm_name(dimInfo.getString("TM_NAME"));
+                    }
+                },
+                60,
+                TimeUnit.SECONDS
+        );
+
+        // 类别维度
+        SingleOutputStreamOperator<OrderWide> orderWideWithCategoryStream = AsyncDataStream.unorderedWait(
+                orderWideWithTmStream,
+                new DimAsyncFunction<OrderWide>("dim_base_category3") {
+                    @Override
+                    public String getKey(OrderWide orderWide) {
+                        return orderWide.getCategory3_id().toString();
+                    }
+
+                    @Override
+                    public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
+                        orderWide.setCategory3_name(dimInfo.getString("NAME"));
                     }
                 },
                 60,
@@ -205,7 +313,18 @@ public class OrderWideApp {
         );
 
         // 打印测试
-        orderWideWithUserStream.print();
+        orderWideWithCategoryStream.print("result");
+
+        // 5.将订单宽表数据写入dwm层对应的topic
+        orderWideWithCategoryStream
+                .map(new MapFunction<OrderWide, String>() {
+                    @Override
+                    public String map(OrderWide orderWide) {
+                        // 将java对象转换为json字符串,默认会过滤null值字段,可以添加过滤器处理
+                        return JSON.toJSONString(orderWide, SerializerFeature.WriteMapNullValue);
+                    }
+                })
+                .addSink(MyKafkaUtil.getKafkaSink("dwm_order_wide"));
 
         // 启动任务
         env.execute();

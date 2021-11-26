@@ -41,15 +41,15 @@ public abstract class DimAsyncFunction<T> extends RichAsyncFunction<T, T> implem
 
     // 使用多线程的方式发送异步请求
     @Override
-    public void asyncInvoke(T input, ResultFuture<T> resultFuture) throws Exception {
+    public void asyncInvoke(T input, ResultFuture<T> resultFuture) {
         // 通过线程池对象创建线程
         executorService.submit(new Runnable() {
             @Override
             public void run() {
                 // 从流对象获取维度关联的key,这里暂时还不知道key是啥,可以设置成抽象方法,由抽象类的子类进行方法重写实现具体逻辑
                 String key = getKey(input);
-                System.out.println("维度关联的key是：" + key);
-                // 根据key去维度表查询维度数据
+//                System.out.println("维度关联的key是：" + key);
+                // 根据表名和key去维度表查询维度数据
                 JSONObject dimInfo = DimUtil.getDimInfoWithCache(tableName, key);
                 try {
                     if (dimInfo != null) {
@@ -60,6 +60,7 @@ public abstract class DimAsyncFunction<T> extends RichAsyncFunction<T, T> implem
                     resultFuture.complete(Collections.singleton(input));
                 } catch (Exception e) {
                     e.printStackTrace();
+                    System.out.println("---维度查询发生异常---");
                 }
             }
         });
