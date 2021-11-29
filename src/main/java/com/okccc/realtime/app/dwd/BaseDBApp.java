@@ -35,7 +35,7 @@ public class BaseDBApp {
          * canal/maxwell会把所有数据都写入一个topic,所以需要按照表的类型进行拆分
          * 事实数据写入kafka流中进一步处理形成宽表,维度数据写入可以通过主键查询的数据库,综合考虑键值对存储以及读写性能优先选择hbase
          * 那么flink该如何区分事实表和维度表呢？
-         * 如果写在工程配置文件,那么业务端每次新增表都要修改配置重启程序,可以在mysql维护一张配置表,flink-cdc动态获取表中更新的少量数据,
+         * 如果写在工程配置文件,那么业务端每次新增表都要修改配置重启程序,可以在mysql维护一张配置表,由flink-cdc动态获取表中更新的少量数据
          * 并以广播流的形式向下游传递,主流从广播流中获取配置信息,然后根据输出类型写入kafka/hbase,大量更新数据还是得用canal/maxwell抓取
          */
 
@@ -76,7 +76,7 @@ public class BaseDBApp {
         // 5.过滤空数据
         SingleOutputStreamOperator<JSONObject> filterStream = jsonStream.filter(new FilterFunction<JSONObject>() {
             @Override
-            public boolean filter(JSONObject value) throws Exception {
+            public boolean filter(JSONObject value) {
                 return value.getString("table") != null
                         && value.getString("table").length() > 0
                         && value.getString("data") != null
@@ -125,9 +125,10 @@ public class BaseDBApp {
         factStream.addSink(MyKafkaUtil.getKafkaSinkBySchema(new KafkaSerializationSchema<JSONObject>() {
             @Override
             public ProducerRecord<byte[], byte[]> serialize(JSONObject element, @Nullable Long timestamp) {
-                // 获取业务流的输出表(topic)和输出数据
+                // 获取业务流的输出topic
                 String topic = element.getString("sink_table");
-                String data = element.getJSONArray("data").toJSONString();
+                // 获取业务流的输出内容,提取data部分往下游传输{"user_id":"1493","name":"aaa","id":"1450387954178547736"}
+                String data = element.getJSONArray("data").getJSONObject(0).toJSONString();
                 return new ProducerRecord<>(topic, data.getBytes());
             }
         }));

@@ -32,15 +32,12 @@ import java.text.SimpleDateFormat;
 public class BaseLogApp {
     public static void main(String[] args) throws Exception {
         /*
-         * 离线和实时区别
-         * 数据处理方式：流 | 批
-         * 数据处理延迟：T+0 | T+1
-         *
+         * 离线和实时区别：1.数据处理方式 -> 流处理/批处理  2.数据处理延迟 -> T+0/T+1
          * 普通实时计算时效性更好,实时数仓分层可以提高数据复用性
          * ODS：日志和业务原始数据
-         * DWD：将数据分流为订单和页面等
+         * DWD：将原始数据分流为订单和页面等明细数据
          * DIM：维度数据
-         * DWM：将部分数据进一步加工,也可以和维度关联形成宽表,但依旧是明细数据
+         * DWM：将明细数据进一步加工,DWD到DWS中间的部分计算结果会被多个DWS层主题复用,所以会有中间层,比如独立访客/跳出明细/订单宽表/支付宽表
          * DWS：将数据轻度聚合形成主题宽表
          * ADS：将ClickHouse中的数据继续筛选聚合做可视化
          */
@@ -74,14 +71,69 @@ public class BaseLogApp {
         SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(new MapFunction<String, JSONObject>() {
             @Override
             public JSONObject map(String value) {
+                /**
+                 * {
+                 *     "common": {
+                 *         "ar": "110000",
+                 *         "ba": "Oneplus",
+                 *         "ch": "oppo",
+                 *         "is_new": "1",
+                 *         "md": "Oneplus 7",
+                 *         "mid": "mid_15",
+                 *         "os": "Android 11.0",
+                 *         "uid": "2",
+                 *         "vc": "v2.1.111"
+                 *     },
+                 *     "displays": [
+                 *         {
+                 *             "display_type": "query",
+                 *             "item": "6",
+                 *             "item_type": "sku_id",
+                 *             "order": 1,
+                 *             "pos_id": 3
+                 *         },
+                 *         {
+                 *             "display_type": "recommend",
+                 *             "item": "1",
+                 *             "item_type": "sku_id",
+                 *             "order": 2,
+                 *             "pos_id": 3
+                 *         },
+                 *         {
+                 *             "display_type": "query",
+                 *             "item": "6",
+                 *             "item_type": "sku_id",
+                 *             "order": 3,
+                 *             "pos_id": 4
+                 *         },
+                 *         {
+                 *             "display_type": "query",
+                 *             "item": "4",
+                 *             "item_type": "sku_id",
+                 *             "order": 4,
+                 *             "pos_id": 1
+                 *         }
+                 *     ],
+                 *     "page": {
+                 *         "during_time": 12687,
+                 *         "item": "口红",
+                 *         "item_type": "keyword",
+                 *         "last_page_id": "search",
+                 *         "page_id": "good_list"
+                 *     },
+                 *     "ts": 1634284702000
+                 * }
+                 */
                 // {"common":{"ba":"Huawei","is_new":"1"...},"page":{"page_id":"cart"...},"ts":1634284695000}
                 return JSON.parseObject(value);
             }
         });
 
-        // 5.新老访客状态修复,根据mid判断is_new,0是老用户1是新用户
+        // 5.新老访客状态修复
         SingleOutputStreamOperator<JSONObject> fixedStream = jsonStream
+                // 按照mid分组
                 .keyBy(r -> r.getJSONObject("common").getString("mid"))
+                // map(映射)针对每个输入元素输出1个元素
                 .map(new RichMapFunction<JSONObject, JSONObject>() {
                     // 声明状态,记录设备上次访问日期,此时还获取不到RuntimeContext,必须在open方法里初始化
                     private ValueState<String> lastVisitDate;
@@ -97,7 +149,7 @@ public class BaseLogApp {
 
                     @Override
                     public JSONObject map(JSONObject value) throws Exception {
-                        // 获取当前进来数据的访客状态
+                        // 获取当前进来数据的访客状态,0是老用户 1是新用户
                         String isNew = value.getJSONObject("common").getString("is_new");
                         // 新访客才需要修复,老访客不需要
                         if ("1".equals(isNew)) {

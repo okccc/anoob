@@ -1,7 +1,6 @@
 package com.okccc.realtime.app.dwm;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.utils.MyKafkaUtil;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -114,7 +113,12 @@ public class UniqueVisitorApp {
 
         // 6.将过滤后的数据写入dwm层对应的topic
         filterStream
-                .map(JSONAware::toJSONString)
+                .map(new MapFunction<JSONObject, String>() {
+                    @Override
+                    public String map(JSONObject value) throws Exception {
+                        return value.toJSONString();
+                    }
+                })
                 .addSink(MyKafkaUtil.getKafkaSink("dwm_unique_visitor"));
 
         // 启动任务
