@@ -26,11 +26,59 @@ public class JSONUtil {
          * JSON.toJSONString(OrderInfo)：将java实体类转换成json字符串
          */
 
+//        test01();
+//        test02();
         test03();
+//        test04();
+    }
+
+    public static void test01() {
+        JSONObject object = new JSONObject();
+        object.put("id", "1001");
+        object.put("name", "grubby");
+        System.out.println(object.keySet());  // [name, id]
+        System.out.println(object.values());  // [grubby, 1001]
+        System.out.println(StringUtils.join(object.values(), ","));  // grubby,1001
+        System.out.println(object.entrySet());  // [name=grubby, id=1001]
+
+        // json对象过滤键值对
+        String value = "{\"data\":[{\"age\":\"19\",\"id\":\"001\",\"name\":\"aaa\"}],\"database\":\"maxwell\",\"table\":\"comment_info\",\"type\":\"INSERT\"}";
+        JSONObject jsonObject = JSON.parseObject(value);
+        // {"database":"maxwell","data":[{"age":"19","name":"aaa","id":"001"}],"type":"INSERT","table":"comment_info"}
+        System.out.println(jsonObject);
+        JSONObject data = jsonObject.getJSONArray("data").getJSONObject(0);
+        List<String> columns = Arrays.asList("id,name".split(","));
+        Set<String> keySet = data.keySet();
+        keySet.removeIf(s -> !columns.contains(s));
+        // {"database":"maxwell","data":[{"name":"aaa","id":"001"}],"type":"INSERT","table":"comment_info"}
+        System.out.println(jsonObject);
+    }
+
+    public static void test02() {
+        // 往json对象添加包含json的字符串会转译生成反斜杠
+        JSONObject json01 = new JSONObject();
+        JSONObject json02 = new JSONObject();
+        JSONObject json03 = new JSONObject();
+        json01.put("k1", "v1");
+        json02.put("k1", json01);
+        json03.put("k1", json01.toJSONString());
+        System.out.println(json01);  // {"k1":"v1"}
+        System.out.println(json02);  // {"k1":{"k1":"v1"}}
+        System.out.println(json03);  // {"k1":"{\"k1\":\"v1\"}"}
     }
 
     public static void test03() {
-        // 将java实体类转换成json字符串时默认会过滤null值字段
+        // 将json字符串转换成java实体类时会将缺省字段设为null并过滤多余字段
+        String str01 = "{\"name\":\"grubby\",\"age\":19,\"gender\":\"male\"}";
+        String str02 = "{\"name\":\"grubby\",\"age\":19,\"gender\":\"male\",\"phone\":\"111\",\"email\":\"orc@qq.com\"}";
+        User user01 = JSON.parseObject(str01, User.class);
+        User user02 = JSON.parseObject(str02, User.class);
+        System.out.println(user01);  // User(name=grubby, age=19, gender=male, phone=null)
+        System.out.println(user02);  // User(name=grubby, age=19, gender=male, phone=111)
+    }
+
+    public static void test04() {
+        // 将java实体类转换成json字符串时会过滤null值字段
         User user = new User();
         user.setName("grubby");
         String str01 = JSON.toJSONString(user);
@@ -52,7 +100,7 @@ public class JSONUtil {
         });
         System.out.println(str03);  // {"age":0,"gender":"","name":"grubby","phone":""}
 
-        // 如果有些null值要过滤有些null值要保留,可以组合使用ValueFilter和PropertyFilter
+        // 如果有些null值要过滤而有些null值要保留,可以组合使用ValueFilter和PropertyFilter
         String str04 = JSON.toJSONString(user, new SerializeFilter[]{
                 new PropertyFilter() {
                     @Override
