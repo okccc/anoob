@@ -1,5 +1,3 @@
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
@@ -17,7 +15,7 @@ public class Test01 {
 
     @Test
     public void testStr() {
-        System.out.println(UUID.randomUUID().toString());
+        System.out.println(UUID.randomUUID());
         String str = "aaa";
         String[] arr = str.split(",");
         System.out.println(arr[0]);  // aaa
@@ -93,7 +91,7 @@ public class Test01 {
         // 获取Runtime对象,操纵当前程序运行的环境
         Runtime runtime = Runtime.getRuntime();
         // exec方法返回进程
-        Process proc = runtime.exec("notepad.exe");
+        Process proc = runtime.exec("jps");
         // 线程休眠
         Thread.sleep(3000);
         // 杀掉进程
@@ -135,40 +133,6 @@ public class Test01 {
             }
         });
         System.out.println(list);  // [10, 20, 30]
-    }
-
-    @Test
-    public void testJSON() {
-//        JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("id", "1001");
-//        jsonObject.put("name", "grubby");
-//        System.out.println(jsonObject.keySet());  // [name, id]
-//        System.out.println(jsonObject.values());  // [grubby, 1001]
-//        System.out.println(StringUtils.join(jsonObject.values(), ","));  // grubby,1001
-//        System.out.println(jsonObject.entrySet());  // [name=grubby, id=1001]
-
-        // json对象过滤键值对
-        String value = "{\"data\":[{\"age\":\"19\",\"id\":\"001\",\"name\":\"aaa\"}],\"database\":\"maxwell\",\"table\":\"comment_info\",\"type\":\"INSERT\"}";
-        JSONObject jsonObject = JSON.parseObject(value);
-        // {"database":"maxwell","data":[{"age":"19","name":"aaa","id":"001"}],"type":"INSERT","table":"comment_info"}
-        System.out.println(jsonObject);
-        JSONObject data = jsonObject.getJSONArray("data").getJSONObject(0);
-        List<String> columns = Arrays.asList("id,name".split(","));
-        Set<String> keySet = data.keySet();
-        keySet.removeIf(s -> !columns.contains(s));
-        // {"database":"maxwell","data":[{"name":"aaa","id":"001"}],"type":"INSERT","table":"comment_info"}
-        System.out.println(jsonObject);
-
-        // 往json对象添加包含json的字符串会转译生成反斜杠
-        JSONObject json01 = new JSONObject();
-        JSONObject json02 = new JSONObject();
-        JSONObject json03 = new JSONObject();
-        json01.put("k1", "v1");
-        json02.put("k1", json01);
-        json03.put("k1", json01.toJSONString());
-        System.out.println(json01);  // {"k1":"v1"}
-        System.out.println(json02);  // {"k1":{"k1":"v1"}}
-        System.out.println(json03);  // {"k1":"{\"k1\":\"v1\"}"}
     }
 
 }
