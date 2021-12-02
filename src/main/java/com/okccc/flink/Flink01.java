@@ -1,6 +1,6 @@
 package com.okccc.flink;
 
-import com.okccc.util.MysqlUtil;
+import com.okccc.realtime.utils.MysqlUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
@@ -266,7 +266,7 @@ public class Flink01 {
         public void open(Configuration parameters) throws Exception {
             super.open(parameters);
             // 初始化
-            conn = MysqlUtil.getConnection();
+            MysqlUtil.initConnection();
             insertPS = conn.prepareStatement("insert into wc values(?, ?)");
             updatePS = conn.prepareStatement("update wc set count = ? where word = ?");
         }
