@@ -37,6 +37,8 @@ public class BaseDBApp {
          * 那么flink该如何区分事实表和维度表呢？
          * 如果写在工程配置文件,那么业务端每次新增表都要修改配置重启程序,可以在mysql维护一张配置表,由flink-cdc动态获取表中更新的少量数据
          * 并以广播流的形式向下游传递,主流从广播流中获取配置信息,然后根据输出类型写入kafka/hbase,大量更新数据还是得用canal/maxwell抓取
+         *
+         * 本地运行任务时发现同一条数据会被重复多次写入kafka,是因为idea异常退出导致之前进程没有及时关闭,jps查看任务名称杀掉旧进程
          */
 
         // 1.环境准备
@@ -111,12 +113,13 @@ public class BaseDBApp {
                 .connect(broadcastStream)
                 // 业务数据放主流,维度数据放侧输出流
                 .process(new TableProcessFunction(dimTag, mapState));
-
         // 获取侧输出流
         DataStream<JSONObject> dimStream = factStream.getSideOutput(dimTag);
         // 打印测试
         factStream.print("fact");
+        // {"data":[{"id":"34861"...}],"type":"INSERT","database":"maxwell","sink_table":"dwd_order_info","table":"order_info","ts":1638174777426}
         dimStream.print("dim");
+        // {"data":[{"name":"tim"...}],"type":"UPDATE","database":"maxwell","sink_table":"dim_user_info","table":"user_info","ts":1638174766675}
 
         // 8.将维度数据写入hbase
         dimStream.addSink(new DimSinkFunction());

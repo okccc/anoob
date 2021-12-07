@@ -26,10 +26,10 @@ import java.util.Set;
  * Desc: 自定义广播处理函数,实现动态分流
  */
 public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, String, JSONObject> {
-    // 侧输出流标签和全局广播状态
+    // 声明侧输出流标签
     private final OutputTag<JSONObject> dimTag;
+    // 声明全局广播状态
     private final MapStateDescriptor<String, TableProcess> mapState;
-
     // 声明数据库连接信息
     Connection conn;
 
@@ -74,7 +74,7 @@ public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, S
         ReadOnlyBroadcastState<String, TableProcess> broadcastState = ctx.getBroadcastState(mapState);
         // 从广播状态获取配置信息
         String key = table + ":" + type;
-        System.out.println("no-broadcast>>> " + key);
+        System.out.println("baseStream>>> " + key);  // order_info:insert
         TableProcess tableProcess = broadcastState.get(key);
 
         // 判断是否能找到当前业务流操作对应的配置信息
@@ -130,13 +130,19 @@ public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, S
         JSONObject jsonObj = JSON.parseObject(value);
         // 将配置表中的更新数据封装成java对象
         TableProcess tableProcess = JSON.parseObject(jsonObj.getString("data"), TableProcess.class);
-        // 获取业务数据库表名/操作类型/输出类型/输出表/输出字段/主键/扩展语句
+        // 业务数据库表名：order_info/user_info...
         String sourceTable = tableProcess.getSourceTable();
+        // 操作类型：insert/update/delete
         String operateType = tableProcess.getOperateType();
+        // 输出类型：kafka/hbase
         String sinkType = tableProcess.getSinkType();
+        // 输出表：dwd_order_info/dim_user_info...
         String sinkTable = tableProcess.getSinkTable();
+        // 输出字段：id,name,age...
         String sinkColumns = tableProcess.getSinkColumns();
+        // 主键：id
         String sinkPk = tableProcess.getSinkPk();
+        // 扩展语句
         String sinkExtend = tableProcess.getSinkExtend();
 
         // 如果读取到的配置信息是维度表,就在hbase自动创建对应的表,而不是在外面手动创建
@@ -148,7 +154,7 @@ public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, S
         BroadcastState<String, TableProcess> broadcastState = ctx.getBroadcastState(mapState);
         // 往广播状态添加配置信息
         String key = sourceTable + ":" + operateType;
-        System.out.println("broadcast>>> " + key);
+        System.out.println("broadcastStream>>> " + key);  // order_info:insert
         broadcastState.put(key, tableProcess);
     }
 

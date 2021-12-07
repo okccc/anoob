@@ -90,7 +90,29 @@ public class OrderWideApp {
                     }
                     @Override
                     public OrderInfo map(String value) throws Exception {
-                        // {"data":[{"id":"1493"...}],"database":"maxwell","table":"order_info","type":"INSERT"}
+                        /* {
+                         *     "id":"34861",
+                         *     "order_status":"1001",
+                         *     "user_id":"1923",
+                         *     "province_id":"23",
+                         *     "total_amount":"25094.0",
+                         *     "activity_reduce_amount":"0.0",
+                         *     "coupon_reduce_amount":"0.0",
+                         *     "original_total_amount":"25079.0",
+                         *     "feight_fee":"15.0",
+                         *     "create_time":"2021-11-29 16:51:53",
+                         *     "expire_time":"2021-11-29 17:06:53",
+                         *     // OrderInfo实体类不包含下面这些字段,JSON解析时会过滤掉,缺省的字段会给null值
+                         *     "delivery_address":"第3大街第13号楼8单元124门",
+                         *     "order_comment":"描述552216",
+                         *     "consignee_tel":"13334498220",
+                         *     "trade_body":"Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机等4件商品",
+                         *     "consignee":"法外狂徒",
+                         *     "out_trade_no":"824396433584891",
+                         *     "img_url":"http://img.gmall.com/831615.jpg"
+                         * }
+                         */
+                        // 输入的value字段无序,生成的OrderInfo字段有序
                         OrderInfo orderInfo = JSON.parseObject(value, OrderInfo.class);
                         // 生成Long类型时间戳字段后面设定水位线用
                         orderInfo.setCreate_ts(sdf.parse(orderInfo.getCreate_time()).getTime());
@@ -122,7 +144,21 @@ public class OrderWideApp {
                     }
                     @Override
                     public OrderDetail map(String value) throws Exception {
-                        // {"data":[{"id":"1493"...}],"database":"maxwell","table":"order_detail","type":"INSERT"}
+                        /* {
+                         *     "id":"97177",
+                         *     "order_id":"34860",
+                         *     "sku_id":"13",
+                         *     "sku_name":"华为 HUAWEI P40 麒麟990 5G SoC芯片 30倍数字变焦 6GB+128GB亮黑色全网通5G手机",
+                         *     "order_price":"4188.0",
+                         *     "sku_num":"2",
+                         *     "split_total_amount":"8376.0",
+                         *     "create_time":"2021-11-29 16:51:53",
+                         *     // OrderDetail实体类不包含下面这些字段,JSON解析时会过滤掉,缺省的字段会给null值
+                         *     "source_id":"82",
+                         *     "source_type":"2402"
+                         * }
+                         */
+                        // 输入的value字段无序,生成的OrderDetail字段有序
                         OrderDetail orderDetail = JSON.parseObject(value, OrderDetail.class);
                         // 生成Long类型时间戳字段后面设定水位线用
                         orderDetail.setCreate_ts(sdf.parse(orderDetail.getCreate_time()).getTime());
@@ -143,9 +179,12 @@ public class OrderWideApp {
                 .keyBy(OrderDetail::getOrder_id);
 
         // 打印测试
-        // OrderInfo(id=31794, province_id=30, order_status=1001,... create_ts=1608541488000)
+        // OrderInfo(id=34781, order_status=1001, user_id=622, province_id=14, total_amount=15891.0, activity_reduce_amount=0.0,
+        // coupon_reduce_amount=0.0, original_total_amount=15872.0, feight_fee=19.0, create_time=2021-11-29 16:32:44,
+        // operate_time=null, expire_time=2021-11-29 16:47:44, create_date=null, create_hour=null, create_ts=1638174764000)
         orderInfoKeyedStream.print("order_info");
-        // OrderDetail(id=92163, order_id=31794, sku_id=32,..., create_ts=1608541488000)
+        // OrderDetail(id=97073, order_id=34780, sku_id=16, sku_name=iphone, order_price=4488.0, sku_num=2, split_total_amount=8976.0,
+        // split_activity_amount=null, split_coupon_amount=null, create_time=2021-11-29 16:32:44, create_ts=1638174764000)
         orderDetailKeyedStream.print("order_detail");
 
         // 3.双流join合成订单宽表流
@@ -215,7 +254,7 @@ public class OrderWideApp {
                 60,
                 TimeUnit.SECONDS
         );
-        // 打印测试
+        // 打印测试,发现user_gender和user_age不再是null值
         orderWideWithUserStream.print("order_wide_user");
 
         // 地区维度
