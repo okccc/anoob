@@ -5,21 +5,34 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * Author: okccc
  * Date: 2021/10/26 下午2:04
- * Desc: 日期时间工具类,使用joda实现,java提供的Date存在线程安全问题
+ * Desc: 日期时间工具类
  */
 public class DateUtil {
 
+    // 方法内部的局部变量是单线程访问,而类中的成员变量可能会被多线程同时访问,如果涉及修改操作就会存在线程安全问题
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    // 将字符串转换成long类型
+    public static long strToLong(String str) throws ParseException {
+        return sdf.parse(str).getTime();
+    }
+    // 将long类型转换成字符串
+    public static String longToStr(Long ts) {
+        // 查看SimpleDateFormat源码943行发现是setTime操作,存在线程安全问题
+        return sdf.format(new Date(ts));
+    }
+
     // 日期时间格式常量
-    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd");
-    public static final DateTimeFormatter HOUR_FORMATTER = DateTimeFormat.forPattern("HH");
-    public static final DateTimeFormatter DATE_HOUR_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH");
-    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter HOUR_FORMATTER = DateTimeFormat.forPattern("HH");
+    private static final DateTimeFormatter DATE_HOUR_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH");
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     // 获取当前日期
     public static String getCurrentDate() {
