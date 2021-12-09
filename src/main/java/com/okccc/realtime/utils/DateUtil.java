@@ -14,6 +14,7 @@ import java.util.Date;
  * Date: 2021/10/26 下午2:04
  * Desc: 日期时间工具类
  */
+@SuppressWarnings("unused")
 public class DateUtil {
 
     // 方法内部的局部变量是单线程访问,而类中的成员变量可能会被多线程同时访问,如果涉及修改操作就会存在线程安全问题
@@ -24,14 +25,14 @@ public class DateUtil {
     }
     // 将long类型转换成字符串
     public static String longToStr(Long ts) {
-        // 查看SimpleDateFormat源码943行发现是setTime操作,存在线程安全问题
+        // 查看SimpleDateFormat源码943行发现是setTime操作,存在线程安全问题,可以使用org.joda.time包提供的类
         return sdf.format(new Date(ts));
     }
 
     // 日期时间格式常量
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd");
     private static final DateTimeFormatter HOUR_FORMATTER = DateTimeFormat.forPattern("HH");
-    private static final DateTimeFormatter DATE_HOUR_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH");
+    private static final DateTimeFormatter DATEHOUR_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     // 获取当前日期
@@ -53,27 +54,30 @@ public class DateUtil {
     }
     // Long -> "yyyy-MM-dd HH"
     public static String parseUnixToDateHour(Long ts) {
-        return new DateTime(new Date(ts)).toString(DATE_HOUR_FORMATTER);
+        return new DateTime(new Date(ts)).toString(DATEHOUR_FORMATTER);
     }
     // Long -> "yyyy-MM-dd HH:mm:ss"
     public static String parseUnixToDateTime(Long ts) {
         return new DateTime(new Date(ts)).toString(DATETIME_FORMATTER);
     }
-
+    // "yyyy-MM-dd HH:mm:ss" -> Long
+    public static Long parseDateTimeToUnix(String str) {
+        return DATETIME_FORMATTER.parseDateTime(str).toDate().getTime();
+    }
     // "yyyy-MM-dd" -> Date
-    public static Date parseDate(String text) {
-        return DATE_FORMATTER.parseDateTime(text).toDate();
+    public static Date parseDate(String str) {
+        return DATE_FORMATTER.parseDateTime(str).toDate();
     }
     // "yyyy-MM-dd HH:mm:ss" -> Date
-    public static Date parseTime(String text) {
-        return DATETIME_FORMATTER.parseDateTime(text).toDate();
+    public static Date parseDateTime(String str) {
+        return DATETIME_FORMATTER.parseDateTime(str).toDate();
     }
     // Date -> "yyyy-MM-dd"
     public static String formatDate(Date date) {
         return new DateTime(date).toString(DATE_FORMATTER);
     }
     // Date -> "yyyy-MM-dd HH:mm:ss"
-    public static String formatTime(Date date) {
+    public static String formatDateTime(Date date) {
         return new DateTime(date).toString(DATETIME_FORMATTER);
     }
 
@@ -159,6 +163,6 @@ public class DateUtil {
         System.out.println(getCurrentTime());
         System.out.println(new Timestamp(1625414399000L));
         System.out.println(parseUnixToDateTime(1625414399000L));
+        System.out.println(parseDateTimeToUnix("2021-12-08 17:29:45"));
     }
-
 }
