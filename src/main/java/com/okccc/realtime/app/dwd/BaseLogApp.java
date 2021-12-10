@@ -3,26 +3,20 @@ package com.okccc.realtime.app.dwd;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.realtime.utils.DateUtil;
 import com.okccc.realtime.utils.MyKafkaUtil;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
-
-import java.text.SimpleDateFormat;
 
 /**
  * Author: okccc
@@ -35,11 +29,38 @@ public class BaseLogApp {
          * 离线和实时区别：1.数据处理方式 -> 流处理/批处理  2.数据处理延迟 -> T+0/T+1
          * 普通实时计算时效性更好,实时数仓分层可以提高数据复用性
          * ODS：日志和业务原始数据
-         * DWD：将原始数据分流为订单和页面等明细数据
+         * DWD：将原始数据分流为订单和用户等明细数据
          * DIM：维度数据
          * DWM：将明细数据进一步加工,DWD到DWS中间的部分计算结果会被多个DWS层主题复用,所以会有中间层,比如独立访客/跳出明细/订单宽表/支付宽表
          * DWS：将数据轻度聚合形成主题宽表
          * ADS：将ClickHouse中的数据继续筛选聚合做可视化
+         *
+         * ===========================================================
+         * 统计主题  |  需求指标  |  数仓层级  |  输出方式  |  计算来源
+         * ===========================================================
+         *         |  pv     |  dwd  |  大屏展示  |  page_log直接计算
+         *         |  uv     |  dwm  |  大屏展示  |  page_log过滤去重
+         * user    |  跳出次数 |  dwm  |  大屏展示  |  page_log行为判断
+         *         |  进入页面 |  dwd  |  大屏展示  |  识别开始访问标识
+         *         |  访问时长 |  dwd  |  大屏展示  |  page_log直接计算
+         * ==========================================================
+         *         |  点击	 |  dwd  |  多维分析  |  page_log直接计算
+         *         |  曝光	 |  dwd  |  多维分析  |  page_log直接计算
+         *         |  收藏	 |  dwd  |  多维分析  |  收藏表
+         * product |  购物车  |  dwd  |  多维分析  |  购物车表
+         *         |  下单	 |  dwm  |  大屏展示  |  订单宽表
+         *         |  支付	 |  dwm  |  多维分析  |  支付宽表
+         *         |  退款	 |  dwd  |  多维分析  |  退款表
+         *         |  评论	 |  dwd  |  多维分析  |  评论表
+         * ==========================================================
+         *         |  pv	 |  dwd  |  多维分析	 |  page_log直接计算
+         * area    |  uv	 |  dwm  |  多维分析	 |  page_log过滤去重
+         *         |  下单	 |  dwm  |  大屏展示	 |  订单宽表
+         * ==========================================================
+         *         | 搜索关键词	  | dwd | 大屏展示 | page_log直接计算
+         * word    | 点击商品关键词 | dws | 大屏展示 | 商品主题下单再次聚合
+         *         | 下单商品关键词 | dws | 大屏展示 | 商品主题下单再次聚合
+         * ===========================================================
          */
 
         // 1.环境准备
@@ -48,7 +69,7 @@ public class BaseLogApp {
         // flink并行度和kafka分区数保持一致
         env.setParallelism(1);
 
-        // 2.检查点相关设置
+//        // 2.检查点相关设置
 //        // 开启检查点
 //        env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
 //        // 设置检查点超时时间
@@ -68,66 +89,8 @@ public class BaseLogApp {
         DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
 
         // 4.结构转化,jsonStr -> JSONObject
-        SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(new MapFunction<String, JSONObject>() {
-            @Override
-            public JSONObject map(String value) {
-                /**
-                 * {
-                 *     "common": {
-                 *         "ar": "110000",
-                 *         "ba": "Oneplus",
-                 *         "ch": "oppo",
-                 *         "is_new": "1",
-                 *         "md": "Oneplus 7",
-                 *         "mid": "mid_15",
-                 *         "os": "Android 11.0",
-                 *         "uid": "2",
-                 *         "vc": "v2.1.111"
-                 *     },
-                 *     "displays": [
-                 *         {
-                 *             "display_type": "query",
-                 *             "item": "6",
-                 *             "item_type": "sku_id",
-                 *             "order": 1,
-                 *             "pos_id": 3
-                 *         },
-                 *         {
-                 *             "display_type": "recommend",
-                 *             "item": "1",
-                 *             "item_type": "sku_id",
-                 *             "order": 2,
-                 *             "pos_id": 3
-                 *         },
-                 *         {
-                 *             "display_type": "query",
-                 *             "item": "6",
-                 *             "item_type": "sku_id",
-                 *             "order": 3,
-                 *             "pos_id": 4
-                 *         },
-                 *         {
-                 *             "display_type": "query",
-                 *             "item": "4",
-                 *             "item_type": "sku_id",
-                 *             "order": 4,
-                 *             "pos_id": 1
-                 *         }
-                 *     ],
-                 *     "page": {
-                 *         "during_time": 12687,
-                 *         "item": "口红",
-                 *         "item_type": "keyword",
-                 *         "last_page_id": "search",
-                 *         "page_id": "good_list"
-                 *     },
-                 *     "ts": 1634284702000
-                 * }
-                 */
-                // {"common":{"ba":"Huawei","is_new":"1"...},"page":{"page_id":"cart"...},"ts":1634284695000}
-                return JSON.parseObject(value);
-            }
-        });
+        // {"common":{...},"start":{...},"page":{...},"displays":[{},{}...],"ts":1634284695000}
+        SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(JSON::parseObject);
 
         // 5.新老访客状态修复
         SingleOutputStreamOperator<JSONObject> fixedStream = jsonStream
@@ -137,14 +100,12 @@ public class BaseLogApp {
                 .map(new RichMapFunction<JSONObject, JSONObject>() {
                     // 声明状态,记录设备上次访问日期,此时还获取不到RuntimeContext,必须在open方法里初始化
                     private ValueState<String> lastVisitDate;
-                    SimpleDateFormat sdf;
 
                     @Override
                     public void open(Configuration parameters) throws Exception {
                         super.open(parameters);
                         // 初始化状态变量
                         lastVisitDate = getRuntimeContext().getState(new ValueStateDescriptor<>("last-visit", Types.STRING));
-                        sdf = new SimpleDateFormat("yyyyMMdd");
                     }
 
                     @Override
@@ -155,7 +116,7 @@ public class BaseLogApp {
                         if ("1".equals(isNew)) {
                             // 获取当前日期和上次访问日期
                             String lastDate = lastVisitDate.value();
-                            String curDate = sdf.format(value.getLong("ts"));
+                            String curDate = DateUtil.parseUnixToDateTime(value.getLong("ts"));
                             // 判断是否是第一次访问
                             if (lastDate == null) {
                                 // 更新状态值
