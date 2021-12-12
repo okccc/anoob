@@ -7,12 +7,12 @@ import com.okccc.realtime.app.func.DimAsyncFunction;
 import com.okccc.realtime.bean.OrderDetail;
 import com.okccc.realtime.bean.OrderInfo;
 import com.okccc.realtime.bean.OrderWide;
+import com.okccc.realtime.utils.DateUtil;
 import com.okccc.realtime.utils.MyKafkaUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -23,9 +23,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -82,12 +80,13 @@ public class OrderWideApp {
         KeyedStream<OrderInfo, Long> orderInfoKeyedStream = orderInfoStream
                 // 将输入数据封装成订单实体类
                 .map(new RichMapFunction<String, OrderInfo>() {
-                    private SimpleDateFormat sdf;
-                    @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
-                        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    }
+//                    private SimpleDateFormat sdf;
+//                    @Override
+//                    public void open(Configuration parameters) throws Exception {
+//                        super.open(parameters);
+//                        // 每次数据进来都要创建sdf对象,通用逻辑可以抽取成工具类
+//                        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                    }
                     @Override
                     public OrderInfo map(String value) throws Exception {
                         /* {
@@ -115,7 +114,7 @@ public class OrderWideApp {
                         // 输入的value字段无序,生成的OrderInfo字段有序
                         OrderInfo orderInfo = JSON.parseObject(value, OrderInfo.class);
                         // 生成Long类型时间戳字段后面设定水位线用
-                        orderInfo.setCreate_ts(sdf.parse(orderInfo.getCreate_time()).getTime());
+                        orderInfo.setCreate_ts(DateUtil.parseDateTimeToUnix(orderInfo.getCreate_time()));
                         return orderInfo;
                     }
                 })
@@ -136,12 +135,6 @@ public class OrderWideApp {
         KeyedStream<OrderDetail, Long> orderDetailKeyedStream = orderDetailStream
                 // 将输入数据封装成订单明细实体类
                 .map(new RichMapFunction<String, OrderDetail>() {
-                    private SimpleDateFormat sdf;
-                    @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
-                        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    }
                     @Override
                     public OrderDetail map(String value) throws Exception {
                         /* {
@@ -161,7 +154,7 @@ public class OrderWideApp {
                         // 输入的value字段无序,生成的OrderDetail字段有序
                         OrderDetail orderDetail = JSON.parseObject(value, OrderDetail.class);
                         // 生成Long类型时间戳字段后面设定水位线用
-                        orderDetail.setCreate_ts(sdf.parse(orderDetail.getCreate_time()).getTime());
+                        orderDetail.setCreate_ts(DateUtil.parseDateTimeToUnix(orderDetail.getCreate_time()));
                         return orderDetail;
                     }
                 })
@@ -230,25 +223,16 @@ public class OrderWideApp {
                     public String getKey(OrderWide orderWide) {
                         return orderWide.getUser_id().toString();
                     }
-
                     @Override
                     public void join(OrderWide orderWide, JSONObject dimInfo) {
                         // dimInfo = {"GENDER":"F","ID":"217","CREATE_TIME":"1607112386000","NAME":"张三"...}
-//                        System.out.println("dimInfo = " + dimInfo);
                         // 性别
                         orderWide.setUser_gender(dimInfo.getString("GENDER"));
-                        // 年龄
+                        // 年龄:1991-12-04
                         String birthday = dimInfo.getString("BIRTHDAY");
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                        Date date;
-                        try {
-                            date = sdf.parse(birthday);
-                            long between = System.currentTimeMillis() - date.getTime();
-                            long age = between / 365L / 24L / 3600L / 1000L;
-                            orderWide.setUser_age((int)age);
-                        } catch (ParseException e) {
-//                            e.printStackTrace();
-                        }
+                        long between = System.currentTimeMillis() - DateUtil.parseDate(birthday).getTime();
+                        long age = between / 365L / 24L / 3600L / 1000L;
+                        orderWide.setUser_age((int)age);
                     }
                 },
                 60,
@@ -265,7 +249,6 @@ public class OrderWideApp {
                     public String getKey(OrderWide orderWide) {
                         return orderWide.getProvince_id().toString();
                     }
-
                     @Override
                     public void join(OrderWide orderWide, JSONObject dimInfo) {
                         orderWide.setProvince_name(dimInfo.getString("NAME"));
@@ -286,7 +269,6 @@ public class OrderWideApp {
                     public String getKey(OrderWide orderWide) {
                         return orderWide.getSku_id().toString();
                     }
-
                     @Override
                     public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
                         orderWide.setSpu_id(dimInfo.getLong("SPU_ID"));
@@ -305,7 +287,6 @@ public class OrderWideApp {
                     public String getKey(OrderWide orderWide) {
                         return orderWide.getSpu_id().toString();
                     }
-
                     @Override
                     public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
                         orderWide.setSpu_name(dimInfo.getString("SPU_NAME"));
@@ -323,7 +304,6 @@ public class OrderWideApp {
                     public String getKey(OrderWide orderWide) {
                         return orderWide.getTm_id().toString();
                     }
-
                     @Override
                     public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
                         orderWide.setTm_name(dimInfo.getString("TM_NAME"));
@@ -341,7 +321,6 @@ public class OrderWideApp {
                     public String getKey(OrderWide orderWide) {
                         return orderWide.getCategory3_id().toString();
                     }
-
                     @Override
                     public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
                         orderWide.setCategory3_name(dimInfo.getString("NAME"));
@@ -350,7 +329,6 @@ public class OrderWideApp {
                 60,
                 TimeUnit.SECONDS
         );
-
         // 打印测试
         orderWideWithCategoryStream.print("result");
 

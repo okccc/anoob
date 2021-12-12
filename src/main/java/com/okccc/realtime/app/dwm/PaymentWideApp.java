@@ -5,8 +5,8 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.okccc.realtime.bean.OrderWide;
 import com.okccc.realtime.bean.PaymentInfo;
 import com.okccc.realtime.bean.PaymentWide;
+import com.okccc.realtime.utils.DateUtil;
 import com.okccc.realtime.utils.MyKafkaUtil;
-import lombok.SneakyThrows;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -18,7 +18,6 @@ import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 
 /**
@@ -71,12 +70,10 @@ public class PaymentWideApp {
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<PaymentInfo>forBoundedOutOfOrderness(Duration.ofSeconds(3))
                                 .withTimestampAssigner(new SerializableTimestampAssigner<PaymentInfo>() {
-                                    @SneakyThrows
                                     @Override
                                     public long extractTimestamp(PaymentInfo element, long recordTimestamp) {
                                         // 将字符串转换成Long类型时间戳
-                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                        return sdf.parse(element.getCallback_time()).getTime();
+                                        return DateUtil.parseDateTimeToUnix(element.getCallback_time());
                                     }
                                 })
                 )
@@ -130,12 +127,10 @@ public class PaymentWideApp {
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<OrderWide>forBoundedOutOfOrderness(Duration.ofSeconds(3))
                                 .withTimestampAssigner(new SerializableTimestampAssigner<OrderWide>() {
-                                    @SneakyThrows
                                     @Override
                                     public long extractTimestamp(OrderWide element, long recordTimestamp) {
                                         // 将字符串转换成Long类型时间戳
-                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                        return sdf.parse(element.getCreate_time()).getTime();
+                                        return DateUtil.parseDateTimeToUnix(element.getCreate_time());
                                     }
                                 })
                 )
