@@ -10,7 +10,7 @@ import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 /**
  * Author: okccc
  * Date: 2020/12/15 4:16 下午
- * Desc: 日期时间工具类,使用joda实现,java提供的Date存在线程安全问题
+ * Desc: 日期时间工具类
  */
 object DateUtil {
 
