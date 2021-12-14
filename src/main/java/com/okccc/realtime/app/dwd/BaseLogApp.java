@@ -35,36 +35,40 @@ public class BaseLogApp {
          * DWS：将数据轻度聚合形成主题宽表
          * ADS：将ClickHouse中的数据继续筛选聚合做可视化
          *
-         * ===========================================================
+         * ==========================================================
          * 统计主题  |  需求指标  |  数仓层级  |  输出方式  |  计算来源
-         * ===========================================================
-         *         |  pv     |  dwd  |  大屏展示  |  page_log直接计算
-         *         |  uv     |  dwm  |  大屏展示  |  page_log过滤去重
-         * user    |  跳出次数 |  dwm  |  大屏展示  |  page_log行为判断
-         *         |  进入页面 |  dwd  |  大屏展示  |  识别开始访问标识
-         *         |  访问时长 |  dwd  |  大屏展示  |  page_log直接计算
          * ==========================================================
-         *         |  点击	 |  dwd  |  多维分析  |  page_log直接计算
-         *         |  曝光	 |  dwd  |  多维分析  |  page_log直接计算
-         *         |  收藏	 |  dwd  |  多维分析  |  收藏表
-         * product |  购物车  |  dwd  |  多维分析  |  购物车表
-         *         |  下单	 |  dwm  |  大屏展示  |  订单宽表
-         *         |  支付	 |  dwm  |  多维分析  |  支付宽表
-         *         |  退款	 |  dwd  |  多维分析  |  退款表
-         *         |  评论	 |  dwd  |  多维分析  |  评论表
+         *         |  pv    |  dwd  |  大屏展示  | dwd_page_log直接计算
+         *         |  uv    |  dwm  |  大屏展示  | dwd_page_log过滤去重
+         * user    | 跳出次数 |  dwm  |  大屏展示  | dwd_page_log行为判断
+         *         | 进入页面 |  dwd  |  大屏展示  | 识别开始访问标识
+         *         | 访问时长 |  dwd  |  大屏展示  | dwd_page_log直接计算
          * ==========================================================
-         *         |  pv	 |  dwd  |  多维分析	 |  page_log直接计算
-         * area    |  uv	 |  dwm  |  多维分析	 |  page_log过滤去重
-         *         |  下单	 |  dwm  |  大屏展示	 |  订单宽表
+         *         |  点击	 |  dwd  |  多维分析  | dwd_page_log直接计算
+         *         |  曝光	 |  dwd  |  多维分析  | dwd_page_log直接计算
+         *         |  收藏	 |  dwd  |  多维分析  | 收藏表
+         * product |  购物车  |  dwd  |  多维分析  | 购物车表
+         *         |  下单	 |  dwm  |  大屏展示  | 订单宽表
+         *         |  支付	 |  dwm  |  多维分析  | 支付宽表
+         *         |  退款	 |  dwd  |  多维分析  | 退款表
+         *         |  评论	 |  dwd  |  多维分析  | 评论表
          * ==========================================================
-         *         | 搜索关键词	  | dwd | 大屏展示 | page_log直接计算
-         * word    | 点击商品关键词 | dws | 大屏展示 | 商品主题下单再次聚合
+         *         |  pv	 |  dwd  |  多维分析	 | dwd_page_log直接计算
+         * area    |  uv	 |  dwm  |  多维分析	 | dwd_page_log过滤去重
+         *         |  下单	 |  dwm  |  大屏展示	 | 订单宽表
+         * ==========================================================
+         *         | 搜索关键词	  | dwd | 大屏展示 | dwd_page_log直接计算
+         * keyword | 点击商品关键词 | dws | 大屏展示 | 商品主题下单再次聚合
          *         | 下单商品关键词 | dws | 大屏展示 | 商品主题下单再次聚合
-         * ===========================================================
+         * ==========================================================
+         *
+         * flink实时流处理步骤
+         * 流处理环境 - (检查点设置) - 获取kafka/binlog数据源 - 结构转换 - {etl处理} - 将数据写入kafka/hbase/clickhouse/redis
+         * etl处理：分流/过滤/去重/状态修复/cep/双流join/维表关联/多流union/分组开窗聚合等具体业务需求,也是代码的核心所在
+         * 当处理较复杂的业务逻辑时,步骤会很繁琐,可以写一段逻辑就测试一下中间结果,便于调试代码排查问题
          */
 
-        // 1.环境准备
-        // 创建流处理执行环境
+        // 1.创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // flink并行度和kafka分区数保持一致
         env.setParallelism(1);
@@ -87,6 +91,8 @@ public class BaseLogApp {
         String topic = "ods_base_log";
         String groupId = "ods_base_log_group";
         DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
+        // 打印测试
+        kafkaStream.print(">>>");
 
         // 4.结构转化,jsonStr -> JSONObject
         // {"common":{...},"start":{...},"page":{...},"displays":[{},{}...],"ts":1634284695000}
