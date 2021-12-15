@@ -1,9 +1,10 @@
 package com.okccc.realtime.app.dwm;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.realtime.utils.DateUtil;
 import com.okccc.realtime.utils.MyKafkaUtil;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
@@ -14,65 +15,43 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-import java.text.SimpleDateFormat;
-
 /**
  * Author: okccc
  * Date: 2021/10/25 下午6:20
- * Desc: 独立访客统计
+ * Desc: 独立访客统计,从用户行为日志中过滤去重得到
  */
 public class UniqueVisitorApp {
     public static void main(String[] args) throws Exception {
-        // 1.环境准备
-        // 创建流处理执行环境
+        // 1.创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // flink并行度和kafka分区数保持一致
         env.setParallelism(1);
 
-        // 2.检查点相关设置
-//        // 开启检查点
-//        env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
-//        // 设置检查点超时时间
-//        env.getCheckpointConfig().setCheckpointTimeout(60000);
-//        // 设置重启策略
-//        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3,3000));
-//        // 设置job取消后检查点是否保留
-//        env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-//        // 设置状态后端  内存|文件|RocksDB
-//        env.setStateBackend(new FsStateBackend("hdfs://cdh1:8020/cp"));
-//        // 设置操作hdfs的用户
-//        System.setProperty("HADOOP_USER_NAME", "root");
-
-        // 3.获取kafka数据
+        // 2.获取kafka数据
         String topic = "dwd_page_log";
         String groupId = "unique_visitor_app_group";
         DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
+        // 打印测试
+        kafkaStream.print("pv");
 
-        // 4.结构转化,jsonStr -> JSONObject
-        SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(new MapFunction<String, JSONObject>() {
-            @Override
-            public JSONObject map(String value) {
-                // {"common":{"ba":"Huawei","is_new":"1"...}, "page":{"page_id":"cart"...}, "ts":1634284695000}
-                return JSON.parseObject(value);
-            }
-        });
+        // 3.结构转化,jsonStr -> JSONObject
+        // {"common":{"mid":"mid_12"...},"page":{"page_id":"cart","last_page_id":"home"...},"ts":1634284695000}
+        SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(JSON::parseObject);
 
-        // 5.过滤数据
+        // 4.过滤数据
         SingleOutputStreamOperator<JSONObject> filterStream = jsonStream
-                // 按照mid分组
+                // 按照mid分组,每组数据表示当前设备的访问情况
                 .keyBy(r -> r.getJSONObject("common").getString("mid"))
-                // filter(过滤)针对每个输入元素输出0/1个元素
+                // filter算子针对每个输入元素输出0/1个元素
                 .filter(new RichFilterFunction<JSONObject>() {
                     // 声明状态,记录设备上次访问日期
                     private ValueState<String> lastVisitDate;
-                    private SimpleDateFormat sdf;
 
                     @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
-                        // 初始化状态变量
-                        ValueStateDescriptor<String> valueState = new ValueStateDescriptor<>("last-visit", String.class);
-                        // 独立访客其实就是统计日活,状态值主要用来筛选当天是否访问过,所以要设置状态的有效时间ttl
+                    public void open(Configuration parameters) {
+                        // 创建状态描述符
+                        ValueStateDescriptor<String> valueState = new ValueStateDescriptor<>("lastVisitDate", String.class);
+                        // 独立访客就是统计日活,状态主要用来筛选当天是否访问过,所以要设置有效时间ttl,避免状态常驻内存
                         valueState.enableTimeToLive(
                                 StateTtlConfig
                                         // 将状态的存活时间设置为1天
@@ -83,42 +62,37 @@ public class UniqueVisitorApp {
 //                                        .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
                                         .build()
                         );
+                        // 初始化状态变量
                         lastVisitDate = getRuntimeContext().getState(valueState);
-                        sdf = new SimpleDateFormat("yyyyMMdd");
                     }
 
                     @Override
                     public boolean filter(JSONObject value) throws Exception {
-                        // 先判断是否从别的页面跳转过来
-                        String lastPageId = value.getJSONObject("common").getString("last_page_id");
+                        // a.先判断是否从别的页面跳转过来
+                        String lastPageId = value.getJSONObject("page").getString("last_page_id");
                         if (lastPageId != null && lastPageId.length() > 0) {
+                            // 有上一页,说明肯定不是第一次访问,直接过滤
                             return false;
                         }
-                        // 再判断上次访问日期
+                        // b.不是跳转页面,就继续判断当前访问日期和上次访问日期是否相同
                         String lastDate = lastVisitDate.value();
-                        String curDate = sdf.format(value.getLong("ts"));
+                        String curDate = DateUtil.parseUnixToDateTime(value.getLong("ts"));
                         if (lastDate != null && lastDate.length() > 0 && curDate.equals(lastDate)) {
-                            // 已经访问过
+                            // 已经访问过,过滤该条数据
                             return false;
                         } else {
-                            // 还没访问过
+                            // 还没访问过,更新状态变量,保留该条数据
                             lastVisitDate.update(curDate);
                             return true;
                         }
                     }
                 });
-
         // 打印测试
-        filterStream.print();
+        filterStream.print("uv");
 
-        // 6.将过滤后的数据写入dwm层对应的topic
+        // 5.将过滤后的数据写入dwm层对应的topic
         filterStream
-                .map(new MapFunction<JSONObject, String>() {
-                    @Override
-                    public String map(JSONObject value) throws Exception {
-                        return value.toJSONString();
-                    }
-                })
+                .map(JSONAware::toJSONString)
                 .addSink(MyKafkaUtil.getKafkaSink("dwm_unique_visitor"));
 
         // 启动任务
