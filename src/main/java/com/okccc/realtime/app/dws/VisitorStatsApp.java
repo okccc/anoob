@@ -147,6 +147,68 @@ public class VisitorStatsApp {
         // 打印测试
 //        unionStream.print("union");  // VisitorStats(stt=, edt=, vc=v2.1.132, ch=Appstore, ar=440000, is_new=1, uv_ct=0, pv_ct=1, sv_ct=0, uj_ct=0, dur_sum=8042, ts=1639120380000)
 
+        // 5.分组/开窗/聚合
+        SingleOutputStreamOperator<VisitorStats> result = unionStream
+                // 提取时间戳生成水位线
+                .assignTimestampsAndWatermarks(
+                        WatermarkStrategy.<VisitorStats>forBoundedOutOfOrderness(Duration.ofSeconds(3))
+                                .withTimestampAssigner(new SerializableTimestampAssigner<VisitorStats>() {
+                                    @Override
+                                    public long extractTimestamp(VisitorStats element, long recordTimestamp) {
+                                        return element.getTs();
+                                    }
+                                })
+                )
+                // 分组：按照版本/渠道/地区/新老访客4个维度进行分组,所以key是Tuple4类型
+                .keyBy(new KeySelector<VisitorStats, Tuple4<String, String, String, String>>() {
+                    @Override
+                    public Tuple4<String, String, String, String> getKey(VisitorStats value) throws Exception {
+                        return Tuple4.of(
+                                value.getCh(),
+                                value.getAr(),
+                                value.getVc(),
+                                value.getIs_new()
+                        );
+                    }
+                })
+                // 开窗：每个分组都是独立窗口互不影响
+                .window(TumblingEventTimeWindows.of(Time.seconds(10)))
+                // 聚合：按照累加器思想进行滚动聚合时,如果输入输出类型一致就用reduce,输入输出类型不一致就用aggregate
+                .reduce(
+                        // 先增量聚合
+                        new ReduceFunction<VisitorStats>() {
+                            @Override
+                            public VisitorStats reduce(VisitorStats value1, VisitorStats value2) throws Exception {
+                                // 按照维度分组后,将度量值进行两两相加
+                                value1.setPv_ct(value1.getPv_ct() + value2.getPv_ct());
+                                value1.setUv_ct(value1.getUv_ct() + value2.getUv_ct());
+                                value1.setSv_ct(value1.getSv_ct() + value2.getSv_ct());
+                                value1.setUj_ct(value1.getUj_ct() + value2.getUj_ct());
+                                value1.setDur_sum(value1.getDur_sum() + value2.getDur_sum());
+                                return value1;
+                            }
+                        },
+                        // 再全窗口处理
+                        new ProcessWindowFunction<VisitorStats, VisitorStats, Tuple4<String, String, String, String>, TimeWindow>() {
+                            @Override
+                            public void process(Tuple4<String, String, String, String> tuple4, Context context, Iterable<VisitorStats> elements, Collector<VisitorStats> out) {
+                                // 获取窗口信息
+                                long windowStart = context.window().getStart();
+                                long windowEnd = context.window().getEnd();
+                                // 遍历迭代器
+                                for (VisitorStats visitorStats : elements) {
+                                    // 补全窗口区间及统计时间
+                                    visitorStats.setStt(DateUtil.parseUnixToDateTime(windowStart));
+                                    visitorStats.setEdt(DateUtil.parseUnixToDateTime(windowEnd));
+                                    visitorStats.setTs(System.currentTimeMillis());
+                                    // 收集结果往下游发送
+                                    out.collect(visitorStats);
+                                }
+                            }
+                        }
+                );
+        // 打印测试
+        result.print("VisitStats");  // VisitorStats(stt=2021-12-10 17:47:20, edt=2021-12-10 17:47:30, vc=v2.1.134, ch=oppo, ar=500000, is_new=1, pv_ct=1, uv_ct=1, sv_ct=1, uj_ct=0, dur_sum=8947, ts=1639734453427)
 
         // 启动任务
         env.execute();
