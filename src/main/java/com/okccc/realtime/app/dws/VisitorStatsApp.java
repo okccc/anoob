@@ -3,6 +3,7 @@ package com.okccc.realtime.app.dws;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.bean.VisitorStats;
+import com.okccc.realtime.common.MyConfig;
 import com.okccc.realtime.utils.DateUtil;
 import com.okccc.realtime.utils.MyKafkaUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
@@ -11,6 +12,10 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
+import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
+import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -21,6 +26,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.time.Duration;
 
 /**
@@ -178,7 +185,7 @@ public class VisitorStatsApp {
                         // 先增量聚合
                         new ReduceFunction<VisitorStats>() {
                             @Override
-                            public VisitorStats reduce(VisitorStats value1, VisitorStats value2) throws Exception {
+                            public VisitorStats reduce(VisitorStats value1, VisitorStats value2) {
                                 // 按照维度分组后,将度量值进行两两相加
                                 value1.setPv_ct(value1.getPv_ct() + value2.getPv_ct());
                                 value1.setUv_ct(value1.getUv_ct() + value2.getUv_ct());
@@ -209,6 +216,48 @@ public class VisitorStatsApp {
                 );
         // 打印测试
         result.print("VisitStats");  // VisitorStats(stt=2021-12-10 17:47:20, edt=2021-12-10 17:47:30, vc=v2.1.134, ch=oppo, ar=500000, is_new=1, pv_ct=1, uv_ct=1, sv_ct=1, uj_ct=0, dur_sum=8947, ts=1639734453427)
+
+        // 6.将聚合数据写入clickhouse,主题表只是轻度聚合,更细粒度的统计分析可以借助sql分析
+        result.addSink(
+                // flink-jdbc连接器只能操作一张表,但是由于内部使用了预编译器,所以可以实现批量提交以优化写入速度,如果要操作多张表需要自定义类实现SinkFunction接口
+                JdbcSink.sink(
+                        "insert into visitor_stats values(?,?,?,?,?,?,?,?,?,?,?,?)",
+                        new JdbcStatementBuilder<VisitorStats>() {
+                            @Override
+                            public void accept(PreparedStatement ps, VisitorStats visitorStats) {
+                                // 获取对象属性,给问号占位符赋值
+                                // 正常获取属性是obj.getXxx(),如果还不知道当前对象是啥,可以通过反射动态获取对象的属性和方法
+                                Field[] fields = visitorStats.getClass().getDeclaredFields();
+                                // 遍历所有字段
+                                for (int i = 0; i < fields.length; i++) {
+                                    // 获取字段值
+                                    Field field = fields[i];
+                                    // 私有属性要设置访问权限
+                                    field.setAccessible(true);
+                                    try {
+                                        Object value = field.get(visitorStats);
+                                        // 给占位符赋值
+                                        ps.setObject(i + 1, value);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        },
+                        new JdbcExecutionOptions
+                                .Builder()
+                                .withBatchSize(5)  // 每个并行度的数据够5条就写一次,减少和数据库交互次数
+                                .withBatchIntervalMs(3)  // 不够10条的话也不会一直等,3秒后也会写一次
+                                .build(),
+                        new JdbcConnectionOptions
+                                .JdbcConnectionOptionsBuilder()
+                                .withDriverName(MyConfig.CLICKHOUSE_DRIVER)
+                                .withUrl(MyConfig.CLICKHOUSE_URL)
+                                .withUsername(MyConfig.CLICKHOUSE_USER)
+                                .withPassword(MyConfig.CLICKHOUSE_PASSWORD)
+                                .build()
+                )
+        );
 
         // 启动任务
         env.execute();
