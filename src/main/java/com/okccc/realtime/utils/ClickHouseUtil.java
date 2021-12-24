@@ -1,6 +1,7 @@
 package com.okccc.realtime.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.realtime.bean.TransientSink;
 import com.okccc.realtime.common.MyConfig;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
@@ -8,6 +9,8 @@ import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -22,6 +25,7 @@ import java.util.Properties;
  */
 public class ClickHouseUtil {
 
+    private static final Logger logger = LoggerFactory.getLogger(ClickHouseUtil.class);
     private static Connection conn;
 
     /**
@@ -107,6 +111,7 @@ public class ClickHouseUtil {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         } finally {
             // 释放资源
             close(null, ps, rs);
@@ -128,17 +133,26 @@ public class ClickHouseUtil {
                         // 获取对象属性,给sql语句的问号占位符赋值
                         // 正常获取属性是obj.getXxx(),工具类是通用的都是泛型,还不知道当前对象是啥,可以通过反射动态获取对象信息
                         Field[] fields = obj.getClass().getDeclaredFields();
+                        // 当java bean属性和表中字段不一致时处理方式：1.将添加注解的属性都放最后 2.给占位符赋值时手动减去角标(推荐)
+                        int skipNum = 0;
                         // 遍历所有属性
                         for (int i = 0; i < fields.length; i++) {
                             // 获取当前属性
                             Field field = fields[i];
+                            // 判断该属性是否包含注解
+                            TransientSink annotation = field.getAnnotation(TransientSink.class);
+                            if (annotation != null) {
+                                // 有就直接跳过不处理,并且将索引值-1
+                                skipNum++;
+                                continue;
+                            }
                             // 私有属性要先获取访问权限
                             field.setAccessible(true);
                             try {
                                 // 获取当前属性的值,反射就是反过来写obj.getField() -> field.get(obj)
                                 Object value = field.get(obj);
                                 // 给占位符赋值
-                                ps.setObject(i + 1, value);
+                                ps.setObject(i + 1 - skipNum, value);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

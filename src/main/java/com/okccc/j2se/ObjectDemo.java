@@ -162,7 +162,7 @@ public class ObjectDemo {
          *
          * 注解
          * 用于修饰java中的数据(类/属性/方法/构造器...),不改变程序逻辑,但可以被编译器解析并做相应处理
-         * @Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE}) 表示作用范围
+         * @Target(ElementType.{TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE}) 表示作用范围
          * @Retention(RetentionPolicy.SOURCE) 表示保留策略 SOURCE | RUNTIME
          * public @interface SuppressWarnings {}  // 抑制代码中的编译警告
          */
