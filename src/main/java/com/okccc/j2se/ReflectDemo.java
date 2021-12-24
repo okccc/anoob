@@ -22,12 +22,12 @@ public class ReflectDemo {
          */
 
 //        getClassObject();
-//        getClassField();
+        getClassField();
 //        getClassMethod();
 //        getClassConstructor();
 //        getClassOther();
-        test01();
-        test02();
+//        test01();
+//        test02();
     }
 
     // 获取Class类对象的三种方式
@@ -46,7 +46,7 @@ public class ReflectDemo {
     private static void getClassField() throws Exception {
         Class<?> clazz = Class.forName("com.okccc.j2se.Person");
 //        Field[] fields = clazz.getFields();  // 只能获取public修饰的属性
-        Field[] fields = clazz.getDeclaredFields();  // 获取所有属性
+        Field[] fields = clazz.getDeclaredFields();  // 获取所有属性,但是private修饰的属性要先获取访问权限
         for (Field field : fields) {
             // 修饰符
             String modifier = Modifier.toString(field.getModifiers());
@@ -54,7 +54,7 @@ public class ReflectDemo {
             String type = field.getType().getSimpleName();
             // 属性名
             String name = field.getName();
-            System.out.println(modifier +" "+ type +" "+ name);
+            System.out.println(modifier + " " + type + " " + name);
         }
     }
 
@@ -81,7 +81,7 @@ public class ReflectDemo {
                 sb.append(", ");
             }
             sb.append(")");
-            System.out.println(modifier +" "+ type +" "+ name + sb);
+            System.out.println(modifier + " " + type + " " + name + sb);
         }
     }
 
@@ -106,7 +106,7 @@ public class ReflectDemo {
                 sb.append(", ");
             }
             sb.append(")");
-            System.out.println(modifier +" "+ name + sb);
+            System.out.println(modifier + " " + name + sb);
         }
     }
 
@@ -251,4 +251,3 @@ public class ReflectDemo {
     }
 
 }
-
