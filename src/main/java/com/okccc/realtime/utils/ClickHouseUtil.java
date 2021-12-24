@@ -1,8 +1,15 @@
 package com.okccc.realtime.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.realtime.common.MyConfig;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
+import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
+import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
+import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +24,9 @@ public class ClickHouseUtil {
 
     private static Connection conn;
 
-    // 手动获取数据库连接
+    /**
+     * 获取数据库连接
+     */
     public static void initConnection() throws Exception {
         // 1.读取配置文件
         Properties prop = new Properties();
@@ -33,7 +42,9 @@ public class ClickHouseUtil {
         conn = DriverManager.getConnection(url, user, password);
     }
 
-    // 关闭数据库连接
+    /**
+     * 关闭数据库连接
+     */
     public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
         if (conn != null) {
             try {
@@ -58,7 +69,9 @@ public class ClickHouseUtil {
         }
     }
 
-    // 批量查询
+    /**
+     * 批量查询,将结果集封装成T类型对象
+     */
     public static <T> List<T> queryList(String sql, Class<T> clazz) throws Exception {
         // 存放结果集的列表
         List<T> list = new ArrayList<>();
@@ -102,8 +115,53 @@ public class ClickHouseUtil {
         return list;
     }
 
+    /**
+     * flink-connector-jdbc写数据到clickhouse
+     */
+    public static <T> SinkFunction<T> getJdbcSink(String sql) {
+        // JdbcSink内部使用了预编译器,可以批量提交优化写入速度,但是只能操作一张表,如果是一流写多表就得自定义类实现SinkFunction接口
+        return JdbcSink.sink(
+                sql,
+                new JdbcStatementBuilder<T>() {
+                    @Override
+                    public void accept(PreparedStatement ps, T obj) {
+                        // 获取对象属性,给sql语句的问号占位符赋值
+                        // 正常获取属性是obj.getXxx(),工具类是通用的都是泛型,还不知道当前对象是啥,可以通过反射动态获取对象信息
+                        Field[] fields = obj.getClass().getDeclaredFields();
+                        // 遍历所有属性
+                        for (int i = 0; i < fields.length; i++) {
+                            // 获取当前属性
+                            Field field = fields[i];
+                            // 私有属性要先获取访问权限
+                            field.setAccessible(true);
+                            try {
+                                // 获取当前属性的值,反射就是反过来写obj.getField() -> field.get(obj)
+                                Object value = field.get(obj);
+                                // 给占位符赋值
+                                ps.setObject(i + 1, value);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                },
+                new JdbcExecutionOptions
+                        .Builder()
+                        .withBatchSize(10)  // 每个并行度的数据够10条就写一次,减少和数据库交互次数
+                        .withBatchIntervalMs(10)  // 不够10条的话等10秒也会写一次
+                        .build(),
+                new JdbcConnectionOptions
+                        .JdbcConnectionOptionsBuilder()
+                        .withDriverName(MyConfig.CLICKHOUSE_DRIVER)
+                        .withUrl(MyConfig.CLICKHOUSE_URL)
+                        .withUsername(MyConfig.CLICKHOUSE_USER)
+                        .withPassword(MyConfig.CLICKHOUSE_PASSWORD)
+                        .build()
+        );
+    }
+
     public static void main(String[] args) throws Exception {
-        List<JSONObject> jsonObjects = queryList("select * from events", JSONObject.class);
+        List<JSONObject> jsonObjects = queryList("select * from t_order_mt", JSONObject.class);
         System.out.println(jsonObjects);
     }
 }
