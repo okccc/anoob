@@ -121,9 +121,35 @@ public class ClickHouseUtil {
     }
 
     /**
-     * flink-connector-jdbc写数据到clickhouse
+     * flink-connector-jdbc将字符串写入clickhouse
      */
-    public static <T> SinkFunction<T> getJdbcSink(String sql) {
+    public static SinkFunction<String> getJdbcSink(String sql) {
+        return JdbcSink.sink(
+                sql,
+                new JdbcStatementBuilder<String>() {
+                    @Override
+                    public void accept(PreparedStatement ps, String log) throws SQLException {
+                        // nginx原始日志
+                        ps.setObject(1, log);
+                        // 当前数据插入时间
+                        ps.setObject(2, DateUtil.getCurrentTime());
+                    }
+                },
+                new JdbcExecutionOptions.Builder().build(),
+                new JdbcConnectionOptions
+                        .JdbcConnectionOptionsBuilder()
+                        .withDriverName(MyConfig.CLICKHOUSE_DRIVER)
+                        .withUrl(MyConfig.CLICKHOUSE_URL)
+                        .withUsername(MyConfig.CLICKHOUSE_USER)
+                        .withPassword(MyConfig.CLICKHOUSE_PASSWORD)
+                        .build()
+        );
+    }
+
+    /**
+     * flink-connector-jdbc将java bean写入clickhouse
+     */
+    public static <T> SinkFunction<T> getJdbcSinkBySchema(String sql) {
         // JdbcSink内部使用了预编译器,可以批量提交优化写入速度,但是只能操作一张表,如果是一流写多表就得自定义类实现SinkFunction接口
         return JdbcSink.sink(
                 sql,

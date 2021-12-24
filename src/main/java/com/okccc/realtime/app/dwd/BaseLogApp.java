@@ -3,6 +3,7 @@ package com.okccc.realtime.app.dwd;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.realtime.utils.ClickHouseUtil;
 import com.okccc.realtime.utils.DateUtil;
 import com.okccc.realtime.utils.MyKafkaUtil;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -40,9 +41,9 @@ public class BaseLogApp {
          * ==========================================================
          *         |  pv    |  dwd  |  大屏展示  | dwd_page_log直接计算
          *         |  uv    |  dwm  |  大屏展示  | dwd_page_log过滤去重
-         * user    | 跳出次数 |  dwm  |  大屏展示  | dwd_page_log行为判断
-         *         | 进入页面 |  dwd  |  大屏展示  | 识别开始访问标识
-         *         | 访问时长 |  dwd  |  大屏展示  | dwd_page_log直接计算
+         * user    | 进入页面 |  dwd  |  大屏展示  | dwd_page_log行为判断
+         *         | 跳出页面 |  dwm  |  大屏展示  | dwd_page_log行为判断
+         *         | 连续访问时长 | dwd | 大屏展示 | dwd_page_log直接获取
          * ==========================================================
          *         |  点击	 |  dwd  |  多维分析  | dwd_page_log直接计算
          *         |  曝光	 |  dwd  |  多维分析  | dwd_page_log直接计算
@@ -57,7 +58,7 @@ public class BaseLogApp {
          * area    |  uv	 |  dwm  |  多维分析	 | dwd_page_log过滤去重
          *         |  下单	 |  dwm  |  大屏展示	 | 订单宽表
          * ==========================================================
-         *         | 搜索关键词	  | dwd | 大屏展示 | dwd_page_log直接计算
+         *         | 搜索关键词	 | dwd | 大屏展示 | dwd_page_log直接计算
          * keyword | 点击商品关键词 | dws | 大屏展示 | 商品主题下单再次聚合
          *         | 下单商品关键词 | dws | 大屏展示 | 商品主题下单再次聚合
          * ==========================================================
@@ -96,7 +97,23 @@ public class BaseLogApp {
 
         // 4.结构转化,jsonStr -> JSONObject
         // {"common":{...},"start":{...},"page":{...},"displays":[{},{}...],"ts":1634284695000}
-        SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(JSON::parseObject);
+//        SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(JSON::parseObject);
+        // nginx日志可能存在格式不规范的脏数据,可以直接过滤或者写侧输出流
+        OutputTag<String> dirtyTag = new OutputTag<String>("dirty"){};
+        SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.process(new ProcessFunction<String, JSONObject>() {
+            @Override
+            public void processElement(String value, Context ctx, Collector<JSONObject> out) {
+                try {
+                    JSONObject jsonObject = JSON.parseObject(value);
+                    out.collect(jsonObject);
+                } catch (Exception e) {
+                    ctx.output(dirtyTag, value);
+                }
+            }
+        });
+        // 将脏数据写入clickhouse,方便比对日志
+        DataStream<String> dirtyStream = jsonStream.getSideOutput(dirtyTag);
+        dirtyStream.addSink(ClickHouseUtil.getJdbcSink("insert into dirty_log values(?,?)"));
 
         // 5.新老访客状态修复
         SingleOutputStreamOperator<JSONObject> fixedStream = jsonStream
@@ -111,7 +128,7 @@ public class BaseLogApp {
                     public void open(Configuration parameters) throws Exception {
                         super.open(parameters);
                         // 初始化状态变量
-                        lastVisitDate = getRuntimeContext().getState(new ValueStateDescriptor<>("last-visit", Types.STRING));
+                        lastVisitDate = getRuntimeContext().getState(new ValueStateDescriptor<>("lastVisitDate", Types.STRING));
                     }
 
                     @Override
