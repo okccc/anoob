@@ -32,13 +32,13 @@ public class UniqueVisitorApp {
         String groupId = "unique_visitor_app_group";
         DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
         // 打印测试
-        kafkaStream.print("pv");
+//        kafkaStream.print("pv");
 
         // 3.结构转化,jsonStr -> JSONObject
         // {"common":{"mid":"mid_12"...},"page":{"page_id":"cart","last_page_id":"home"...},"ts":1634284695000}
         SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(JSON::parseObject);
 
-        // 4.过滤数据
+        // 4.过滤数据,状态编程
         SingleOutputStreamOperator<JSONObject> filterStream = jsonStream
                 // 按照mid分组,每组数据表示当前设备的访问情况
                 .keyBy(r -> r.getJSONObject("common").getString("mid"))

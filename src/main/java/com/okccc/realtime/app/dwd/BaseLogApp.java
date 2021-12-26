@@ -115,7 +115,7 @@ public class BaseLogApp {
         DataStream<String> dirtyStream = jsonStream.getSideOutput(dirtyTag);
         dirtyStream.addSink(ClickHouseUtil.getJdbcSink("insert into dirty_log values(?,?)"));
 
-        // 5.新老访客状态修复
+        // 5.新老访客校验,状态编程
         SingleOutputStreamOperator<JSONObject> fixedStream = jsonStream
                 // 按照mid分组
                 .keyBy(r -> r.getJSONObject("common").getString("mid"))
