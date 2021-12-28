@@ -56,4 +56,16 @@ public class MyKafkaUtil {
                 // FlinkKafkaProducer实现了两阶段提交,Semantic.EXACTLY_ONCE会开启事务保证精准一次性(975行源码)
                 FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
     }
+
+    /**
+     * 往kafka写数据的生产者,将数据动态写入不同topic,传入KafkaSerializationSchema接口,由调用者自己实现
+     */
+    public static <T> FlinkKafkaProducer<T> getKafkaSinkBySchema(KafkaSerializationSchema<T> kafkaSerializationSchema) {
+        // 生产者属性配置
+        Properties prop = new Properties();
+        prop.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
+        prop.setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 900 * 1000 + "");
+        // 创建flink生产者对象
+        return new FlinkKafkaProducer<>(DEFAULT_TOPIC, kafkaSerializationSchema, prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
+    }
 }
