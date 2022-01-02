@@ -287,16 +287,16 @@
             <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink cdc -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.ververica</groupId>-->
-        <!--            <artifactId>flink-connector-mysql-cdc</artifactId>-->
-        <!--            <version>2.0.0</version>-->
-        <!--        </dependency>-->
+        <!-- flink cdc,当前只支持mysql5.x,不支持mysql8.x -->
+<!--        <dependency>-->
+<!--            <groupId>com.ververica</groupId>-->
+<!--            <artifactId>flink-connector-mysql-cdc</artifactId>-->
+<!--            <version>2.0.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.alibaba.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>1.2.0</version>
+            <version>1.4.0</version>
         </dependency>
         <!-- flink cep -->
         <dependency>
