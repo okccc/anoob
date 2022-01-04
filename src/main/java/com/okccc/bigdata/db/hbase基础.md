@@ -103,6 +103,8 @@ hbase(main):001:0> disable 'student' & drop 'student'  # 删除表
 jdbc:phoenix:localhost:2181> create schema if not exists dim
 # 查看所有表
 jdbc:phoenix:localhost:2181> !table
+# 查看表结构
+jdbc:phoenix:localhost:2181> !desc realtime.dim_sku_info
 # 创建表
 jdbc:phoenix:localhost:2181> CREATE TABLE IF NOT EXISTS dim.student(
   id VARCHAR primary key,  # 指定单列作为RowKey
