@@ -239,6 +239,10 @@ hive> create temporary table t1_tmp as select * from t1;
 hive> show partitions test;
 -- 查看最小分区
 hive> select min(dt) from test;
+-- hdfs文件存在且有数据但是hive查不到？
+-- 如果hive表的数据不是使用insert语句插入而是通过hdfs命令行或api写入的话,hive表的分区信息在metastore是没有的,可通过该命令修复
+hive> set hive.msck.path.validation=ignore;
+hive> msck repair table db.table
 -- 查找所有函数
 hive> show functions;
 -- 查看某个函数使用案例
