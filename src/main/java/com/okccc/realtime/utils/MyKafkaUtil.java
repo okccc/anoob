@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -31,6 +32,15 @@ public class MyKafkaUtil {
         props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         // 创建flink消费者对象
         return new FlinkKafkaConsumer<>(topic, new SimpleStringSchema(), props);
+    }
+
+    public static FlinkKafkaConsumer<String> getKafkaSource(List<String> topics, String groupId) {
+        // 消费者属性配置
+        Properties props = new Properties();
+        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
+        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        // 创建flink消费者对象
+        return new FlinkKafkaConsumer<>(topics, new SimpleStringSchema(), props);
     }
 
     /**
