@@ -17,6 +17,7 @@ import java.util.Properties;
  * Author: okccc
  * Date: 2021/10/4 下午7:41
  * Desc: flink读写kafka的工具类
+ * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/datastream/kafka/
  */
 public class MyKafkaUtil {
     private static final String KAFKA_SERVER = "localhost:9092";
@@ -77,5 +78,17 @@ public class MyKafkaUtil {
         prop.setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 900 * 1000 + "");
         // 创建flink生产者对象
         return new FlinkKafkaProducer<>(DEFAULT_TOPIC, kafkaSerializationSchema, prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
+    }
+
+    /**
+     * flink-sql创建kafka表的WITH语句模板
+     */
+    public static String getKafkaDDL(String topic, String groupId) {
+        return "'connector' = 'kafka',\n" +
+                "  'topic' = '" + topic + "',\n" +
+                "  'properties.bootstrap.servers' = '" + KAFKA_SERVER + "',\n" +
+                "  'properties.group.id' = '" + groupId + "',\n" +
+                "  'scan.startup.mode' = 'latest-offset',\n" +
+                "  'format' = 'json'";
     }
 }
