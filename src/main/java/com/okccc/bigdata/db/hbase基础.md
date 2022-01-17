@@ -49,6 +49,8 @@ localhost
 [root@cdh1 ~]$ start-dfs.sh
 # 启动hbase
 [root@cdh1 ~]$ start-hbase.sh
+# 启动命令行
+[root@cdh1 ~]$ hbase shell
 # web页面
 http://localhost:16010
 
