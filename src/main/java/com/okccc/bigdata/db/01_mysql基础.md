@@ -103,6 +103,7 @@ drop database java;
     使用超级管理员权限: sudo -s
     进入mysql库目录: cd /var/lib/mysql
     运行mysqldump命令: mysqldump –uroot –p 要备份的数据库 > ~/desktop/bac.sql;(其实就是在新的文件里create和insert)
+    比如导出hive元数据：mysqldump -h localhsot -uroot -p --single-transaction hivemetastore > hivemetastore-src.sql 
 数据恢复
     连接mysql,先创建一个新的数据库,然后往这个新数据库里恢复数据
     退出重新连接: mysql -uroot –p 新创建的数据库 < ~/desktop/bac.sql
