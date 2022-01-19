@@ -67,6 +67,12 @@ public class BaseLogApp {
          * 流处理环境 - (检查点设置) - 获取kafka/binlog数据源 - 结构转换 - {etl处理} - 将数据写入kafka/hbase/clickhouse/redis
          * etl处理：分流/过滤/去重/状态修复/cep/双流join/维表关联/多流union/分组开窗聚合等具体业务需求,也是代码的核心所在
          * 当处理较复杂的业务逻辑时,步骤会很繁琐,可以写一段逻辑就测试一下中间结果,便于调试代码排查问题
+         *
+         * -- clickhouse建表语句
+         * create table if not exists dirty_log (
+         *   log            String,
+         *   insert_time    datetime
+         * ) engine = MergeTree order by (insert_time);
          */
 
         // 1.创建流处理执行环境

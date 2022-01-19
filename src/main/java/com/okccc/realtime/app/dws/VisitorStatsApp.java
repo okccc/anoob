@@ -3,7 +3,7 @@ package com.okccc.realtime.app.dws;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.bean.VisitorStats;
-import com.okccc.realtime.common.MyConfig;
+import com.okccc.realtime.utils.ClickHouseUtil;
 import com.okccc.realtime.utils.DateUtil;
 import com.okccc.realtime.utils.MyKafkaUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
@@ -12,10 +12,6 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
-import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
-import org.apache.flink.connector.jdbc.JdbcSink;
-import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -26,8 +22,6 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
 import java.time.Duration;
 
 /**
@@ -40,10 +34,34 @@ public class VisitorStatsApp {
         /*
          * dws层将多个实时数据以主题的方式轻度聚合方便查询,主题表包含维度(分组)和度量(聚合)两部分数据
          * connect双流连接的元素类型可以不同,union多流合并的元素类型必须相同,所以要整合各个实时数据的字段统一生成主题宽表
+         *
+         * ==========================================================
+         *         |  pv    |  dwd  |  大屏展示  | dwd_page_log直接计算
+         *         |  uv    |  dwm  |  大屏展示  | dwd_page_log过滤去重
+         * user    | 进入页面 |  dwd  |  大屏展示  | dwd_page_log行为判断
+         *         | 跳出页面 |  dwm  |  大屏展示  | dwd_page_log行为判断
+         *         | 连续访问时长 | dwd | 大屏展示 | dwd_page_log直接获取
+         * ==========================================================
+         *
          * 维度数据：渠道、地区、版本、新老用户
-         * 事实数据：PV、UV、进入页面、跳出页面、连续访问时长
+         * 度量数据：PV、UV、进入页面、跳出页面、连续访问时长
          * 访客主题如果按照mid分组,记录的都是当前设备的行为,数据量很小聚合效果不明显,起不到数据压缩的作用
-         * 商品主题可以按照pid分组,因为会同时有很多人对该商品做操作,数据量很可观可以达到聚合效果
+         *
+         * -- clickhouse建表语句
+         * create table if not exists visitor_stats (
+         *   stt            DateTime,
+         *   edt            DateTime,
+         *   vc             String,
+         *   ch             String,
+         *   ar             String,
+         *   is_new         String,
+         *   uv_ct          UInt64,
+         *   pv_ct          UInt64,
+         *   sv_ct          UInt64,
+         *   uj_ct          UInt64,
+         *   dur_sum        UInt64,
+         *   ts             UInt64
+         * ) engine = ReplacingMergeTree(ts) partition by toYYYYMMDD(stt) order by (stt,edt,is_new,vc,ch,ar);
          */
 
         // 1.创建流处理执行环境
@@ -106,7 +124,6 @@ public class VisitorStatsApp {
                         // {"common":{"ar":"","ch":"","vc":""...},"page":{...},"displays":[{},{}...],"ts":1639123347000}
                         JSONObject jsonObject = JSON.parseObject(value);
                         JSONObject common = jsonObject.getJSONObject("common");
-                        JSONObject page = jsonObject.getJSONObject("page");
                         return new VisitorStats(
                                 "",
                                 "",
@@ -125,7 +142,7 @@ public class VisitorStatsApp {
                 });
 
         SingleOutputStreamOperator<VisitorStats> ujdStatsStream = ujdStream
-                // 将跳出明细流数据封装成访客主题实体类
+                // 将ujd流数据封装成访客主题实体类
                 .map(new MapFunction<String, VisitorStats>() {
                     @Override
                     public VisitorStats map(String value) {
@@ -155,7 +172,7 @@ public class VisitorStatsApp {
 //        unionStream.print("union");  // VisitorStats(stt=, edt=, vc=v2.1.132, ch=Appstore, ar=440000, is_new=1, uv_ct=0, pv_ct=1, sv_ct=0, uj_ct=0, dur_sum=8042, ts=1639120380000)
 
         // 5.分组/开窗/聚合
-        SingleOutputStreamOperator<VisitorStats> result = unionStream
+        SingleOutputStreamOperator<VisitorStats> visitorStatsStream = unionStream
                 // 提取时间戳生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<VisitorStats>forBoundedOutOfOrderness(Duration.ofSeconds(3))
@@ -215,49 +232,11 @@ public class VisitorStatsApp {
                         }
                 );
         // 打印测试
-        result.print("VisitStats");  // VisitorStats(stt=2021-12-10 17:47:20, edt=2021-12-10 17:47:30, vc=v2.1.134, ch=oppo, ar=500000, is_new=1, pv_ct=1, uv_ct=1, sv_ct=1, uj_ct=0, dur_sum=8947, ts=1639734453427)
+        visitorStatsStream.print("VisitStats");  // VisitorStats(stt=2021-12-10 17:47:20, edt=2021-12-10 17:47:30, vc=v2.1.134, ch=oppo, ar=500000, is_new=1, pv_ct=1, uv_ct=1, sv_ct=1, uj_ct=0, dur_sum=8947, ts=1639734453427)
 
         // 6.将聚合数据写入clickhouse,主题表只是轻度聚合,更细粒度的统计分析可以借助sql分析
-        result.addSink(
-                // flink-jdbc连接器只能操作一张表,但是由于内部使用了预编译器,所以可以实现批量提交以优化写入速度,如果要操作多张表需要自定义类实现SinkFunction接口
-                JdbcSink.sink(
-                        "insert into visitor_stats values(?,?,?,?,?,?,?,?,?,?,?,?)",
-                        new JdbcStatementBuilder<VisitorStats>() {
-                            @Override
-                            public void accept(PreparedStatement ps, VisitorStats visitorStats) {
-                                // 获取对象属性,给问号占位符赋值
-                                // 正常获取属性是obj.getXxx(),如果还不知道当前对象是啥,可以通过反射动态获取对象的属性和方法
-                                Field[] fields = visitorStats.getClass().getDeclaredFields();
-                                // 遍历所有字段
-                                for (int i = 0; i < fields.length; i++) {
-                                    // 获取字段值
-                                    Field field = fields[i];
-                                    // 私有属性要设置访问权限
-                                    field.setAccessible(true);
-                                    try {
-                                        Object value = field.get(visitorStats);
-                                        // 给占位符赋值
-                                        ps.setObject(i + 1, value);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        },
-                        new JdbcExecutionOptions
-                                .Builder()
-                                .withBatchSize(5)  // 每个并行度的数据够5条就写一次,减少和数据库交互次数
-                                .withBatchIntervalMs(3)  // 不够10条的话也不会一直等,3秒后也会写一次
-                                .build(),
-                        new JdbcConnectionOptions
-                                .JdbcConnectionOptionsBuilder()
-                                .withDriverName(MyConfig.CLICKHOUSE_DRIVER)
-                                .withUrl(MyConfig.CLICKHOUSE_URL)
-                                .withUsername(MyConfig.CLICKHOUSE_USER)
-                                .withPassword(MyConfig.CLICKHOUSE_PASSWORD)
-                                .build()
-                )
-        );
+        visitorStatsStream.addSink(
+                ClickHouseUtil.getJdbcSinkBySchema("insert into visitor_stats values(?,?,?,?,?,?,?,?,?,?,?,?)"));
 
         // 启动任务
         env.execute();

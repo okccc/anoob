@@ -56,7 +56,37 @@ public class ProductStatsApp {
          *
          * 维度数据：商品
          * 度量数据：点击、曝光、收藏、购物车、下单、支付、退款、评论
-         * 商品主题可以按照pid分组,因为会有很多人同时操作该商品,数据量很可观可以达到聚合效果
+         * 商品主题可以按照sku_id分组,因为会有很多人同时操作该商品,数据量很可观可以达到聚合效果
+         *
+         * -- clickhouse建表语句
+         * create table if not exists product_stats (
+         *   stt               datetime,
+         *   edt               datetime,
+         *   sku_id            bigint,
+         *   sku_name          String,
+         *   sku_price         double,
+         *   spu_id            bigint,
+         *   spu_name          String,
+         *   tm_id             bigint,
+         *   tm_name           String,
+         *   category3_id      bigint,
+         *   category3_name    String,
+         *   click_ct          int,
+         *   display_ct        int,
+         *   favor_ct          int,
+         *   cart_ct           int,
+         *   order_ct          int,
+         *   order_sku_num     int,
+         *   order_amount      double,
+         *   paid_order_ct     int,
+         *   payment_amount    double,
+         *   refund_order_ct   int,
+         *   refund_amount     double,
+         *   comment_ct        int,
+         *   good_comment_ct   int,
+         *   ts                bigint
+         *  ) engine = MergeTree partition by toYYYYMMDD(stt)
+         *    order by (stt,edt,sku_id,sku_name,sku_price,spu_id,spu_name,tm_id,tm_name,category3_id,category3_name);
          */
 
         // 1.创建流处理执行环境
@@ -275,7 +305,7 @@ public class ProductStatsApp {
                         new ReduceFunction<ProductStats>() {
                             @Override
                             public ProductStats reduce(ProductStats value1, ProductStats value2) {
-                                // 按照商品分组后,将度量值进行两两相加
+                                // 按照维度分组后,将度量值进行两两相加
                                 // 点击数
                                 value1.setClick_ct(value1.getClick_ct() + value2.getClick_ct());
                                 // 曝光数
@@ -312,6 +342,7 @@ public class ProductStatsApp {
                                 long windowEnd = context.window().getEnd();
                                 // 遍历迭代器
                                 for (ProductStats productStats : elements) {
+                                    // 补全窗口区间及统计时间
                                     productStats.setStt(DateUtil.parseUnixToDateTime(windowStart));
                                     productStats.setEdt(DateUtil.parseUnixToDateTime(windowEnd));
                                     productStats.setTs(System.currentTimeMillis());
