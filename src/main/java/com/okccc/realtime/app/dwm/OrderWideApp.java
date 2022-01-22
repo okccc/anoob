@@ -76,9 +76,9 @@ public class OrderWideApp {
         DataStreamSource<String> orderInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(orderInfoTopic, groupId));
         DataStreamSource<String> orderDetailStream = env.addSource(MyKafkaUtil.getKafkaSource(orderDetailTopic, groupId));
 
-        // 订单流
+        // 3.结构转换
         KeyedStream<OrderInfo, Long> orderInfoKeyedStream = orderInfoStream
-                // 将输入数据封装成订单实体类
+                // 将订单流封装成订单实体类
                 .map(new RichMapFunction<String, OrderInfo>() {
 //                    private SimpleDateFormat sdf;
 //                    @Override
@@ -131,9 +131,8 @@ public class OrderWideApp {
                 // 按照订单id分组
                 .keyBy(OrderInfo::getId);
 
-        // 订单明细流
         KeyedStream<OrderDetail, Long> orderDetailKeyedStream = orderDetailStream
-                // 将输入数据封装成订单明细实体类
+                // 将订单明细流封装成订单明细实体类
                 .map(new RichMapFunction<String, OrderDetail>() {
                     @Override
                     public OrderDetail map(String value) throws Exception {
@@ -180,7 +179,7 @@ public class OrderWideApp {
         // split_activity_amount=null, split_coupon_amount=null, create_time=2021-11-29 16:32:44, create_ts=1638174764000)
         orderDetailKeyedStream.print("order_detail");
 
-        // 3.双流join合成订单宽表流
+        // 4.双流join合成订单宽表流
         SingleOutputStreamOperator<OrderWide> orderWideStream = orderInfoKeyedStream
                 // 基于时间间隔的连接,查看源码发现intervalJoin底层就是调用的connect
                 .intervalJoin(orderDetailKeyedStream)
@@ -199,7 +198,7 @@ public class OrderWideApp {
         // dwd_order_info,导致订单表与订单明细表关联时同一个订单被多次匹配,所以应该将订单表的insert和update记录放到不同的topic
         orderWideStream.print("order_wide");
 
-        // 4.维表关联
+        // 5.维表关联
 //        // 常规方式,同步执行,效率低下
 //        orderWideStream.map(new MapFunction<OrderWide, OrderWide>() {
 //            @Override
@@ -235,8 +234,7 @@ public class OrderWideApp {
                         orderWide.setUser_age((int)age);
                     }
                 },
-                60,
-                TimeUnit.SECONDS
+                60, TimeUnit.SECONDS
         );
         // 打印测试,发现user_gender和user_age不再是null值
         orderWideWithUserStream.print("order_wide_user");
@@ -257,8 +255,7 @@ public class OrderWideApp {
                         orderWide.setProvince_3166_2_code(dimInfo.getString("ISO_3166_2"));
                     }
                 },
-                60,
-                TimeUnit.SECONDS
+                60, TimeUnit.SECONDS
         );
 
         // sku维度
@@ -276,8 +273,7 @@ public class OrderWideApp {
                         orderWide.setCategory3_id(dimInfo.getLong("CATEGORY3_ID"));
                     }
                 },
-                60,
-                TimeUnit.SECONDS);
+                60, TimeUnit.SECONDS);
 
         // spu维度
         SingleOutputStreamOperator<OrderWide> orderWideWithSpuStream = AsyncDataStream.unorderedWait(
@@ -292,8 +288,7 @@ public class OrderWideApp {
                         orderWide.setSpu_name(dimInfo.getString("SPU_NAME"));
                     }
                 },
-                60,
-                TimeUnit.SECONDS
+                60, TimeUnit.SECONDS
         );
 
         // 品牌维度
@@ -309,8 +304,7 @@ public class OrderWideApp {
                         orderWide.setTm_name(dimInfo.getString("TM_NAME"));
                     }
                 },
-                60,
-                TimeUnit.SECONDS
+                60, TimeUnit.SECONDS
         );
 
         // 类别维度
@@ -326,13 +320,12 @@ public class OrderWideApp {
                         orderWide.setCategory3_name(dimInfo.getString("NAME"));
                     }
                 },
-                60,
-                TimeUnit.SECONDS
+                60, TimeUnit.SECONDS
         );
         // 打印测试
         orderWideWithCategoryStream.print("result");
 
-        // 5.将订单宽表数据写入dwm层对应的topic
+        // 6.将订单宽表数据写入dwm层对应的topic
         orderWideWithCategoryStream
                 .map(new MapFunction<OrderWide, String>() {
                     @Override

@@ -5,8 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ververica.cdc.connectors.mysql.MySQLSource;
 import com.alibaba.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.okccc.realtime.app.func.DimSinkFunction;
-import com.okccc.realtime.app.func.TableProcessFunction;
 import com.okccc.realtime.app.func.MyDeserialization;
+import com.okccc.realtime.app.func.TableProcessFunction;
 import com.okccc.realtime.bean.TableProcess;
 import com.okccc.realtime.utils.MyKafkaUtil;
 import org.apache.flink.api.common.functions.FilterFunction;
@@ -41,8 +41,7 @@ public class BaseDBApp {
          * 本地运行任务时发现同一条数据会被重复多次写入kafka,是因为idea异常退出导致之前进程没有及时关闭,jps查看任务名称杀掉旧进程
          */
 
-        // 1.环境准备
-        // 创建流处理执行环境
+        // 1.创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // flink并行度和kafka分区数保持一致
         env.setParallelism(1);
@@ -65,6 +64,8 @@ public class BaseDBApp {
         String topic = "ods_base_db";
         String groupId = "ods_base_db_group";
         DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
+        // 打印测试
+//        kafkaStream.print(">>>");
 
         // 4.结构转化,jsonStr -> JSONObject
         SingleOutputStreamOperator<JSONObject> jsonStream = kafkaStream.map(new MapFunction<String, JSONObject>() {
@@ -82,7 +83,8 @@ public class BaseDBApp {
                 return value.getString("table") != null
                         && value.getString("table").length() > 0
                         && value.getString("data") != null
-                        && value.getString("data").length() > 0;
+                        && value.getString("data").length() > 0
+                        && !"delete".equalsIgnoreCase(value.getString("type"));
             }
         });
 

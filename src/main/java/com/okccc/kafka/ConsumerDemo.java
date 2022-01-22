@@ -1,9 +1,6 @@
 package com.okccc.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndTimestamp;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -14,6 +11,7 @@ import java.util.*;
  * Author: okccc
  * Date: 2020/11/29 22:04
  * Desc: 模拟kafka消费者,实际场景一般是SparkStreaming或Flink
+ * kafka2.4官方文档：https://kafka.apache.org/24/documentation.html
  */
 public class ConsumerDemo {
     public static void main(String[] args) {
@@ -46,50 +44,45 @@ public class ConsumerDemo {
         // 1.消费者属性配置
         Properties prop = new Properties();
         // 必选参数
-//        prop.put("bootstrap.servers", "localhost:9092");                     // 本地kafka
-//        prop.put("bootstrap.servers", "10.18.0.7:9092,10.18.0.8:9092,10.18.0.9:9092");  // 生产kafka
-//        prop.put("bootstrap.servers", "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
-        prop.put("bootstrap.servers", "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");  // db
-//        prop.put("bootstrap.servers", "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
-//        prop.put("bootstrap.servers", "10.100.176.47:9092");  // 腾讯云kafka
-        prop.put("key.deserializer", StringDeserializer.class.getName());    // key的反序列化器
-        prop.put("value.deserializer", StringDeserializer.class.getName());  // value的反序列化器
-        prop.put("group.id", "g01");                                          // 消费者组,consumer-group之间互不影响
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");  // 本地kafka
+        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");  // db
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.100.176.47:9092");  // 腾讯云kafka
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "gg");  // 消费者组,consumer-group之间互不影响
+        prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());    // key反序列化器
+        prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());  // value反序列化器
         // 可选参数
-        prop.put("enable.auto.commit", "false");  // true自动提交(默认),false手动提交
-        // 当kafka中没有初始偏移量或找不到当前偏移量(比如数据被删除)才会生效,此时会粗粒度地指定从latest(默认)/earliest/none(抛异常)开始消费
-        prop.put("auto.offset.reset", "latest");
+        prop.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  // true自动提交(默认),false手动提交
+        // 当kafka中没有初始偏移量或找不到当前偏移量(比如数据被删除)才会生效,此时会粗粒度地指定latest(默认)/earliest/none(抛异常)
+        prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 
         // 2.创建消费者对象,<String, String>是topics和record
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
 
         // 3.订阅topic集合
         List<String> topics = new ArrayList<>();
-//        list.add("amplitude02");
-//        list.add("eduplatform01");
-        topics.add("MongoJLGLStream");
-//        list.add("nginx");
+//        topics.add("amplitude02");
+        topics.add("thrall");
         consumer.subscribe(topics);
 
-        // 4.从kafka拉取数据
+        // 4.从kafka获取数据
         while (true) {
             // poll会从消费者上次提交的offset处拉取数据
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
-
             // assignment获取消费者分配到的分区信息
             Set<TopicPartition> assignment = consumer.assignment();
-//            System.out.println(assignment);  // [nginx-0, nginx-1, nginx-2]
-
+            System.out.println(assignment);  // [nginx-0, nginx-1, nginx-2]
             // seek会重置消费者分配到的分区偏移量,可以更加细粒度地控制offset
-//            // a.从头开始消费,分区的起始位置是0,但是随着日志定时清理,起始位置也会越来越大
+            // a.从头开始消费,分区的起始位置是0,但是随着日志定时清理,起始位置也会越来越大
 //            consumer.seekToBeginning(assignment);
-//            // b.从末尾开始消费
+            // b.从末尾开始消费
 //            consumer.seekToEnd(assignment);
-//            // c.从指定位置开始消费
+            // c.从指定位置开始消费
 //            for (TopicPartition tp : assignment) {
-//                consumer.seek(tp,10000);
+//                consumer.seek(tp, 10000);
 //            }
-//            // d.从某个时间点开始消费(更符合实际需求)
+            // d.从某个时间点开始消费(更符合实际需求)
 //            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
 //            for (TopicPartition tp : assignment) {
 //                // 设置查询分区的时间戳
@@ -111,7 +104,7 @@ public class ConsumerDemo {
                 // 获取每条消息的元数据信息
                 System.out.println("ts=" + record.timestamp() + ", topic=" + record.topic() + ", partition=" +
                         record.partition() + ", offset=" + record.offset() + ", value=" + record.value());
-//                if (record.value().contains("e90290e65207463a916c518a14909e3f")) {
+//                if (record.value().contains("e972c73ebf3c462b92643dbae8427e96")) {
 //                    System.out.println(record.value());
 //                }
             }

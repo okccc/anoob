@@ -50,7 +50,7 @@ public class UserJumpDetailApp {
         String groupId = "user_jump_detail_app_group";
         DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
         // 打印测试
-        kafkaStream.print("pv");
+//        kafkaStream.print("pv");
 
         // 3.结构转化,jsonStr -> JSONObject
         KeyedStream<JSONObject, String> keyedStream = kafkaStream

@@ -43,9 +43,9 @@ public class PaymentWideApp {
         DataStreamSource<String> paymentInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(paymentInfoTopic, groupId));
         DataStreamSource<String> orderWideStream = env.addSource(MyKafkaUtil.getKafkaSource(orderWideTopic, groupId));
 
-        // 支付流
+        // 3.结构转换
         KeyedStream<PaymentInfo, Long> paymentInfoKeyedStream = paymentInfoStream
-                // 将输入数据封装成支付实体类
+                // 将支付流封装成支付实体类
                 .map(new MapFunction<String, PaymentInfo>() {
                     @Override
                     public PaymentInfo map(String value) throws Exception {
@@ -80,9 +80,8 @@ public class PaymentWideApp {
                 // 按照订单id分组
                 .keyBy(PaymentInfo::getOrder_id);
 
-        // 订单宽表流
         KeyedStream<OrderWide, Long> orderWideKeyedStream = orderWideStream
-                // 将输入数据封装成订单宽表实体类
+                // 将订单宽表流封装成订单宽表实体类
                 .map(new MapFunction<String, OrderWide>() {
                     @Override
                     public OrderWide map(String value) throws Exception {
@@ -141,7 +140,7 @@ public class PaymentWideApp {
         paymentInfoKeyedStream.print("payment_info");
         orderWideKeyedStream.print("order_wide");
 
-        // 3.双流join合成支付宽表流
+        // 4.双流join合成支付宽表流
         SingleOutputStreamOperator<PaymentWide> paymentWideStream = paymentInfoKeyedStream
                 // 基于时间间隔的连接
                 .intervalJoin(orderWideKeyedStream)
@@ -158,7 +157,7 @@ public class PaymentWideApp {
         // 打印测试
         paymentWideStream.print("payment_wide");
 
-        // 4.将支付宽表数据写入dwm层对应的topic
+        // 5.将支付宽表数据写入dwm层对应的topic
         paymentWideStream
                 .map(new MapFunction<PaymentWide, String>() {
                     @Override

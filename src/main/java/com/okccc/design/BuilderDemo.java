@@ -21,6 +21,7 @@ public class BuilderDemo {
          * org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig
          * org.apache.flink.streaming.connectors.elasticsearch6.ElasticsearchSink
          * org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
+         * org.apache.flink.api.common.state.StateTtlConfig
          */
         User user = new User.Builder().setName("fly").setMobile("111").setEmail("orc@qq.com").build();
         System.out.println(user.getName());
