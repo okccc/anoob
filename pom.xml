@@ -12,7 +12,7 @@
     <properties>
         <!-- scala版本要和spark/flink引用的scala版本保持一致 -->
         <scala.version>2.12.12</scala.version>
-        <hadoop.version>3.0.0</hadoop.version>
+        <hadoop.version>2.6.0</hadoop.version>
         <spark.version>2.4.5</spark.version>
         <flink.version>1.13.0</flink.version>
         <kafka.version>2.4.1</kafka.version>
@@ -350,6 +350,13 @@
             <groupId>com.alibaba</groupId>
             <artifactId>geoip</artifactId>
             <version>1.2</version>
+        </dependency>
+
+        <!-- IK分词器 -->
+        <dependency>
+            <groupId>com.janeluo</groupId>
+            <artifactId>ikanalyzer</artifactId>
+            <version>2012_u6</version>
         </dependency>
     </dependencies>
 
