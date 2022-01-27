@@ -29,6 +29,10 @@ public class FlinkCdc {
          * 十月 07, 2021 6:41:20 下午 com.github.shyiko.mysql.binlog.BinaryLogClient connect
          * 信息: Connected to localhost:3306 at mysql-bin.000002/154 (sid:6388, cid:7)
          * 使用flink-cdc时要关闭canal/maxwell,不然可能抓不到数据
+         *
+         * 常见错误
+         * Access denied; you need (at least one of) the RELOAD privilege(s) for this operation
+         * 需要dba赋权：grant reload on *.* to 'username'@'%'
          */
 
         // 创建流处理环境
@@ -42,7 +46,7 @@ public class FlinkCdc {
                 .hostname("localhost")
                 .port(3306)
                 .databaseList("realtime")
-//                .tableList("realtime.t_user, realtime.table_process")
+                .tableList("realtime.*")  // 默认监控所有,可以通过正则指定database和table白名单
                 .username("root")
                 .password("root@123")
                 .startupOptions(StartupOptions.initial())  // initial启动时会扫描历史数据,然后继续读取最新的binlog

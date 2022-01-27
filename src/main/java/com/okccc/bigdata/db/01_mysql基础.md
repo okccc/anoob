@@ -40,6 +40,8 @@ mysql> alter user 'root'@'localhost' identified by 'root@123';
 mysql> grant all privileges on *.* to 'root'@'%' identified by 'root@123' with grant option;
 # 查看root用户权限
 mysql> show grants for 'root'@'%';
+# 查看all privileges都包括哪些权限,先撤销insert看还剩下哪些再加上insert就是所有权限
+mysql> revoke insert on *.* from root@'%';
 # 刷新权限
 mysql> flush privileges;
 # 查看编码
