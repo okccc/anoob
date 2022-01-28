@@ -276,7 +276,7 @@
             <artifactId>flink-connector-jdbc_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink操作redis -->
+        <!-- flink操作redis,该jar包很久不更新了,用的还是flink1.2,所以不能放前面,不然会把flink1.13给覆盖掉 -->
         <dependency>
             <groupId>org.apache.bahir</groupId>
             <artifactId>flink-connector-redis_2.11</artifactId>
