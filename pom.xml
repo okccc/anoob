@@ -293,7 +293,7 @@
             <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink cdc,当前只支持mysql5.x,不支持mysql8.x -->
+        <!-- flink cdc -->
 <!--        <dependency>-->
 <!--            <groupId>com.ververica</groupId>-->
 <!--            <artifactId>flink-connector-mysql-cdc</artifactId>-->

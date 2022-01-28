@@ -33,6 +33,8 @@ public class FlinkCdc {
          * 常见错误
          * Access denied; you need (at least one of) the RELOAD privilege(s) for this operation
          * 需要dba赋权：grant reload on *.* to 'username'@'%'
+         * Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure
+         * 公司生产环境的mysql通常会在grant赋权user@'%'或者在VPN里面做网段限制,本地是连不上的,代码提交到服务器才能跑
          */
 
         // 创建流处理环境
