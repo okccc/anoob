@@ -21,9 +21,27 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Properties;
 
-public class WriteToHdfs {
+/**
+ * Author: okccc
+ * Date: 2022/1/09 11:05 上午
+ * Desc: 实时同步kafka数据到hive
+ */
+public class KafkaToHdfs {
 
     public static void main(String[] args) throws Exception {
+        /**
+         * flink run提交jar包参数
+         * -c,--class    main方法所在主类
+         * Options for yarn-cluster mode:
+         * -m,--jobmanager                 Address of the JobManager (master) to which to connect
+         * -ynm,--yarnname                 Set a custom name for the application on YARN
+         * -yjm,--yarnjobManagerMemory     Memory for JobManager Container with optional unit (default: MB)
+         * -ytm,--yarntaskManagerMemory    Memory per TaskManager Container with optional unit (default: MB)
+         * -ys,--yarnslots                 Number of slots per TaskManager
+         * -yqu,--yarnqueue                Specify YARN queue.
+         * bin/flink run -m yarn-cluster -ynm demo -yjm 2048 -ytm 4096 -ys 1 -yqu root.ai -c com.okccc.Demo ./demo.jar
+         */
+
         // 1.创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
