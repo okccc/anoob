@@ -2,13 +2,13 @@ package com.okccc.realtime.utils;
 
 import com.okccc.realtime.common.MyConfig;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.ContentSummary;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Author: okccc
@@ -17,38 +17,103 @@ import java.util.ArrayList;
  */
 public class HdfsUtil {
 
-    // 监控hdfs文件大小
-    public static void monitor() throws IOException {
+    private static FileSystem fs;
+    static {
         // hdfs配置信息
         Configuration conf = new Configuration();
-        conf.set("fs.defaultFS", MyConfig.HDFS_URL);
-        // 获取文件系统
-        FileSystem fs = FileSystem.get(conf);
-        // 指定目标路径
-        Path path = new Path("/data/hive/warehouse/ods.db");
-        // 获取该路径下所有文件和子路径
-        ArrayList<Path> paths = new ArrayList<>();
-        FileStatus[] fileStatuses = fs.listStatus(path);
+        conf.set("dfs.replication", "2");
+        try {
+            // 获取文件系统
+            fs = FileSystem.get(new URI(MyConfig.HDFS_URL), conf, "hdfs");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 监控目录大小
+     */
+    public static void testDirectory() throws Exception {
+        // 获取指定路径下的所有文件和目录
+        FileStatus[] fileStatuses = fs.listStatus(new Path("/data/hive/warehouse/ods.db"));
         for (FileStatus fileStatus : fileStatuses) {
-            System.out.println(fileStatus.getPath());
-            paths.add(fileStatus.getPath());
-        }
-        // 获取路径概要
-        for (Path p : paths) {
-            ContentSummary contentSummary = fs.getContentSummary(p);
             // 获取路径大小(可以用来监控离线或实时任务是否跑成功,没数据就触发监控告警)
-            System.out.println(p + " : " + contentSummary.getLength() / 1024 / 1024 + "M");
+            Path path = fileStatus.getPath();
+            ContentSummary contentSummary = fs.getContentSummary(path);
+            System.out.println(path + " : " + contentSummary.getLength() / 1024 / 1024 + "M");
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        String job = args[0];
-        switch (job) {
-            case "offline":
-                System.out.println("offline");
-            case "realtime":
-                monitor();
+    /**
+     * 查看文件详情
+     */
+    public static void testFile() throws Exception {
+        // 递归获取指定目录下所有文件
+        RemoteIterator<LocatedFileStatus> iterator = fs.listFiles(new Path("/"), false);
+        // 遍历迭代器
+        while(iterator.hasNext()){
+            LocatedFileStatus status = iterator.next();
+            // 获取当前文件详细信息
+            System.out.println(DateUtil.parseUnixToDateTime(status.getAccessTime()));  // 2022-01-21 18:56:23
+            System.out.println(DateUtil.parseUnixToDateTime(status.getModificationTime()));  // 2022-01-21 18:56:25
+            System.out.println(status.getBlockSize()/1024/1024 + "M");  // 128M
+            System.out.println(status.getReplication());  // 2
+            System.out.println(status.getPath());  // hdfs://dev-bigdata-cdh1:8020/b.txt
+            System.out.println(status.getPath().getName());  // b.txt
+            System.out.println(status.getLen());  // 23143
+            System.out.println(status.getPermission());  // rw-r--r--
+            System.out.println(status.getOwner());  // hdfs
+            System.out.println(status.getGroup());  // supergroup
+            // 获取存储的块信息
+            BlockLocation[] blockLocations = status.getBlockLocations();
+            for (BlockLocation blockLocation : blockLocations) {
+                System.out.println(Arrays.toString(blockLocation.getHosts()));  // [dev-bigdata-cdh3, dev-bigdata-cdh5]
+                System.out.println(Arrays.toString(blockLocation.getNames()));  // [10.18.3.22:50010, 10.18.3.24:50010]
+                System.out.println(blockLocation.getLength());  // 23143
+            }
         }
     }
 
+    /**
+     * 上传下载
+     */
+    public static void testUpload() throws Exception {
+        // 上传
+//        fs.copyFromLocalFile(new Path("a.txt"), new Path("/a.txt"));
+        // 下载
+//        fs.copyToLocalFile(false, new Path("/a.txt"), new Path("a.txt"), true);
+        // 删除目录
+//        fs.delete(new Path("/aaa"), true);
+        // 文件重命名
+//        fs.rename(new Path("/a.txt"), new Path("/b.txt"));
+    }
+
+    /**
+     * 往hdfs(hive表)写数据
+     */
+    public static void writeToHdfs(String filePath, List<String> lines) throws IOException {
+        // 创建新文件并写入数据
+        FSDataOutputStream os = fs.create(new Path(filePath));
+        for (String line : lines) {
+            // 对应hive表中一行数据
+            os.write(line.getBytes());
+            // 写入换行符
+            os.write("\r\n".getBytes());
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+//        String job = args[0];
+//        switch (job) {
+//            case "offline":
+//                System.out.println("plan a");
+//            case "realtime":
+//                System.out.println("plan b");
+//        }
+
+//        testFile();
+        testDirectory();
+//        testUpload();
+//        writeToHdfs("a.txt", Collections.singletonList("hello world"));
+    }
 }
