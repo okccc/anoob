@@ -17,7 +17,6 @@
         <flink.version>1.13.0</flink.version>
         <kafka.version>2.4.1</kafka.version>
         <mysql.version>8.0.16</mysql.version>
-        <hive.version>1.2.1</hive.version>
         <flume.version>1.9.0</flume.version>
         <fastjson.version>1.2.76</fastjson.version>
         <slf4j.version>1.7.30</slf4j.version>
@@ -120,6 +119,13 @@
             <groupId>org.scalikejdbc</groupId>
             <artifactId>scalikejdbc-config_2.12</artifactId>
             <version>3.4.0</version>
+        </dependency>
+
+        <!-- hive -->
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <version>1.1.0</version>
         </dependency>
 
         <!-- hbase -->
