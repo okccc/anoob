@@ -50,10 +50,10 @@ object Configs {
   val MAX_PARTITION_FETCH_BYTES: String = "max.partition.fetch.bytes"
 
   // hive表和列
-  val NGINX_HIVE_TABLE: String = "nginx.hive.table"
-  val NGINX_HIVE_COLUMNS: String = "nginx.hive.columns"
-  val ORDERS_HIVE_TABLE: String = "orders.hive.table"
-  val ORDERS_HIVE_COLUMNS: String = "orders.hive.columns"
+  val NGINX_HIVE_TABLE: String = "nginx.table"
+  val NGINX_HIVE_COLUMNS: String = "nginx.columns"
+  val ORDERS_HIVE_TABLE: String = "orders.table"
+  val ORDERS_HIVE_COLUMNS: String = "orders.columns"
   val ORDERS_DETAIL_HIVE_TABLE: String = "orders_detail.hive.table"
   val ORDERS_DETAIL_HIVE_COLUMNS: String = "orders_detail.hive.columns"
 
