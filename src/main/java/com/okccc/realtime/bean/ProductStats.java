@@ -17,12 +17,11 @@ import java.util.Set;
 @Data
 @Builder
 public class ProductStats {
-    // 窗口开始时间
+    // 窗口区间(开窗)
     String stt;
-    // 窗口结束时间
     String edt;
 
-    // 维度数据
+    // 维度数据(分组,先按sku_id进行分组,剩下的通过维表关联补全)
     Long sku_id;            // sku编号
     String sku_name;        // sku名称
     BigDecimal sku_price;   // sku单价
@@ -33,7 +32,7 @@ public class ProductStats {
     Long category3_id;      // 类别编号
     String category3_name;  // 类别名称
 
-    // 度量数据
+    // 度量数据(聚合)
     @Builder.Default
     Long click_ct = 0L;  // 点击数
     @Builder.Default
@@ -62,13 +61,13 @@ public class ProductStats {
     Long good_comment_ct = 0L;  // 好评数
     @Builder.Default
     @TransientSink
-    Set orderIdSet = new HashSet();  // 辅助统计订单数,不写入数据库
+    Set orderIdSet = new HashSet();  // 通过Set对订单/支付/退款去重,辅助统计字段,不写入数据库
     @Builder.Default
     @TransientSink
-    Set paidOrderIdSet = new HashSet();  // 辅助统计支付订单数,不写入数据库
+    Set paidOrderIdSet = new HashSet();
     @Builder.Default
     @TransientSink
-    Set refundOrderIdSet = new HashSet();  // 辅助统计退款订单数,不写入数据库
+    Set refundOrderIdSet = new HashSet();
 
     // 统计时间
     Long ts;
