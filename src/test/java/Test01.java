@@ -1,3 +1,5 @@
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
@@ -14,11 +16,28 @@ import java.util.concurrent.Future;
 public class Test01 {
 
     @Test
-    public void testStr() {
+    public void testStr() throws InterruptedException {
+        // 获取36位长度的随机字符串
         System.out.println(UUID.randomUUID());
-        String str = "aaa";
-        String[] arr = str.split(",");
+        // 截取字符串
+        System.out.println("2021-10-02 09:56:13".substring(0, 10));
+        System.out.println("2021-10-02 09:56:13".substring(0, 10).replace("-", ""));
+        // 获取当前日期/时间
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(sdf1.format(new Date(System.currentTimeMillis())));
+        System.out.println(sdf2.format(new Date(System.currentTimeMillis())));
+        // 切割字符串
+        String str01 = "aaa";
+        String[] arr = str01.split(",");
         System.out.println(arr[0]);  // aaa
+        // 转换json字符串
+        String str02 = "{\"a\":\"b\"}";
+        try {
+            System.out.println(JSON.parseObject(str02));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
