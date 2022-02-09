@@ -72,9 +72,9 @@ public class HttpUtil {
         return result;  // {"type":"EN2ZH_CN","errorCode":0,"elapsedTime":0,"translateResult":[[{"src":"hello","tgt":"你好"}]]}
     }
 
-    public static String login() {
+    public static String login(String envType) {
         // 创建post请求对象(登录页面)
-        HttpPost httpPost = new HttpPost("http://apollo.jlgltech.com/signin");
+        HttpPost httpPost = new HttpPost("http://apollo.xxx.com/signin");
         // 添加请求头
         httpPost.addHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)");
         // 添加请求体
@@ -98,7 +98,7 @@ public class HttpUtil {
         }
 
         // 创建get请求对象(详情页面)
-        HttpGet httpGet = new HttpGet("http://apollo.jlgltech.com/apps/bdp_db_conn_config/envs/PRO/clusters/default/namespaces");
+        HttpGet httpGet = new HttpGet("http://apollo.xxx.com/apps/bdp_db_conn_config/envs/" + envType + "/clusters/default/namespaces");
         // 添加请求头
         httpGet.addHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)");
         httpGet.addHeader("Cookie", "NG_TRANSLATE_LANG_KEY=zh-CN; " + cookie);
@@ -130,6 +130,6 @@ public class HttpUtil {
     public static void main(String[] args) {
 //        System.out.println(get());
 //        System.out.println(post());
-        System.out.println(login());
+        System.out.println(login("PRO"));
     }
 }
