@@ -1,0 +1,748 @@
+{
+	"info": {
+		"_postman_id": "5d7b5718-2aba-439c-991a-700617e865ec",
+		"name": "es基本操作",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "es - 全局操作",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // 相当于show tables,?v显示头信息\n    \"查看所有索引\": \"http://localhost:9200/_cat/indices?v\",\n    \"查看索引别名\": \"http://localhost:9200/_cat/aliases?v\",\n    \"查看索引模板\": \"http://localhost:9200/_cat/templates?v\",\n    // green正常 yellow单点正常 red故障\n    \"查看集群健康状况\": \"http://localhost:9200/_cat/health?v\",\n    \"查看集群节点状况\": \"http://localhost:9200/_cat/nodes?v\",\n    \"查看所有索引分片情况\": \"http://localhost:9200/_cat/shards?v\",\n    \"查看指定索引分片情况\": \"http://localhost:9200/_cat/shards/product?v\",\n    \"其它系统信息\": \"http://localhost:9200/_cat/{...}?v\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/_cat/aliases?v",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_cat",
+						"aliases"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "es - 中文分词",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // \"text\": [\"hello world\"],                    // 英文默认分词是空格, \"hello\" \"world\"\n    // \"text\": [\"小菜鸟\"],                          // 中文默认分词是汉字,没有词汇概念需要分词器, \"小\" \"菜\" \"鸟\"\n    // \"analyzer\": \"ik_smart\", \"text\": [\"小菜鸟\"],  // ik_smart分词方式, \"小\" \"菜鸟\"\n    \"analyzer\": \"ik_max_word\",\"text\": [\"小菜鸟\"]    // ik_max_word分词方式, \"小菜\" \"菜鸟\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/_analyze",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_analyze"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "索引 - 查询/创建/删除",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"查询/创建/删除\": \"GET/PUT/DELETE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/war3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"war3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "索引 - 别名",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // 索引别名应用场景：给相似的索引起相同别名,达到分组目的,通过别名查询组内所有索引\n    \"actions\": [\n        // add添加别名\n        {\n            \"add\": {\n                \"index\": \"war3\",\n                \"alias\": \"war3-2022\"\n            }\n        }\n        \n        // remove删除别名\n        // {\n        //     \"remove\": {\n        //         \"index\": \"war3\",\n        //         \"alias\": \"war3-2022\"\n        //     }\n        // }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/_aliases",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_aliases"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "索引 - 映射",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // 创建索引时添加映射,mapping用于定义文档中的字段类型,不设定的话系统会自动推断字段类型\n    \"properties\": {\n        \"name\": {\n            \"type\": \"text\",\n            \"index\": true\n        },\n        \"sex\": {\n            \"type\": \"text\",\n            \"index\": false\n        },\n        \"age\": {\n            \"type\": \"long\",\n            \"index\": false\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/student/_mapping",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"student",
+						"_mapping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "索引 - 拷贝",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // es不支持动态修改mapping,可以通过_reindex将一个索引的快照数据copy到另一个索引\n    \"source\": {\n        \"index\": \"war3\"\n    },\n    \"dest\": {\n        \"index\": \"war3_new\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/_reindex",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_reindex"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "索引 - 模板",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // 索引模板应用场景：根据时间间隔(日/月/年)分割业务索引,可以随时间灵活改变索引结构还能优化查询范围\n    \"index_patterns\": [\n        \"order*\"\n    ],\n    \"settings\": {\n        \"number_of_shards\": 1\n    },\n    \"aliases\": {\n        \"{index}-query\": {},\n        \"order-query\": {}\n    },\n    \"mappings\": {\n        \"properties\": {\n            \"id\": {\n                \"type\": \"keyword\"\n            },\n            \"name\": {\n                \"type\": \"text\",\n                \"analyzer\": \"ik_smart\"\n            }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/_template/template",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_template",
+						"template"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 创建",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // 在索引里创建文档相当于在表里添加数据\n    // PUT是幂等性POST不是幂等性,所以不指定doc_id时只能用POST,因为每次都会生成随机uuid,指定doc_id就可以用PUT\n    \"name\": \"ted\",\n    \"race\": \"ud\",\n    \"age\": 21\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/war3/_doc/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"war3",
+						"_doc",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 修改 - 全局替换",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // 替换整个文档\n    \"title\": \"华为手机\",\n    \"category\": \"华为\",\n    \"images\": \"http://www.gulixueyuan.com/hw.jpg\",\n    \"price\": 3999.00\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_doc/02",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_doc",
+						"02"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 修改 - 局部修改",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"doc\": {\n        // doc修改指定字段\n        \"price\": 2000.00  // 只修改指定字段\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_update/01",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_update",
+						"01"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 删除 - 指定id删除",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9200/product/_doc/IUZW3H4Bg6hqfxuZkurV",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_doc",
+						"IUZW3H4Bg6hqfxuZkurV"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 删除 - 条件删除",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        // \"match\": {\n        //     \"price\": 4000.00\n        // },\n        \"range\": {\n            \"price\": {\n                \"lt\": 200\n            }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_delete_by_query",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_delete_by_query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 批量处理",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "// bulk批量进行crud操作,index可以相同也可以不同,操作相同index的话在url里指定${index}/_bulk就不需要每次都写{\"_index\":\"${index}\"}\n// index有就更新没有就新增(常用)\n{\"index\": {\"_index\":\"war3\", \"_id\":\"06\"}}\n{\"name\": \"eee\", \"race\": \"orc\", \"age\": 19}\n// create,文档已经存在会报错\n{\"create\": {\"_index\":\"product\", \"_id\": \"12\"}}\n{\"title\":\"aa\",\"price\":100}\n// update\n{\"update\": {\"_index\":\"war3\", \"_id\": \"04\"}}\n{\"doc\": {\"name\": \"skyyy\"}}\n// delete,不需要请求体\n{\"delete\": {\"_index\":\"war3\", \"_id\":\"10\"}}\n// 注意：bulk批量操作的json要写在同一行,并且bulk操作最后要空一行,不然报错\"The bulk request must be terminated by a newline [\\\\n]\"\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/_bulk",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_bulk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 主键查询",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_doc/01",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_doc",
+						"01"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 条件匹配",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        // 查询条件包括match_all、match、multi_match、match_phrase、term、range等,不写query默认match_all\n        \"match_all\": {}\n\n        // // 单字段查询：es字符串有text(分词)和keyword(不分词)两种类型,match会将查询条件进行分词,多个词条间是or关系\n        // \"match\": {\n        //     \"title\": \"小米手机\"  // 包含\"小米\"和\"手机\"的title都会被命中\n        // }\n\n        // // 多字段查询\n        // \"multi_match\": {\n        //     \"query\": \"小米\",\n        //     \"fields\": [\"title\",\"category\"]\n        // }\n\n        // 短语查询，相当于%like%\n        // \"match_phrase\": {\n        //     \"title\": \"米\"\n        // }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 精准查询",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        // // term是关键词精确查询,不会对查询条件分词\n        // \"term\": {\n        //     \"name\": {\n        //         \"value\": \"grubby\"\n        //     }\n        // }\n\n        // 多关键词\n        \"terms\": {\n            \"name\": [\"grubby\",\"moon\"]\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/war3/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"war3",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 容错匹配",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        // fuzzy会搜索与查询条件相似的结果,fuzziness表示编辑距离,比如black -> lack需要更改的次数,一般使用默认值auto根据术语长度生成编辑距离\n        \"fuzzy\": {\n            \"name\": {\n                \"value\": \"moo\"\n                // \"fuzziness\": 2\n            }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/war3/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"war3",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 范围查询",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        // range指定查询范围,gt、gte、lt、lte\n        \"range\": {\n            \"age\": {\n                \"gt\": 18,\n                \"lt\": 20\n            }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/war3/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"war3",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 指定返回字段",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // _source指定要返回的字段\n    \"_source\": [\"title\",\"price\"],\n    \"query\": {\n        \"match\": {\n            \"title\": \"小米\"\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 组合条件查询",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        // bool将must、filter、must_not、should等查询方式进行组合\n        \"bool\": {\n            \"must\": {\n                \"match\": {\n                    \"race\": \"orc\"\n                }\n            },\n            \"filter\": {\n                \"term\": {\n                    \"race\": \"orc\"\n                }\n            },\n            \"must_not\": {\n                \"match\": {\n                    \"age\": 17\n                }\n            },\n            \"should\": {\n                \"match\": {\n                    \"name\": \"moon\"\n                }\n            }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/war3/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"war3",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 排序和分页",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        \"match_all\": {}\n    },\n    // sort排序,可以单字段也可以多字段\n    \"sort\": [\n        {\n            \"price\": {\n                \"order\": \"desc\"\n            },\n            \"_score\": {\n                \"order\": \"asc\"\n            }\n        }\n    ],\n    // 数据量很大时默认只显示第一页,分页查询：from当前页索引从0开始,size每页显示条数,from = (pageNum - 1) * size\n    \"from\": 0,\n    \"size\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 高亮查询",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": {\n        \"match\": {\n            \"title\": \"华为\"\n        }\n    },\n    // highlight可以将查询词条高亮显示,只能是查询词条别的词条无效,百度搜索就是这个效果\n    \"highlight\": {\n        // \"pre_tags\": \"<font color='red'>\",\n        // \"post_tags\": \"</font>\",\n        \"fields\": {\n            \"title\": {}\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "文档 - 查询 - 聚合查询",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // aggs聚合查询,相当于mysql的group by\n    \"aggs\": {\n        \"max_price\": {\n            \"max\": {\"field\": \"price\"}\n        },\n        \"min_price\": {\n            \"min\": {\"field\": \"price\"}\n        },\n        \"avg_price\": {\n            \"avg\": {\"field\": \"price\"}\n        },\n        \"sum_price\": {\n            \"sum\": {\"field\": \"price\"}\n        },\n        \"count_price\": {\n            \"cardinality\": {\"field\": \"price\"}\n        },\n        // stats会一次性返回字段的max、min、avg、sum、count五个简单聚合指标\n        \"stats_price\": {\n            \"stats\": {\"field\": \"price\"}\n        },\n        // terms先按照字段分组再进行聚合(桶聚合)\n        \"groupby_price\": {\n            \"terms\": {\"field\": \"price\"}\n        }\n    },\n    // 只显示聚合结果,不显示具体命中内容\n    \"size\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9200/product/_search",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9200",
+					"path": [
+						"product",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
