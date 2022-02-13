@@ -34,7 +34,7 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
-        <!-- log4j(log for java)-->
+        <!-- log4j(log for java) 2.17.1之前版本有安全漏洞 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
