@@ -97,7 +97,7 @@ a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防�
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),再修改目录所属用户即可
 
 2.Caused by: java.lang.ClassNotFoundException: com.okccc.interceptor.InterceptorDemo$Builder
-# java找不到类要么是打jar包时没有把类加载进去,要么是启动命令没找到lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
+# java找不到类要么是打jar包类没加载进去,要么是jar包冲突,要么是启动命令没找到lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
 
 3.Producer clientId=producer-1 Connection to node 0 could not be established. Broker may not be available.
 # flume往kafka写数据时,下游kafka挂了导致flume作为生产者一直连不上broker,重启kafka之后flume也要重启然后继续之前的position采集和发送数据
