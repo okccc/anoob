@@ -172,6 +172,12 @@
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>7.14.0</version>
         </dependency>
+        <!-- java操作es的客户端工具jest(已废弃) -->
+        <dependency>
+            <groupId>io.searchbox</groupId>
+            <artifactId>jest</artifactId>
+            <version>6.3.1</version>
+        </dependency>
 
         <!-- flume -->
         <dependency>
@@ -282,15 +288,10 @@
             <artifactId>flink-connector-redis_2.11</artifactId>
             <version>1.0</version>
         </dependency>
-        <!-- flink操作es -->
+        <!-- flink操作es,会和elasticsearch以及IK分词器的包存在依赖冲突,调试flink时要先把对方注释掉或者另启工程 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch6_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
+            <artifactId>flink-connector-elasticsearch7_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
         <!-- flink cdc -->

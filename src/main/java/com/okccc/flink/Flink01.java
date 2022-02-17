@@ -1,11 +1,13 @@
 package com.okccc.flink;
 
+import com.alibaba.fastjson.JSON;
 import com.okccc.realtime.utils.MysqlUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -14,17 +16,25 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.connectors.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+import org.apache.flink.streaming.connectors.elasticsearch7.ElasticsearchSink;
 import org.apache.flink.streaming.connectors.redis.RedisSink;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand;
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDescription;
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 import org.apache.flink.util.Collector;
+import org.apache.http.HttpHost;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.common.xcontent.XContentType;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -152,6 +162,26 @@ public class Flink01 {
         result.addSink(new MyJdbcSink());
         // 输出到redis(不常用,因为redis并非持久化存储,更适合做缓存)
         result.addSink(new RedisSink<>(new FlinkJedisPoolConfig.Builder().setHost("localhost").build(), new MyRedisMapper()));
+        // 输出到es,适合存放大量明细数据
+        List<HttpHost> httpHosts = new ArrayList<>();
+        httpHosts.add(new HttpHost("localhost", 9200, "http"));
+        ElasticsearchSink.Builder<Event> esBuilder = new ElasticsearchSink.Builder<>(httpHosts, new ElasticsearchSinkFunction<Event>() {
+            @Override
+            public void process(Event element, RuntimeContext ctx, RequestIndexer indexer) {
+                System.out.println(element);
+                // 创建IndexRequest对象
+                IndexRequest indexRequest = new IndexRequest();
+                // 指定_index和_id,索引会自动创建一般以日期结尾,不写id会自动生成uuid
+                indexRequest.index("flink-es");
+                // 添加_source,必须是json格式不然报错,将java对象转换成json字符串
+                indexRequest.source(JSON.toJSONString(element), XContentType.JSON);
+                // 执行index操作
+                indexer.add(indexRequest);
+            }
+        });
+        // flink是来一条是处理一条,将bulk批量操作的缓冲数设置为1
+        esBuilder.setBulkFlushMaxActions(1);
+        inputStream03.addSink(esBuilder.build());
 
         // 启动程序
         env.execute();
@@ -289,5 +319,4 @@ public class Flink01 {
             return data.count.toString();
         }
     }
-
 }
