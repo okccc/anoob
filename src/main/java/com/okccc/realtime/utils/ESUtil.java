@@ -181,7 +181,7 @@ public class ESUtil {
     }
 
     /**
-     * 条件查询
+     * 条件查询(可结合postman使用)
      */
     public static void searchDoc() throws IOException {
         // 创建SearchRequest对象
@@ -198,7 +198,7 @@ public class ESUtil {
         // 多字段查询
 //        builder.query(QueryBuilders.multiMatchQuery("手机", "title", "category"));
 
-        // 短语查询，相当于%like%
+        // 短语查询,相当于%like%
 //        builder.query(QueryBuilders.matchPhraseQuery("title", "米"));
 
         // 单字段精准查询
@@ -234,7 +234,7 @@ public class ESUtil {
         builder.fetchSource(includes, excludes);
         // 排序,可以单字段也可以多字段
 //        builder.sort("age", SortOrder.DESC);
-        // 分页,from当前页索引从0开始,size每页显示条数,from = (pageNum - 1) * size
+        // 分页,数据量很大时默认只显示第一页,from当前页索引从0开始,size每页显示条数,from = (pageNum - 1) * size
 //        builder.from(0).size(5);
 
         // 将查询条件添加到请求对象

@@ -141,7 +141,7 @@ public class MysqlUtil {
     }
 
     /**
-     * flink-connector-jdbc将java bean写入mysql
+     * flink-connector-jdbc将java bean写入mysql(不常用,因为mysql并发性能一般,大数据场景下的大批量写入通常使用clickhouse)
      */
     public static <T> SinkFunction<T> getJdbcSinkBySchema(String sql) {
         // JdbcSink内部使用了预编译器,可以批量提交优化写入速度,但是只能操作一张表,如果是一流写多表就得自定义类实现SinkFunction接口

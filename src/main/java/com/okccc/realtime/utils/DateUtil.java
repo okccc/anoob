@@ -4,7 +4,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -159,10 +158,6 @@ public class DateUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(getCurrentDate());
-        System.out.println(getCurrentTime());
-        System.out.println(new Timestamp(1625414399000L));
-        System.out.println(parseUnixToDateTime(1641139199000L));
-        System.out.println(parseDateTimeToUnix("2021-12-08 17:29:45"));
+        System.out.println(parseUnixToDateTime(1644307353000L));
     }
 }
