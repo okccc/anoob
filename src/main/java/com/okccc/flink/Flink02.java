@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 /**
  * Author: okccc
  * Date: 2021/9/7 下午4:49
- * Desc: 富函数RichFunction、处理函数KeyedProcessFunction、状态变量、定时器
+ * Desc: RichFunction、KeyedProcessFunction、状态变量、定时器
  */
 public class Flink02 {
     public static void main(String[] args) throws Exception {
@@ -25,9 +25,10 @@ public class Flink02 {
          * getRuntimeContext()：处理数据时可以获取函数执行的上下文信息,比如任务并行度、子任务名称和索引、访问分区状态等
          * close()：生命周期结束,比如关闭数据库连接、清空状态
          *
-         * ProcessFunction
-         * DataStream API提供的转换算子功能有限,更底层的处理函数可以访问时间戳、水位线、注册定时事件
-         * flink提供了8个ProcessFunction,都继承自RichFunction接口,最常用的是操作KeyedStream的KeyedProcessFunction<K, I, O>
+         * DataStream API提供的普通算子功能有限,flink提供了更底层的8大处理函数,都继承自RichFunction接口
+         * ProcessFunction/KeyedProcessFunction/ProcessWindowFunction/ProcessAllWindowFunction/
+         * CoProcessFunction/ProcessJoinFunction/BroadcastProcessFunction/KeyedBroadcastProcessFunction
+
          * KeyedProcessFunction<K, I, O>
          * K：分组字段类型
          * I：输入元素类型
@@ -35,7 +36,7 @@ public class Flink02 {
          * processElement(I value, Context ctx, Collector<O> out)
          * 每来一条数据都会驱动其运行,然后输出0/1/N个元素,ctx可以访问元素的时间戳和key、注册定时器、写侧输出流,out收集结果往下游发送
          * onTimer(long timestamp, OnTimerContext ctx, Collector<O> out)
-         * 定时器timestamp会驱动该回调函数运行,ctx功能同上,out收集结果往下游发送
+         * 定时器timestamp会驱动该回调函数运行,ctx和out功能同上
          *
          * Context和OnTimerContext持有的TimerService对象拥有以下方法
          * currentProcessingTime()返回当前处理时间
@@ -52,20 +53,17 @@ public class Flink02 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        // 演示富函数
 //        demo01(env);
-        // 演示定时器
 //        demo02(env);
-        // 演示状态变量
 //        demo03(env);
 //        demo04(env);
         demo05(env);
-//        demo06(env);
 
         // 启动任务
         env.execute();
     }
 
+    // 演示富函数
     private static void demo01(StreamExecutionEnvironment env) {
         env.fromElements(1,2,3)
                 .map(new RichMapFunction<Integer, Integer>() {
@@ -76,7 +74,7 @@ public class Flink02 {
                         System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
                     }
                     @Override
-                    public Integer map(Integer value) throws Exception {
+                    public Integer map(Integer value) {
                         return value * value;
                     }
                     @Override
@@ -88,12 +86,13 @@ public class Flink02 {
                 .print();
     }
 
+    // 演示定时器
     private static void demo02(StreamExecutionEnvironment env) {
         env.socketTextStream("localhost", 9999)
                 .keyBy(r -> 1)
                 .process(new KeyedProcessFunction<Integer, String, String>() {
                     @Override
-                    public void processElement(String value, Context ctx, Collector<String> out) throws Exception {
+                    public void processElement(String value, Context ctx, Collector<String> out) {
                         // 获取当前机器时间
                         long ts = ctx.timerService().currentProcessingTime();
                         out.collect("元素 " + value + " 到达时间 " + new Timestamp(ts));
@@ -113,6 +112,7 @@ public class Flink02 {
                 .print();
     }
 
+    // 演示ValueState
     private static void demo03(StreamExecutionEnvironment env) {
         // 需求：每隔5秒钟发送一次平均值
         // 分析：每隔5秒就是要设置5秒后的定时器,平均值需要累加器,学完窗口函数后可以直接开窗
@@ -129,7 +129,7 @@ public class Flink02 {
                         super.open(parameters);
                         // 实例化状态变量
                         // 1.状态变量是当前key独有
-                        // 2.状态变量是单例模式,只能实例化一次,因为状态也会定期备份到检查点,故障重启时会去远程检查点查找,有就恢复没有就创建
+                        // 2.状态变量是单例模式,只能实例化一次,因为状态也会定期备份到检查点,故障重启时会去检查点查找,有就恢复没有就创建
                         acc = getRuntimeContext().getState(
                                 new ValueStateDescriptor<>("acc", Types.TUPLE(Types.INT, Types.INT)));
                         timer = getRuntimeContext().getState(
@@ -161,7 +161,7 @@ public class Flink02 {
                         }
                         System.out.println("当前定时器是：" + new Timestamp(timer.value()));
 
-                        // 这里累加器的输入类型是Integer而输出类型是Tuple2,类型可以随便定义比reduce灵活,并且可以利用定时器设置输出频率
+                        // 这里输入类型是Integer而输出类型是Tuple2,类型可以随便定义比reduce灵活,并且可以利用定时器设置输出频率
 //                        out.collect((double)acc.value().f0 / acc.value().f1);
                     }
 
@@ -179,6 +179,7 @@ public class Flink02 {
                 .print();
     }
 
+    // 演示ListState
     private static void demo04(StreamExecutionEnvironment env) {
         // 需求：使用ListState求平均值
         env.addSource(new Flink01.NumberSource())
@@ -215,6 +216,7 @@ public class Flink02 {
                 .print();
     }
 
+    // 演示MapState
     private static void demo05(StreamExecutionEnvironment env) {
         // 需求：使用MapState求网站pv平均值 = 总访问次数/用户数
         env.addSource(new Flink01.UserActionSource())
@@ -253,41 +255,6 @@ public class Flink02 {
                         }
                         // 收集结果往下游发送
                         out.collect((double)pvSum / userNum);
-                    }
-                })
-                .print();
-    }
-
-    private static void demo06(StreamExecutionEnvironment env) {
-        // 需求：类似温度传感器、股票价格这些连续三次上升就报警(写的有问题！)
-        env.addSource(new Flink01.NumberSource())
-                .keyBy(r -> 1)
-                .process(new KeyedProcessFunction<Integer, Integer, String>() {
-                    // 第一条数据
-                    private ValueState<Integer> firstData;
-                    // 第二条数据
-                    private ValueState<Integer> secondData;
-                    // 声明一个ValueState作为定时器
-                    private ValueState<Long> timer;
-
-                    @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
-                        // 实例化状态变量
-                        firstData = getRuntimeContext().getState(new ValueStateDescriptor<>("first", Types.INT));
-                        secondData = getRuntimeContext().getState(new ValueStateDescriptor<>("second", Types.INT));
-                        timer = getRuntimeContext().getState(new ValueStateDescriptor<>("timer", Types.LONG));
-                    }
-
-                    @Override
-                    public void processElement(Integer value, Context ctx, Collector<String> out) throws Exception {
-                        System.out.println("当前进来的数据是：" + value);
-                    }
-
-                    @Override
-                    public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                        super.onTimer(timestamp, ctx, out);
-                        out.collect("连续三次上升了！");
                     }
                 })
                 .print();

@@ -179,7 +179,7 @@ public class Flink01 {
                 indexer.add(indexRequest);
             }
         });
-        // flink是来一条是处理一条,将bulk批量操作的缓冲数设置为1
+        // flink来一条处理一条,将bulk批量操作的缓冲数设置为1
         esBuilder.setBulkFlushMaxActions(1);
         inputStream03.addSink(esBuilder.build());
 

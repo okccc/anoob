@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 /**
  * Author: okccc
  * Date: 2021/9/18 下午2:28
- * Desc: 多流合并
+ * Desc: CoProcessFunction、ProcessJoinFunction
  */
 public class Flink05 {
     public static void main(String[] args) throws Exception {
@@ -34,7 +34,6 @@ public class Flink05 {
          * union可以合并多条流,流中的元素类型必须相同
          * connect只能连接两条流,流中的元素类型可以不同
          *
-         * flink两大处理函数：KeyedProcessFunction操作KeyedStream,CoProcessFunction操作ConnectedStreams
          * CoProcessFunction<IN1, IN2, OUT>
          * IN1：第一条流输入元素类型
          * IN2：第二条流输入元素类型
@@ -51,12 +50,12 @@ public class Flink05 {
         env.setParallelism(1);
 
         // 演示union
-//        demo01(env);
+        demo01(env);
         // 演示水位线传播方式
 //        demo02(env);
         // 演示connect
 //        demo03(env);
-        demo04(env);
+//        demo04(env);
         // 演示join
 //        demo05(env);
 //        demo06(env);
@@ -67,9 +66,9 @@ public class Flink05 {
 
     private static void demo01(StreamExecutionEnvironment env) {
         // 演示union合并多条流
-        DataStreamSource<Integer> stream01 = env.fromElements(1, 2, 3);
-        DataStreamSource<Integer> stream02 = env.fromElements(4, 5, 6);
-        DataStreamSource<Integer> stream03 = env.fromElements(7, 8, 9);
+        DataStreamSource<Integer> stream01 = env.fromElements(1, 2);
+        DataStreamSource<Integer> stream02 = env.fromElements(3, 4, 5);
+        DataStreamSource<Integer> stream03 = env.fromElements(6, 7, 8, 9);
         DataStream<Integer> unionStream = stream01.union(stream02, stream03);
         unionStream.print();
     }
@@ -207,7 +206,7 @@ public class Flink05 {
     }
 
     private static void demo05(StreamExecutionEnvironment env) {
-        // 演示基于间隔的join
+        // 演示基于时间间隔的join
         SingleOutputStreamOperator<Event> stream01 = env
                 .fromElements(
                         Event.of("fly", "create", 10 * 60 * 1000L),
