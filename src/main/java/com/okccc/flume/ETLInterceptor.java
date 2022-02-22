@@ -1,4 +1,4 @@
-package com.okccc.bigdata.flume;
+package com.okccc.flume;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;

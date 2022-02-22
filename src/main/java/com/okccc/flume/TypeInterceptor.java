@@ -1,4 +1,4 @@
-package com.okccc.bigdata.flume;
+package com.okccc.flume;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
