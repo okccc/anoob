@@ -1,7 +1,8 @@
-package com.okccc.flink;
+package com.okccc.hadoop.ods;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.realtime.utils.PropertiesUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -19,12 +20,14 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
  * Author: okccc
  * Date: 2022/1/09 11:05 上午
- * Desc: 实时同步kafka数据到hive
+ * Desc: 实时同步kafka数据到hive,一个topic对应一个jar包
  */
 public class KafkaToHdfs {
 
@@ -42,21 +45,22 @@ public class KafkaToHdfs {
          * bin/flink run -m yarn-cluster -ynm demo -yjm 2048 -ytm 4096 -ys 1 -yqu root.ai -c com.okccc.Demo ./demo.jar
          */
 
+        // 接收传递参数
+        String topicName = args[0];  // eduplatform01,eduplatform02
+        String tableName = args[1];  // ods_crs_eduplatform_node_flow_record_realtime
+
         // 1.创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         // 设置checkpoint时间间隔,不然hdfs文件一直处于in-progress状态
         env.enableCheckpointing(50000L, CheckpointingMode.EXACTLY_ONCE);
-        System.setProperty("HADOOP_USER_NAME", "deploy");
+        System.setProperty("HADOOP_USER_NAME", "hdfs");
 
         // 2.获取kafka数据
-        ArrayList<String> topics = new ArrayList<>();
-        topics.add("eduplatform01");
-        topics.add("eduplatform02");
-
+        List<String> topics = new ArrayList<>(Arrays.asList(topicName.split(",")));
         Properties props = new Properties();
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");
-        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "aaa");
+        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, topicName + "_group");
 
         FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(topics, new SimpleStringSchema(), props);
         kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
@@ -67,7 +71,7 @@ public class KafkaToHdfs {
         // 3.etl处理
         SingleOutputStreamOperator<String> dataStream = kafkaStream.flatMap(new FlatMapFunction<String, String>() {
             @Override
-            public void flatMap(String value, Collector<String> out) throws Exception {
+            public void flatMap(String value, Collector<String> out) {
                 /**
                  * {
                  *     "data":[
@@ -91,24 +95,25 @@ public class KafkaToHdfs {
                  */
                 // 转换结构
                 JSONObject jsonObject = JSON.parseObject(value);
-                // 过滤数据
+                JSONObject data = jsonObject.getJSONArray("data").getJSONObject(0);
+                // 获取表名
                 String table = jsonObject.getString("table");
-                if (table.startsWith("node_flow_record")) {
+                if (tableName.equals(table)) {
+                    // 根据表名获取对应字段
+                    Properties prop = PropertiesUtil.load("config.properties");
+                    String columns = prop.getProperty(table + ".columns");
                     // 解析数据
-                    JSONObject data = jsonObject.getJSONArray("data").getJSONObject(0);
                     StringBuilder sb = new StringBuilder();
-                    String id = data.getString("id");
-                    String create_time = data.getString("create_time");
-                    String update_time = data.getString("update_time");
-                    String time_removed = data.getString("time_removed");
-                    String bid = data.getString("bid");
-                    String node_id = data.getString("node_id");
-                    String score = data.getString("score");
-                    String finish_timed = data.getString("finish_time");
-                    // 字段分隔符要和hive建表语句保持一致,默认是\001
-                    sb.append(id).append("\001").append(create_time).append("\001").append(update_time).append("\001")
-                            .append(time_removed).append("\001").append(bid).append("\001").append(node_id).append("\001")
-                            .append(score).append("\001").append(finish_timed);
+                    String[] arr = columns.split(",");
+                    for (int i = 0; i < arr.length; i++) {
+                        String columnValue = data.getString(arr[i]);
+                        if (i == arr.length - 1) {
+                            sb.append(columnValue);
+                        } else {
+                            // 字段分隔符要和hive建表语句保持一致,默认是\001
+                            sb.append(columnValue).append("\001");
+                        }
+                    }
                     // 收集结果往下游发送
                     out.collect(sb.toString());
                 }
@@ -121,7 +126,7 @@ public class KafkaToHdfs {
         dataStream.addSink(
                 StreamingFileSink
                         .forRowFormat(
-                                new Path("hdfs://company-bigdata02/data/hive/warehouse/ods.db/ods_crs_eduplatform_node_flow_record_realtime"),
+                                new Path("hdfs://company-bigdata02/data/hive/warehouse/ods.db/" + tableName),
                                 new SimpleStringEncoder<String>("UTF-8")
                         )
 //                        .withBucketCheckInterval(1000L)
