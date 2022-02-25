@@ -100,7 +100,7 @@ public class MysqlToHdfs {
         System.out.println(list);
 
         // 3.将查询数据写入hdfs
-        HdfsUtil.writeToHdfs("/data/hive/warehouse/ods.db/ods_" + table + "/dt=" + dt + "/" + UUID.randomUUID(), list);
+        HdfsUtil.overwriteToHdfs("/data/hive/warehouse/ods.db/ods_" + table + "/dt=" + dt + "/" + UUID.randomUUID(), list);
 
         // 4.msck修复hive读不到hdfs数据
         HiveUtil.msck("ods.ods_" + table);

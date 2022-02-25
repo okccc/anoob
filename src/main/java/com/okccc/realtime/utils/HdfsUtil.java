@@ -4,6 +4,7 @@ import com.okccc.realtime.common.MyConfig;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
@@ -89,9 +90,31 @@ public class HdfsUtil {
     }
 
     /**
-     * 往hdfs(hive表)写数据
+     * 往hdfs(hive表)写数据,覆盖
      */
-    public static void writeToHdfs(String filePath, List<String> lines) throws IOException {
+    public static void overwriteToHdfs(String filePath, List<String> lines) throws IOException {
+        // 先判断当前分区是否有数据
+        String pathString = new File(filePath).getParent();
+        Path path = new Path(pathString);
+        // 有就删除
+        if (fs.exists(path) && fs.getContentSummary(path).getLength() > 0) {
+            fs.delete(path, true);
+        }
+
+        // 创建新文件并写入数据
+        FSDataOutputStream os = fs.create(new Path(filePath));
+        for (String line : lines) {
+            // 对应hive表中一行数据
+            os.write(line.getBytes());
+            // 写入换行符
+            os.write("\r\n".getBytes());
+        }
+    }
+
+    /**
+     * 往hdfs(hive表)写数据,追加
+     */
+    public static void appendToHdfs(String filePath, List<String> lines) throws IOException {
         // 创建新文件并写入数据
         FSDataOutputStream os = fs.create(new Path(filePath));
         for (String line : lines) {
