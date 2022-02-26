@@ -14,6 +14,7 @@ public class StringUtil {
     public static HashMap<String, String> strToMap(String args) {
         // orc=grubby&ne=moon&hum=sky&ud=ted
         HashMap<String, String> hashMap = new HashMap<>();
+        // split切割字符串 "," ":" "&" "@" "#" "/"不需要转义, "." "|" "$" "*"需要转义,多个分隔符可以用"|"隔开,但是该转义的还得转义
         for (String s : args.split("&")) {
             String[] arr = s.split("=");
             hashMap.put(arr[0], arr[1]);
