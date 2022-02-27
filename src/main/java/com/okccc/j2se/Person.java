@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Date: 2021/11/15 下午3:45
  * Desc: java模板类
  */
-class Person implements Serializable, Comparable<Person> {
+public class Person implements Serializable, Comparable<Person> {
 
     private static final long SERIAL_VERSION_UID = 5898267155926398171L;
     private String name;
