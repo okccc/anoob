@@ -74,7 +74,7 @@ jvm运行flume的最小单元,由source-channel-sink组成
 # source
 flume1.7版本使用TailDir可以监控多目录,且会记录日志文件读取位置,故障重启后就从该位置开始,解决断点续传问题
 # channel
-file channel：数据存到磁盘,速度慢,可靠性高,默认100万个event,适用于涉及钱的数据
+file channel：数据存到磁盘,速度慢,可靠性高,默认100万个event,适用于交易数据
 memory channel：数据存到内存,速度快,可靠性低,默认100个event,适用于普通日志
 kafka channel：数据存到kafka也是磁盘,可靠性高,且省去sink阶段速度更快,kafka channel > memory channel + sink
 channel selectors：replicating将events发往所有channel,multiplexing将events发往指定channel
@@ -110,7 +110,7 @@ a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防�
 # flume数据传输失败position位置是不更新的,直到修复问题重启脚本后继续之前的位置采集,Last read was never committed - resetting position
 ```
 
-#### nginx-kafka.conf
+### nginx-kafka.conf
 ```shell script
 # 注意：生产环境上编写conf文件时不要在行的后面加#注释,会被当成类名
 # 命名agent组件
@@ -157,7 +157,7 @@ a1.channels.c2.parseAsFlumeEvent = false
 # nginx落地的日志文件还在,从文件中grep时间戳截取丢失数据写到临时文件,flume再写一个conf单独监听这个临时文件写入topic就行
 ```
 
-#### nginx-hdfs.conf
+### nginx-hdfs.conf
 ```shell script
 # 命名agent组件
 a1.sources = r1
@@ -169,14 +169,9 @@ a1.sources.r1.type = TAILDIR
 a1.sources.r1.positionFile = ${flume}/position/offline_position.json  # 记录采集位置的json文件
 a1.sources.r1.filegroups = f1 
 a1.sources.r1.filegroups.f1 = /data1/logstash/logs/.*.txt  # 监控的文件,可以是单个文件,也可以是正则匹配多个文件
-# 拦截器(可选)
-a1.sources.r1.interceptors = regex
-a1.sources.r1.interceptors.regex.type=REGEX_FILTER
-a1.sources.r1.interceptors.regex.regex=^.+uid=.+&uname=.+spuId=.+$
-a1.sources.r1.interceptors.regex.excludeEvents=false
 # 自定义拦截器(可选)
 a1.sources.r1.interceptors = i1
-a1.sources.r1.interceptors.i1.type = com.okccc.interceptor.InterceptorDemo$Builder
+a1.sources.r1.interceptors.i1.type = com.okccc.interceptor.TimestampInterceptor$Builder
 
 # memory channel
 a1.channels.c1.type = memory
@@ -192,9 +187,9 @@ a1.channels.c1.keep-alive = 6                  # 等待put操作的超时时间(
 
 # 配置sink
 a1.sinks.k1.type = hdfs
-a1.sinks.k1.hdfs.path = hdfs://bigdata/user/flume/%Y-%m-%d  # hdfs路径
-a1.sinks.k1.hdfs.filePrefix = log              # 指定文件前缀
-a1.sinks.k1.hdfs.useLocalTimeStamp = true      # 是否使用本地时间戳代替event header的时间戳
+a1.sinks.k1.hdfs.path = hdfs://.../%Y-%m-%d    # hdfs路径,flume默认使用系统时间,会存在0点漂移问题,需要添加时间戳拦截器
+a1.sinks.k1.hdfs.filePrefix = log-             # 指定文件前缀
+a1.sinks.k1.hdfs.useLocalTimeStamp = false     # 是否使用本地时间戳代替event header的时间戳
 a1.sinks.k1.hdfs.batchSize = 1000              # 有1000个event写入文件就flush到hdfs
 # 数据压缩(可选)
 a1.sinks.k1.hdfs.fileType = CompressedStream   # 文件类型,SequenceFile(默认)/DataStream(常用)/CompressedStream(压缩)
@@ -203,8 +198,6 @@ a1.sinks.k1.hdfs.codeC = lzop                  # 指定压缩方式
 a1.sinks.k1.hdfs.rollInterval = 3600           # tmp文件达到3600秒会滚动生成正式文件
 a1.sinks.k1.hdfs.rollSize = 10737418420        # tmp文件达到10G会滚动生成正式文件
 a1.sinks.k1.hdfs.rollCount = 0                 # tmp文件的滚动与写入的event数量无关
-a1.sinks.k1.hdfs.roundUnit = second            # 滚动时间单位
-a1.sinks.k1.hdfs.roundValue = 60               # 60秒滚动一次tmp文件
 
 # 给source和sink绑定channel
 a1.sources.r1.channels = c1  # 一个source可以接多个channel
@@ -216,7 +209,7 @@ a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 [root@cdh1 ~]$ for i in {1..10000}; do echo "hello spark ${i}" >> test.log; echo ${i}; sleep 0.01; done
 ```
 
-#### netcat-console.conf
+### netcat-console.conf
 ```shell script
 # 命名agent组件
 a1.sources = r1
@@ -318,14 +311,14 @@ JAVA_OPTS="-Dflume.monitoring.type=ganglia -Dflume.monitoring.hosts=localhost:86
 [root@cdh1 ~]$ flume-ng ... -Dflume.monitoring.type=ganglia -Dflume.monitoring.hosts=localhost:8649
 ```
 
-|          字段           |          解释           |     |     |
-|:---------------------:|:-----------------------:|:---:|:---:|
-| EventPutAttemptCount  | source尝试写入channel的事件总数量 |     |     |
-| EventPutSuccessCount  |  成功写入channel且提交的事件总数量   |     |     |
-| EventTakeAttemptCount | sink尝试从channel拉取事件的总数量  |     |     |
-| EventTakeSuccessCount |     sink成功读取的事件的总数量     |     |     |
-|       StartTime       |    channel启动的时间(ms)     |     |     |
-|       StopTime        |    channel停止的时间(ms)     |     |     |
-|      ChannelSize      |    目前channel中事件的总数量     |     |     |
-| ChannelFillPercentage |      channel占用百分比       |     |     |
-|    ChannelCapacity    |       channel的容量        |     |     |
+|          字段           |          解释           |
+|:---------------------:|:-----------------------:|
+| EventPutAttemptCount  | source尝试写入channel的事件总数量 |
+| EventPutSuccessCount  |  成功写入channel且提交的事件总数量 |
+| EventTakeAttemptCount | sink尝试从channel拉取事件的总数量 |
+| EventTakeSuccessCount |     sink成功读取的事件的总数量    |
+|       StartTime       |    channel启动的时间(ms)     |
+|       StopTime        |    channel停止的时间(ms)     |
+|      ChannelSize      |    目前channel中事件的总数量  |
+| ChannelFillPercentage |      channel占用百分比       |
+|    ChannelCapacity    |       channel的容量         |
