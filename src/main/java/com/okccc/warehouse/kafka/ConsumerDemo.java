@@ -1,4 +1,4 @@
-package com.okccc.kafka;
+package com.okccc.warehouse.kafka;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;

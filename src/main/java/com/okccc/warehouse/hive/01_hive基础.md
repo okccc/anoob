@@ -41,7 +41,7 @@ HDFS采用机架感知策略,保证数据可靠性,并且mr会根据机架距离
 # HDFS小文件(<<dfs.block.size的文件)有什么影响？
 存储层面：影响NameNode寿命,因为文件的元数据信息存放在NameNode的内存中
 计算层面：浪费计算资源,每个小文件都会占用一个Map任务
-解决：使用SequenceFile和CombineFileInputFormat合并小文件代替hadoop默认的TextFile
+解决：使用SequenceFile和CombineFileInputFormat合并小文件代替hadoop默认的TextFile,使用fsimage排查小文件ka
 
 # HDFS安全模式？
 启动hadoop集群时,启动了namenode未启动datanode,此时文件系统处于安全模式,只能读不能写,只能查看有哪些文件而不能查看文件内容,因为datanode还未启动

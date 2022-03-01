@@ -1,4 +1,4 @@
-package com.okccc.flume;
+package com.okccc.warehouse.flume;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -53,8 +53,8 @@ public class ETLInterceptor implements Interceptor {
         // 条件过滤
         JSONObject jsonObject = JSON.parseObject(line);
         try {
-            String body = jsonObject.getString("request_body");
-            HashMap<String, String> hashMap = LogUtil.strToMap(body);
+            String request_body = jsonObject.getString("request_body");
+            HashMap<String, String> hashMap = LogUtil.strToMap(request_body);
             String e = LogUtil.decode(hashMap.get("e"));
             String version = JSON.parseArray(e).getJSONObject(0).getString("version_name");
             if (version == null || version.length() == 0) {
@@ -98,5 +98,4 @@ public class ETLInterceptor implements Interceptor {
             // 获取flume配置文件的参数,一般用不到
         }
     }
-
 }

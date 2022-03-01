@@ -1,4 +1,4 @@
-package com.okccc.flume;
+package com.okccc.warehouse.flume;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -16,7 +16,9 @@ import java.util.HashMap;
  */
 public class LogUtil {
 
-    // 校验日志是否json格式
+    /**
+     * 校验日志是否json格式
+     */
     public static boolean isJsonFormat(String str) {
         try {
             JSON.parse(str);
@@ -27,7 +29,9 @@ public class LogUtil {
         }
     }
 
-    // 将字符串参数解析成键值对,类似hive函数str_to_map
+    /**
+     * 将字符串参数解析成键值对,类似hive函数str_to_map
+     */
     public static HashMap<String, String> strToMap(String args) {
         // orc=grubby&ne=moon&hum=sky&ud=ted
         HashMap<String, String> hashMap = new HashMap<>();
@@ -38,7 +42,9 @@ public class LogUtil {
         return hashMap;
     }
 
-    // url解码
+    /**
+     * url解码
+     */
     public static String decode(String str) {
         if (str != null && str.length() > 0) {
             try {
@@ -53,7 +59,9 @@ public class LogUtil {
         return str;
     }
 
-    // 校验时间戳
+    /**
+     * 校验时间戳
+     */
     public static boolean isUnixtime(String log) {
         // 1549696569054 | {"cm":{"ln":"-89.2","sv":"V2.0.4","os":"8.2.0"...},"ap":"weather","et":[]}
         String[] content = log.split("\\|");

@@ -1,4 +1,4 @@
-package com.okccc.hadoop.ods;
+package com.okccc.warehouse.ods;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;

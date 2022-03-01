@@ -1,4 +1,4 @@
-package com.okccc.flume;
+package com.okccc.warehouse.flume;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -78,7 +78,6 @@ public class TypeInterceptor implements Interceptor {
 
     // 按照agent配置文件中的interceptor类型,创建静态内部类生成拦截器对象
     public static class Builder implements Interceptor.Builder {
-
         @Override
         public Interceptor build() {
             return new TypeInterceptor();
