@@ -22,7 +22,9 @@ public class HdfsUtil {
     static {
         // hdfs配置信息
         Configuration conf = new Configuration();
-        conf.set("dfs.replication", "2");
+        // 本地调试ok打jar包后报错：java.io.IOException: No FileSystem for scheme: hdfs,说明maven-assembly打包时发生了些变化
+        // https://www.cnblogs.com/justinzhang/p/4983673.html
+        conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
         try {
             // 获取文件系统
             fs = FileSystem.get(new URI(MyConfig.HDFS_URL), conf, "hdfs");
@@ -97,7 +99,7 @@ public class HdfsUtil {
         String pathString = new File(filePath).getParent();
         Path path = new Path(pathString);
         // 有就删除
-        if (fs.exists(path) && fs.getContentSummary(path).getLength() > 0) {
+        if (fs.exists(path)) {
             fs.delete(path, true);
         }
 
