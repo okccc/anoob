@@ -139,6 +139,6 @@ public class HdfsUtil {
 //        testFile();
         testDirectory();
 //        testUpload();
-//        writeToHdfs("a.txt", Collections.singletonList("hello world"));
+//        overwriteToHdfs("a.txt", Collections.singletonList("hello world"));
     }
 }

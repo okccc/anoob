@@ -102,7 +102,7 @@ id               int,
 names            array<string>,
 info             map<string, int>,
 address          struct<city: string, district: string>
-)  
+) comment '日志表'
 partitioned by (dt string)  -- 分区表可以提高数据检索效率,dt不存放实际内容,仅仅是作为分区标识存在于表结构中,内部表和外部表都可以设置分区
 row format delimited  
 fields terminated by '\001'         -- 列分隔符,默认'\001'
