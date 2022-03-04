@@ -50,6 +50,46 @@ namenode会等待datanode向它发送块报告,接收到的datanode blocks和tot
 
 ### HIVE
 ```shell script
+# 安装
+[root@cdh1 ~]$ tar -xvf apache-hive-3.1.2-bin.tar.gz -C /opt/module
+# 修改配置文件
+[root@cdh1 ~]$ vim hive-env.sh
+export HADOOP_HOME=/opt/module/hadoop-3.1.3
+[root@cdh1 ~]$ vim hive-site.xml
+<configuration>
+	<property>
+	  <name>javax.jdo.option.ConnectionURL</name>
+	  <value>jdbc:mysql://localhost:3306/metastore?createDatabaseIfNotExist=true</value>
+	</property>
+	<property>
+	  <name>javax.jdo.option.ConnectionDriverName</name>
+	  <value>com.mysql.jdbc.Driver</value>
+	</property>
+	<property>
+	  <name>javax.jdo.option.ConnectionUserName</name>
+	  <value>root</value>
+	</property>
+	<property>
+	  <name>javax.jdo.option.ConnectionPassword</name>
+	  <value>root@123</value>
+	</property>
+	<property>
+      <name>hive.server2.thrift.port</name>
+      <value>10000</value>
+    </property>
+</configuration>
+# 拷贝jdbc驱动
+[root@cdh1 ~]$ cp mysql-connector-java-5.1.48.jar /opt/module/hive-3.1.2-bin/lib/
+# 创建hive元数据库
+mysql> create database metastore;
+# 初始化hive元数据库
+[root@cdh1 ~]$ schematool -initSchema -dbType mysql -verbose
+Initialization script completed
+# 先启动hdfs
+[root@cdh1 ~]$ start-dfs.sh
+# 再启动hive
+[root@cdh1 ~]$ hive
+
 # hive、hiveserver2、beeline
 hive和beeline都是hive客户端,hiveserver和hivesrver2都是hive服务端
 hiveserver是本地模式,只能处理单个请求,已废弃
