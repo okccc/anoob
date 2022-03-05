@@ -89,6 +89,8 @@ Initialization script completed
 [root@cdh1 ~]$ start-dfs.sh
 # 再启动hive
 [root@cdh1 ~]$ hive
+# 错误1：Unrecognized Hadoop major version number: 3.0.0
+# 版本不兼容,hive-3.x只能匹配hadoop-3.x
 
 # hive、hiveserver2、beeline
 hive和beeline都是hive客户端,hiveserver和hivesrver2都是hive服务端
