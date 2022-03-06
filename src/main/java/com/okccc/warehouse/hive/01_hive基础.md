@@ -91,6 +91,9 @@ Initialization script completed
 [root@cdh1 ~]$ hive
 # 错误1：Unrecognized Hadoop major version number: 3.0.0
 # 版本不兼容,hive-3.x只能匹配hadoop-3.x
+# 错误2：/opt/module/spark-2.1.1-bin-hadoop2.7/lib/spark-assembly-*.jar: No such file or directory
+# spark2以后,lib目录下的大jar包被分散成多个小jar包,原先的spark-assembly-*.jar已不存在,所以hive找不到这个jar包,修改bin/hive
+# 将sparkAssemblyPath=`ls ${SPARK_HOME}/lib/spark-assembly-*.jar`替换成sparkAssemblyPath=`ls ${SPARK_HOME}/jars/*.jar`
 
 # hive、hiveserver2、beeline
 hive和beeline都是hive客户端,hiveserver和hivesrver2都是hive服务端
