@@ -19,6 +19,7 @@ export ZOOCFGDIR=/opt/module/zookeeper-3.5.7/conf
 
 ### import
 ```shell
+# shell中单引号、双引号、反引号区别：''和'""'不执行$ | ""和"''"会执行$取变量值,不想执行就加\转义符或者改用'' | ``执行一行命令获得结果
 bin/sqoop import \  # 反斜杠是换行符,最终会拼接成一行字符串执行,不然linux会以为是多行命令
 --connect jdbc:mysql://${ip}:${port}/${mysql_db} \  # 数据库
 --username ${username} \                            # 用户名
