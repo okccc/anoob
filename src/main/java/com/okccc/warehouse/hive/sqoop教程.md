@@ -19,7 +19,7 @@ export ZOOCFGDIR=/opt/module/zookeeper-3.5.7/conf
 
 ### import
 ```shell
-# shell中单引号、双引号、反引号区别：''和'""'不执行$ | ""和"''"会执行$取变量值,不想执行就加\转义符或者改用'' | ``执行一行命令获得结果
+# shell中单引号、双引号、反引号区别：''和'""'不执行$ | ""和"''"会执行$取变量值,不想执行就加\转义符 | ``执行一行命令获得结果
 bin/sqoop import \  # 反斜杠是换行符,最终会拼接成一行字符串执行,不然linux会以为是多行命令
 --connect jdbc:mysql://${ip}:${port}/${mysql_db} \  # 数据库
 --username ${username} \                            # 用户名
@@ -27,8 +27,8 @@ bin/sqoop import \  # 反斜杠是换行符,最终会拼接成一行字符串执
 --table ${table} \                                  # 表名
 --columns id,name \                                 # 筛选列,逗号分隔
 --where 'id >= 1 and id <= 20' \                    # 筛选行,中间有空格必须加引号,不然会被当成多个参数,如果要解析变量必须使用""
-# 上面三个参数可以用--query替换,结尾要加上$CONDITIONS占位符,用来根据map任务数拆分过滤条件,1<=id<=10 & 11<=id<=20
---query 'select id,name from user_info where id >= 1 and id <= 20 and $CONDITIONS' \  # 全量/增量具体由过滤条件体现
+# 替换上面三个参数,结尾必须写$CONDITIONS占位符,用来根据map任务数将过滤条件拆分成1<=id<=10 & 11<=id<=20
+--query 'select id,name from user_info where id >= 1 and id <= 20 and $CONDITIONS' \  # 全量/增量/新增及变化由过滤条件体现
 --target-dir ${path} \                              # hdfs路径
 --delete-target-dir \                               # 执行mr之前先删掉已存在目录,这样任务可以多次重复执行
 --fields-terminated-by '\001' \                     # mysql是结构化数据而hdfs是文件,列之间要指定分隔符,注意区分'\001'和'\t'
@@ -36,6 +36,7 @@ bin/sqoop import \  # 反斜杠是换行符,最终会拼接成一行字符串执
 --split-by id \                                     # sqoop切片策略,map端按照id将数据切片,如果只有1个map就不需要切片
 --compress \                                        # 压缩数据(可选)
 --compression-codec lzop \                          # 指定压缩格式为lzo,hdfs会生成.lzo结尾的数据文件和.lzo.index结尾的索引文件
---null-string '\\N' \                               # 将字符串空值转换成\N,因为hdfs数据最终会被加载进hive表,hive中的空值就是\N
---null-non-string '\\N' \                           # 将非字符串空值转换成\N
+--null-string '\\N' \                               # 转换字符串空值,mysql中的null对应hive中的\N
+--null-non-string '\\N' \                           # 转换非字符串空值
+# 同步策略：考虑数据量大小及数据是否变化分为全量表、增量表、新增及变化表、特殊表
 ```
