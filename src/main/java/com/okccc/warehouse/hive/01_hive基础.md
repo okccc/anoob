@@ -1,5 +1,5 @@
 - [cdh各组件端口](https://docs.cloudera.com/documentation/enterprise/6/6.2/topics/cdh_ports.html)
-### HDFS
+### hdfs
 ```shell script
 # Client：客户端
 1.将文件按block块切分
@@ -48,7 +48,7 @@ HDFS采用机架感知策略,保证数据可靠性,并且mr会根据机架距离
 namenode会等待datanode向它发送块报告,接收到的datanode blocks和total blocks占比达到99.9%表示块数量一致,文件系统会在等待30秒之后退出安全模式
 ```
 
-### HIVE
+### hive
 ```shell script
 # 安装
 [root@cdh1 ~]$ tar -xvf apache-hive-3.1.2-bin.tar.gz -C /opt/module
@@ -77,6 +77,14 @@ export HADOOP_HOME=/opt/module/hadoop-3.1.3
       <name>hive.server2.thrift.port</name>
       <value>10000</value>
     </property>
+    <property>
+        <name>spark.yarn.jars</name>
+        <value>hdfs://cdh1:9000/spark-jars/*</value>
+    </property>
+    <property>
+        <name>hive.execution.engine</name>
+        <value>spark</value>
+    </property>
 </configuration>
 # 拷贝jdbc驱动
 [root@cdh1 ~]$ cp mysql-connector-java-5.1.48.jar /opt/module/hive-3.1.2-bin/lib/
@@ -85,10 +93,14 @@ mysql> create database metastore;
 # 初始化hive元数据库
 [root@cdh1 ~]$ schematool -initSchema -dbType mysql -verbose
 Initialization script completed
-# 先启动hdfs
+# 启动hdfs和yarn
 [root@cdh1 ~]$ start-dfs.sh
-# 再启动hive
+[root@cdh1 ~]$ start-yarn.sh
+# 启动hive,从hive2.x开始hive-on-mr模式已经被废弃,推荐使用hive-on-spark,每次启动第一次运行很慢,因为要加载SparkSession
 [root@cdh1 ~]$ hive
+Hive Session ID = 3ae56850-15c7-4fa3-b87c-a440a7c60ef3
+Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions.
+hive>
 # 错误1：Unrecognized Hadoop major version number: 3.0.0
 # 版本不兼容,hive-3.x只能匹配hadoop-3.x
 # 错误2：/opt/module/spark-2.1.1-bin-hadoop2.7/lib/spark-assembly-*.jar: No such file or directory
