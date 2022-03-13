@@ -21,6 +21,15 @@
         <name>fs.trash.interval</name>  
         <value>1440</value>  
     </property>
+    <!-- 配置代理用户操作hadoop主机、用户、用户组 -->
+    <property>
+        <name>hadoop.proxyuser.okc.hosts</name>
+        <value>*</value>
+    </property>
+    <property>
+        <name>hadoop.proxyuser.okc.groups</name>
+        <value>*</value>
+    </property>
 </configuration> 
 ```
 

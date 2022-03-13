@@ -106,11 +106,11 @@ hive>
 # 错误2：/opt/module/spark-2.1.1-bin-hadoop2.7/lib/spark-assembly-*.jar: No such file or directory
 # spark2以后,lib目录下的大jar包被分散成多个小jar包,原先的spark-assembly-*.jar已不存在,所以hive找不到这个jar包,修改bin/hive
 # 将sparkAssemblyPath=`ls ${SPARK_HOME}/lib/spark-assembly-*.jar`替换成sparkAssemblyPath=`ls ${SPARK_HOME}/jars/*.jar`
-
+# 启动hiveserver2,前台启动能观察日志,可以使用datagrip通过jdbc连接
+[root@cdh1 ~]$ hiveserver2
 # hive、hiveserver2、beeline
 hive和beeline都是hive客户端,hiveserver和hivesrver2都是hive服务端
-hiveserver是本地模式,只能处理单个请求,已废弃
-hiveserver2是远程连接模式,可以在任意机器使用hive或beeline(hue/象数)连接
+hiveserver是本地模式只能处理单个请求已废弃,hiveserver2是远程连接模式,可以在任意机器使用hive/beeline/jdbc连接
 # gateway
 由于hive服务没有worker角色,需要另一种机制使客户端的配置传播到集群中其它主机
 # metastore
