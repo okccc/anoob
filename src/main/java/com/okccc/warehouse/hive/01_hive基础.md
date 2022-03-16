@@ -312,6 +312,9 @@ hive> create view v01 as select * from debit_info where dt=regexp_replace(date_s
 hive> create function url_decode as 'com.qbao.udf.decodeurl' using jar 'hdfs:///lib/decodeurl.jar';
 -- 删除函数
 hive> drop function url_decode;
+-- with as子查询,可以复用重复查询结果,提高sql可读性,不能以分号结尾,必须与后面的sql作为一个整体运行
+with t1 as (select * from user_info),t2 as (select * from order_info), t3 as (select * from product_info)
+insert overwrite table xxx select * from t1 left join t2 left join t3;
 
 -- hive查看表统计信息
 hive> desc formatted table_name;
