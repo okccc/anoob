@@ -21,6 +21,21 @@
         <name>fs.trash.interval</name>
         <value>1440</value>
     </property>
+    <!-- 支持lzo压缩,将hadoop-lzo-0.4.20.jar拷贝到/opt/module/hadoop-3.1.3/share/hadoop/common -->
+    <property>
+        <name>io.compression.codecs</name>
+        <value>org.apache.hadoop.io.compress.GzipCodec,
+            org.apache.hadoop.io.compress.DefaultCodec,
+            org.apache.hadoop.io.compress.BZip2Codec,
+            org.apache.hadoop.io.compress.SnappyCodec,
+            com.hadoop.compression.lzo.LzoCodec,
+            com.hadoop.compression.lzo.LzopCodec
+        </value>
+    </property>
+    <property>
+        <name>io.compression.codec.lzo.class</name>
+        <value>com.hadoop.compression.lzo.LzoCodec</value>
+    </property>
     <!-- 配置代理用户操作hadoop主机、用户、用户组 -->
     <property>
         <name>hadoop.proxyuser.okc.hosts</name>
