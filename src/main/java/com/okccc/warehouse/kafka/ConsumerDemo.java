@@ -44,12 +44,12 @@ public class ConsumerDemo {
         // 1.消费者属性配置
         Properties prop = new Properties();
         // 必选参数
-//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");  // 本地kafka
-//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.3.21:9092,10.18.3.22:9092,10.18.3.23:9092");  // 测试kafka
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");  // db
-        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
-//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.100.176.47:9092");  // 腾讯云kafka
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "gg");  // 消费者组,consumer-group之间互不影响
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
+        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.34:9092");  // 腾讯云log
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.63:9092");  // 腾讯云db
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g01");  // 消费者组,consumer-group之间互不影响
         prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());    // key反序列化器
         prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());  // value反序列化器
         // 可选参数
@@ -63,7 +63,7 @@ public class ConsumerDemo {
         // 3.订阅topic集合
         List<String> topics = new ArrayList<>();
         topics.add("amplitude02-new");
-//        topics.add("thrall");
+//        topics.add("eshop");
         consumer.subscribe(topics);
 
         // 4.从kafka获取数据
@@ -83,22 +83,22 @@ public class ConsumerDemo {
 //                consumer.seek(tp, 73935099);
 //            }
             // d.从指定时间点开始消费(更符合实际需求,比如要查找nginx日志2022-03-07 10:02:20的某条数据,将其转换成linux时间戳就行)
-            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
-            for (TopicPartition tp : assignment) {
-                // 设置查询分区的时间戳
-                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
-//                timestampsToSearch.put(tp, System.currentTimeMillis() - 6 * 3600 * 1000);  // 范围搜索
-            }
-            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
-            for (TopicPartition tp : assignment) {
-                // 获取该分区的offset和时间戳
-                OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
-                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
-                if (offsetAndTimestamp != null) {
-                    // 根据时间戳寻址
-                    consumer.seek(tp, offsetAndTimestamp.offset());
-                }
-            }
+//            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
+//            for (TopicPartition tp : assignment) {
+//                // 设置查询分区的时间戳
+//                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
+////                timestampsToSearch.put(tp, System.currentTimeMillis() - 6 * 3600 * 1000);  // 范围搜索
+//            }
+//            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
+//            for (TopicPartition tp : assignment) {
+//                // 获取该分区的offset和时间戳
+//                OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
+//                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
+//                if (offsetAndTimestamp != null) {
+//                    // 根据时间戳寻址
+//                    consumer.seek(tp, offsetAndTimestamp.offset());
+//                }
+//            }
 
             // 消息被封装成ConsumerRecord对象
             for (ConsumerRecord<String, String> record : records) {
