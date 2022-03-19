@@ -14,7 +14,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
@@ -47,13 +47,14 @@ public class KafkaToHdfs {
 
         // 接收传递参数
         String topicName = args[0];  // eduplatform01,eduplatform02
-        String tableName = args[1];  // ods_crs_eduplatform_node_flow_record_realtime
+        String tableName = args[1];  // node_flow_record
 
         // 1.创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         // 设置checkpoint时间间隔,不然hdfs文件一直处于in-progress状态
         env.enableCheckpointing(50000L, CheckpointingMode.EXACTLY_ONCE);
+        // 本地调试时要指定能访问hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "hdfs");
 
         // 2.获取kafka数据
@@ -61,11 +62,11 @@ public class KafkaToHdfs {
         Properties props = new Properties();
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");
         props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, topicName + "_group");
-
-        FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(topics, new SimpleStringSchema(), props);
+        // flink写hdfs目前只支持到flink1.10版本,kafka连接器是flink-connector-kafka-0.11_2.11版本
+        FlinkKafkaConsumer011<String> kafkaConsumer = new FlinkKafkaConsumer011<>(topics, new SimpleStringSchema(), props);
         kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
         kafkaConsumer.setStartFromEarliest();
-
+        // 添加数据源
         DataStreamSource<String> kafkaStream = env.addSource(kafkaConsumer);
 
         // 3.etl处理
@@ -98,7 +99,7 @@ public class KafkaToHdfs {
                 JSONObject data = jsonObject.getJSONArray("data").getJSONObject(0);
                 // 获取表名
                 String table = jsonObject.getString("table");
-                if (tableName.equals(table)) {
+                if (tableName.equals(table) || table.startsWith(tableName)) {
                     // 根据表名获取对应字段
                     Properties prop = PropertiesUtil.load("config.properties");
                     String columns = prop.getProperty(table + ".columns");
@@ -126,7 +127,7 @@ public class KafkaToHdfs {
         dataStream.addSink(
                 StreamingFileSink
                         .forRowFormat(
-                                new Path("hdfs://company-bigdata02/data/hive/warehouse/ods.db/" + tableName),
+                                new Path("hdfs://cdh1/data/hive/warehouse/ods.db/ods_" + tableName),
                                 new SimpleStringEncoder<String>("UTF-8")
                         )
 //                        .withBucketCheckInterval(1000L)
