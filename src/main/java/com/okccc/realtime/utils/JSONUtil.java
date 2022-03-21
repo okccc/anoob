@@ -21,9 +21,13 @@ import java.util.Set;
 public class JSONUtil {
     public static void main(String[] args) {
         /*
+         * 主要方法
          * JSON.parseObject(jsonStr)：将json字符串转换成json对象
          * JSON.parseObject(jsonStr, OrderInfo.class)：将json字符串转换成java实体类
          * JSON.toJSONString(OrderInfo)：将java实体类转换成json字符串
+         *
+         * 常见错误
+         * ValueError: Expecting, delimiter: line 4 column 1(char 23) 字符串不是标准json格式,看看是否有双引号和逗号缺失
          */
 
 //        test01();
