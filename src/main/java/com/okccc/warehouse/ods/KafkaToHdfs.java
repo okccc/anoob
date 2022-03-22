@@ -43,6 +43,10 @@ public class KafkaToHdfs {
          * -ys,--yarnslots                 Number of slots per TaskManager
          * -yqu,--yarnqueue                Specify YARN queue.
          * bin/flink run -m yarn-cluster -ynm demo -yjm 2048 -ytm 4096 -ys 1 -yqu root.ai -c com.okccc.Demo ./demo.jar
+         *
+         * 常见错误
+         * Could not initialize class org.apache.flink.runtime.entrypoint.parser.CommandLineOptions
+         * 本地运行正常,但是服务器flink run往yarn提交任务会报错,因为缺少解析命令行的依赖,pom.xml添加flink-clients
          */
 
         // 接收传递参数

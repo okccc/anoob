@@ -255,6 +255,7 @@
             <artifactId>flink-streaming-scala_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
+        <!-- flink客户端,可使用命令行flink run往yarn提交任务,jps发现会有CliFrontend进程 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_2.12</artifactId>
