@@ -65,6 +65,7 @@ hbase(main):001:0> drop_namespace 'test'  # 删除数据库
 # table操作
 hbase(main):001:0> list  # 查看所有表
 hbase(main):001:0> list_snapshots  # 查看所有快照
+hbase(main):001:0> create 'offset:ods_log',{NAME=>'f',VERSIONS=>'1',COMPRESSION=>'SNAPPY'}  # 创建表前要先创建库
 hbase(main):001:0> create 'student','info'  # 创建表,指定表名和列族
 hbase(main):001:0> describe 'student'  # 查看表信息
 hbase(main):001:0> put 'student','1001','info:name','grubby'  # 插入数据
