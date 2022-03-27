@@ -49,7 +49,7 @@ public class ConsumerDemo {
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
         prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.34:9092");  // 腾讯云log
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.63:9092");  // 腾讯云db
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g01");  // 消费者组,consumer-group之间互不影响
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g0321");  // 消费者组,consumer-group之间互不影响
         prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());    // key反序列化器
         prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());  // value反序列化器
         // 可选参数
