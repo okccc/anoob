@@ -46,10 +46,10 @@ public class ConsumerDemo {
         // 必选参数
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");  // db
-        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.34:9092");  // 腾讯云log
-//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.63:9092");  // 腾讯云db
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g0327");  // 消费者组,consumer-group之间互不影响
+        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.63:9092");  // 腾讯云db
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g0411");  // 消费者组,consumer-group之间互不影响
         prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());    // key反序列化器
         prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());  // value反序列化器
         // 可选参数
@@ -62,8 +62,8 @@ public class ConsumerDemo {
 
         // 3.订阅topic集合
         List<String> topics = new ArrayList<>();
-        topics.add("amplitude02-new");
-//        topics.add("eshop");
+//        topics.add("amplitude02-new");
+        topics.add("thrall");
         consumer.subscribe(topics);
 
         // 4.从kafka获取数据
