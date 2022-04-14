@@ -60,8 +60,8 @@ public class IODemo {
          * 如果父类实现了Serializable接口,子类默认也实现了序列化
          */
 
-        byteStream();
-//        charStream();
+//        byteStream();
+        charStream();
 //        tryIOException();
 //        objectStream();
 //        transformStream();
@@ -70,8 +70,8 @@ public class IODemo {
 
     private static void byteStream() throws IOException {
         // 创建字节流对象
-        FileInputStream fis = new FileInputStream("ability/input/avatar.jpg");
-        FileOutputStream fos = new FileOutputStream("ability/output/avatar.jpg");
+        FileInputStream fis = new FileInputStream("input/avatar.jpg");
+        FileOutputStream fos = new FileOutputStream("output/avatar.jpg");
         // 读取字节数组
         byte[] arr = new byte[1024];
         // read()方法可以读取字节或字节数组,读到文件末尾则返回-1
@@ -86,8 +86,8 @@ public class IODemo {
         fis.close();
 
         // 缓冲流先将数据写进缓冲区,然后再从内存中flush
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("ability/input/avatar.jpg"));
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("ability/output/avatar.jpg"));
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("input/avatar.jpg"));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("output/avatar.jpg"));
         // 读写数据
         byte[] buf = new byte[1024];
         while (bis.read(buf) != -1){
@@ -100,14 +100,14 @@ public class IODemo {
 
     private static void charStream() throws IOException {
         // 创建字符流对象
-        FileReader fr = new FileReader("ability/input/ccc.txt");
-        FileWriter fw = new FileWriter("ability/output/ccc.txt", true);
+        FileReader fr = new FileReader("input/aaa.txt");
+        FileWriter fw = new FileWriter("output/aaa.txt", true);
         // 读取字符数组
         int len;
         char[] arr = new char[1024];
         while ((len = fr.read(arr)) != -1){
             // 输出到控制台
-//            System.out.print(new String(c, 0, len));
+            System.out.print(new String(arr, 0, len));
             // 输出到文件
             fw.write(arr, 0, len);
         }
@@ -116,14 +116,15 @@ public class IODemo {
         fr.close();
 
         // 使用更加高效的缓冲字符流,查看源码发现其实就是创建了字符数组,并且可以一次读取一行
-        BufferedReader br = new BufferedReader(new FileReader("ability/input/ccc.txt"));
-        BufferedWriter bw = new BufferedWriter(new FileWriter("ability/output/ccc.txt", true));
+        BufferedReader br = new BufferedReader(new FileReader("input/aaa.txt"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter("output/aaa.txt", true));
         // 读写数据
         String line;
         while ((line = br.readLine()) != null){
             bw.write(line);
             bw.newLine();
         }
+        // 关闭流
         bw.close();
         br.close();
     }
@@ -133,8 +134,8 @@ public class IODemo {
         FileOutputStream fos = null;
         try {
             // 创建字节流对象
-            fis = new FileInputStream("ability/input/avatar.jpg");
-            fos = new FileOutputStream("ability/output/avatar.jpg", true);
+            fis = new FileInputStream("input/avatar.jpg");
+            fos = new FileOutputStream("output/avatar.jpg", true);
             // 读取字节数组
             byte[] arr = new byte[1024];
             // read()方法可以读取字节或字节数组,读到文件末尾则返回-1
@@ -159,8 +160,8 @@ public class IODemo {
 
     private static void objectStream() throws IOException, ClassNotFoundException {
         // 创建序列化流对象
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("ability/input/person.dat"));
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("ability/input/person.dat"));
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("input/person.dat"));
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("input/person.dat"));
         // 序列化
         oos.writeInt(100);
         oos.writeDouble(12.5);
@@ -188,11 +189,11 @@ public class IODemo {
         LineNumberReader lnr = new LineNumberReader(new InputStreamReader(System.in));
 //        lnr.setLineNumber(3);
         // 文件输入流
-        BufferedReader br1 = new BufferedReader(new InputStreamReader(new FileInputStream("ability/input/aaa.txt")));
+        BufferedReader br1 = new BufferedReader(new InputStreamReader(new FileInputStream("input/aaa.txt")));
         // 标准输出流
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         // 文件输出流
-        BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("ability/output/aaa.txt",true)));
+        BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("output/aaa.txt",true)));
 
         // 读写数据
         String line;
@@ -201,7 +202,7 @@ public class IODemo {
                 break;
             }
             // 使用System.out之前可以重定向标准输出
-            System.setOut(new PrintStream(new FileOutputStream("ability/output/aaa.txt", true)));
+            System.setOut(new PrintStream(new FileOutputStream("output/aaa.txt", true)));
             // 输出到控制台,查看源码发现 println() = write() + newline() + flush() 所以当输出在控制台时等价于下面三行
             System.out.println(line);
             // 输出到控制台或文件
@@ -214,8 +215,8 @@ public class IODemo {
 
     private static void sequenceStream() throws IOException {
         // 合并小文件(字节流版本)
-        File dir = new File("ability/input");
-        File merge_file = new File("ability/output/merge.txt");
+        File dir = new File("input");
+        File merge_file = new File("output/merge.txt");
         // 序列流可以将多个字节输入流合并成一个字节输入流,SequenceInputStream(Enumeration<? extends InputStream> e)
         // 由于构造函数参数是枚举类型,而集合体系只有Vector才有枚举,但是效率低不常用,可以通过集合框架工具类Collections转换
         // 存放输入流对象的集合
