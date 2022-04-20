@@ -4,6 +4,12 @@ import com.alibaba.sec.client.FastIPGeoClient;
 import com.alibaba.sec.domain.FastGeoConf;
 import net.ipip.ipdb.City;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -56,9 +62,41 @@ public class IPUtil {
         return result;
     }
 
+    // 使用埃文科技IP库解析(收费)
+    public static String getIp(String ip) throws IOException {
+        String apiUrl = "https://api.ipplus360.com/ip/geo/v1/city/?key=g8RubXJ8JHbshjG8pj17YRRgypE21LbJi9aTNZjCfWWYN8E5xOvtSMfbmMN5ZRiV&ip=" + ip;
+        HttpURLConnection conn = null;
+        BufferedReader br = null;
+        String line;
+        try {
+            URL url = new URL(apiUrl);
+            // 根据URL生成HttpURLConnection
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            // 建立TCP连接
+            conn.connect();
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                br.close();
+            }
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return null;
+    }
+
     public static void main(String[] args) throws Exception {
         System.out.println(Arrays.toString(find("49.83.75.64")));  // [中国, 江苏, 盐城]
         System.out.println(getCity("49.83.75.64"));  // {"province":"江苏省","city":"盐城市","isp":"中国电信"}
+        System.out.println(getIp("49.83.75.64"));  // {"country":"中国","isp":"中国电信","prov":"江苏省","city":"盐城市"}
     }
-
 }
