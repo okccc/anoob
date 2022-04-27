@@ -20,7 +20,7 @@ yarn application -list | grep ${class} | awk '{print $1}' | xargs yarn applicati
 # 启动脚本,将配置信息放到工程外的独立文件,这样往prod/dev等不同环境写数据只需修改配置文件不用重新编译代码
 nohup /opt/spark/bin/spark-submit \
 --class ${class} \
---name ${project} \
+--name ${project} \  # yarn监控页面spark任务名称
 --files ${path}/conf/config.properties,${path}/conf/log4j.properties,${path}/conf/hive-site.xml \
 --master yarn \
 --deploy-mode cluster \
