@@ -26,8 +26,8 @@ nohup /opt/spark/bin/spark-submit \
 --deploy-mode cluster \
 --queue root.default \
 --driver-memory 4g \
---executor-memory 6g \
---num-executors 10 \
+--executor-memory 6g \  # total=(executor-memory + max(executor-memory*0.1, memoryOverhead)) * num-executors + driver-memory = 104G
+--num-executors 10 \  # container数=num-executors + 1(AM占一个,每个executor占一个)
 --executor-cores 2 \
 --conf "spark.yarn.executor.memoryOverhead=4096" \
 --conf spark.eventLog.enabled=true \
