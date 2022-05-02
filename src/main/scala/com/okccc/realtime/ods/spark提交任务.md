@@ -25,7 +25,7 @@ nohup /opt/spark/bin/spark-submit \
 --master yarn \
 --deploy-mode cluster \
 --queue root.default \
---driver-memory 4g \
+--driver-memory 4g \  # 如果yarn监控页面State一直处于ACCEPTED状态可以适当调大驱动内存和运行内存
 --executor-memory 6g \  # total=(executor-memory + max(executor-memory*0.1, memoryOverhead)) * num-executors + driver-memory = 104G
 --num-executors 10 \  # container数=num-executors + 1(AM占一个,每个executor占一个)
 --executor-cores 2 \
