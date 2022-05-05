@@ -27,13 +27,13 @@ import java.util.Properties;
 /**
  * Author: okccc
  * Date: 2022/1/09 11:05 上午
- * Desc: 实时同步kafka数据到hive,一个topic对应一个jar包
+ * Desc: flink实时读取canal同步到kafka的业务数据并解析写入hive,一个topic对应一个jar包
  */
 public class KafkaToHdfs {
 
     public static void main(String[] args) throws Exception {
         /**
-         * flink run提交jar包参数
+         * flink run提交任务
          * -c,--class    main方法所在主类
          * Options for yarn-cluster mode:
          * -m,--jobmanager                 Address of the JobManager (master) to which to connect
