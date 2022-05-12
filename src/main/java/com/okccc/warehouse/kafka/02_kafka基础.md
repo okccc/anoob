@@ -133,8 +133,8 @@ broker.id=0
 delete.topic.enable=true
 # kafka日志存放路径,消息也存放在该目录
 log.dirs=/Users/okc/modules/kafka_2.12-2.4.1/logs
-# zk地址
-zookeeper.connect=cdh1:2181,cdh2:2181,cdh3:2181
+# zk地址,创建kafka目录,不然kafka信息会被打散到zookeeper根目录下,不便于维护
+zookeeper.connect=cdh1:2181,cdh2:2181,cdh3:2181/kafka
 # 添加到环境变量
 [root@cdh1 ~]$ vim /etc/profile
 export KAFKA_HOME=/Users/okc/modules/kafka_2.12-2.4.1
