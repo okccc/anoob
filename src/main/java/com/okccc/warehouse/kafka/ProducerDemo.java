@@ -91,6 +91,8 @@ public class ProducerDemo {
 //        List<String> interceptors = new ArrayList<>();
 //        interceptors.add("com.okccc.bigdata.kafka.InterceptorDemo");
 //        prop.put("interceptor.classes", interceptors);
+        // 添加分区器(可选)
+//        prop.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, "com.okccc.warehouse.kafka.PartitionerDemo");
 
         // 2.创建生产者对象,<String, String>是topics和record
         KafkaProducer<String, String> producer = new KafkaProducer<>(prop);
@@ -104,7 +106,11 @@ public class ProducerDemo {
             String log = "{\"data\":[{\"id\":\"21987652\",\"platform\":\"9\",\"channel\":\"0\",\"order_no\":\"O86608711347716096\",\"user_no\":\"2c457aefda67461ca9cf222bad1bfcc0\",\"buy_way\":\"0\",\"state\":\"2\",\"address_snap_id\":\"5782948\",\"billing_type\":\"0\",\"origin_price\":\"19900.0\",\"price\":\"990.0\",\"coupon_no\":null,\"coupon_discount\":\"0.0\",\"gua_dou_num\":\"0\",\"gua_dou_price\":\"0.0\",\"diamond_num\":\"0\",\"diamond_price\":\"0.0\",\"magika_num\":\"0\",\"magika_price\":\"0.0\",\"discount\":\"0.0\",\"admin_discount\":\"0.0\",\"pay_price\":\"990.0\",\"pay_channel\":\"wx\",\"charge_id\":\"7128257\",\"user_agent\":\"Dalvik/2.1.0 (Linux; U; Android 10; TAS-AN00 Build/HUAWEITAS-AN00); NiuWa : 110701; AndroidVersion : 11.7.1\",\"user_remarks\":null,\"admin_remarks\":null,\"mq_state\":\"1\",\"commodity_category\":\"6\",\"pay_at\":\"2021-07-28 14:15:26\",\"delete_at\":null,\"create_at\":\"2021-07-28 14:15:16\",\"update_at\":\"2021-07-28 14:15:27\",\"source\":null,\"marketing_channel_code\":null,\"flag\":\"1\"}],\"database\":\"eshop_orders\",\"es\":1627452927000,\"id\":680881,\"isDdl\":false,\"mysqlType\":{\"id\":\"bigint\",\"platform\":\"tinyint\",\"channel\":\"tinyint\",\"order_no\":\"varchar(40)\",\"user_no\":\"varchar(32)\",\"buy_way\":\"tinyint\",\"state\":\"tinyint\",\"address_snap_id\":\"bigint\",\"billing_type\":\"tinyint\",\"origin_price\":\"decimal(10,2)\",\"price\":\"decimal(10,2)\",\"coupon_no\":\"varchar(50)\",\"coupon_discount\":\"decimal(10,2)\",\"gua_dou_num\":\"int\",\"gua_dou_price\":\"decimal(10,2)\",\"diamond_num\":\"int\",\"diamond_price\":\"decimal(10,2)\",\"magika_num\":\"int\",\"magika_price\":\"decimal(10,2)\",\"discount\":\"decimal(10,2)\",\"admin_discount\":\"decimal(10,2)\",\"pay_price\":\"decimal(10,2)\",\"pay_channel\":\"varchar(32)\",\"charge_id\":\"bigint\",\"user_agent\":\"text\",\"user_remarks\":\"varchar(255)\",\"admin_remarks\":\"varchar(255)\",\"mq_state\":\"tinyint\",\"commodity_category\":\"tinyint\",\"pay_at\":\"timestamp\",\"delete_at\":\"timestamp\",\"create_at\":\"timestamp\",\"update_at\":\"timestamp\",\"source\":\"varchar(255)\",\"marketing_channel_code\":\"varchar(255)\",\"flag\":\"tinyint\"},\"old\":[{\"mq_state\":\"0\"}],\"pkNames\":[\"id\"],\"sql\":\"\",\"sqlType\":{\"id\":-5,\"platform\":-6,\"channel\":-6,\"order_no\":12,\"user_no\":12,\"buy_way\":-6,\"state\":-6,\"address_snap_id\":-5,\"billing_type\":-6,\"origin_price\":3,\"price\":3,\"coupon_no\":12,\"coupon_discount\":3,\"gua_dou_num\":4,\"gua_dou_price\":3,\"diamond_num\":4,\"diamond_price\":3,\"magika_num\":4,\"magika_price\":3,\"discount\":3,\"admin_discount\":3,\"pay_price\":3,\"pay_channel\":12,\"charge_id\":-5,\"user_agent\":2005,\"user_remarks\":12,\"admin_remarks\":12,\"mq_state\":-6,\"commodity_category\":-6,\"pay_at\":93,\"delete_at\":93,\"create_at\":93,\"update_at\":93,\"source\":12,\"marketing_channel_code\":12,\"flag\":-6},\"table\":\"orders\",\"ts\":1627452927578,\"type\":\"UPDATE\"}";
 
             // 将消息封装成ProducerRecord发送,可以指定topic/partition(N)/key(N)/value,还能添加回调函数在producer收到ack时调用
-            producer.send(new ProducerRecord<>(topics, log));
+            producer.send(new ProducerRecord<>(topics, log), (metadata, exception) -> {
+                if (exception == null) {
+                    System.out.println("topic = " + metadata.topic() + ", partition = " + metadata.partition());
+                }
+            });
 //            producer.send(new ProducerRecord<>(topics, log01));
             Thread.sleep(1000);
         }
