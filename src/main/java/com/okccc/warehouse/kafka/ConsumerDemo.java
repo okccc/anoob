@@ -60,11 +60,15 @@ public class ConsumerDemo {
         // 2.创建消费者对象,<String, String>是topics和record
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
 
-        // 3.订阅topic集合
+        // 3.订阅主题
         List<String> topics = new ArrayList<>();
 //        topics.add("amplitude02-new");
         topics.add("eduplatform01");
         consumer.subscribe(topics);
+        // 订阅主题并指定分区
+//        ArrayList<TopicPartition> topicPartitions = new ArrayList<>();
+//        topicPartitions.add(new TopicPartition("test", 0));
+//        consumer.assign(topicPartitions);
 
         // 4.从kafka获取数据
         while (true) {
