@@ -59,15 +59,15 @@ esac
 # 查看快照文件
 [root@cdh1 version-2]$ zkSnapShotToolkit.sh snapshot.0
 
-# zookeeper是一个分布式应用程序协调服务,分布式就是利用更多机器处理更多数据,协调就是让各个节点的信息能够同步和共享,zookeeper=文件系统+通知机制
+# zookeeper是一个分布式应用程序协调服务,分布式就是利用更多机器处理更多数据,协调就是让各个节点的信息同步和共享,zookeeper=文件系统+通知机制
 # zk数据结构：类似linux的树形结构,每个znode节点默认存储1M数据,适合读多写少场景,比如存储少量状态和配置信息,不适合存储大规模业务数据
 # znode类型：持久的znode即使zk集群宕机也不会丢失,临时的znode断开连接就会丢失
 # zk三个状态：Leading/Following/Looking
 # zab协议：zookeeper原子广播,包括恢复模式和广播模式,保证主从节点数据一致
-# zk事务操作：当zk服务器状态发生变化时(insert/update/delete znode)会对应一个事务请求,zk会为其分配一个全局的事务编号zxid,编号越大说明事务越新
+# zk事务操作：当zk服务器状态发生变化时(insert/update/delete znode)会对应一个事务请求,zk会为其分配全局事务编号zxid,编号越大说明事务越新
 # zk选举机制：全新集群比较myid(半数机制),非全新集群(有机器中途宕机): 先比较zxid再比较myid
 # watcher：zk允许用户在指定znode时注册watcher,当触发特定事件时zk服务端会将事件通知到客户端,以此实现分布式协调服务
-# 应用场景：项目中配置信息比如jdbc一般写在properties配置文件,单节点没问题但是分布式集群需要统一配置管理,可以将配置信息写进znode让应用程序监听
+# 应用场景：项目配置信息比如jdbc一般写在properties配置文件,单节点没问题但分布式集群需要统一管理,可以将配置信息写进znode让应用程序监听
 # Hadoop使用zk做namenode高可用,Kafka依赖zk维护broker信息,Hbase客户端连接zk获取集群配置信息再进行后续操作
 
 # znode节点
@@ -119,7 +119,7 @@ esac
 ```
 
 ### kafka安装
-- [kafka官方文档](http://kafka.apache.org/0110/documentation.html)
+- [kafka官方文档](https://kafka.apache.org/documentation/)
 ```shell script
 # 下载
 [root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.12-2.4.1.tgz
@@ -172,10 +172,7 @@ max.partition.fetch.bytes=1048576
 max.poll.records=500
 # the maximum amount of time the client will wait for the response of a request
 request.timeout.ms=305000
-```
 
-### kafka脚本
-```shell script
 # 启动kafka,默认是前台进程,可以在后台启动
 [root@cdh1 ~]$ kafka-server-start.sh -daemon /config/server.properties  # 日志默认存放在logs/server.log
 [root@cdh1 ~]$ nohup kafka-server-start.sh config/server.properties > (logs/server.log | /dev/null) 2>&1 &
@@ -191,14 +188,14 @@ case $1 in
     do
         echo "============ ${i}启动kafka ============"
         # 启动kafka之前先开启JMX(Java Management Extensions)端口,不然启动kafka-manager会报错
-        ssh ${i} "source /etc/profile && cd {kafka_home}/bin && export JMX_PORT=9988 && kafka-server-start.sh -daemon ../config/server.properties"
+        ssh ${i} "source /etc/profile && cd ${kafka_home}/bin && export JMX_PORT=9988 && kafka-server-start.sh -daemon ../config/server.properties"
     done
 };;
 "stop"){
     for i in cdh1 cdh2 cdh3
     do
         echo "============ ${i}关闭kafka(略耗时) ============"
-        ssh ${i} "source /etc/profile && cd {kafka_home}/bin && kafka-server-stop.sh"
+        ssh ${i} "source /etc/profile && cd ${kafka_home}/bin && kafka-server-stop.sh"
     done
 };;
 esac
