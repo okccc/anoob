@@ -1,5 +1,9 @@
 package com.okccc.warehouse.kafka;
 
+import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.serialization.StringSerializer;
+
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -27,9 +31,14 @@ public class ProducerDemo {
          * push模式是消费者被动接受发送过来的数据,难以适应消费速率不同的消费者,消费者来不及处理可能会导致网络拥堵甚至程序崩溃
          * pull模式是消费者根据自身消费能力主动去broker拉数据,缺点是broker没有数据时会陷入空循环,需要指定超时参数timeout
          *
-         * topic分区好处
+         * topic分区好处,大数据场景主要考虑存储和计算两个方面
          * 存储：将大量数据按照partition切割存储在多个broker达到负载均衡
          * 计算：将数据以partition为单位划分可以提高producer和consumer的并行度
+         *
+         * 生产者分区策略,全局搜索DefaultPartitioner类查看源码注释
+         * a.指定partition
+         * b.没有指定partition但是有key(user_id/order_info),将key的hash值与partition数取余决定写往哪个partition(很有用)
+         * c.没有指定partition也没有key,采用StickyPartition粘性分区器,先随机选择一个分区一直写,等该分区batch已满再换新的分区
          */
     }
 }
