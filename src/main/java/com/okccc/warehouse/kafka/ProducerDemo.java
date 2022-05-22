@@ -40,5 +40,17 @@ public class ProducerDemo {
          * b.没有指定partition但是有key(user_id/order_info),将key的hash值与partition数取余决定写往哪个partition(很有用)
          * c.没有指定partition也没有key,采用StickyPartition粘性分区器,先随机选择一个分区一直写,等该分区batch已满再换新的分区
          */
+
+        // 1.生产者属性配置
+        Properties prop = new Properties();
+        // 必选参数
+        prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");  // kafka集群地址
+        prop.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());    // key序列化器
+        prop.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  // value序列化器
+        // 生产者吞吐量
+        prop.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 1024*1024*32);  // 缓冲区大小,默认32m
+        prop.put(ProducerConfig.BATCH_SIZE_CONFIG, 1024*16);          // 批次大小,默认16k
+        prop.put(ProducerConfig.LINGER_MS_CONFIG, 10);                // 等待时间,默认0
+        prop.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");   // 压缩类型,默认none
     }
 }
