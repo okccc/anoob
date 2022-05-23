@@ -39,6 +39,17 @@ public class ProducerDemo {
          * a.指定partition
          * b.没有指定partition但是有key(user_id/order_info),将key的hash值与partition数取余决定写往哪个partition(很有用)
          * c.没有指定partition也没有key,采用StickyPartition粘性分区器,先随机选择一个分区一直写,等该分区batch已满再换新的分区
+         *
+         * 生产者数据可靠性
+         * 1).ack可靠性级别
+         * kafka收到数据后要向生产者发送ack确认,生产者收到ack才会发送下一轮数据,没收到就重新发送,针对可靠性和延迟性分为3种级别
+         * ack=0 leader接收到数据还没落盘就返回ack,如果leader故障必然会丢数据
+         * ack=1 leader落盘后返回ack,如果在follower同步完成前leader故障也会丢数据
+         * ack=-1 leader和follower全部落盘才返回ack,如果在follower同步完成后发送ack前leader故障,生产者收不到ack会重发导致数据重复
+         * 2).ISR
+         * ack=-1时,如果某个follower故障导致迟迟不能与leader同步,也要一直等它同步结束才发送ack吗?
+         * leader维护了一个动态副本同步队列Isr(in-sync replica),存放和leader保持同步的follower集合,只要Isr同步完成leader就发送ack
+         * 如果follower长时间不同步数据就会被Isr剔除,可通过replica.lag.time.max.ms参数设定,默认30s,当leader故障时会从Isr中选举新的
          */
 
         // 1.生产者属性配置
@@ -52,5 +63,8 @@ public class ProducerDemo {
         prop.put(ProducerConfig.BATCH_SIZE_CONFIG, 1024*16);          // 批次大小,默认16k
         prop.put(ProducerConfig.LINGER_MS_CONFIG, 10);                // 等待时间,默认0
         prop.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");   // 压缩类型,默认none
+        // 生产者可靠性
+        prop.put(ProducerConfig.ACKS_CONFIG, "all");                  // ack可靠性级别,0基本不用、1普通日志、-1(all)涉及钱的
+        prop.put(ProducerConfig.RETRIES_CONFIG, 1);                   // 重试次数
     }
 }
