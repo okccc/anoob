@@ -41,15 +41,21 @@ public class ProducerDemo {
          * c.没有指定partition也没有key,采用StickyPartition粘性分区器,先随机选择一个分区一直写,等该分区batch已满再换新的分区
          *
          * 生产者数据可靠性
-         * 1).ack可靠性级别
+         * 1.ack可靠性级别
          * kafka收到数据后要向生产者发送ack确认,生产者收到ack才会发送下一轮数据,没收到就重新发送,针对可靠性和延迟性分为3种级别
          * ack=0 leader接收到数据还没落盘就返回ack,如果leader故障必然会丢数据
          * ack=1 leader落盘后返回ack,如果在follower同步完成前leader故障也会丢数据
          * ack=-1 leader和follower全部落盘才返回ack,如果在follower同步完成后发送ack前leader故障,生产者收不到ack会重发导致数据重复
-         * 2).ISR
+         * 2.ISR
          * ack=-1时,如果某个follower故障导致迟迟不能与leader同步,也要一直等它同步结束才发送ack吗?
          * leader维护了一个动态副本同步队列Isr(in-sync replica),存放和leader保持同步的follower集合,只要Isr同步完成leader就发送ack
          * 如果follower长时间不同步数据就会被Isr剔除,可通过replica.lag.time.max.ms参数设定,默认30s,当leader故障时会从Isr中选举新的
+         *
+         * 数据重复
+         * at most once 可能会丢数据(UDP) | at least once 可能数据重复 | exactly once 精准发送,保证每条消息都会发送且只发送一次
+         * kafka0.11版本引入了幂等性机制,生产者不管发送多少次数据broker只会持久化一条 at least once + idempotent = exactly once
+         * 重复数据判断标准‰是主键<pid,partition,seqNum>,pid是每次kafka重启会分配一个新的,partition是分区号,seqNum单调自增
+         * 所以幂等性只能保证单分区单会话内数据不重复,完全不重复还得在幂等性的基础上开启事务
          */
 
         // 1.生产者属性配置
@@ -66,5 +72,7 @@ public class ProducerDemo {
         // 生产者可靠性
         prop.put(ProducerConfig.ACKS_CONFIG, "all");                  // ack可靠性级别,0基本不用、1普通日志、-1(all)涉及钱的
         prop.put(ProducerConfig.RETRIES_CONFIG, 1);                   // 重试次数
+        prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);     // 开启幂等性
+        prop.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "tid");      // 开启事务
     }
 }
