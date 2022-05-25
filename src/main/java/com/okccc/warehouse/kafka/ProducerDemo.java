@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
  * Author: okccc
  * Date: 2020/11/29 18:22
  * Desc: 模拟kafka生产者,实际场景一般是flume或者canal
+ * kafka所有配置参数在官方文档都有具体介绍,源码和文档结合使用 https://kafka.apache.org/documentation
  */
 public class ProducerDemo {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
@@ -54,8 +55,12 @@ public class ProducerDemo {
          * 数据重复
          * at most once 可能会丢数据(UDP) | at least once 可能数据重复 | exactly once 精准发送,保证每条消息都会发送且只发送一次
          * kafka0.11版本引入了幂等性机制,生产者不管发送多少次数据broker只会持久化一条 at least once + idempotent = exactly once
-         * 重复数据判断标准‰是主键<pid,partition,seqNum>,pid是每次kafka重启会分配一个新的,partition是分区号,seqNum单调自增
+         * 重复数据判断标准是主键<pid,partition,seqNum>,pid是每次kafka重启会分配一个新的,partition是分区号,seqNum单调自增
          * 所以幂等性只能保证单分区单会话内数据不重复,完全不重复还得在幂等性的基础上开启事务
+         *
+         * 数据乱序(重点)
+         * kafka1.x后的版本可以保证数据单分区有序,设置参数max.in.flight.requests.per.connection=1(未开启幂等性)/<=5(开启幂等性)
+         * 多分区有序的话只能consumer收到数据后自己排序了,但是很影响性能还不如只弄一个分区,spark和flink的窗口可以实现该功能
          */
 
         // 1.生产者属性配置
