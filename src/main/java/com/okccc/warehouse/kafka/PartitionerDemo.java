@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Author: okccc
  * Date: 2022/5/11 3:44 下午
- * Desc: 自定义kafka分区器
+ * Desc: kafka生产者分区器
  */
 public class PartitionerDemo implements Partitioner {
     @Override

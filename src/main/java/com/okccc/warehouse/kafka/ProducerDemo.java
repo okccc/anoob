@@ -3,6 +3,8 @@ package com.okccc.warehouse.kafka;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
@@ -79,5 +81,12 @@ public class ProducerDemo {
         prop.put(ProducerConfig.RETRIES_CONFIG, 1);                   // 重试次数
         prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);     // 开启幂等性
         prop.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "tid");      // 开启事务
+
+        // 添加拦截器集合(可选)
+        List<String> interceptors = new ArrayList<>();
+        interceptors.add("com.okccc.warehouse.kafka.InterceptorDemo");
+        prop.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, interceptors);
+        // 添加分区器(可选)
+        prop.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, "com.okccc.warehouse.kafka.PartitionerDemo");
     }
 }

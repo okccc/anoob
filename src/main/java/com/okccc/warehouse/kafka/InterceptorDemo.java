@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Author: okccc
  * Date: 2020/11/30 22:17
- * Desc: 自定义kafka拦截器
+ * Desc: kafka生产者拦截器(不常用)
  */
 public class InterceptorDemo implements ProducerInterceptor<String, String> {
     private int successNum = 0;
