@@ -63,6 +63,10 @@ public class ProducerDemo {
          * 数据乱序(重点)
          * kafka1.x后的版本可以保证数据单分区有序,设置参数max.in.flight.requests.per.connection=1(未开启幂等性)/<=5(开启幂等性)
          * 多分区有序的话只能consumer收到数据后自己排序了,但是很影响性能还不如只弄一个分区,spark和flink的窗口可以实现该功能
+         *
+         * controller和zk
+         * kafka集群启动时会向zk注册节点信息,最先注册的broker节点就是controller,关闭kafka时zk的/controller和/brokers/ids会清空
+         * controller会监控zk的节点变化情况,负责管理broker节点上下线/leader选举/topic分区和副本分配,zk辅助controller进行管理工作
          */
 
         // 1.生产者属性配置
