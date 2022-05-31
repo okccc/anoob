@@ -98,10 +98,7 @@ esac
 [zk: cdh1:2181(CONNECTED) 0] create /workers && ls -w /workers
 # 在cli2的/workers节点下创建临时znode并观察监控变化
 [zk: cdh1:2181(CONNECTED) 0] create -e /workers/w1 'w1:8888'
-```
 
-### problems
-```shell script
 1.找不到或无法加载主类 org.apache.zookeeper.server.quorum.QuorumPeerMain
 # apache-zookeeper-3.6.1.tar.gz是未编译的包,要下载apache-zookeeper-3.6.1-bin.tar.gz
 
@@ -119,7 +116,7 @@ esac
 ```
 
 ### kafka安装
-- [kafka官方文档](https://kafka.apache.org/documentation/)
+- [kafka3.x官方文档](https://kafka.apache.org/documentation/)
 ```shell script
 # 下载
 [root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.12-2.4.1.tgz
@@ -211,16 +208,17 @@ broker
 topic
 # 消息队列/消息分类：topic是逻辑的partition是物理的,一个topic分成多个partition,分区可以让消费者并行处理,分区内部消息有序先进先出全局无序
 partition
-# 分区：每个partition对应一个log文件,生产者生产的消息会不断追加到文件末尾,且每条消息都有offset,保存在kafka内置topic __consumer_offsets
+# 分区：每个partition对应一个log文件,生产者数据会不断追加到log文件末尾,且每条消息都有offset,保存在kafka内置topic __consumer_offsets
 replication
-# 副本：为了保证高可用性,每个partition都有副本,leader负责工作,follower负责同步数据,当leader故障时Isr中的某个follower会被选举为新的leader
+# 副本：保证高可用性,kafka副本包括leader和follower,生产者发送数据到leader,然后follower找leader同步数据,而hdfs的副本作用完全一样
+# AR = ISR(和leader保持同步的follower集合,超过replica.lag.time.max.ms没有通信就剔除,默认30s) + OSR,当leader故障时会从Isr重新选举
 segment
-# 片段：为了防止log文件过大难以定位数据,将其分为多个segment,包含.index(存储索引)和.log(存储数据),文件以当前segment第一条消息的offset命名
+# 片段：为了防止log文件过大难以定位数据,将其分为多个segment,包含.index(索引)和.log(数据),文件以当前segment第一条消息的offset命名
 offset
 # 消息偏移量：类似数组下标,如果由消费者维护消费者挂掉就丢失了,当分区或消费者发生变化时会触发rebalance机制在消费者组内重新分配,所以offset由消费者组维护
 ```
 
-### kafka命令
+### kafka命令行
 ```shell script
 # 创建topic,必须指定分区数和副本数,额外配置信息可选,不写就使用默认值
 [root@cdh1 ~]$ kafka-topics.sh --zookeeper cdh1:2181 --create --topic t01 --partitions 3 --replication-factor 2 [--config key=value]
