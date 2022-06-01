@@ -238,6 +238,12 @@ Topic:t01       PartitionCount:3        ReplicationFactor:2     Configs:
 WARNING: If partitions are increased for a topic that has a key, the partition logic or ordering of message will affect
 Adding partitions succeeded!
 
+# 手动调整分区副本,执行副本存储计划并验证
+[root@cdh1 ~]$ vim increase-replication-factor.json
+{"version":1,"partitions":[{"topic":"test","partition":0,"replicas":[0,1]},{"topic":"test","partition":1,"replicas":[0,1]},{"topic":"test","partition":2,"replicas":[1,0]}]}
+[root@cdh1 ~]$ kafka-reassign-partitions.sh --bootstrap-server cdh1:9092 --reassignment-json-file increase-replication-factor.json --execute
+[root@cdh1 ~]$ kafka-reassign-partitions.sh --bootstrap-server cdh1:9092 --reassignment-json-file increase-replication-factor.json --verify
+
 # 修改topic配置信息
 [root@cdh1 ~]$ kafka-configs.sh --zookeeper cdh1:2181 --entity-type topics --entity-name nginx --alter --add-config max.message.bytes=5242880
 Completed Updating config for entity: topic 'nginx'.
