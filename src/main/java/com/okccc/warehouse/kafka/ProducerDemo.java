@@ -67,6 +67,12 @@ public class ProducerDemo {
          * controller和zk
          * kafka集群启动时会向zk注册节点信息,最先注册的broker节点就是controller,关闭kafka时zk的/controller和/brokers/ids会清空
          * controller会监控zk的节点变化情况,负责管理broker节点上下线/leader选举/topic分区和副本分配,zk辅助controller进行管理工作
+         *
+         * broker故障恢复
+         * LEO(log end offset)每个副本的最后一个offset | HW(high watermark)所有副本中最小的LEO
+         * LEO和HW只能保证数据的一致性,要么都丢数据要么都数据重复,数据不丢失不重复是由ack和幂等性保证的
+         * leader故障会从Isr中选举新leader,为了保证副本数据一致性,其余follower会将log文件高于HW的部分截掉,然后从新的leader同步数据
+         * follower故障会被临时踢出Isr,恢复后读取本地磁盘记录的HW,并将log文件高于HW的部分截掉,然后同步数据直到追上leader再重新加入Isr
          */
 
         // 1.生产者属性配置
