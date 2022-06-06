@@ -11,7 +11,6 @@ import java.util.*;
  * Author: okccc
  * Date: 2020/11/29 22:04
  * Desc: 模拟kafka消费者,实际场景一般是SparkStreaming或Flink
- * kafka2.4官方文档：https://kafka.apache.org/24/documentation.html
  */
 public class ConsumerDemo {
     public static void main(String[] args) {
@@ -19,6 +18,11 @@ public class ConsumerDemo {
          * 消息丢失和重复消费
          * 消息丢失：生产者端ack=0/1,消费者端先提交后消费
          * 重复消费：生产者端ack=-1(all),消费者端先消费后提交
+         *
+         * 消费者分区分配
+         * Range：针对每个topic,将分区数%消费者数取余决定哪个consumer消费哪个partition,除不尽时前面的消费者会多消费1个分区,缺点是
+         * 如果订阅N个topic的话,C0会多消费N个分区可能导致数据倾斜
+         * RoundRobin：针对所有topic,将所有分区数和消费者数按照hashcode进行排序,然后通过轮询算法来分配哪个consumer消费哪个partition
          *
          * 消费者数据可靠性
          * 1).自动提交
@@ -44,28 +48,24 @@ public class ConsumerDemo {
         // 1.消费者属性配置
         Properties prop = new Properties();
         // 必选参数
-//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.4:9092,10.18.2.5:9092,10.18.2.6:9092");  // db
-//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.18.2.7:9092,10.18.2.8:9092,10.18.2.9:9092");  // log
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.34:9092");  // 腾讯云log
-        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.63:9092");  // 腾讯云db
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g01");  // 消费者组,consumer-group之间互不影响
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.63:9092");  // 腾讯云db
+        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.100.113.98:9092");  // 腾讯云db
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g01");  // 消费者组,命令行不指定groupId时会随机分配一个
         prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());    // key反序列化器
         prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());  // value反序列化器
-        // 可选参数
-        prop.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  // true自动提交(默认),false手动提交
-        // 当kafka中没有初始偏移量或找不到当前偏移量(比如数据被删除)才会生效,此时会粗粒度地指定latest(默认)/earliest/none(抛异常)
-        prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        // 分区分配策略,默认RangeAssignor
+        prop.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, "org.apache.kafka.clients.consumer.RoundRobinAssignor");
 
         // 2.创建消费者对象,<String, String>是topics和record
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
 
-        // 3.订阅主题
+        // 3.订阅topic集合
         List<String> topics = new ArrayList<>();
 //        topics.add("amplitude02-new");
-        topics.add("eduplatform01");
+        topics.add("thrall");
         consumer.subscribe(topics);
-        // 订阅主题并指定分区
+        // 订阅主题并指定分区(不常用)
 //        ArrayList<TopicPartition> topicPartitions = new ArrayList<>();
 //        topicPartitions.add(new TopicPartition("test", 0));
 //        consumer.assign(topicPartitions);
@@ -91,7 +91,7 @@ public class ConsumerDemo {
 //            for (TopicPartition tp : assignment) {
 //                // 设置查询分区的时间戳
 //                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
-////                timestampsToSearch.put(tp, System.currentTimeMillis() - 6 * 3600 * 1000);  // 范围搜索
+//                timestampsToSearch.put(tp, System.currentTimeMillis() - 6 * 3600 * 1000);  // 范围搜索
 //            }
 //            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
 //            for (TopicPartition tp : assignment) {
@@ -114,7 +114,7 @@ public class ConsumerDemo {
 //                }
             }
             // 手动提交offset
-            consumer.commitSync();
+            consumer.commitAsync();
         }
     }
 }
