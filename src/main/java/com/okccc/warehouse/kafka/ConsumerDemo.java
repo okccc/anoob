@@ -27,6 +27,19 @@ public class ConsumerDemo {
          * 消费者提高吞吐量(数据积压问题)
          * 1.消费者消费能力不足：增加topic的分区数和消费者数量,分区数=消费者数
          * 2.下游数据处理不及时：提高每批次拉取的数据量fetch.max.bytes=50M(大小) max.poll.records=500(条数)
+         *
+         * 消费者数据可靠性
+         * 1).自动提交
+         * kafka默认每5秒自动提交一次偏移量,但是消费者可能出现宕机情况,5秒不一定能处理完,自动提交显然不能保证消费者的exactly once
+         * 2).手动提交
+         * 先消费后提交：如果消费数据后提交offset前consumer挂了,没提交成功,恢复之后会从旧的offset开始消费,导致重复消费(at least once)
+         * 先提交后消费：如果提交offset后消费数据前consumer挂了,没消费成功,恢复之后会从新的offset开始消费,导致数据丢失(at most once)
+         * 所以不管是自动提交还是手动提交都不能保证消息的精准消费,因为消费数据和提交offset这两件事不在同一个事务中
+         * 3).精准消费
+         * 方案1：利用关系型数据库的事务保证消费数据和提交offset的原子性,缺点是事务性能一般,大数据场景还得考虑分布式事务,适用于少量聚合数据
+         * 方案2：at least once + 手动实现幂等性 = exactly once 适用于大量明细数据
+         * 实现幂等性之redis：通过set数据结构实现,key存在就进不来,保留前面的
+         * 实现幂等性之es：通过索引的doc_id实现,存在就覆盖,保留后面的,其实有主键id的数据库都可以实现幂等性操作
          */
 
         // 1.消费者属性配置
@@ -40,6 +53,10 @@ public class ConsumerDemo {
         // 消费者吞吐量
         prop.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 52428800);  // 每批次抓取最大数据量,默认50m
         prop.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 500);      // 每次拉取数据返回的最大记录数,默认500条
+        // 其它参数
+        prop.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, RoundRobinAssignor.class.getName());  // 分区分配方式
+        prop.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  // 是否自动提交偏移量
+        prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");  // 当kafka没有初始偏移量或当前偏移量数据已删除时重置偏移量
 
         // 2.创建消费者对象,<String, String>是topics和record
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(prop);
