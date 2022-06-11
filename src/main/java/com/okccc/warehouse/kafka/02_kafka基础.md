@@ -101,16 +101,12 @@ esac
 
 1.找不到或无法加载主类 org.apache.zookeeper.server.quorum.QuorumPeerMain
 # apache-zookeeper-3.6.1.tar.gz是未编译的包,要下载apache-zookeeper-3.6.1-bin.tar.gz
-
 2.org.apache.zookeeper.server.quorum.QuorumPeerConfig$ConfigException: Address unresolved: cdh1:3888
 # 3888后面有空格导致无法识别端口号,linux复制文件时要注意空格
-
 3.Caused by: java.lang.IllegalArgumentException: myid file is missing
 # data目录下缺少myid文件
-
 4.Cannot open channel to 3 at election address cdh3/192.168.152.13:3888
 # 有的节点还没启动,已经启动的节点会努力寻找其它节点进行leader选举,正常现象等节点都启动就好了
-
 5.The Cluster ID yaJab1yoRxaSZLzNUbID3g doesn not match stored clusterId Some(0effDevjT-eS3VPlDVeEsw) in meta.properties
 # kafka故障重启可能会导致kafka的logs/meta.properties的cluster.id和zk中的/cluster/id不一致,把这个干掉,kafka重启之后会重新生成该文件
 ```
@@ -130,7 +126,7 @@ broker.id=0
 delete.topic.enable=true
 # kafka日志存放路径,消息也存放在该目录
 log.dirs=/Users/okc/modules/kafka_2.12-2.4.1/logs
-# zk地址,创建kafka目录,不然kafka信息会被打散到zookeeper根目录下,不便于维护
+# zk地址,创建kafka目录,不然kafka信息会被打散到zookeeper根目录下,不便于维护,kafka2.8以后不再依赖zk减少网络通信
 zookeeper.connect=cdh1:2181,cdh2:2181,cdh3:2181/kafka
 # 添加到环境变量
 [root@cdh1 ~]$ vim /etc/profile
@@ -199,16 +195,15 @@ esac
 
 producer
 # 生产者：往partition写数据,分区方便kafka横向扩展,提高并发和吞吐量,这样集群就可以适应任意大小的数据量
-consumer
-# 消费者：可以消费同一个broker上的多个partition,依赖controller和zk在消费者端做负载均衡
 consumer-group
-# 消费者组：逻辑上的订阅者,组内每个consumer对应topic的一个partition,且partition只能被组内的一个consumer消费,但是消费者组之间互不干扰
+# 消费者组：逻辑上的订阅者,consumer可以消费多个partition但是一个partition只能被组内一个consumer消费,消费者组之间互不干扰
+# 可以在idea同时启动多个消费者代码观察不同分区策略下每个consumer对partition的消费情况
 broker
 # 节点：存储topic并负责消息的读写,一个broker可以容纳多个topic,最先注册到zk的broker会被选举为controller
 topic
-# 消息队列/消息分类：topic是逻辑的partition是物理的,一个topic分成多个partition,分区可以让消费者并行处理,分区内部消息有序先进先出全局无序
+# 主题：topic是逻辑的partition是物理的,一个topic分成多个partition,分区可以让消费者并行处理,分区内部消息有序先进先出全局无序
 partition
-# 分区：每个partition对应一个log文件,生产者数据会不断追加到log文件末尾,且每条消息都有offset,保存在kafka内置topic __consumer_offsets
+# 分区：每个partition对应一个log文件,生产者不断往log文件末尾追加数据,且每条消息都有offset,保存在kafka内置topic __consumer_offsets
 replication
 # 副本：保证高可用性,kafka副本包括leader和follower,生产者发送数据到leader,然后follower找leader同步数据,而hdfs的副本作用完全一样
 # AR = ISR(和leader保持同步的follower集合,超过replica.lag.time.max.ms没有通信就剔除,默认30s) + OSR,当leader故障时会从Isr重新选举
