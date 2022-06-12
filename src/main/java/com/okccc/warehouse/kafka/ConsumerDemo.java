@@ -80,30 +80,30 @@ public class ConsumerDemo {
 //            System.out.println(assignment);  // [nginx-0, nginx-1, nginx-2, ...]
             // seek会重置消费者分配到的分区偏移量,可以更加细粒度地控制offset
             // a.从头开始消费,分区的起始位置是0,但是随着日志定时清理,起始位置也会越来越大
-//            consumer.seekToBeginning(assignment);
+            consumer.seekToBeginning(assignment);
             // b.从末尾开始消费
-//            consumer.seekToEnd(assignment);
+            consumer.seekToEnd(assignment);
             // c.从指定偏移量开始消费
-//            for (TopicPartition tp : assignment) {
-//                consumer.seek(tp, 73935099);
-//            }
+            for (TopicPartition tp : assignment) {
+                consumer.seek(tp, 73935099);
+            }
             // d.从指定时间点开始消费(更符合实际需求,比如要查找nginx日志2022-03-07 10:02:20的某条数据,将其转换成linux时间戳就行)
-//            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
-//            for (TopicPartition tp : assignment) {
-//                // 设置查询分区的时间戳
-////                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
-//                timestampsToSearch.put(tp, System.currentTimeMillis() - 2 * 3600 * 1000);  // 范围搜索
-//            }
-//            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
-//            for (TopicPartition tp : assignment) {
-//                // 获取该分区的offset和时间戳
-//                OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
-//                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
-//                if (offsetAndTimestamp != null) {
-//                    // 根据时间戳寻址
-//                    consumer.seek(tp, offsetAndTimestamp.offset());
-//                }
-//            }
+            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
+            for (TopicPartition tp : assignment) {
+                // 设置查询分区的时间戳
+//                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
+                timestampsToSearch.put(tp, System.currentTimeMillis() - 2 * 3600 * 1000);  // 范围搜索
+            }
+            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
+            for (TopicPartition tp : assignment) {
+                // 获取该分区的offset和时间戳
+                OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
+                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
+                if (offsetAndTimestamp != null) {
+                    // 根据时间戳寻址
+                    consumer.seek(tp, offsetAndTimestamp.offset());
+                }
+            }
 
             // 消息被封装成ConsumerRecord对象
             for (ConsumerRecord<String, String> record : records) {
