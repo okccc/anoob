@@ -282,30 +282,11 @@ GROUP    TOPIC    PARTITION    NEW-OFFSET
 g01      nginx        0          0 
 ```
 
-### kafka压测
+### kafka调优
 ```shell script
-# kafka压力测试：看看CPU/内存/网络IO哪里会出现性能瓶颈,一般都是网络IO达到瓶颈
-# 生产者压测
-# record-size是一条信息字节数,num-records是发送信息总条数,throughput是每秒发送条数,-1表示不限流,可测出生产者的最大吞吐量
-# 本例中共写入100w条数据,吞吐量为87.90 MB/sec,每次写入的平均延迟为336.12毫秒,最大延迟为666.00毫秒
-[root@cdh1 ~]$ kafka-producer-perf-test.sh --producer-props bootstrap.servers=localhost:9092 --topic test --record-size 1000 --num-records 1000000 --throughput -1
-1000000 records sent, 92165.898618 records/sec (87.90 MB/sec), 336.12 ms avg latency, 666.00 ms max latency
-# 消费者压测
-# fetch-size是每次消费的数据大小,messages是消费的消息总数
-# 本例中共消费867MB数据,吞吐量为73 MB/sec,共消费1000000条,平均84516条/sec
-[root@cdh1 ~]$ kafka-consumer-perf-test.sh --broker-list localhost:9092 --topic test --fetch-size 10000 --messages 1000000 --threads 1
-start.time, end.time, data.consumed.in.MB, MB.sec, data.consumed.in.nMsg, nMsg.sec
-2021-06-07 10:43:13:883, 2021-06-07 10:43:25:715, 867.8436, 73.3472, 1000000, 84516.5652
-
-# kafka机器数量
-# Kafka机器数量 = 2 * (峰值生产速度 * 副本数 / 100) + 1
-# 比如峰值生产速度是50M/s,副本数为3,那么机器数量 = 2 * (50 * 3 / 100) + 1 = 4(台)
-
-# kafka分区数
-# kafka分区数 = 期望的总吞吐量 / min(生产者吞吐量, 消费者吞吐量)
-# 比如生产速度100M/s,消费速度50M/s,期望kafka集群的总吞吐量150M/s,那么分区数 = 150 / min(100, 50) = 3
-# 增加分区数可以提高吞吐量,partition数 >= consumer数可以实现最大并发,但是分区过多也会导致 1.内存开销增大 2.leader选举和offset查询耗时增加
-# replication数会影响producer/consumer流量,比如3副本则实际流量 = 生产流量 × 3
+# Kafka机器数 = 2 * (峰值生产速度 * 副本数 / 100) + 1
+# 比如100万日活,每人每天100条日志,每条日志大约1k,平均流量=1亿条/24*3600/1024=1M/s
+# 假设峰值生产速度是30M/s,副本数为3,那么机器数量 = 2 * (30 * 3 / 100) + 1 = 3(台)
 ```
 
 ### kafka-manager
