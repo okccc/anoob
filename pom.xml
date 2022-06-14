@@ -26,6 +26,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
+    <!-- settings.xml对所有工程有效,pom.xml只对当前工程有效,如果mirror无法下载cdh相关jar包,可以在当前工程单独配置repository -->
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>cloudera</id>-->
+<!--            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
+
     <!-- dependencies下的依赖会被maven加载,且默认被所有子项目继承 -->
     <dependencies>
         <!-- scala -->
