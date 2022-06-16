@@ -4,6 +4,8 @@
 # NameNode: 管理hdfs命名空间/管理元数据信息,即文件与数据块的映射关系/配置数据块副本/处理客户端读写请求
 # DataNode: 存储实际的数据块/执行数据块的读写操作
 # Client: 将文件按block块切分/与NameNode交互,获取文件的位置信息/与DataNode交互,读写数据
+# fsimage是某一时刻的hdfs快照,edits会记录hdfs各种更新操作
+# SecondaryNameNode：为了避免edits不断变大会定期合并fsimage和edits,该操作挺耗时会影响NameNode性能导致卡顿
 ```
 
 ### hive安装
@@ -86,19 +88,19 @@ hive>
 -- 内部表：数据由hive自己管理,删表会同时删除metadata和hdfs文件,默认路径hive.metastore.warehouse.dir=/user/hive/warehouse
 -- 外部表(推荐)：external修饰,数据由hdfs管理,删表只会删除metadata而hdfs文件还在,可以指定location,不指定就默认/user/hive/warehouse
 create external table if not exists dw.dw_log_info(
-    id               int,
-    name             array<string>,
-    info             map<string, int>,
-    address          struct<city: string, district: string>
+                                                      id               int,
+                                                      name             array<string>,
+                                                      info             map<string, int>,
+                                                      address          struct<city: string, district: string>
 ) comment '日志表'
-partitioned by (dt string)  -- 分区表可以提高数据检索效率,dt不存放实际内容,仅仅作为分区标识存在于表结构中,内部表和外部表都可以设置分区
-row format delimited
-fields terminated by '\001'         -- 列分隔符,默认'\001'
-collection items terminated by '&'  -- 集合(array/map/struct)元素之间的分隔符
-map keys terminated by ':'          -- map中key和value的分隔符
-lines terminated by '\n'            -- 行分隔符
-stored as orc tblproperties ("orc.compress"="snappy")  -- orc将数据按行分块按列存储,保证同一条记录在一个块上,snappy压缩率约1/10
-location 'hdfs://cdh/user/flume/nginx_log';
+    partitioned by (dt string)  -- 分区表可以提高数据检索效率,dt不存放实际内容,仅仅作为分区标识存在于表结构中,内部表和外部表都可以设置分区
+    row format delimited
+        fields terminated by '\001'         -- 列分隔符,默认'\001'
+        collection items terminated by '&'  -- 集合(array/map/struct)元素之间的分隔符
+        map keys terminated by ':'          -- map中key和value的分隔符
+        lines terminated by '\n'            -- 行分隔符
+    stored as orc tblproperties ("orc.compress"="snappy")  -- orc将数据按行分块按列存储,保证同一条记录在一个块上,snappy压缩率约1/10
+    location 'hdfs://cdh/user/flume/nginx_log';
 
 -- 动态分区
 -- 业务需求：mysql表很大,现在要抽到hive按天分区,保留2016年后的数据,2016年以前的数据都放到20151231这个分区里
@@ -215,7 +217,7 @@ hive> analyze table table_name [partition(dt=20200612)] compute statistics for c
 mysql> show variables like 'secure_file_priv';
 mysql> load data local infile '...' [replace] into table test;  # 覆盖/追加 
 -- mysql数据导出
-mysql> select * from test into outfile '...' fields terminated by ',' enclosed by '"' lines terminated by '\n';  
+mysql> select * from test into outfile '...' fields terminated by ',' enclosed by '"' lines terminated by '\n';
 -- hive数据导入
 hive> load data [local] inpath '...' [overwrite] into table t1 [partition(dt='..')]  # 本地(复制)/hdfs(剪切)  覆盖/追加    
 hive> insert overwrite/into table t1 [partition(dt=20200101)] select * from t2 where ...
@@ -260,8 +262,8 @@ set hive.input.format=org.apache.hive.ql.io.combinehiveinputformat;  -- 合并�
 -- 2.增加map数
 -- a表只有一个文件大小是120m,但只有两三个字段却包含几千万条数据,如果处理逻辑很复杂1个map显然不够用
 -- 增加map数,将a表数据随机分散到包含10个文件的a1表,占用10个map,每个map任务处理大于12m(几百万条)的数据提高效率
-set mapred.map.tasks=10;  
-create table a1 as select * from a distribute by rand(123);  
+set mapred.map.tasks=10;
+create table a1 as select * from a distribute by rand(123);
 -- 3.调整reduce数
 -- 只有一个reduce的情况：数据小于1g/没有group by/有order by/count distinct/笛卡尔积,这些都是全局操作,hadoop不得不用一个reduce去完成
 set hive.exec.reducers.bytes.per.reducer=500M;  -- 修改每个reduce处理的数据量,默认1g
