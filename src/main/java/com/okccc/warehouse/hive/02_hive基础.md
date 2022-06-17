@@ -6,6 +6,10 @@
 # Client: 将文件按block块切分/与NameNode交互,获取文件的位置信息/与DataNode交互,读写数据
 # fsimage是某一时刻的hdfs快照,edits会记录hdfs各种更新操作
 # SecondaryNameNode：为了避免edits不断变大会定期合并fsimage和edits,该操作挺耗时会影响NameNode性能导致卡顿
+
+# dfs.block.size=128m(block大小) dfs.write.packet.size=128k(packet大小)
+# 读数据流程：客户端向nn请求下载文件 -> nn查询元数据找到文件块存放地址,就近挑选一台dn节点读取数据 -> dn开始给客户端传输数据
+# 写数据流程：客户端向nn请求上传文件 -> nn返回dn1/dn2/dn3数据节点 -> 客户端以packet为单位往dn1上传block,然后往dn2和dn3执行同样操作
 ```
 
 ### hive安装
@@ -88,19 +92,19 @@ hive>
 -- 内部表：数据由hive自己管理,删表会同时删除metadata和hdfs文件,默认路径hive.metastore.warehouse.dir=/user/hive/warehouse
 -- 外部表(推荐)：external修饰,数据由hdfs管理,删表只会删除metadata而hdfs文件还在,可以指定location,不指定就默认/user/hive/warehouse
 create external table if not exists dw.dw_log_info(
-                                                      id               int,
-                                                      name             array<string>,
-                                                      info             map<string, int>,
-                                                      address          struct<city: string, district: string>
+    id               int,
+    name             array<string>,
+    info             map<string, int>,
+    address          struct<city: string, district: string>
 ) comment '日志表'
-    partitioned by (dt string)  -- 分区表可以提高数据检索效率,dt不存放实际内容,仅仅作为分区标识存在于表结构中,内部表和外部表都可以设置分区
-    row format delimited
-        fields terminated by '\001'         -- 列分隔符,默认'\001'
-        collection items terminated by '&'  -- 集合(array/map/struct)元素之间的分隔符
-        map keys terminated by ':'          -- map中key和value的分隔符
-        lines terminated by '\n'            -- 行分隔符
-    stored as orc tblproperties ("orc.compress"="snappy")  -- orc将数据按行分块按列存储,保证同一条记录在一个块上,snappy压缩率约1/10
-    location 'hdfs://cdh/user/flume/nginx_log';
+partitioned by (dt string)  -- 分区表可以提高数据检索效率,dt不存放实际内容,仅仅作为分区标识存在于表结构中,内部表和外部表都可以设置分区
+row format delimited
+fields terminated by '\001'         -- 列分隔符,默认'\001'
+collection items terminated by '&'  -- 集合(array/map/struct)元素之间的分隔符
+map keys terminated by ':'          -- map中key和value的分隔符
+lines terminated by '\n'            -- 行分隔符
+stored as orc tblproperties ("orc.compress"="snappy")  -- orc将数据按行分块按列存储,保证同一条记录在一个块上,snappy压缩率约1/10
+location 'hdfs://cdh/user/flume/nginx_log';
 
 -- 动态分区
 -- 业务需求：mysql表很大,现在要抽到hive按天分区,保留2016年后的数据,2016年以前的数据都放到20151231这个分区里
@@ -217,7 +221,7 @@ hive> analyze table table_name [partition(dt=20200612)] compute statistics for c
 mysql> show variables like 'secure_file_priv';
 mysql> load data local infile '...' [replace] into table test;  # 覆盖/追加 
 -- mysql数据导出
-mysql> select * from test into outfile '...' fields terminated by ',' enclosed by '"' lines terminated by '\n';
+mysql> select * from test into outfile '...' fields terminated by ',' enclosed by '"' lines terminated by '\n';  
 -- hive数据导入
 hive> load data [local] inpath '...' [overwrite] into table t1 [partition(dt='..')]  # 本地(复制)/hdfs(剪切)  覆盖/追加    
 hive> insert overwrite/into table t1 [partition(dt=20200101)] select * from t2 where ...
