@@ -167,7 +167,7 @@ a1.sinks = k1
 # 配置source
 a1.sources.r1.type = TAILDIR
 a1.sources.r1.positionFile = ${flume}/position/offline_position.json  # 记录采集位置的json文件
-a1.sources.r1.filegroups = f1 
+a1.sources.r1.filegroups = f1
 a1.sources.r1.filegroups.f1 = /data1/logstash/logs/.*.txt  # 监控的文件,可以是单个文件,也可以是正则匹配多个文件
 # 自定义拦截器(可选)
 a1.sources.r1.interceptors = i1

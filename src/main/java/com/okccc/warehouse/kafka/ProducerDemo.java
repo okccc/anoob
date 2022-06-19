@@ -30,13 +30,9 @@ public class ProducerDemo {
          * 点对点模式(一对一)：一个消息只能被一个消费者消费,消费完就从queue移除
          * 发布-订阅模式(一对多)：kafka生产者发布消息到topic,消费者订阅该消息,一个消息可以被多个消费者消费,且不管是否消费都会保留7天
          *
-         * 消费方式
-         * push模式是消费者被动接受发送过来的数据,难以适应消费速率不同的消费者,消费者来不及处理可能会导致网络拥堵甚至程序崩溃
-         * pull模式是消费者根据自身消费能力主动去broker拉数据,缺点是broker没有数据时会陷入空循环,需要指定超时参数timeout
-         *
          * topic分区好处,大数据场景主要考虑存储和计算两个方面
-         * 存储：将大量数据按照partition切割存储在多个broker达到负载均衡
-         * 计算：将数据以partition为单位划分可以提高producer和consumer的并行度
+         * 存储：将大量数据按照分区切割存储在多个broker达到负载均衡
+         * 计算：数据分区可以提高生产者(4个参数)和消费者(2个参数)的吞吐量
          *
          * 生产者分区策略,全局搜索DefaultPartitioner类查看源码注释
          * a.指定partition
@@ -44,13 +40,11 @@ public class ProducerDemo {
          * c.没有指定partition也没有key,采用StickyPartition粘性分区器,先随机选择一个分区一直写,等该分区batch已满再换新的分区
          *
          * 生产者数据可靠性
-         * 1.ack可靠性级别
          * kafka收到数据后要向生产者发送ack确认,生产者收到ack才会发送下一轮数据,没收到就重新发送,针对可靠性和延迟性分为3种级别
          * ack=0 leader接收到数据还没落盘就返回ack,如果leader故障必然会丢数据
          * ack=1 leader落盘后返回ack,如果在follower同步完成前leader故障也会丢数据
          * ack=-1 leader和follower全部落盘才返回ack,如果在follower同步完成后发送ack前leader故障,生产者收不到ack会重发导致数据重复
-         * 2.ISR
-         * ack=-1时,如果某个follower故障导致迟迟不能与leader同步,也要一直等它同步结束才发送ack吗?
+         * 如果某个follower故障导致迟迟不能与leader同步,也要一直等它同步结束才发送ack吗?
          * leader维护了一个动态副本同步队列Isr(in-sync replica),存放和leader保持同步的follower集合,只要Isr同步完成leader就发送ack
          * 如果follower长时间不同步数据就会被Isr剔除,可通过replica.lag.time.max.ms参数设定,默认30s,当leader故障时会从Isr中选举新的
          *
@@ -76,15 +70,19 @@ public class ProducerDemo {
          *
          * kafka高效读写数据
          * 1.将数据分区提高并行度高
-         * 2.读数据采用稀疏索引,可以快速定位要消费的数据
+         * 2.文件存储采用稀疏索引,读数据时可以快速定位要消费的数据
          * 3.顺序写磁盘：生产者将数据按顺序追加到log文件末尾,省去了大量的磁头寻址时间,写一个大文件比写多个小文件速度快得多
          * 4.零拷贝和页缓存：kafka数据加工都由生产者和消费者处理,broker应用层不关心存储的数据,传输时就不用走应用层提高效率
+         *
+         * kafka出问题先看进程,再查日志
+         * kafka关闭有延迟,如果zk先停了,/brokers/ids下的节点还在,此时kafka还存活但与zk失去连接导致无法停止,只能手动杀掉进程
+         * kafka故障重启可能会导致kafka的logs/meta.properties的cluster.id不一致,把这个干掉,kafka重启之后会重新生成该文件
          */
 
         // 1.生产者属性配置
         Properties prop = new Properties();
         // 必选参数
-        prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");  // kafka集群地址
+        prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");  // kafka地址
         prop.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());    // key序列化器
         prop.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  // value序列化器
         // 生产者吞吐量
