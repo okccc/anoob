@@ -147,7 +147,7 @@ mysql> show engines;
 | ARCHIVE    | YES     | Archive storage engine                                     | NO  | NO  | NO  |
 +------------+---------+----------------------------------------------------------------+----+------+--------+
 -- 查看当前默认存储引擎
-mysql> show variables like '%storage_engine%';
+mysql> show variables like '%engine%';
 +----------------------------------+--------+
 | Variable_name                    | Value  |
 +----------------------------------+--------+
@@ -156,14 +156,14 @@ mysql> show variables like '%storage_engine%';
 | disabled_storage_engines         |        |
 | internal_tmp_disk_storage_engine | InnoDB |
 +----------------------------------+--------+
--- 修改表的引擎
+-- 修改表引擎
 mysql> alter table test engine=innodb;
 -- 存储引擎对比
-Myisam：1.不支持事务和外键 2.表级锁,即使操作一条记录也会锁住整个表 3.只缓存索引不缓存数据
-Innodb：1.支持事务和外键 2.行级锁,只锁定操作的行,适合高并发操作 3.既缓存索引也缓存数据,对内存要求较高
+-- Myisam：1.不支持事务和外键 2.表级锁,即使操作一条记录也会锁住整个表 3.只缓存索引不缓存数据
+-- Innodb：1.支持事务和外键 2.行级锁,只锁定操作的行,适合高并发操作 3.既缓存索引也缓存数据,对内存要求较高
 -- 行级锁
-共享锁(读锁)：事务A加共享锁后,其它事务也只能加共享锁,可以并发读取数据但不能做任何修改
-排它锁(写锁)：事务A加排它锁后,其它事务不能加任何锁,只能等排它锁释放,innodb会在insert/update/delete数据时加排它锁,select不会加任何锁
+-- 共享锁(读锁)：事务A加共享锁后,其它事务也只能加共享锁,可以并发读取数据但不能做任何修改
+-- 排它锁(写锁)：事务A加排它锁后,其它事务不能加任何锁,只能等排它锁释放,innodb会在insert/update/delete数据时加排它锁,select不会加任何锁
 ```
 
 ### tx
