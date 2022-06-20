@@ -303,6 +303,23 @@ select * from t1 a join t2 b;
 
 -- left join数据量一定和左表相等吗？
 -- 不是的,数据量>=左表,取决于关联的key在表中的数据是否唯一,比如a.name=b.name但是b表中name不止一条记录结果集就会大于a表
+
+-- 表关联时on条件和where条件的区别？
+-- 如果是inner join效果一样,如果是left join会有区别,数据库表关联时会生成一个临时表,然后将临时表返回给用户
+mysql> select * from a left join b on a.id=b.id and a.name='李四' and b.age=18;  -- on是生成临时表时使用的条件,左连接会返回左表所有记录,右表匹配不上就写null
++----+------+------+------+
+| id | name | id   | age  |
++----+------+------+------+
+|  1 |  张三 | null | null |
+|  2 |  李四 |  2   | 18   |
+|  3 |  王五 | null | null |
++----+------+------+------+
+mysql> select * from a left join b on a.id=b.id where a.name='李四' and b.age=18;  -- where是临时表生成之后再对数据过滤,其实跟left join已经没关系了
++----+------+------+------+
+| id | name | id   | age  |
++----+------+------+------+
+|  2 |  李四 |  2   | 18   |
++----+------+------+------+
 ```
 
 ### explain
