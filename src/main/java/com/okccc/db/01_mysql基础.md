@@ -111,7 +111,7 @@ drop database java;
     退出重新连接: mysql -uroot –p 新创建的数据库 < ~/desktop/bac.sql
 */
 
--- 添加外键约束(在一对多的多方添加)
+-- 添加外键约束(在一对多的多方添加),外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
 -- 也可以在创建表时直接外键约束
 create table scores(
@@ -203,7 +203,6 @@ mysql> select * from information_schema.innodb_trx;
 
 ### crud
 ```sql
--- 创建表5大约束 PRIMARY KEY | UNIQUE | NOT NULL | DEFAULT | FOREIGN KEY 外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 create table if not exists `emp` (
 `id` int(11) not null auto_increment comment '编号',
 `name` varchar(20) not null default '' comment '姓名',
@@ -222,10 +221,8 @@ drop table emp;
 alter table emp rename to emp1;
 -- 添加字段
 alter table emp add column job varchar(20) after name;
--- 修改字段
--- modify只能修改属性
+-- 修改字段,modify只能修改属性,change既能修改属性也能修改名称
 alter table emp modify column job varchar(60);
--- change既能修改属性也能修改名称
 alter table emp change column job job1 varchar(60);
 -- 删除字段
 alter table emp drop column job1;
@@ -244,9 +241,9 @@ truncate table emp;
 commit;
 rollback;
 -- drop/truncate/delete区别？
-drop直接删除表,truncate和delete删除数据表还在,有外键约束的表不能使用truncate
-drop和truncate是ddl操作不涉及事务无法回滚,delete是dml操作commit才会生效可以rollback回滚
-truncate是通过释放存储表数据使用的数据页来删除数据,delete是一行一行删除binlog会记录删除的每一行,速度 drop > truncate > delete
+-- drop直接删除表,truncate和delete删除数据表还在,有外键约束的表不能使用truncate
+-- drop和truncate是ddl操作不涉及事务无法回滚,delete是dml操作涉及事务可以回滚
+-- truncate是释放存储表数据使用的数据页,delete是逐行删除数据binlog会记录该操作,速度 drop > truncate > delete
 
 -- select语句书写规则
 select - from - (join) - where - group by - having - order by - limit
@@ -299,28 +296,13 @@ select * from t1 a right join t2 b on a.id=b.id where a.id is null;
 select * from t1 a full join t2 b on a.id=b.id;  -- mysql不支持full join,使用如下方式替代
 select * from t1 a left join t2 b on a.id=b.id union select * from t1 a right join t2 b on a.id=b.id;
 -- a表独有 + b表独有
+select * from t1 a full join t2 b on a.id=b.id where a.id is null or b.id is null;
 select * from t1 a left join t2 b on a.id=b.id where b.id is null union all select * from t1 a right join t2 b on a.id=b.id where a.id is null;
 -- 笛卡尔积,不写on条件时join/inner join/cross join是等价的
 select * from t1 a join t2 b;
 
 -- left join数据量一定和左表相等吗？
-不是的,数据量>=左表,取决于两个表关联的键是一对一还是一对多或者多对多
--- 表关联时on条件和where条件的区别？
-如果是inner join效果一样,如果是left join会有区别,数据库表关联时会生成一个临时表,然后将临时表返回给用户
-mysql> select * from a left join b on a.id=b.id and a.name='李四' and b.age=18;  -- on是生成临时表时使用的条件,左连接会返回左表所有记录,右表匹配不上就写null
-+----+------+------+------+
-| id | name | id   | age  |
-+----+------+------+------+
-|  1 |  张三 | null | null |
-|  2 |  李四 |  2   | 18   |
-|  3 |  王五 | null | null |
-+----+------+------+------+
-mysql> select * from a left join b on a.id=b.id where a.name='李四' and b.age=18;  -- where是临时表生成之后再对数据过滤,其实跟left join已经没关系了
-+----+------+------+------+
-| id | name | id   | age  |
-+----+------+------+------+
-|  2 |  李四 |  2   | 18   |
-+----+------+------+------+
+-- 不是的,数据量>=左表,取决于关联的key在表中的数据是否唯一,比如a.name=b.name但是b表中name不止一条记录结果集就会大于a表
 ```
 
 ### explain
