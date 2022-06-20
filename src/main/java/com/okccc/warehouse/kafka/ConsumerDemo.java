@@ -26,7 +26,7 @@ public class ConsumerDemo {
          *
          * 消费者提高吞吐量(数据积压问题)
          * 1.消费者消费能力不足：增加topic的分区数和消费者数量,分区数=消费者数
-         * 2.下游数据处理不及时：提高每批次拉取的数据量fetch.max.bytes=50M(大小) max.poll.records=500(条数)
+         * 2.下游数据处理不及时：提高每批次拉取的数据量 fetch.max.bytes=50M(大小) max.poll.records=500(条数)
          *
          * 消费者数据可靠性
          * 1).自动提交
@@ -40,6 +40,13 @@ public class ConsumerDemo {
          * 方案2：at least once + 手动实现幂等性 = exactly once 适用于大量明细数据
          * 实现幂等性之redis：通过set数据结构实现,key存在就进不来,保留前面的
          * 实现幂等性之es：通过索引的doc_id实现,存在就覆盖,保留后面的,其实有主键id的数据库都可以实现幂等性操作
+         *
+         * offset维护
+         * kafka0.9版本以前保存在zk,但是zk并不适合频繁写入业务数据,且会产生大量网络通信
+         * kafka0.9版本以后保存在__consumer_offsets,弊端是提交偏移量的数据流必须是InputDStream[ConsumerRecord[String, String]]
+         * 因为offset存储于HasOffsetRanges,只有kafkaRDD实现了该特质,转换成别的RDD就无法再获取offset,生产环境通常使用redis保存offset
+         * kafka自己也会存一份,但是我们是从redis读写offset而不是使用kafka的latest/earliest/none
+         * 消费者提交的偏移量是当前消费到的最新消息的offset+1,因为偏移量记录的是下一条即将要消费的数据
          */
 
         // 1.消费者属性配置
@@ -80,30 +87,30 @@ public class ConsumerDemo {
 //            System.out.println(assignment);  // [nginx-0, nginx-1, nginx-2, ...]
             // seek会重置消费者分配到的分区偏移量,可以更加细粒度地控制offset
             // a.从头开始消费,分区的起始位置是0,但是随着日志定时清理,起始位置也会越来越大
-            consumer.seekToBeginning(assignment);
+//            consumer.seekToBeginning(assignment);
             // b.从末尾开始消费
-            consumer.seekToEnd(assignment);
+//            consumer.seekToEnd(assignment);
             // c.从指定偏移量开始消费
-            for (TopicPartition tp : assignment) {
-                consumer.seek(tp, 73935099);
-            }
+//            for (TopicPartition tp : assignment) {
+//                consumer.seek(tp, 73935099);
+//            }
             // d.从指定时间点开始消费(更符合实际需求,比如要查找nginx日志2022-03-07 10:02:20的某条数据,将其转换成linux时间戳就行)
-            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
-            for (TopicPartition tp : assignment) {
-                // 设置查询分区的时间戳
-//                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
-                timestampsToSearch.put(tp, System.currentTimeMillis() - 2 * 3600 * 1000);  // 范围搜索
-            }
-            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
-            for (TopicPartition tp : assignment) {
-                // 获取该分区的offset和时间戳
-                OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
-                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
-                if (offsetAndTimestamp != null) {
-                    // 根据时间戳寻址
-                    consumer.seek(tp, offsetAndTimestamp.offset());
-                }
-            }
+//            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
+//            for (TopicPartition tp : assignment) {
+//                // 设置查询分区的时间戳
+////                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
+//                timestampsToSearch.put(tp, System.currentTimeMillis() - 2 * 3600 * 1000);  // 范围搜索
+//            }
+//            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
+//            for (TopicPartition tp : assignment) {
+//                // 获取该分区的offset和时间戳
+//                OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
+//                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
+//                if (offsetAndTimestamp != null) {
+//                    // 根据时间戳寻址
+//                    consumer.seek(tp, offsetAndTimestamp.offset());
+//                }
+//            }
 
             // 消息被封装成ConsumerRecord对象
             for (ConsumerRecord<String, String> record : records) {
