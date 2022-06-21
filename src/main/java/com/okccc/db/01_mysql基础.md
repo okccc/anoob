@@ -332,19 +332,15 @@ mysql> explain select * from emp;
 +----+-------------+-------+------------+-------+---------------+-----------+---------+------+------+----------+-------------+
 |  1 | SIMPLE      | emp   | NULL       | index | NULL          | idx_a_b_c | 71      | NULL |    1 |   100.00 | Using index |
 +----+-------------+-------+------------+-------+---------------+-----------+---------+------+------+----------+-------------+
--- id
-id表示select执行顺序,id相同时从上往下,id不同时子查询id序号会递增且id越大执行优先级越高,每个id都是一次独立查询
--- select_type
-select_type表示查询类型,主要用于区别普通查询、关联查询、子查询等
+-- id表示select执行顺序,id相同时从上往下,id不同时子查询id序号会递增且id越大执行优先级越高,每个id都是一次独立查询
+-- select_type表示查询类型,主要用于区别普通查询、关联查询、子查询等
 SIMPLE 简单查询, select * from t1 where id=3;
 PRIMARY 包含子查询或union的最外层查询, select * from t1 union select * from t2;  -- t1是PRIMARY,t2是UNION
 DERIVED from列表中包含的子查询, select * from (select id,count(1) c from t1 group by id) t2 where c>10;  -- t1是DERIVED,t2是PRIMARY
 SUBQUERY where列表中包含的第一个子查询, select * from t1 where id in (select id from t2);  -- t1是PRIMARY,t2是SUBQUERY
 DEPENDENT SUBQUERY where列表中包含的第一个依赖外部查询的子查询, select * from t1 where exists (select 1 from t2 where t1.id=t2.id);  -- t2是DEPENDENT SUBQUERY 
--- table
-table表示查询的表
--- type(重点)
-type表示查询类型,system > const > eq_ref > ref > range > index > ALL,一般至少要达到range级别
+-- table表示查询的表
+-- type表示查询类型,性能system > const > eq_ref > ref > range > index > ALL,一般至少要达到range级别(重点)
 system 表中只有一行数据,是const特例
 const 通过索引一次就找到了,常见于primary key和unique, select * from t1 where id=1;
 eq_ref 唯一性索引扫描,返回匹配的唯一记录,常见于primary key和unique, select * from t1 left join t2 on t1.id=t2.id;
@@ -355,19 +351,13 @@ index/unique_subquery 子查询中使用了(唯一)索引, select * from t1 wher
 range 只检索给定范围的行,key列会显示使用了哪个索引,常见于where语句, select * from t1 where t1.id>10;
 index 使用了索引但是没有通过索引进行过滤,会扫描索引树效率比ALL高,因为索引树比数据文件小很多, select * from t1;
 ALL 全表扫描,必须优化
--- possible_keys
-possible_keys表示可能用到的索引,某个字段存在索引就会被列出来,但不一定被查询实际使用
--- key(重点)
-key表示实际使用的索引
--- key_len(重点)
-key_len表示索引中使用的字节数,可以帮助检查是否充分利用了索引
-计算规则
+-- possible_keys表示可能用到的索引,某个字段存在索引就会被列出来,但不一定被查询实际使用
+-- key表示实际使用的索引(重点)
+-- key_len表示索引中使用的字节数,可以帮助检查是否充分利用了索引(重点)
 1.先看索引列的字段类型+长度, int=4(int占4个字节,最大值2^31 - 1,所以是int(11)) | varchar(20)=20 | char(20)=20  
 2.varchar和char要视字符集乘以不同的值(utf-8 * 3 | gbk * 2),varchar是动态字符串要加2个字节,允许为空的字段要加1个字节
--- ref
-ref表示索引的哪一列被使用了
--- rows(重点)
-rows表示查询时检索的行数,越少越好
+-- ref表示索引的哪一列被使用了
+-- rows表示查询时检索的行数,越少越好(重点)
 -- Extra(针对排序操作,尽量把Using filesort变成Using index)
 Using where 表示使用了条件过滤
 Using index 表示使用了覆盖索引
@@ -377,11 +367,10 @@ Using temporary 表示对查询结果排序或分组时使用了临时表
 
 ### index
 ```sql
--- 除了数据以外,数据库还维护着满足特定查找算法的数据结构,以某种方式指向物理数据,从而实现高级查找算法,这种数据结构就是索引
-优点：索引是一种排好序的快速查找数据结构,B+树(多路平衡查找树)存储,类似字典目录,可以提高数据检索效率降低IO成本和数据排序成本
-缺点：索引本身在insert/update/delete数据时也需要维护,会降低表的更新速度
--- 为什么索引使用B+树？
-查询时访问磁盘的次数由树的层数决定,二叉树只能有左右两个子节点而B+树可以有多个子节点,减少树的高度
+-- 索引：除了数据以外,数据库还维护着满足特定查找算法的数据结构,以某种方式指向物理数据,从而实现高级查找算法,这种数据结构就是索引
+-- 优点：索引是一种排好序的快速查找数据结构,B+树(多路平衡查找树)存储,类似字典目录,可以提高数据检索效率降低IO成本和数据排序成本
+-- 缺点：索引本身在insert/update/delete数据时也需要维护,会降低表的更新速度
+-- 为啥使用B+树：查询时访问磁盘的次数由树的层数决定,二叉树只有左右两个子节点而B+树可以有多个子节点,减少树的高度
 
 -- 适合建立索引场景
 主键 | 频繁查询字段 | 外键(join) | 过滤字段(where) | 分组字段(group) | 排序字段(order),通过索引访问将大大提高排序速度
