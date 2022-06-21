@@ -58,7 +58,7 @@ mysql> set global general_log='on';
 mysql> set global general_log_file='/var/log/mysqld.log';
 tail -f /var/log/mysqld.log
 # 查看mysql连接数
-mysql> show variables like 'max_connections' | select @@max_connections
+mysql> show variables like 'max_connections' / select @@max_connections
 mysql> show status like 'Thread%';
 mysql> set global max_connections=1000;
 # 批量插入数据
@@ -408,8 +408,7 @@ select * from emp where name like '陈%' and age=20;
 -- 由于驱动表会全表扫描,即使添加索引虽然能用上但扫描行数不变,应当给被驱动表的关联字段建索引,如果是inner join mysql会自动将小表作为驱动表
 select * from a left join b on a.id=b.id;  -- create index idx_id on b (id)
 
--- 排序分组优化
-尽量避免Extra出现Using filesort,但是当排序之前有过滤操作时优先给过滤字段加索引
+-- 排序分组优化：尽量避免出现Extra=Using filesort,但是当排序之前有过滤操作时优先给过滤字段加索引
 create index idx_a_b_c on emp (a,b,c);    -- 是否出现filesort
 select * from emp order by d;             -- Y 排序字段没有索引
 select * from emp order by a;             -- Y 排序字段有索引但不是覆盖索引,所以尽量减少使用select *
@@ -418,24 +417,23 @@ select a,b,c from emp order by a,c;       -- Y 排序字段有索引但跳过了
 select a,b,c from emp order by a,b desc;  -- Y 排序字段中同时存在升序(默认)和降序,而索引都是升序的
 select a,b,c from emp order by b,a;       -- Y 排序字段顺序和索引顺序不一致,此处mysql优化器也不能调换b和a的位置,会改变排序逻辑
 select a,b,c from emp where a<100 order by b;  -- Y 过滤条件是范围查询,但这样是值得的,过滤掉大量数据提升的性能要远远超过使用索引
--- in/exists/not in/not exists
-主查询和子查询的执行顺序不一样,in先执行子查询适合内表小外表大的情况,exists先执行主查询适合外表小内表大的情况
+-- in和exists：主查询和子查询的执行顺序不一样,in先执行子查询适合内表小外表大的情况,exists先执行主查询适合外表小内表大的情况
 select * from t1 where id in (select id from t2);
 select * from t1 where exists (select 1 from t2 where t1.id=t2.id);
-not in无法使用索引且子查询结果集不能有null否则直接返回null,而not exists会使用索引性能更高,所以应尽量避免使用not in
-select * from a where id not in (select id from b);  -- 改进为 select * from a left join b on a.id=b.id where b.id is null
+-- not in无法使用索引且子查询结果集不能有null否则直接返回null,而not exists会使用索引性能更高,所以应尽量避免使用not in
+select * from a where id not in (select id from b)  -- 改进为select * from a left join b on a.id=b.id where b.id is null
 -- mysql优化器会改变sql语句中select和where字段的顺序,但是group和order字段的顺序是不能变的,否则业务逻辑就变了
 ```
 
 ### log
 ```sql
 -- 慢查询日志
-mysql> show variables like 'slow_query_log' | select @@slow_query_log
+mysql> show variables like 'slow_query_log' / select @@slow_query_log
 +---------------------+------------------------------+
 | slow_query_log      | OFF                          |
 | slow_query_log_file | /var/lib/mysql/cdh1-slow.log | # 可以监控该文件优化速度慢的sql,但是手工查找不方便可借助工具
 +---------------------+------------------------------+
-mysql> show variables like 'long_query_time' | select @@long_query_time
+mysql> show variables like 'long_query_time' / select @@long_query_time
 +-----------------+-----------+
 | long_query_time | 10.000000 |
 +-----------------+-----------+
