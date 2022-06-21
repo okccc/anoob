@@ -404,10 +404,10 @@ select * from emp where name like '陈%' and age=20;
 -- 未开启ICP,存储引擎只会搜索idx_name_age这棵树上的name列,age列需要回表再过滤,如果有10个姓陈的就需要回表10次
 -- 开启ICP后,存储引擎在索引内部就过滤了age=20这个条件,减少回表次数,其实就是充分利用索引,尽量在查询出整行数据之前先过滤掉无效数据
 
--- 关联查询优化
-left join 左表是主(驱动)表,右表是从(被驱动)表,左连接特点是左表数据全表扫描,关联条件用来确定右表搜索的行,所以尽量将小表放左边
-驱动表会全表扫描加索引虽然能用上但扫描行数不变,应当给被驱动表的关联字段建索引,如果是inner join mysql会自动将小表作为驱动表
+-- 关联查询优化：left join左表是主表(驱动表),右表是从表(被驱动表),左表数据会全表扫描,关联条件用来确定右表搜索的行,所以尽量将小表放左边,
+-- 由于驱动表会全表扫描,即使添加索引虽然能用上但扫描行数不变,应当给被驱动表的关联字段建索引,如果是inner join mysql会自动将小表作为驱动表
 select * from a left join b on a.id=b.id;  -- create index idx_id on b (id)
+
 -- 排序分组优化
 尽量避免Extra出现Using filesort,但是当排序之前有过滤操作时优先给过滤字段加索引
 create index idx_a_b_c on emp (a,b,c);    -- 是否出现filesort
