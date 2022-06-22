@@ -155,6 +155,14 @@
       <value>10000</value>
       <description>HiveServer2 listen port</description>
     </property>
+    <property>
+        <name>spark.yarn.jars</name>
+        <value>hdfs://cdh1:9000/spark-jars/*</value>
+    </property>
+    <property>
+        <name>hive.execution.engine</name>
+        <value>spark</value>
+    </property>
 </configuration>
 ```
 
