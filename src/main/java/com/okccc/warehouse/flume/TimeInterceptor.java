@@ -29,7 +29,7 @@ public class TimeInterceptor implements Interceptor {
         String body = new String(event.getBody(), StandardCharsets.UTF_8);
         JSONObject jsonObject = JSON.parseObject(body);
         String ts = jsonObject.getString("ts");
-        // 将日志的事件时间添加到header,且key必须是timestamp,因为flume会根据这个key识别时间写入hdfs
+        // 将日志里的实际时间添加到header,其key必须是timestamp,然后flume会识别这个key的值作为时间写入hdfs
         headers.put("timestamp", ts);
         return event;
     }

@@ -34,33 +34,33 @@ hive> select regexp_extract('foothebar', 'foo(.*?)(bar)', 1);
 hive> select regexp_extract('foothebar', 'foo(.*?)(bar)', 2);
 hive> select regexp_extract('foothebar', 'foo(.*?)(bar)', 0);
 -- 解析url
-hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'PROTOCOL');           -- http  
-hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'HOST');		         -- facebook.com​  
-hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'PATH');		         -- /path/p1.php​  
-hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'QUERY');		         -- query=1  
-hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'QUERY','query');	     --  1  
-hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'FILE');			     -- /path/p1.php?query=1​  
+hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'PROTOCOL');           -- http
+hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'HOST');		         -- facebook.com
+hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'PATH');		         -- /path/p1.php
+hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'QUERY');		         -- query=1
+hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'QUERY','query');	     --  1
+hive> select parse_url('http://facebook.com/path/p1.php?query=1', 'FILE');			     -- /path/p1.php?query=1
 -- 解析json字符串
-hive> select nvl(get_json_object(t.json,'$.timestamp'),'-');  
+hive> select nvl(get_json_object(t.json,'$.timestamp'),'-');
 -- 使用java类中的方法
-hive> select reflect('java.net.urldecoder','decode','...');      -- 中文解码  
-hive> select reflect("java.lang.string", "valueof", 1)         	 -- 1  
-hive> select reflect("java.lang.string", "isempty")              -- true  
-hive> select reflect("java.lang.math", "max", 2, 3)              -- 3  
-hive> select reflect("java.lang.math", "round", 2.5)             -- 3  
-hive> select reflect("java.lang.math", "exp", 1.0)            	 -- 2.7182818284590455  
-hive> select reflect("java.lang.math", "floor", 1.9)           	 -- 1.0  
+hive> select reflect('java.net.urldecoder','decode','...');      -- 中文解码
+hive> select reflect("java.lang.string", "valueof", 1)         	 -- 1
+hive> select reflect("java.lang.string", "isempty")              -- true
+hive> select reflect("java.lang.math", "max", 2, 3)              -- 3
+hive> select reflect("java.lang.math", "round", 2.5)             -- 3
+hive> select reflect("java.lang.math", "exp", 1.0)            	 -- 2.7182818284590455
+hive> select reflect("java.lang.math", "floor", 1.9)           	 -- 1.0
 -- ascii：返回字符串第一个字符的ascii码  ascii - gbk - unicode - utf8
-hive> select ascii('abcde');  
+hive> select ascii('abcde');
 -- repeat,返回重复n次后的str字符串
-hive> select repeat('abc',5);  
+hive> select repeat('abc',5);
 -- lpad：字符串补位
-hive> select lpad('abc',10,'td');  
-hive> select rpad('abc',10,'td');  
+hive> select lpad('abc',10,'td');
+hive> select rpad('abc',10,'td');
 ```
 
 ### time
-```sql
+```hiveql
 -- 当前日期/时间戳/unix格式时间戳
 hive> select current_date/current_timestamp/unix_timestamp();
 -- 通用格式转换
@@ -111,61 +111,61 @@ hive> select date_sub(trunc(current_date,'YY'),1);
 -- 一年中的周数
 hive> select weekofyear('2016-10-19 12:13:25');
 -- 计算某个日期是星期几(0~6对应星期日~星期六)
-hive> select pmod(datediff(current_date,'2020-04-26'),7);  # 2020-04-26是计算日期前面的任一星期日
+hive> select pmod(datediff(current_date,'2020-04-26'),7);  -- 2020-04-26是计算日期前面的任一星期日
 ```
 
 ### math
-```sql
+```hiveql
 -- round
-hive> select round(3.5);  
-hive> select round(3.1415926,4);  
+hive> select round(3.5);
+hive> select round(3.1415926,4);
 -- floo
-hive> select floor(3.1415926);  
+hive> select floor(3.1415926);
 -- ceil
-hive> select ceil(3.1415926);  
+hive> select ceil(3.1415926);
 -- rand
-hive> select rand();  
-0.5577432776034763  
+hive> select rand();
+0.5577432776034763
 -- exp：计算自然对数e的a次方
-hive> select exp(2);  
+hive> select exp(2);
 -- ln：计算a的自然对数e
-hive> select ln(7.38905609893065);  
+hive> select ln(7.38905609893065);
 -- log10：计算以10为底a的对数
-hive> select log10(100);  
+hive> select log10(100);
 -- log2：计算以2为底a的对数
-hive> select log2(8);  
+hive> select log2(8);
 -- log：计算以a为底b的对数
-hive> select log(4, 256);  
+hive> select log(4, 256);
 -- pmod：计算a除以b的余数
-hive> select pmod(9,4);  
+hive> select pmod(9,4);
 -- pow：计算a的p次幂
-hive> select pow(2,4);  
+hive> select pow(2,4);
 -- sqrt：计算a的平方根
-hive> select sqrt(16);  
+hive> select sqrt(16);
 -- bin：计算a的二进制代表示
-hive> select bin(7);  
+hive> select bin(7);
 -- hex：计算a的十六进制表示
-hive> select hex(17);  
-hive> select hex('abc');  
+hive> select hex(17);
+hive> select hex('abc');
 -- unhex；计算该十六进制字符串所代表的字符串
-hive> select unhex('616263');  
+hive> select unhex('616263');
 -- conv：将数字从一个进制转换成另一个进制
-hive> select conv(17,10,16);  
-hive> select conv(17,10,2);  
+hive> select conv(17,10,16);
+hive> select conv(17,10,2);
 -- abs：计算绝对值
-hive> select abs(-3.9);  
+hive> select abs(-3.9);
 -- sin：计算a的正弦值
-hive> select sin(0.8);  
+hive> select sin(0.8);
 -- asin：计算a的反正弦值
-hive> select asin(0.7173560908995228);  
+hive> select asin(0.7173560908995228);
 -- cos：计算a的余弦值
-hive> select cos(0.9);  
+hive> select cos(0.9);
 -- acos：计算a的反余弦值
 hive> select acos(0.6216099682706644);
 -- positive：返回a本身
-hive> select positive(-10);  
+hive> select positive(-10);
 -- negative：返回a的相反数
-hive> select negative(-5);  
+hive> select negative(-5);
 ```
 
 ### over()
@@ -173,7 +173,7 @@ hive> select negative(-5);
 -- 聚合函数得到单个值,分析函数返回一个数据集,再分析数据集可以解决很多问题
 -- 窗口/分析函数经常和over()结合使用,over指定条件
 格式：function(arg1,arg2..) over([partition by(分组依据)] [order by(排序依据)] [window_clause(窗口条件)]) 
-over()  -- 指定分析函数工作的的数据窗口大小,可能会随着行的变化而变化,partition by分区依据,order by排序依据
+over()  -- 指定分析函数工作的数据窗口大小,可能会随着行的变化而变化,partition by分区依据,order by排序依据
 unbounded/current row/n preceding/n following  -- 起点/当前行/往前n行数据/往后n行数据
 rows between unbounded preceding and current row  -- 不写window_clause时默认
 rows between unbounded preceding and unbounded following  -- 不写order_by和window_clause时默认
@@ -199,16 +199,10 @@ from
 where t.n = 1;
 -- 在1亿条数据中找出前100万大的 -> 引申含义就是找出前1%大的
 -- 1亿条数据分布在集群10个节点上,找出前1万大的 -> 先在每个节点找出前1万大的,这样数据总量减少为10万,然后再找出这10万条数据中排前1万的
--- 海量数据就是数据量太大,无法一次装载进内存或者无法在短时间内解决,只要包括存储和运算两个方面
+-- 海量数据就是数据量太大,无法一次装载进内存或者无法在短时间内解决,通常考虑存储和计算两个方面
 -- 存储：大而化小,分而治之(hash映射)
 -- 计算：数据结构(hash/hashmap/bitmap/bloom filter等)和算法(堆排/快排/归并等)
 -- 散列分治：hash映射 + hashmap统计 + 堆排/快排/归并
-select t.*
-from 
-(
-    select num,ntile(100) over(order by num desc) as n from t1
-) t
-where t.n = 1;
 
 -- 排序型
 select uid,pv,  
@@ -249,9 +243,9 @@ last_value(col) over(partition by ... order by ...)      -- 分组排序后最�
 - PERCENT_RANK over(partition by ... order by ...)
 ```
 
-### sql
+### examples
 ```sql
--- 单个分组字段的聚合结果排序可以用order by limit,多个分组字段的聚合结果排序要用row_number
+-- 总结：单字段分组聚合后排序直接order by limit,多字段分组聚合后排序要用row_number()
 -- 店铺销售数据
 shop  stat_date    money 
 s1    2020-03-01    300   
@@ -270,10 +264,10 @@ select a.* from sale a cross join sale b on datediff(a.stat_date, b.stat_date) =
 
 ```sql
 -- 用户访问数据
-uid    stat_date    cnt        uid    mn    mn_cnt    total_cnt
-u1     2017-01-21    5         u1    2017-01    11    11
-u2     2017-01-23    6         u1    2017-02    12    23
-u3     2017-01-22    8         u1    2017-03    25    48
+uid    stat_date    cnt    ->    uid    mn    mn_cnt    total_cnt
+u1     2017-01-21    5           u1    2017-01    11    11
+u2     2017-01-23    6           u1    2017-02    12    23
+u3     2017-01-22    8           u1    2017-03    25    48
 -- 统计每个用户累计访问次数
 select uid,mn,mn_cnt,sum(mn_cnt) over(partition by uid order by mn) total_cnt
 from
@@ -292,10 +286,14 @@ shop    uid
 a1      u1
 b1      u2
 -- 统计每个店铺访问次数top3的访客信息,输出店铺名称、访客id、访问次数
-select shop,uid,cnt,row_number() over(partition by shop order by cnt desc) as rn
+select shop,uid,cnt
 from
-     (select shop,uid,count(1) cnt from visit group by shop,uid) t1
-where rn <= 3;
+    (
+        select shop,uid,cnt,row_number() over(partition by shop,uid order by cnt desc) as rn
+        from
+            (select shop,uid,count(1) cnt from visit group by shop,uid) t1
+    ) t2
+where t2.rn <= 3;
 ```
 
 ```sql
@@ -316,18 +314,12 @@ select name,age from student where id in (select distinct(id) from grade where c
 -- 查询有'001'和'002'这两门课程下,成绩排名前3的学生的姓名、年龄
 select s.name,s.age from student s inner join 
 (
-    select id,sum(score) sum_score 
-    from grade 
+    select id,sum(score) sum_score from grade 
     where id in (select id from grade where cid='001' or cid='002' group by id having count(*)=2)
-    group by id
-    order by sum_score desc limit 3
+    group by id order by sum_score desc limit 3
 ) g on s.id = g.id;
 -- 统计每门课程的及格人数和不及格人数,按'[<60]'/'[60~85]'/'[85~100]'分数段划分也是同理,判断不同列用if,判断同一列的不同值用case when
-select cid,
-       sum(if score >= 60 then 1 else 0) '及格',
-       sum(if score < 60 then 1 else 0) '不及格'
-from grade
-group by cid;
+select cid,sum(if score >= 60 then 1 else 0) '及格',sum(if score < 60 then 1 else 0) '不及格' from grade group by cid;
 -- 行列互换问题
 id  cid  score    id  c01  c02  c03    id  c01  c02  c03
 01  c01  85       01  85  0   0        01  85  88  89
@@ -340,9 +332,7 @@ select id,
        max(if cid = 'c02' then score else 0) as c02,
        max(if cid = 'c03' then score else 0) as c03,
        avg(score) as avg_score
-from score
-group by id
-order by avg_score desc;
+from score group by id order by avg_score desc;
 -- 交换相邻学生的座位,比如座位是1234,想要变成2143(交换数据问题可以从数据编号的奇偶性考虑)
 select case when mod(座位号, 2) != 0 then 座位号 + 1
             when mod(座位号, 2) = 0 then 座位号 - 1 end as '交换后座位号'
@@ -354,7 +344,6 @@ where a.id = b.id - 1 and b.id = c.id - 1 and a.score = b.score and b.score = c.
 select uid,
        count(distinct uid) uv,
        count(distinct if day = 1 then uid else null end) / count(distinct uid) as 1_keep,
-       count(distinct if day = 3 then uid else null end) / count(distinct uid) as 3_keep,
        count(distinct if day = 7 then uid else null end) / count(distinct uid) as 7_keep
 from
     (
