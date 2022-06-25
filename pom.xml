@@ -173,12 +173,12 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>7.14.0</version>
+            <version>7.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>7.14.0</version>
+            <version>7.10.0</version>
         </dependency>
         <!-- java操作es的客户端工具jest(已废弃) -->
         <dependency>
@@ -298,7 +298,7 @@
             <artifactId>flink-connector-redis_2.11</artifactId>
             <version>1.0</version>
         </dependency>
-        <!-- flink操作es,会和elasticsearch以及IK分词器的包存在依赖冲突,调试flink时要先把对方注释掉或者另启工程 -->
+        <!-- flink操作es,可能会和elasticsearch以及IK分词器的包存在依赖冲突,调试flink时要先把对方注释掉或者另启工程 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-elasticsearch7_2.12</artifactId>
