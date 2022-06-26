@@ -87,8 +87,8 @@ public class Flink01 {
          * 状态后端：默认内存级别(MemoryStateBackend),负责读写本地状态,以及将checkpoint状态写入远程hdfs存储
          *
          * Checkpoint
-         * flink故障恢复机制的核心就是检查点,会定期将当前状态做一份拷贝(快照),时间节点是当所有任务都处理完一个相同输入数据时(检查点分界线)
-         * 故障恢复时重启应用 -> 从checkpoint读取状态数据并将状态重置 -> 开始消费并处理检查点到发生故障之间的所有数据
+         * flink故障恢复机制的核心就是检查点,会定期拷贝当前状态(快照),时间节点是当所有任务都处理完一个相同输入数据时(检查点分界线)
+         * 故障恢复时重启应用 -> 从checkpoint读取数据并将状态重置 -> 开始消费并处理检查点到发生故障之间的所有数据
          * 检查点同步实现：暂停应用,保存状态到检查点,再重新恢复应用(sparkStreaming)
          * 检查点异步实现：基于Chandy-Lamport分布式异步快照算法,将检查点的保存和数据处理分开,不暂停应用(flink)
          *
@@ -110,11 +110,11 @@ public class Flink01 {
         // 设置状态后端,通常是在工程中统一配置
 //        env.setStateBackend(new FsStateBackend("file:///Users/okc/projects/anoob/input/cp", false));
         // 10秒保存一次检查点,flink默认只保存最近一次检查点即可正确恢复程序
-//        env.enableCheckpointing(10 * 1000L);
+        env.enableCheckpointing(10 * 1000L);
 
         // 实时：监听socket数据流,先在终端开启`nc -lk 9999`
         DataStreamSource<String> inputStream = env.socketTextStream("localhost", 9999);
-        // 离线：flink是流批统一的,离线数据集也会当做流来处理,每来一条数据都会驱动一次整个程序运行并输出一个结果,ss批处理只会输出最终结果
+        // 离线：flink是流批统一的,离线数据集也会当做流来处理,每来一条数据都会驱动程序运行并输出一个结果,ss批处理只会输出最终结果
         DataStreamSource<String> inputStream02 = env.fromElements("aaa bbb", "aaa bbb");
         // 自定义数据源
         DataStreamSource<Event> inputStream03 = env.addSource(new UserActionSource());
