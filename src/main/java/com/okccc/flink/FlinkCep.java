@@ -44,7 +44,7 @@ public class FlinkCep {
          * .times()          定义事件次数
          * .within()         定义时间窗口
          *
-         * 总结：Pattern是flink的语法糖,实际上底层就是KeyedProcessFunction+状态变量+定时器,一般直cep就行,除非特别复杂的需求才会用到大招
+         * 总结：Pattern是flink语法糖,底层就是KeyedProcessFunction + 状态变量 + 定时器,一般直接cep就行,除非特别复杂的需求才会用大招
          */
 
         // 创建流处理执行环境
@@ -114,7 +114,7 @@ public class FlinkCep {
                     String[] arr = value.split(",");
                     return LoginEvent.of(arr[0], arr[2], Long.parseLong(arr[3]) * 1000);
                 })
-                // 提前时间戳生成水位线
+                // 提取时间戳生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<LoginEvent>forBoundedOutOfOrderness(Duration.ofSeconds(0))
                                 .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
@@ -170,7 +170,7 @@ public class FlinkCep {
 
     private static void demo03(StreamExecutionEnvironment env) {
         // 使用CEP检测超时订单
-        // 业务系统需要不停判断订单支付时间是否超时,类似618这种促销场景数据量很大时对系统压力很大,可以考虑使用低延迟高吞吐的flink处理
+        // 业务系统需要不停判断订单支付时间是否超时,类似618这种促销场景数据量暴增对系统压力很大,可以考虑使用低延迟高吞吐的flink处理
         SingleOutputStreamOperator<OrderEvent> inputStream = env
                 .readTextFile("input/OrderLog.csv")
                 // 将数据封装成POJO类
