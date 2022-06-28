@@ -1,5 +1,3 @@
-### spark-submit
-```shell script
 #!/bin/bash
 
 if [ "$1" == "event" ];then
@@ -58,4 +56,3 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 --conf spark.eventLog.dir=hdfs://test/sparklogs \
 --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j.properties -XX:+UseG1GC -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" \
 --conf "spark.streaming.kafka.maxRatePerPartition=1000000" \
-```
