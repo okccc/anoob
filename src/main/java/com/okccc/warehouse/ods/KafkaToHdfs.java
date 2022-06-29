@@ -37,12 +37,13 @@ public class KafkaToHdfs {
          * -c,--class    main方法所在主类
          * Options for yarn-cluster mode:
          * -m,--jobmanager                 Address of the JobManager (master) to which to connect
+         * -yd,--yarndetached              runs the job in detached mode(后台运行,jps不会出现CliFrontend)
          * -ynm,--yarnname                 Set a custom name for the application on YARN(yarn监控页面flink任务名称)
          * -yjm,--yarnjobManagerMemory     Memory for JobManager Container with optional unit (default: MB)
          * -ytm,--yarntaskManagerMemory    Memory per TaskManager Container with optional unit (default: MB)
          * -ys,--yarnslots                 Number of slots per TaskManager
          * -yqu,--yarnqueue                Specify YARN queue.
-         * bin/flink run -m yarn-cluster -ynm demo -yjm 2048 -ytm 4096 -ys 1 -yqu root.ai -c com.okccc.Demo ./demo.jar
+         * bin/flink run -m yarn-cluster -yd -ynm demo -yjm 2048 -ytm 4096 -ys 1 -yqu root.ai -c com.okccc.Demo ./demo.jar
          *
          * 常见错误
          * Could not initialize class org.apache.flink.runtime.entrypoint.parser.CommandLineOptions
