@@ -1,4 +1,4 @@
-package com.okccc.flink;
+package com.okccc.warehouse.flink;
 
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.*;

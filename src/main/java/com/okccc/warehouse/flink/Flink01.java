@@ -1,4 +1,4 @@
-package com.okccc.flink;
+package com.okccc.warehouse.flink;
 
 import com.alibaba.fastjson.JSON;
 import com.okccc.realtime.utils.MysqlUtil;

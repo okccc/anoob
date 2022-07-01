@@ -1,4 +1,4 @@
-package com.okccc.flink;
+package com.okccc.warehouse.flink;
 
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;

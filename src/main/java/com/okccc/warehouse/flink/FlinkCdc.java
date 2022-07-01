@@ -1,4 +1,4 @@
-package com.okccc.flink;
+package com.okccc.warehouse.flink;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ververica.cdc.connectors.mysql.MySQLSource;
