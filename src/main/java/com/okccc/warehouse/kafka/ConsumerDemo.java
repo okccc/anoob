@@ -53,6 +53,7 @@ public class ConsumerDemo {
         Properties prop = new Properties();
         // 必选参数
         prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.63:9092");  // 腾讯云db
+//        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.100.113.98:9092");  // 腾讯云测试
 //        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.201.7.34:9092");  // 腾讯云log
         prop.put(ConsumerConfig.GROUP_ID_CONFIG, "g01");  // 消费者组,命令行不指定group时会随机分配一个
         prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());    // key反序列化器
@@ -71,7 +72,7 @@ public class ConsumerDemo {
         // 3.订阅topic集合
         List<String> topics = new ArrayList<>();
 //        topics.add("amplitude02-new");
-        topics.add("thrall");
+        topics.add("eduplatform01");
         consumer.subscribe(topics);
         // 订阅主题并指定分区(不常用)
 //        ArrayList<TopicPartition> topicPartitions = new ArrayList<>();
