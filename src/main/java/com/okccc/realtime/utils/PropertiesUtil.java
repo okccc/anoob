@@ -13,9 +13,11 @@ public class PropertiesUtil {
     public static Properties load(String fileName) {
         // 创建Properties对象
         Properties prop = new Properties();
-        // 加载resource配置文件
+        // 加载resources资源文件
         try {
-            prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream(fileName));
+            // ClassLoader有个小陷阱,代码打包提交到linux后会读不到resources资源文件导致空指针异常
+//            prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream(fileName));
+            prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName));
         } catch (IOException e) {
             e.printStackTrace();
         }
