@@ -1,6 +1,11 @@
 package com.okccc.realtime.utils;
 
+import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.connector.file.sink.FileSink;
+import org.apache.flink.core.fs.Path;
+import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
@@ -10,6 +15,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Properties;
 
@@ -18,8 +24,9 @@ import java.util.Properties;
  * Date: 2021/10/4 下午7:41
  * Desc: flink读写kafka的工具类
  * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/datastream/kafka/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/datastream/file_sink/
  */
-public class MyKafkaUtil {
+public class MyFlinkUtil {
     private static final String KAFKA_SERVER = "localhost:9092";
     private static final String DEFAULT_TOPIC = "default";
 
@@ -90,5 +97,36 @@ public class MyKafkaUtil {
                 "  'properties.group.id' = '" + groupId + "',\n" +
                 "  'scan.startup.mode' = 'latest-offset',\n" +
                 "  'format' = 'json'";
+    }
+
+    /**
+     * 往hdfs写数据的生产者
+     */
+    public static FileSink<String> getHdfsSink(String output) {
+        return FileSink
+                .forRowFormat(new Path(output), new SimpleStringEncoder<String>("UTF-8"))
+                // 桶分配
+                .withBucketAssigner(new HiveBucketAssigner<>("yyyyMMdd", ZoneId.of("Asia/Shanghai")))
+                // 滚动策略,如果hadoop < 2.7就只能使用OnCheckpointRollingPolicy
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                // part file何时由inprogress变成finished
+                                .withRolloverInterval(10 * 60 * 1000L)
+                                .withInactivityInterval(10 * 60 * 1000L)
+                                .withMaxPartSize(1024 * 1024 * 128)
+                                .build()
+                ).build();
+    }
+
+    public static class HiveBucketAssigner<IN> extends DateTimeBucketAssigner<IN> {
+        public HiveBucketAssigner(String formatString, ZoneId zoneId) {
+            super(formatString, zoneId);
+        }
+
+        @Override
+        public String getBucketId(IN element, Context context) {
+            // flink分桶将文件放入不同文件夹,桶号对应hive分区,桶号默认返回时间字符串,而hive分区通常是dt=开头,所以要重写该方法
+            return "dt=" + super.getBucketId(element, context);
+        }
     }
 }
