@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.bean.VisitorStats;
 import com.okccc.realtime.utils.ClickHouseUtil;
 import com.okccc.realtime.utils.DateUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -74,9 +74,9 @@ public class VisitorStatsApp {
         String uniqueVisitorTopic = "dwm_unique_visitor";
         String userJumpDetailTopic = "dwm_user_jump_detail";
         String groupId = "visitor_stats_app_group";
-        DataStreamSource<String> pvStream = env.addSource(MyKafkaUtil.getKafkaSource(pageViewTopic, groupId));
-        DataStreamSource<String> uvStream = env.addSource(MyKafkaUtil.getKafkaSource(uniqueVisitorTopic, groupId));
-        DataStreamSource<String> ujdStream = env.addSource(MyKafkaUtil.getKafkaSource(userJumpDetailTopic, groupId));
+        DataStreamSource<String> pvStream = env.addSource(MyFlinkUtil.getKafkaSource(pageViewTopic, groupId));
+        DataStreamSource<String> uvStream = env.addSource(MyFlinkUtil.getKafkaSource(uniqueVisitorTopic, groupId));
+        DataStreamSource<String> ujdStream = env.addSource(MyFlinkUtil.getKafkaSource(userJumpDetailTopic, groupId));
         // 打印测试
 //        pvStream.print("pv");
 //        uvStream.print("uv");

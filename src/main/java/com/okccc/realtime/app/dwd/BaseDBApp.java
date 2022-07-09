@@ -8,7 +8,7 @@ import com.okccc.realtime.app.func.DimSinkFunction;
 import com.okccc.realtime.app.func.MyDeserialization;
 import com.okccc.realtime.app.func.TableProcessFunction;
 import com.okccc.realtime.bean.TableProcess;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -63,7 +63,7 @@ public class BaseDBApp {
         // 3.获取kafka数据(canal/maxwell抓取的主流数据)
         String topic = "ods_base_db";
         String groupId = "ods_base_db_group";
-        DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
+        DataStreamSource<String> kafkaStream = env.addSource(MyFlinkUtil.getKafkaSource(topic, groupId));
         // 打印测试
 //        kafkaStream.print(">>>");
 
@@ -127,7 +127,7 @@ public class BaseDBApp {
         dimStream.addSink(new DimSinkFunction());
 
         // 9.将事实数据写入dwd层对应的topic
-        factStream.addSink(MyKafkaUtil.getKafkaSinkBySchema(new KafkaSerializationSchema<JSONObject>() {
+        factStream.addSink(MyFlinkUtil.getKafkaSinkBySchema(new KafkaSerializationSchema<JSONObject>() {
             @Override
             public ProducerRecord<byte[], byte[]> serialize(JSONObject element, @Nullable Long timestamp) {
                 // 获取业务流的输出topic

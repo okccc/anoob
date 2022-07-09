@@ -2,7 +2,7 @@ package com.okccc.realtime.app.dwm;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -48,7 +48,7 @@ public class UserJumpDetailApp {
         // 2.获取kafka数据
         String topic = "dwd_page_log";
         String groupId = "user_jump_detail_app_group";
-        DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
+        DataStreamSource<String> kafkaStream = env.addSource(MyFlinkUtil.getKafkaSource(topic, groupId));
         // 打印测试
 //        kafkaStream.print("pv");
 
@@ -124,7 +124,7 @@ public class UserJumpDetailApp {
         // 打印测试
         jumpStream.print("ujd");
         // 8.将跳出数据写入dwm层对应的topic
-        jumpStream.addSink(MyKafkaUtil.getKafkaSink("dwm_user_jump_detail"));
+        jumpStream.addSink(MyFlinkUtil.getKafkaSink("dwm_user_jump_detail"));
 
         // 启动任务
         env.execute();

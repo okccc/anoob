@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.utils.DateUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
@@ -30,7 +30,7 @@ public class UniqueVisitorApp {
         // 2.获取kafka数据
         String topic = "dwd_page_log";
         String groupId = "unique_visitor_app_group";
-        DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
+        DataStreamSource<String> kafkaStream = env.addSource(MyFlinkUtil.getKafkaSource(topic, groupId));
         // 打印测试
 //        kafkaStream.print("pv");
 
@@ -93,7 +93,7 @@ public class UniqueVisitorApp {
         // 5.将过滤后的数据写入dwm层对应的topic
         filterStream
                 .map(JSONAware::toJSONString)
-                .addSink(MyKafkaUtil.getKafkaSink("dwm_unique_visitor"));
+                .addSink(MyFlinkUtil.getKafkaSink("dwm_unique_visitor"));
 
         // 启动任务
         env.execute();

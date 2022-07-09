@@ -4,7 +4,7 @@ import com.okccc.realtime.app.func.KeywordUDTF;
 import com.okccc.realtime.bean.KeywordStats;
 import com.okccc.realtime.common.MyConstant;
 import com.okccc.realtime.utils.ClickHouseUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -67,7 +67,7 @@ public class KeywordStatsApp {
                         "    ts        BIGINT,\n" +
                         "    rowtime as TO_TIMESTAMP(FROM_UNIXTIME(ts/1000, 'yyyy-MM-dd HH:mm:ss')),\n" +  // 提取时间戳生成水位线
                         "    WATERMARK FOR rowtime as rowtime - INTERVAL '3' SECOND\n" +
-                        ") WITH (" + MyKafkaUtil.getKafkaDDL(topic, groupId) + ")"
+                        ") WITH (" + MyFlinkUtil.getKafkaDDL(topic, groupId) + ")"
         );
 
         // 4.从动态表中过滤出表示搜索行为的记录

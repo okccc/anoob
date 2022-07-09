@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.utils.ClickHouseUtil;
 import com.okccc.realtime.utils.DateUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
@@ -97,7 +97,7 @@ public class BaseLogApp {
         // 3.获取kafka数据(flume)
         String topic = "ods_base_log";
         String groupId = "ods_base_log_group";
-        DataStreamSource<String> kafkaStream = env.addSource(MyKafkaUtil.getKafkaSource(topic, groupId));
+        DataStreamSource<String> kafkaStream = env.addSource(MyFlinkUtil.getKafkaSource(topic, groupId));
         // 打印测试
         kafkaStream.print(">>>");
 
@@ -206,9 +206,9 @@ public class BaseLogApp {
         // 7.将不同流写入dwd层对应的topic
         // 为什么不在判断日志类型的时候直接写入kafka而是先分流再写入？
         // FlinkKafkaProducer<>是TwoPhaseCommitSinkFunction<>子类,已经实现了两阶段提交从而保证精准一次性,自己写的话要手动实现
-        pageStream.addSink(MyKafkaUtil.getKafkaSink("dwd_page_log"));
-        startStream.addSink(MyKafkaUtil.getKafkaSink("dwd_start_log"));
-        displayStream.addSink(MyKafkaUtil.getKafkaSink("dwd_display_log"));
+        pageStream.addSink(MyFlinkUtil.getKafkaSink("dwd_page_log"));
+        startStream.addSink(MyFlinkUtil.getKafkaSink("dwd_start_log"));
+        displayStream.addSink(MyFlinkUtil.getKafkaSink("dwd_display_log"));
 
         // 启动任务
         env.execute();

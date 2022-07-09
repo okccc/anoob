@@ -8,7 +8,7 @@ import com.okccc.realtime.bean.OrderDetail;
 import com.okccc.realtime.bean.OrderInfo;
 import com.okccc.realtime.bean.OrderWide;
 import com.okccc.realtime.utils.DateUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -73,8 +73,8 @@ public class OrderWideApp {
         String orderInfoTopic = "dwd_order_info";
         String orderDetailTopic = "dwd_order_detail";
         String groupId = "order_wide_app_group";
-        DataStreamSource<String> orderInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(orderInfoTopic, groupId));
-        DataStreamSource<String> orderDetailStream = env.addSource(MyKafkaUtil.getKafkaSource(orderDetailTopic, groupId));
+        DataStreamSource<String> orderInfoStream = env.addSource(MyFlinkUtil.getKafkaSource(orderInfoTopic, groupId));
+        DataStreamSource<String> orderDetailStream = env.addSource(MyFlinkUtil.getKafkaSource(orderDetailTopic, groupId));
 
         // 3.结构转换
         KeyedStream<OrderInfo, Long> orderInfoKeyedStream = orderInfoStream
@@ -334,7 +334,7 @@ public class OrderWideApp {
                         return JSON.toJSONString(orderWide, SerializerFeature.WriteMapNullValue);
                     }
                 })
-                .addSink(MyKafkaUtil.getKafkaSink("dwm_order_wide"));
+                .addSink(MyFlinkUtil.getKafkaSink("dwm_order_wide"));
 
         // 启动任务
         env.execute();

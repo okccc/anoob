@@ -2,7 +2,7 @@ package com.okccc.realtime.app.dws;
 
 import com.okccc.realtime.bean.AreaStats;
 import com.okccc.realtime.utils.ClickHouseUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -74,7 +74,7 @@ public class AreaStatsApp {
                         "    create_time             STRING,\n" +
                         "    rowtime as TO_TIMESTAMP(create_time),\n" +  // 提取时间戳生成水位线
                         "    WATERMARK FOR rowtime as rowtime - INTERVAL '3' SECOND\n" +
-                        ") WITH (" + MyKafkaUtil.getKafkaDDL(topic, groupId) + ")"
+                        ") WITH (" + MyFlinkUtil.getKafkaDDL(topic, groupId) + ")"
         );
 
         // 3.对动态表进行分组/开窗/聚合,和普通sql的区别主要在于开窗操作

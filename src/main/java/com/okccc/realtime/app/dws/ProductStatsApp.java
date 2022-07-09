@@ -10,7 +10,7 @@ import com.okccc.realtime.bean.ProductStats;
 import com.okccc.realtime.common.MyConstant;
 import com.okccc.realtime.utils.ClickHouseUtil;
 import com.okccc.realtime.utils.DateUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -102,13 +102,13 @@ public class ProductStatsApp {
         String orderRefundInfoTopic = "dwd_order_refund_info";
         String commentInfoTopic = "dwd_comment_info";
         String groupId = "product_stats_app_group";
-        DataStreamSource<String> pageViewStream = env.addSource(MyKafkaUtil.getKafkaSource(pageViewTopic, groupId));
-        DataStreamSource<String> favorInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(favorInfoTopic, groupId));
-        DataStreamSource<String> cartInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(cartInfoTopic, groupId));
-        DataStreamSource<String> orderWideStream = env.addSource(MyKafkaUtil.getKafkaSource(orderWideTopic, groupId));
-        DataStreamSource<String> paymentWideStream = env.addSource(MyKafkaUtil.getKafkaSource(paymentWideTopic, groupId));
-        DataStreamSource<String> refundInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(orderRefundInfoTopic, groupId));
-        DataStreamSource<String> commentInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(commentInfoTopic, groupId));
+        DataStreamSource<String> pageViewStream = env.addSource(MyFlinkUtil.getKafkaSource(pageViewTopic, groupId));
+        DataStreamSource<String> favorInfoStream = env.addSource(MyFlinkUtil.getKafkaSource(favorInfoTopic, groupId));
+        DataStreamSource<String> cartInfoStream = env.addSource(MyFlinkUtil.getKafkaSource(cartInfoTopic, groupId));
+        DataStreamSource<String> orderWideStream = env.addSource(MyFlinkUtil.getKafkaSource(orderWideTopic, groupId));
+        DataStreamSource<String> paymentWideStream = env.addSource(MyFlinkUtil.getKafkaSource(paymentWideTopic, groupId));
+        DataStreamSource<String> refundInfoStream = env.addSource(MyFlinkUtil.getKafkaSource(orderRefundInfoTopic, groupId));
+        DataStreamSource<String> commentInfoStream = env.addSource(MyFlinkUtil.getKafkaSource(commentInfoTopic, groupId));
 
         // 3.结构转换
         SingleOutputStreamOperator<ProductStats> clickAndDisplayStatsStream = pageViewStream

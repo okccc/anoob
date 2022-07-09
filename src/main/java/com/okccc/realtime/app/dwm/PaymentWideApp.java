@@ -6,7 +6,7 @@ import com.okccc.realtime.bean.OrderWide;
 import com.okccc.realtime.bean.PaymentInfo;
 import com.okccc.realtime.bean.PaymentWide;
 import com.okccc.realtime.utils.DateUtil;
-import com.okccc.realtime.utils.MyKafkaUtil;
+import com.okccc.realtime.utils.MyFlinkUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -40,8 +40,8 @@ public class PaymentWideApp {
         String paymentInfoTopic = "dwd_payment_info";
         String orderWideTopic = "dwm_order_wide";
         String groupId = "payment_wide_app_group";
-        DataStreamSource<String> paymentInfoStream = env.addSource(MyKafkaUtil.getKafkaSource(paymentInfoTopic, groupId));
-        DataStreamSource<String> orderWideStream = env.addSource(MyKafkaUtil.getKafkaSource(orderWideTopic, groupId));
+        DataStreamSource<String> paymentInfoStream = env.addSource(MyFlinkUtil.getKafkaSource(paymentInfoTopic, groupId));
+        DataStreamSource<String> orderWideStream = env.addSource(MyFlinkUtil.getKafkaSource(orderWideTopic, groupId));
 
         // 3.结构转换
         KeyedStream<PaymentInfo, Long> paymentInfoKeyedStream = paymentInfoStream
@@ -166,7 +166,7 @@ public class PaymentWideApp {
                         return JSON.toJSONString(value, SerializerFeature.WriteMapNullValue);
                     }
                 })
-                .addSink(MyKafkaUtil.getKafkaSink("dwm_payment_wide"));
+                .addSink(MyFlinkUtil.getKafkaSink("dwm_payment_wide"));
 
         // 启动任务
         env.execute();
