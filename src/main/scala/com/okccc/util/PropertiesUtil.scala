@@ -15,8 +15,7 @@ object PropertiesUtil {
     // 创建Properties对象
     val prop: Properties = new Properties()
     // 加载resources配置文件
-    prop.load(ClassLoader.getSystemClassLoader.getResourceAsStream(filename))
-//    prop.load(new InputStreamReader(Thread.currentThread().getContextClassLoader.getResourceAsStream(filename), StandardCharsets.UTF_8))
+    prop.load(Thread.currentThread().getContextClassLoader.getResourceAsStream(filename))
     prop
   }
 
