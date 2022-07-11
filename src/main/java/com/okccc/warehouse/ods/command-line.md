@@ -1,0 +1,193 @@
+### hdfs
+```shell
+# 集群命令
+[root@cdh1 ~]$ /opt/cloudera/parcels/CDH/bin目录存放了hadoop/hdfs/yarn/zookeeper等一系列集群命令
+# 查看hadoop版本
+[root@cdh1 ~]$ hadoop version
+# 查看hdfs的各节点状态信息
+[root@cdh1 ~]$ hdfs dfsadmin -report
+# 刷新节点
+[root@cdh1 ~]$ hdfs dfsadmin -refreshNodes
+# 查看hdfs是否是安全模式(read-only)
+[root@cdh1 ~]$ hdfs dfsadmin -safemode [enter/leave]
+# 获取namenode节点的HA状态
+[root@cdh1 ~]$ hdfs haadmin -getServiceState nn1
+# 切换状态(将nn2变为active)
+[root@cdh1 ~]$ hdfs haadmin -failover nn1 nn2
+# 检测节点健康状况
+[root@cdh1 ~]$ hdfs haadmin -checkHealth nn1
+# 单独启动一个zkfc进程
+[root@cdh1 ~]$ hadoop-daemon.sh start zkfc
+
+# hdfs命令
+# 修改目录所属用户(组)
+[root@cdh1 ~]$ hdfs dfs -chown deploy /user/flume
+[root@cdh1 ~]$ hdfs dfs -chown deploy:supergroup /user/flume
+# 查看文件列表以时间倒序排序
+[root@cdh1 ~]$ hdfs dfs -ls -t -r /
+# 查看文件内容
+[root@cdh1 ~]$ hdfs dfs -cat <hdfs文件>
+# 上传下载
+[root@cdh1 ~]$ hdfs dfs -put <local> <hdfs>
+[root@cdh1 ~]$ hdfs dfs -get <hdfs> <local>
+# 集群之间拷贝数据,本质上是运行mr
+[root@cdh1 ~]$ hadoop distcp hdfs://nn1:9000/a.txt hdfs://nn2:9000/a.txt
+# 合并小文件(所有文件加起来不到128M那种,先合并到本地再传回hdfs)
+[root@cdh1 ~]$ hdfs dfs -getmerge <hdfs> <local> & hdfs dfs -put <local> <hdfs>
+# 归档文件,对内还是一个个单独文件,对NameNode而言是一个整体从而减少内存占用
+[root@cdh1 ~]$ hadoop archive -archiveName small.har –p /input /output  # 将/input下的文件归档成small.har放到/output
+[root@cdh1 ~]$ hadoop fs -ls /output/small.har | hadoop fs -ls har:///output/small.har  # 查看归档文件
+[root@cdh1 ~]$ hadoop fs -cp har:///output/small.har/* /output/copy  # 解归档文件
+# 创建文件夹(级联)
+[root@cdh1 ~]$ hdfs dfs -mkdir -p <path>
+# 设置/取消该文件夹上传文件数限制
+[root@cdh1 ~]$ hdfs dfsadmin -setQuota | -clrQuota 3 /test
+# 设置/取消该文件夹大小
+[root@cdh1 ~]$ hdfs dfsadmin -setSpaceQuota | -clrSpaceQuota 1g /test
+# 在hdfs上复制(cp)和移动(mv)文件
+[root@cdh1 ~]$ hdfs dfs -mv /aaa/* /bbb/
+# 删除hdfs文件,其实是移到回收站了,还可以通过-mv还原,如果-rm -skipTrash跳过回收站就是彻底删除无法还原
+[root@cdh1 ~]$ hdfs dfs -rm /aaa/angela.txt
+# 删除hdfs文件夹
+[root@cdh1 ~]$ hdfs dfs -rm -r /aaa
+# hdfs总空间大小
+[root@cdh1 ~]$ hdfs dfs -df -h /
+Filesystem    Size   Used  Available  Use%
+hdfs://ns1    2.8 P  1.5 P    1.3 P   53%
+# hdfs某个目录大小
+[root@cdh1 ~]$ hdfs dfs -du -s -h /user/hive/warehouse
+31.6T  64.7T  /user/hive/warehouse  # 说明是2个副本,小文件也会被当成128m切块大小,所以不是刚刚好2倍关系
+# hdfs某个目录下所有文件大小
+[root@cdh1 ~]$ hdfs dfs -du -h /user/hive/warehouse
+5.2 G    12.7 G   /user/hive/warehouse/dm.db
+104.5 G  240.2 G  /user/hive/warehouse/dw.db
+320.7 G  671.3 G  /user/hive/warehouse/ods.db
+# hdfs某类文件大小
+[root@cdh1 ~]$ hdfs dfs -du -s /user/hive/warehouse/ods.db/*_add_d | awk '{sum+=$1} END{print int(sum/1024/1024/1024) "G"}'
+20063G
+# hdfs某个时间段文件大小,比如2020年以后的,每个月的月初和月末
+[root@cdh1 ~]$ hdfs dfs -du -s /user/hive/warehouse/ods.db/*/dt=202* | awk '{sum+=$1} END{print int(sum/1024/1024/1024) "G"}'
+143040G
+# hdfs文件大小排序
+[root@cdh1 ~]$ hdfs dfs -du /user/hive/warehouse/*.db | awk '{print int($1/1024/1024/1024) "G",int($2/1024/1024/1024) "G",$3}' OFS="\t" | awk '$1 > 1G' | sort -nr
+72G  160G  /user/hive/warehouse/ods.db/debit_detail
+54G  110G  /user/hive/warehouse/dw.db/urge_record
+51G  105G  /user/hive/warehouse/dm.db/pay_repayment_detail
+# trash
+# 类似linux系统回收站,hdfs会为每个用户创建一个回收站目录/user/当前用户/.Trash/
+# hdfs内部实现是在namenode开启一个后台线程Emptier专门管理和监控系统回收站,将超过生命周期的数据删除并释放关联的数据块
+# 防止误删数据,删除的文件不会立即清除而是转移到/user/当前用户/.Trash/Current并保留一段时间(fs.trash.interval),所以hdfs磁盘空间不会立即增加
+# 手动清空回收站
+[root@cdh1 ~]$ hdfs dfs -expunge  # 会将当前目录/user/用户名/.Trash/current重命名为/user/用户名/.Trash/yyMMddHHmmSS,再次执行就彻底删除了
+
+# web页面监控
+http://cdh1:50070    # active/standby
+http://cdh1:10002    # hive
+http://cdh1:8088     # yarn界面查看cdh各项集群指标,已激活节点数56,总内存(64/128)*56≈5TB,总CPU(32/64)*56≈2800核,调度队列使用占比等
+http://cdh1:19888    # mr job history
+http://cdh1:8080     # master(如果8080端口被占用,MasterUI会尝试8081端口,WorkerUI会顺延到8082端口,可通过spark启动日志查看)
+http://cdh1:4040     # spark-shell
+http://cdh1:18080    # spark history server
+```
+
+### yarn
+```shell
+# 查看yarn应用列表
+[root@cdh1 ~]$ yarn application -list
+# 查看yarn应用状态
+[root@cdh1 ~]$ yarn application -status ${application_id}
+# 查看yarn应用日志
+[root@cdh1 ~]$ yarn logs -applicationId ${application_id}
+# 杀掉单个yarn应用
+[root@cdh1 ~]$ yarn application -kill ${application_id}
+# 杀掉全部yarn应用
+[root@cdh1 ~]$ for i in `yarn application -list | awk '{print $1}' | grep application_`; do yarn application -kill $i; done
+# 批量杀掉yarn应用
+[root@cdh1 ~]$ for i in `yarn application -list | grep ... | awk '{print $1}' | grep application_`; do yarn application -kill $i; done
+# linux批量杀进程
+[root@cdh1 ~]$ ps -aux | grep ... | awk '{print $2}' | xargs kill -9
+```
+
+### spark3.3.0
+```shell
+#!/bin/bash
+
+if [ "$1" == "event" ];then
+    className=RealTimeEvent
+elif [ "$1" == "lesson" ];then
+    className=RealTimeLesson
+elif [ "$1" == "token" ];then
+    className=RealTimeToken
+fi
+
+project=RealTimeEvent
+class=com.okccc.realtime.ods.${className}
+path=/data1/projects-app/realtime/${project}
+
+# 先杀掉原进程
+yarn application -list | grep ${class} | awk '{print $1}' | xargs yarn application -kill
+
+# 启动脚本,将配置信息放到工程外的独立文件,这样往prod/dev等不同环境写数据只需修改配置文件不用重新编译代码
+nohup /opt/spark/bin/spark-submit \
+--class ${class} \
+--name ${project} \  # yarn监控页面spark任务名称
+--files ${path}/conf/config.properties,${path}/conf/log4j.properties,${path}/conf/hive-site.xml \
+--master yarn \
+--deploy-mode cluster \
+--queue root.default \
+--driver-memory 4g \  # 如果yarn监控页面State一直处于ACCEPTED状态可以适当调大驱动内存和运行内存
+--executor-memory 6g \  # total=(executor-memory + max(executor-memory*0.1, memoryOverhead)) * num-executors + driver-memory = 104G
+--num-executors 10 \  # container数=num-executors + 1(AM占一个,每个executor占一个)
+--executor-cores 2 \
+--conf "spark.yarn.executor.memoryOverhead=4096" \
+--conf spark.eventLog.enabled=true \
+--conf spark.eventLog.dir=hdfs://cdh1/sparklogs \
+${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
+
+# 常用配置
+--conf "spark.sql.warehouse.dir=hdfs://company/data/hive/warehouse"  \
+--conf "spark.default.parallelism=200"  \  # 每个stage默认task数=num-executors * executor-cores,推荐设置为CPU总core数的2~3倍
+--conf "spark.sql.auto.repartition=true"  \  # 自动重新分区,避免分区数过多导致单分区数据过少,每个task运算分区时要频繁调度消耗过多时间
+--conf "spark.sql.shuffle.partitions=400"  \  # 提高shuffle并行度,默认200,增加shuffle read task数量让每个task处理数据变少时间缩短
+# 开启动态资源分配
+--conf "spark.dynamicAllocation.enabled=true"  \
+--conf "spark.dynamicAllocation.maxExecutors=200"  \
+--conf "spark.dynamicAllocation.minExecutors=50"  \
+# shuffle调优
+--conf "spark.shuffle.file.buffer=64" \
+--conf "spark.reducer.maxSizeInFlight=96" \
+--conf "spark.shuffle.io.maxRetries=6" \
+--conf "spark.shuffle.io.retryWait=60s" \
+--conf "spark.shuffle.sort.bypassMergeThreshold=400" \
+# jvm调优
+--conf "spark.storage.memoryFraction=0.4" \
+--conf "spark.yarn.executor.memoryOverhead=2048" \
+--conf "spark.core.connection.ack.wait.timeout=300" \
+# 开启日志
+--conf spark.eventLog.enabled=true \
+--conf spark.eventLog.dir=hdfs://test/sparklogs \
+--conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j.properties -XX:+UseG1GC -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" \
+--conf "spark.streaming.kafka.maxRatePerPartition=1000000" \
+```
+
+### flink1.13.6
+```shell
+# 启动参数
+/bin/flink run 
+-c,--class                      Class with the program entry point ("main()" method)
+-d,--detached                   If present, runs the job in detached mode  # 后台运行,jps不会出现CliFrontend
+-m,--jobmanager                 Address of the JobManager (master) to which to connect
+-ynm,--yarnname                 Set a custom name for the application on YARN  # yarn监控页面flink任务名称
+-yjm,--yarnjobManagerMemory     Memory for JobManager Container with optional unit default: MB
+-ytm,--yarntaskManagerMemory    Memory per TaskManager Container with optional unit default: MB
+-ys,--yarnslots                 Number of slots per TaskManager
+-yqu,--yarnqueue                Specify YARN queue
+# 配置选项 https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/deployment/config/
+-D<property=value>              Generic configuration options for example -Dexecution.runtime-mode=BATCH  # 批处理模式
+# 启动/关闭集群
+[root@cdh1 ~]$ start-cluster.sh / stop-cluster.sh
+# 查看任务列表
+[root@cdh1 ~]$ bin/flink list [-a/-r/-s]  # -a显示所有,-r显示运行的,-s显示调度的
+# 提交任务
+[root@cdh1 ~]$ /bin/flink run -m yarn-cluster -d -ynm demo -yjm 2048m -ytm 4096m -ys 1 -yqu root.bi -c com.okccc.Demo ./demo.jar
+```
