@@ -275,16 +275,11 @@
             <artifactId>flink-connector-kafka_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink操作hdfs,目前只支持到flink1.10版本,kafka连接器是flink-connector-kafka-0.11_2.11版本 -->
+        <!-- flink操作hdfs -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka-0.11_2.11</artifactId>
-            <version>1.10.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-filesystem_2.11</artifactId>
-            <version>1.10.0</version>
+            <artifactId>flink-connector-files</artifactId>
+            <version>${flink.version}</version>
         </dependency>
         <!-- flink操作jdbc -->
         <dependency>
