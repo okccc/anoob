@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.utils.MyFlinkUtil;
 import com.okccc.realtime.utils.PropertiesUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -35,6 +36,8 @@ public class FlinkToHdfs {
         // 开启检查点
         env.enableCheckpointing(60 * 1000L);
         env.getCheckpointConfig().setCheckpointTimeout(30 * 1000L);
+        // 重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, 60 * 1000L));
         // 状态后端
         env.setStateBackend(new FsStateBackend("hdfs:///flink/cp/xxx"));
         // 本地调试时要指定能访问hadoop的用户
