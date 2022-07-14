@@ -82,9 +82,12 @@ public class Flink01 {
          * redistributing：keyBy键控流转换算子,基于hashCode按键分区,broadcast和rebalance随机重分区,类似spark的shuffle
          *
          * State
-         * 算子状态(Operator State)：可见范围是当前任务槽(范围太广,没什么用)
-         * 键控状态(Keyed State)：可见范围是当前key,包括ValueState/ListState/MapState/ReducingState & AggregatingState
-         * 状态后端：默认内存级别(MemoryStateBackend),负责读写本地状态,以及将checkpoint状态写入远程hdfs存储
+         * 无状态算子：不依赖其它数据,比如map/filter/flatMap只处理当前进来的数据
+         * 有状态算子：会依赖其它数据,比如aggregate/window都会用到之前已经到达的数据,也就是所谓的状态
+         * 算子任务会按并行度分为多个并行子任务执行,不同子任务占据不同task slot,所以状态在资源上是物理隔离的,只对当前子任务有效
+         * 而且aggregate/window等有状态算子都会先keyBy,后续计算都是针对当前key的,所以状态也应该按照key隔离,于是状态分为以下两种
+         * 算子状态(Operator State)：可见范围是当前子任务,相当于本地变量,范围太大应用场景较少
+         * 按键分区状态(Keyed State)：可见范围是当前key,包括ValueState/ListState/MapState/AggregatingState/ReducingState
          *
          * Checkpoint
          * flink故障恢复机制的核心就是检查点,会定期拷贝当前状态(快照),时间节点是当所有任务都处理完一个相同输入数据时(检查点分界线)
