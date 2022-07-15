@@ -10,6 +10,7 @@ import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -40,7 +41,7 @@ import java.util.Random;
 /**
  * Author: okccc
  * Date: 2021/9/1 下午2:35
- * Desc: WordCount案例
+ * Desc: flink简介
  */
 public class Flink01 {
     public static void main(String[] args) throws Exception {
@@ -91,17 +92,15 @@ public class Flink01 {
          *
          * Checkpoint
          * flink故障恢复机制的核心就是检查点,会定期拷贝当前状态(快照),时间节点是当所有任务都处理完一个相同输入数据时(检查点分界线)
-         * 故障恢复时重启应用 -> 从checkpoint读取数据并将状态重置 -> 开始消费并处理检查点到发生故障之间的所有数据
+         * "检查"是针对故障恢复的结果而言,故障恢复后继续处理的结果应该和发生故障前完全一致,所以也叫"一致性检查点",默认只保存最近一次检查点
          * 检查点同步实现：暂停应用,保存状态到检查点,再重新恢复应用(sparkStreaming)
          * 检查点异步实现：基于Chandy-Lamport分布式异步快照算法,将检查点的保存和数据处理分开,不暂停应用(flink)
          *
-         * 端到端的Exactly-Once
-         * flink-source端：FlinkKafkaConsumer会保存消费数据的偏移量,故障恢复时由连接器重置偏移量
-         * flink流处理端：checkpoint机制保证flink内部状态一致性
-         * flink-sink端：从故障恢复时数据不会重复写入外部系统,可以借助幂等写入或事务的原子性实现,FlinkKafkaProducer采用的是2PC
-         * 幂等写入(Idempotent Write)：对于特定数据结构,重复写入数据结果不变,比如hashmap/redis键值对/mysql、es等有主键id的数据库
-         * 两阶段提交(two-phase-commit,2PC)：sink任务会将每个checkpoint接收到的数据输出到支持事务的下游系统(mysql/kafka)但暂不提交,
-         * 等到checkpoint完成时会正式提交,commit失败会回滚,flink提供了TwoPhaseCommitSinkFunction,2PC是解决分布式事务问题的常用方法
+         * Checkpoint & Savepoint
+         * Checkpoint由flink创建和删除,会定期自动触发,为意外失败的作业提供恢复机制,job停止后自动删除
+         * Savepoint由用户创建和删除,需要手动触发,为版本升级/代码更新/调整并行度等有目的的暂停提供恢复机制,创建后就一直存在需手动删除
+         * 保存点中状态是以(算子id-状态名称)这样的key-value组织起来的,保存点在程序修改后能兼容的前提是状态的拓扑结构和数据类型保持不变,
+         * 对于不设置id的算子flink会自动配置,这样应用重启后可能会因为id不同导致无法兼容以前的状态,为了方便维护强烈建议为每个算子都指定id
          */
 
         // 创建流处理执行环境
@@ -110,10 +109,10 @@ public class Flink01 {
         // Source算子并行度设置为1可以保证数据有序
         // reduce这种聚合算子最好是能通过提交脚本-p动态扩展,所以代码一般不设置全局并行度,不然会覆盖动态指定,而具体的算子并行度则不会
         env.setParallelism(1);
-        // 设置状态后端,通常是在工程中统一配置
-//        env.setStateBackend(new FsStateBackend("file:///Users/okc/projects/anoob/input/cp", false));
-        // 10秒保存一次检查点,flink默认只保存最近一次检查点即可正确恢复程序
-        env.enableCheckpointing(10 * 1000L);
+        // 开启检查点
+        env.enableCheckpointing(60 * 1000L, CheckpointingMode.EXACTLY_ONCE);
+        env.getCheckpointConfig().setCheckpointTimeout(60 * 1000L);
+        env.getCheckpointConfig().setCheckpointStorage("hdfs:///flink/checkpoint");
 
         // 实时：监听socket数据流,先在终端开启`nc -lk 9999`
         DataStreamSource<String> inputStream = env.socketTextStream("localhost", 9999);
@@ -133,7 +132,7 @@ public class Flink01 {
                     out.collect(new WordCount(word, 1));
                 }
             }
-        }).setParallelism(1);
+        }).uid("flatmap").setParallelism(1);
 
         // 分组：shuffle操作
         // 按照key将数据分发到不同的逻辑分区,相同key一定在同一个任务槽(物理分区),所以会有数据倾斜问题,不同key有可能在同一个任务槽
