@@ -176,6 +176,7 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 /bin/flink run 
 -c,--class                      Class with the program entry point ("main()" method)
 -d,--detached                   If present, runs the job in detached mode  # 后台运行,jps不会出现CliFrontend
+-s,--fromSavepoint              Path to a savepoint to restore the job from for example hdfs:///flink/savepoint-1537
 -m,--jobmanager                 Address of the JobManager (master) to which to connect
 -ynm,--yarnname                 Set a custom name for the application on YARN  # yarn监控页面flink任务名称
 -yjm,--yarnjobManagerMemory     Memory for JobManager Container with optional unit default: MB
@@ -190,4 +191,14 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 [root@cdh1 ~]$ bin/flink list [-a/-r/-s]  # -a显示所有,-r显示运行的,-s显示调度的
 # 提交任务
 [root@cdh1 ~]$ /bin/flink run -m yarn-cluster -d -ynm demo -yjm 2048m -ytm 4096m -ys 1 -yqu root.bi -c com.okccc.Demo ./demo.jar
+# 触发保存点,可以定期触发比如有时候要回滚前两天的数据
+[root@cdh1 ~]$ /bin/flink savepoint ${jobId} ${savepointPath} -yid ${yarnAppId}
+# 取消任务(废弃)
+[root@cdh1 ~]$ /bin/flink cancel ${jobId}
+# 停止任务并设置保存点(推荐),此时yarn界面任务的FinalStatus由UNDEFINED变成SUCCEEDED,任务恢复后又变成UNDEFINED
+[root@cdh1 ~]$ /bin/flink stop --savepointPath ${savepointPath} ${jobId} -yid ${yarnAppId}
+Savepoint completed. Path: hdfs://10.201.7.140:4007/flink/sp/ghs/savepoint-d03533-402a0f6593cd
+# 从保存点恢复,-n(allowNonRestoredState)跳过无法映射到新程序的状态
+[root@cdh1 ~]$ /bin/flink run -s ${savepointPath}
+Job has been submitted with JobID b3a8ddbcd24d60ed778fe2d0862e9c7e
 ```

@@ -28,6 +28,9 @@ public class FlinkToHdfs {
          *
          * java.lang.NoSuchMethodError: org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator.sinkTo
          * 服务器提交命令行bin/flink run的flink版本过低
+         *
+         * 从保存点恢复任务报错：Truncation is not available in hadoop version < 2.7 , You are on Hadoop 2.6.0
+         * https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/connectors/datastream/filesystem/#important-considerations
          */
 
         // 1.创建流处理环境
