@@ -10,6 +10,7 @@ import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -100,7 +101,12 @@ public class Flink01 {
          * Checkpoint由flink创建和删除,会定期自动触发,为意外失败的作业提供恢复机制,job停止后自动删除
          * Savepoint由用户创建和删除,需要手动触发,为版本升级/代码更新/调整并行度等有目的的暂停提供恢复机制,创建后就一直存在需手动删除
          * 保存点中状态是以(算子id-状态名称)这样的key-value组织起来的,保存点在程序修改后能兼容的前提是状态的拓扑结构和数据类型保持不变,
-         * 对于不设置id的算子flink会自动配置,这样应用重启后可能会因为id不同导致无法兼容以前的状态,为了方便维护强烈建议为每个算子都指定id
+         * 对于不设置id的算子flink会自动配置,这样应用重启后可能会因为id不同导致无法兼容以前的状态,为了方便后期维护建议为每个算子都指定id
+         *
+         * StateBackend
+         * 状态后端负责两件事：1.读写本地状态 2.将检查点写入远程持久化存储
+         * HashMapStateBackend(默认)：本地状态放内存,读写速度极快但不安全,并且会消耗集群大量内存资源,适合较大state和window
+         * EmbeddedRocksDBStateBackend：本地状态放RocksDB,硬盘存储读写要序列化/反序列化降低性能但是安全,适合超大state和window
          */
 
         // 创建流处理执行环境
@@ -113,6 +119,8 @@ public class Flink01 {
         env.enableCheckpointing(60 * 1000L, CheckpointingMode.EXACTLY_ONCE);
         env.getCheckpointConfig().setCheckpointTimeout(60 * 1000L);
         env.getCheckpointConfig().setCheckpointStorage("hdfs:///flink/checkpoint");
+        // 设置状态后端
+        env.setStateBackend(new EmbeddedRocksDBStateBackend());
 
         // 实时：监听socket数据流,先在终端开启`nc -lk 9999`
         DataStreamSource<String> inputStream = env.socketTextStream("localhost", 9999);

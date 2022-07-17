@@ -14,7 +14,7 @@
         <scala.version>2.12.12</scala.version>
         <hadoop.version>3.0.0</hadoop.version>
         <spark.version>2.4.5</spark.version>
-        <flink.version>1.13.0</flink.version>
+        <flink.version>1.13.6</flink.version>
         <kafka.version>2.4.1</kafka.version>
         <mysql.version>8.0.16</mysql.version>
         <flume.version>1.9.0</flume.version>
@@ -262,6 +262,13 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-scala_2.12</artifactId>
             <version>${flink.version}</version>
+        </dependency>
+        <!-- flink状态后端rocksdb -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!-- flink客户端,可使用命令行flink run往yarn提交任务,jps发现会有CliFrontend进程 -->
         <dependency>
