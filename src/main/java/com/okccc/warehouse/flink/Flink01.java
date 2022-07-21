@@ -71,21 +71,16 @@ public class Flink01 {
          * 比如同一个Stage内部多个分区间的map算子有快有慢,必须要等所有map算子全部执行完(木桶原理)才能继续下一个Stage,会有秒级延迟
          * flink采用Integer/String/Long/POJO类等数据结构,是标准流处理模式,map -> keyBy -> reduce一直往下运行不用等,没有延迟
          *
-         * flink架构
-         * JobManager：作业管理器,对应一个jvm进程,包括ResourceManager、Dispatcher和JobMaster三个线程
-         * ResourceManager：管理TaskManager的静态资源slot(插槽)
-         * Dispatcher：在web界面提交flink应用程序,并为提交的作业启动一个新的JobMaster,命令行提交不需要
-         * JobMaster：负责单个JobGraph的执行,flink可以同时运行多个作业,每个作业都有自己的JobMaster
-         * TaskManager：任务管理器,对应一个jvm进程,由task slot控制任务数,即并发执行能力,子任务可以共享slot,子任务就是程序中的各种算子
-         *
          * flink部署模式
          * 会话模式：先启动一个集群并确定所有资源,提交的作业会竞争集群资源,资源不足就会提交失败,适合数据规模小执行时间短的任务
          * 单作业模式：为每个提交的作业都单独启动一个集群,资源隔离互不影响,作业完成就关闭集群释放资源,通常需要yarn等资源管理框架来启动集群
          *
-         * 并行度
-         * 算子的subtask个数,流的并行度通常是所有算子的最大并行度,一个任务槽最多运行一个并行度,parallelism(动态) <= task slot(静态)
-         * one-to-one：map/filter/flatMap基本转换算子,元素个数和顺序保持不变,相同并行度的one-to-one算子可以形成任务链,减少网络io
-         * redistributing：keyBy键控流转换算子,基于hashCode按键分区,broadcast和rebalance随机重分区,类似spark的shuffle
+         * flink运行架构
+         * JobManager：负责任务管理和调度,对应一个jvm进程,包括下面三个线程
+         * Dispatcher：提交应用并启动一个新的JobMaster,不是必须组件比如往yarn提交任务时就不需要
+         * ResourceManager：负责资源分配和管理,资源是指TaskManager的任务槽task slots
+         * JobMaster：接收要执行的应用,将JobGraph转换成ExecutionGraph,并向RM申请资源分发给TaskManager,每个job都对应一个JobMaster
+         * TaskManager：执行任务处理数据,对应一个jvm进程,包含一定数量的任务槽task slots,对应其能并行处理的任务数
          *
          * State
          * 无状态算子：不依赖其它数据,比如map/filter/flatMap只处理当前进来的数据
