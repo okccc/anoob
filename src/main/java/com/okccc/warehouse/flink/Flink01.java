@@ -82,6 +82,14 @@ public class Flink01 {
          * JobMaster：接收要执行的应用,将JobGraph转换成ExecutionGraph,并向RM申请资源分发给TaskManager,每个job都对应一个JobMaster
          * TaskManager：执行任务处理数据,对应一个jvm进程,包含一定数量的任务槽task slots,对应其能并行处理的任务数
          *
+         * 并行度和任务槽
+         * 并行度：算子之间有执行顺序,每来一条数据都要经过source/transform/sink依次执行,算子在同一时刻只能处理一条数据,为了提高吞吐量
+         * 将算子拆分成多个并行子任务,分发到不同节点实现"并行计算",算子的子任务个数就是"并行度",不同算子可以设置不同并行度,程序取最大并行度
+         * 算子链：source和map之间的数据流不会重分区,并行度相同的one-to-one算子可以合并成"算子链",减少资源消耗,类似spark窄依赖
+         * 而map和keyBy之间的数据流会基于hashCode按键分区,属于redistributing操作会伴随shuffle的过程,类似spark宽依赖
+         * 任务槽：每个任务都占据一个task slot,对应一组独立计算资源,但是不同算子耗费资源不一样,忙的忙死闲的闲死,为了充分利用集群资源,
+         * 不同算子的子任务可以共享任务槽,并行度(TaskManager实际使用的并发,动态概念) <= 任务槽(TaskManager拥有的并发能力,静态概念)
+         *
          * State
          * 无状态算子：不依赖其它数据,比如map/filter/flatMap只处理当前进来的数据
          * 有状态算子：会依赖其它数据,比如aggregate/window都会用到之前已经到达的数据,也就是所谓的状态
