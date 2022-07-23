@@ -151,6 +151,7 @@ public class Flink01 {
         DataStreamSource<Event> inputStream03 = env.addSource(new UserActionSource());
 
         // 针对流中每个输入元素：map输出1个元素,filter输出0/1个元素,flatMap输出0/1/N个元素,flatMap是map和filter的泛化实现
+        // MapFunction/KeySelector/ReduceFunction/ProcessWindowFunction/AggregateFunction等所有UDF都继承自Function接口
         SingleOutputStreamOperator<WordCount> mapStream = inputStream.flatMap(new FlatMapFunction<String, WordCount>() {
             // 输入类型String,输出类型WordCount
             @Override
