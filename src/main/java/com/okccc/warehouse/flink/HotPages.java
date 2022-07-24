@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Author: okccc
  * Date: 2021/10/9 下午5:59
- * Desc: 实时统计10min内的热门商品排名,5s刷新一次(乱序数据)
+ * Desc: 实时统计10min内的热门页面排名,5s刷新一次(乱序数据)
  */
 public class HotPages {
     public static void main(String[] args) throws Exception {

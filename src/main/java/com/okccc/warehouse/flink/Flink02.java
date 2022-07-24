@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 /**
  * Author: okccc
  * Date: 2021/9/7 下午4:49
- * Desc: RichFunction、KeyedProcessFunction、状态变量、定时器
+ * Desc: flink处理函数
  */
 public class Flink02 {
     public static void main(String[] args) throws Exception {
@@ -45,7 +45,7 @@ public class Flink02 {
          * deleteEventTimeTimer(long time)删除之前注册的事件时间定时器
          *
          * 总结：
-         * 1.flink流处理最重要的两个概念：状态和时间,process()中声明的状态变量是当前key独有的,定时器本质上也是一个状态变量
+         * 1.flink流处理最重要的两个概念：状态和时间,KeyedState可见范围是当前key,定时器本质上也是一个状态变量
          * 2.flink大招：KeyedProcessFunction + 状态变量 + 定时器,功能极其强大,是flatMap和reduce的终极加强版,也是flink精髓所在
          */
 
@@ -128,8 +128,6 @@ public class Flink02 {
                     public void open(Configuration parameters) throws Exception {
                         super.open(parameters);
                         // 实例化状态变量
-                        // 1.状态变量是当前key独有
-                        // 2.状态变量是单例模式,只能实例化一次,因为状态也会定期备份到检查点,故障重启时会去检查点查找,有就恢复没有就创建
                         acc = getRuntimeContext().getState(
                                 new ValueStateDescriptor<>("acc", Types.TUPLE(Types.INT, Types.INT)));
                         timer = getRuntimeContext().getState(
@@ -193,7 +191,7 @@ public class Flink02 {
                         super.open(parameters);
                         // 实例化状态变量
                         listState = getRuntimeContext().getListState(
-                                new ListStateDescriptor<>("number", Types.INT));
+                                new ListStateDescriptor<>("list", Types.INT));
                     }
 
                     @Override
@@ -231,7 +229,7 @@ public class Flink02 {
                         super.open(parameters);
                         // 实例化状态变量
                         mapState = getRuntimeContext().getMapState(
-                                new MapStateDescriptor<>("user-pv", Types.STRING, Types.INT));
+                                new MapStateDescriptor<>("user-cnt", Types.STRING, Types.INT));
                     }
 
                     @Override

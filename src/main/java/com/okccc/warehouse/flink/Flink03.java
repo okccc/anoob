@@ -18,12 +18,12 @@ import java.sql.Timestamp;
 /**
  * Author: okccc
  * Date: 2021/9/9 下午5:05
- * Desc: ProcessWindowFunction、AggregateFunction
+ * Desc: flink窗口
  */
 public class Flink03 {
     public static void main(String[] args) throws Exception {
         /*
-         * flink也有窗口函数,但不代表这就是微批处理,flink流处理指的是数据来一条处理一条,开窗是业务需求,有些场景必须要攒一批数据
+         * flink也有窗口函数,有些业务场景必须要攒一批数据做批处理
          * keyBy()是分组后聚合,keyBy() + window()是分组并各自开窗后再聚合,分组就是将数据分到不同的流
          *
          * 滚动窗口：窗口大小固定,没有重叠,一个元素只会属于一个窗口
@@ -59,8 +59,8 @@ public class Flink03 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-//        demo01(env);
-        demo02(env);
+        demo01(env);
+//        demo02(env);
 //        demo03(env);
 //        demo04(env);
 
@@ -87,7 +87,7 @@ public class Flink03 {
                         // 获取迭代器中的元素个数
                         long cnt = elements.spliterator().getExactSizeIfKnown();
                         // 输出结果
-                        out.collect("用户 " + key + " 在窗口 " + new Timestamp(start) + " ~ " + new Timestamp(end) + " 的pv是 " + cnt);
+                        out.collect(key + ": " + new Timestamp(start) + " ~ " + new Timestamp(end) + " = " + cnt);
                     }
                 })
                 .print();
@@ -124,7 +124,7 @@ public class Flink03 {
         @Override
         public Integer add(Flink01.Event value, Integer accumulator) {
             // 定义累加规则,返回更新后的累加器
-            System.out.println("当前进来的元素是：" + value);
+            System.out.println("current element is: " + value);
             return accumulator + 1;
         }
         @Override
@@ -147,7 +147,7 @@ public class Flink03 {
             // 迭代器只包含一个元素,就是增量聚合的结果
             Integer cnt = elements.iterator().next();
             // 收集结果往下游发送
-            out.collect("用户 " + key + " 在窗口 " + new Timestamp(start) + " ~ " + new Timestamp(end) + " 的pv是 " + cnt);
+            out.collect(key + ": " + new Timestamp(start) + " ~ " + new Timestamp(end) + " = " + cnt);
         }
     }
 

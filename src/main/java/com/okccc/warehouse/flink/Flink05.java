@@ -11,6 +11,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.CoFlatMapFunction;
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction;
 import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
@@ -25,7 +26,7 @@ import java.sql.Timestamp;
 /**
  * Author: okccc
  * Date: 2021/9/18 下午2:28
- * Desc: CoProcessFunction、ProcessJoinFunction
+ * Desc: flink多流转换
  */
 public class Flink05 {
     public static void main(String[] args) throws Exception {
@@ -49,14 +50,10 @@ public class Flink05 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        // 演示union
-        demo01(env);
-        // 演示水位线传播方式
+//        demo01(env);
 //        demo02(env);
-        // 演示connect
-//        demo03(env);
+        demo03(env);
 //        demo04(env);
-        // 演示join
 //        demo05(env);
 //        demo06(env);
 
@@ -64,8 +61,8 @@ public class Flink05 {
         env.execute();
     }
 
+    // 演示union合并多条流
     private static void demo01(StreamExecutionEnvironment env) {
-        // 演示union合并多条流
         DataStreamSource<Integer> stream01 = env.fromElements(1, 2);
         DataStreamSource<Integer> stream02 = env.fromElements(3, 4, 5);
         DataStreamSource<Integer> stream03 = env.fromElements(6, 7, 8, 9);
@@ -73,10 +70,11 @@ public class Flink05 {
         unionStream.print();
     }
 
+    // 演示水位线传播方式
     private static void demo02(StreamExecutionEnvironment env) {
         SingleOutputStreamOperator<Tuple2<String, Long>> stream01 = env.socketTextStream("localhost", 9999)
                 .map(value -> {
-                    String[] arr = value.split(",");
+                    String[] arr = value.split("\\s");
                     return Tuple2.of(arr[0], Long.parseLong(arr[1]) * 1000);
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
@@ -86,7 +84,7 @@ public class Flink05 {
                 );
         SingleOutputStreamOperator<Tuple2<String, Long>> stream02 = env.socketTextStream("localhost", 8888)
                 .map(value -> {
-                    String[] arr = value.split(",");
+                    String[] arr = value.split("\\s");
                     return Tuple2.of(arr[0], Long.parseLong(arr[1]) * 1000);
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
@@ -96,35 +94,33 @@ public class Flink05 {
                 );
 
         // 分流时水位线传播方式
-        stream01
-                .keyBy(r -> r.f0)
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
-                // 输入`a,1` `b,5`
-                .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
-                    @Override
-                    public void process(String key, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> out) throws Exception {
-                        // 当`b,5`进来时`a,1`的窗口也触发了,说明分流时水位线是复制广播的,整个流中只有一个最新的水位线,和分流的key没关系
-                        out.collect(key + " 的窗口触发了,当前水位线是 " + context.currentWatermark());
-                    }
-                })
-                .print();
+//        stream01
+//                .keyBy(r -> r.f0)
+//                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+//                // 输入`a,1` `b,5`
+//                .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
+//                    @Override
+//                    public void process(String key, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> out) throws Exception {
+//                        // 当`b,5`进来时`a,1`窗口关闭,说明分流时水位线是复制广播的,整个流中只有一个最新的水位线,和分流的key没关系
+//                        System.out.println("current watermark is: " + context.currentWatermark());
+//                    }
+//                });
 
         // 合流时水位线传播方式
-//        stream01
-//                .union(stream02)
-//                // 开启两个nc -lk,分别输入`a,1` `a,2`
-//                .process(new ProcessFunction<Tuple2<String, Long>, String>() {
-//                    @Override
-//                    public void processElement(Tuple2<String, Long> value, Context ctx, Collector<String> out) throws Exception {
-//                        // 开始两个流的水位线都是负无穷,然后任意流再输入任意元素,水位线变成999而不是1999,说明合流时水位线传递的是小的那个值
-//                        out.collect("当前水位线是 " + ctx.timerService().currentWatermark());
-//                    }
-//                })
-//                .print();
+        stream01
+                .union(stream02)
+                // 开启两个nc -lk,分别输入`a,1` `a,2`
+                .process(new ProcessFunction<Tuple2<String, Long>, String>() {
+                    @Override
+                    public void processElement(Tuple2<String, Long> value, Context ctx, Collector<String> out) throws Exception {
+                        // 开始时两个流水位线都是负无穷大,然后任意流再输入任意元素,水位线变成999而不是1999,说明合流时水位线传递的是小的那个值
+                        System.out.println("current watermark is: " + ctx.timerService().currentWatermark());
+                    }
+                });
     }
 
+    // 演示connect连接两条流
     private static void demo03(StreamExecutionEnvironment env) {
-        // 演示connect连接两条流
         DataStreamSource<Flink01.Event> actionStream = env.addSource(new Flink01.UserActionSource());
         DataStreamSource<String> queryStream = env.socketTextStream("localhost", 9999).setParallelism(1);
         actionStream
@@ -205,8 +201,8 @@ public class Flink05 {
                 .print();
     }
 
+    // 演示基于时间间隔的join
     private static void demo05(StreamExecutionEnvironment env) {
-        // 演示基于时间间隔的join
         SingleOutputStreamOperator<Event> stream01 = env
                 .fromElements(
                         Event.of("fly", "create", 10 * 60 * 1000L),
@@ -238,8 +234,8 @@ public class Flink05 {
                 .print();
     }
 
+    // 演示基于窗口的join(很少用)
     private static void demo06(StreamExecutionEnvironment env) {
-        // 演示基于窗口的join(很少用)
         SingleOutputStreamOperator<Tuple2<String, Integer>> stream01 = env
                 .fromElements(Tuple2.of("a", 1), Tuple2.of("b", 1))
                 .assignTimestampsAndWatermarks(

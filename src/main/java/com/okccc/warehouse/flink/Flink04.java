@@ -22,7 +22,7 @@ import java.time.Duration;
 /**
  * Author: okccc
  * Date: 2021/9/13 下午2:06
- * Desc: 时间语义和水位线
+ * Desc: flink水位线
  */
 public class Flink04 {
     public static void main(String[] args) throws Exception {
@@ -59,28 +59,27 @@ public class Flink04 {
         // 插入水位线之前要保证流的并行度是1,不然就乱套了
         env.setParallelism(1);
 
-        // 演示水位线
 //        demo01(env);
 //        demo02(env);
 //        demo03(env);
-        // 演示迟到事件
         demo04(env);
 
         // 启动任务
         env.execute();
     }
 
+    // 演示水位线
     private static void demo01(StreamExecutionEnvironment env) {
-        // 需求：基于事件时间,统计每个元素每5秒钟出现次数
+        // 需求：统计每个元素每5秒钟出现次数
         env.socketTextStream("localhost",9999)
                 // 事件时间要求数据源必须包含时间戳,先将输入元素`a 1`映射成Tuple2(a, 1000L)
                 .map((MapFunction<String, Tuple2<String, Long>>) value -> {
                     String[] words = value.split("\\s");
                     return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000L);
                 })
-                // Tuple是flink给java设置的新的数据类型,使用lambda表达式会有泛型擦除问题,需要显示指定返回类型,或者直接使用匿名内部类
+                // Tuple是flink给java设置的新数据类型,使用lambda表达式会有泛型擦除问题,需要显示指定返回类型,或者直接使用匿名内部类
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
-                // flink默认每200ms插入一次水位线,比如一秒钟来一条数据,那么两条数据之间会插入5次相同数值的水位线,因为计算公式是固定的
+                // 提取时间戳生成水位线
                 .assignTimestampsAndWatermarks(
                         // 设置乱序数据的最大延迟时间为5秒
                         WatermarkStrategy.<Tuple2<String, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(5))
@@ -95,17 +94,19 @@ public class Flink04 {
                 .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
                     @Override
                     public void process(String key, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> out) throws Exception {
+                        // 当水位线越过windowEnd时窗口关闭,驱动该方法运行,计算完后窗口销毁,时间戳小于水位线的数据就进不来了
+                        System.out.println("current watermark is: " + context.currentWatermark());
                         long start = context.window().getStart();
                         long end = context.window().getEnd();
                         long cnt = elements.spliterator().getExactSizeIfKnown();
-                        out.collect("元素 " + key + " 在窗口 " + new Timestamp(start) + " ~ " + new Timestamp(end) + " 出现次数是 " + cnt);
+                        out.collect(key + ": " + new Timestamp(start) + " ~ " + new Timestamp(end) + " = " + cnt);
                     }
                 })
                 .print();
     }
 
     private static void demo02(StreamExecutionEnvironment env) {
-        // 需求：基于事件时间,不准开窗,只能使用KeyedProcessFunction,统计每个元素每5秒钟出现次数
+        // 需求：统计每个元素每5秒钟出现次数,不准开窗只能使用KeyedProcessFunction
         env.socketTextStream("localhost",9999)
                 .map((MapFunction<String, Tuple2<String, Long>>) value -> {
                     String[] words = value.split("\\s");
@@ -119,29 +120,30 @@ public class Flink04 {
                 .keyBy(r -> r.f0)
                 // 输入`a 1` `a 12` `a 23`查看输出结果,可以深刻理解水位线
                 .process(new KeyedProcessFunction<String, Tuple2<String, Long>, String>() {
-                    // 开始时水位线负无穷大,`a 1`进来后隔200ms生成新水位线-4001,`a 12`进来后隔200ms生成新水位线6999,触发`a 1`的定时器
                     @Override
                     public void processElement(Tuple2<String, Long> value, Context ctx, Collector<String> out) throws Exception {
-                        out.collect("当前水位线是 " + ctx.timerService().currentWatermark());
-                        out.collect("当前元素 " + value + " 到达时间 " + new Timestamp(value.f1));
+                        // 每来一条数据都会驱动该方法运行,开始时水位线负无穷大,`a 1`进来变成-4001,`a 12`进来变成6999,触发`a 1`的定时器
+                        out.collect("current watermark is: " + ctx.timerService().currentWatermark());
+                        out.collect("current data is: " + value );
                         // 注册5秒后的定时器
                         ctx.timerService().registerEventTimeTimer(value.f1 + 5000L);
-                        out.collect("注册了一个即将在 " + new Timestamp(value.f1 + 5000L) + " 触发的定时器");
+                        out.collect("register a timer: " + new Timestamp(value.f1 + 5000L));
                     }
 
                     @Override
                     public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
                         super.onTimer(timestamp, ctx, out);
-                        out.collect("定时器 " + new Timestamp(timestamp) + " 触发了");
+                        out.collect("timer " + new Timestamp(timestamp) + " triggered!");
                     }
                 })
                 .print();
     }
 
     private static void demo03(StreamExecutionEnvironment env) {
-        // 设置自动插入水位线的时间间隔为30秒,默认是200毫秒,插入水位线的间隔根据经验设置,属于调优部分
+        // flink默认每200ms插入一次水位线,比如一秒钟来一条数据,那么两条数据之间会插入5次相同数值的水位线,因为计算公式是固定的
+        // 设置自动插入水位线的时间间隔为30秒,插入水位线的间隔根据经验设置,属于调优部分
         env.getConfig().setAutoWatermarkInterval(30 * 1000L);
-        // 需求：基于事件时间,统计每个元素每5秒钟出现次数
+        // 需求：统计每个元素每5秒钟出现次数
         env.socketTextStream("localhost",9999)
                 .map((MapFunction<String, Tuple2<String, Long>>) value -> {
                     String[] words = value.split("\\s");
@@ -149,41 +151,34 @@ public class Flink04 {
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 .assignTimestampsAndWatermarks(
-                        // 假设进来的数据是有序的,最大延迟时间设置为0秒
                         WatermarkStrategy.<Tuple2<String, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(0))
-                                // 从元素中提取时间戳(ms)作为事件时间
                                 .withTimestampAssigner((element, recordTimestamp) -> element.f1)
                 )
-                // 分组
                 .keyBy(r -> r.f0)
-                // 开窗
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))
                 // 简单聚合一下,输入`a 1` `a 2` `a 5` `a 3` `a 4`,因为水位线30秒之后才更新为4999,所以这几个元素都会进入[0, 5)窗口
                 .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
                     @Override
                     public void process(String key, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> out) throws Exception {
-                        // 窗口信息
+                        // 当水位线越过windowEnd时窗口关闭,驱动该方法运行,计算完后窗口销毁,时间戳小于水位线的数据就进不来了
+                        System.out.println("current watermark is: " + context.currentWatermark());
                         long start = context.window().getStart();
                         long end = context.window().getEnd();
-                        // 迭代器信息
                         long cnt = elements.spliterator().getExactSizeIfKnown();
-                        // 收集结果
-                        out.collect("元素 " + key + " 在窗口 " + new Timestamp(start) + " ~ " + new Timestamp(end) + " 出现次数是 " + cnt);
+                        out.collect(key + ": " + new Timestamp(start) + " ~ " + new Timestamp(end) + " = " + cnt);
                     }
                 })
                 .print();
     }
 
+    // 演示迟到事件
     private static void demo04(StreamExecutionEnvironment env) {
-        // 迟到事件处理方式
         SingleOutputStreamOperator<String> result = env.socketTextStream("localhost", 9999)
-                // 将`a,1`映射成Tuple<a, 1000>
                 .map((MapFunction<String, Tuple2<String, Long>>) value -> {
-                    String[] words = value.split(",");
+                    String[] words = value.split("\\s");
                     return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000);
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
-                // 提取时间戳生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<Tuple2<String, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(5))
                                 .withTimestampAssigner((element, recordTimestamp) -> element.f1)
@@ -200,22 +195,24 @@ public class Flink04 {
                 .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
                     @Override
                     public void process(String s, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> out) throws Exception {
-                        // 初始化一个窗口状态变量,可见范围是当前窗口,记录该方法是否第一次调用
-                        ValueState<Boolean> valueState = getRuntimeContext().getState(
-                                new ValueStateDescriptor<>("is-first", Types.BOOLEAN));
+                        // 初始化一个窗口状态变量,可见范围比当前key更小是当前window,记录该方法是否第一次调用
+                        ValueState<Boolean> isFirst = getRuntimeContext().getState(
+                                new ValueStateDescriptor<>("isFirst", Types.BOOLEAN));
+                        System.out.println("current watermark is: " + context.currentWatermark());
+                        long start = context.window().getStart();
+                        long end = context.window().getEnd();
                         // 判断窗口状态
-                        if (valueState.value() == null) {
+                        if (isFirst.value() == null) {
                             // 该方法第一次被调用,说明水位线越过windowEnd了,窗口关闭开始计算
-                            out.collect("当前水位线：" + context.currentWatermark() + ",当前窗口：" + context.window().getStart() + " ~ " + context.window().getEnd() + ",窗口元素：" + elements);
+                            out.collect(start + " ~ " + end + ": " + elements);
                             // 更新窗口状态
-                            valueState.update(true);
+                            isFirst.update(true);
                         } else {
                             // 该方法不是第一次被调用,说明窗口关闭后又有迟到事件进来了,更新已经计算完的窗口结果
-                            out.collect("当前水位线：" + context.currentWatermark() + ",当前窗口：" + context.window().getStart() + " ~ " + context.window().getEnd() + ",更新后的窗口元素：" + elements);
+                            out.collect(start + " ~ " + end + ": " + elements);
                         }
                     }
                 });
-
         // 正常输出的结果
         result.print();
         // 输出到侧输出流的结果,侧输出流也是单例的,根据标签名查找
