@@ -197,8 +197,9 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 [root@cdh1 ~]$ /bin/flink cancel ${jobId}
 # 停止任务并设置保存点(推荐),此时yarn界面任务的FinalStatus由UNDEFINED变成SUCCEEDED,任务恢复后又变成UNDEFINED
 [root@cdh1 ~]$ /bin/flink stop --savepointPath ${savepointPath} ${jobId} -yid ${yarnAppId}
-Savepoint completed. Path: hdfs://10.201.7.140:4007/flink/sp/ghs/savepoint-d03533-402a0f6593cd
+Savepoint completed. Path: hdfs:///flink/sp/ghs/savepoint-d03533-402a0f6593cd
 # 从保存点恢复,-n(allowNonRestoredState)跳过无法映射到新程序的状态
 [root@cdh1 ~]$ /bin/flink run -s ${savepointPath}
-Job has been submitted with JobID b3a8ddbcd24d60ed778fe2d0862e9c7e
+# 从检查点的元数据文件恢复,注意保存点路径指定到目录而检查点路径指定到文件
+[root@cdh1 ~]$ /bin/flink run -s ${checkpointPath}/chk-${id}/_metadata
 ```

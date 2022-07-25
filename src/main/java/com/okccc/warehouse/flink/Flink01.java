@@ -105,7 +105,7 @@ public class Flink01 {
          * 检查点异步实现：基于Chandy-Lamport分布式异步快照算法,将检查点的保存和数据处理分开,不暂停应用(flink)
          *
          * Checkpoint & Savepoint
-         * Checkpoint由flink创建和删除,会定期自动触发,为意外失败的作业提供恢复机制,job停止后自动删除
+         * Checkpoint由flink创建和删除,会定期自动触发,为意外失败的作业提供恢复机制,job停止后自动删除,可手动更改检查点保留策略
          * Savepoint由用户创建和删除,需要手动触发,为版本升级/代码更新/调整并行度等有目的的暂停提供恢复机制,创建后就一直存在需手动删除
          * 保存点中状态是以(算子id-状态名称)这样的key-value组织起来的,保存点在程序修改后能兼容的前提是状态的拓扑结构和数据类型保持不变,
          * 对于不设置id的算子flink会自动配置,这样应用重启后可能会因为id不同导致无法兼容以前的状态,为了方便后期维护建议为每个算子都指定id
@@ -136,12 +136,6 @@ public class Flink01 {
         // Source算子并行度设置为1可以保证数据有序
         // reduce这种聚合算子最好是能通过提交脚本-p动态扩展,所以代码一般不设置全局并行度,不然会覆盖动态指定,而具体的算子并行度则不会
         env.setParallelism(1);
-        // 开启检查点
-        env.enableCheckpointing(60 * 1000L, CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setCheckpointTimeout(60 * 1000L);
-        env.getCheckpointConfig().setCheckpointStorage("hdfs:///flink/checkpoint");
-        // 设置状态后端
-        env.setStateBackend(new EmbeddedRocksDBStateBackend());
 
         // 实时：监听socket数据流,先在终端开启`nc -lk 9999`
         DataStreamSource<String> inputStream = env.socketTextStream("localhost", 9999);

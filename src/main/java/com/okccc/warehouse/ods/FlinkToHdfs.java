@@ -6,9 +6,10 @@ import com.okccc.realtime.utils.MyFlinkUtil;
 import com.okccc.realtime.utils.PropertiesUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
@@ -38,11 +39,15 @@ public class FlinkToHdfs {
         env.setParallelism(1);
         // 开启检查点
         env.enableCheckpointing(60 * 1000L);
-        env.getCheckpointConfig().setCheckpointTimeout(30 * 1000L);
-        // 重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
+        CheckpointConfig config = env.getCheckpointConfig();
+        config.setCheckpointTimeout(60 * 1000L);
+        config.setCheckpointStorage("hdfs:///flink/cp/xxx");
+        // 检查点保留策略：job取消时默认会自动删除检查点,可以保留防止任务故障重启失败,还能从检查点恢复任务,后面手动删除即可
+        config.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+        // 设置状态后端
+        env.setStateBackend(new EmbeddedRocksDBStateBackend());
+        // 重启策略：重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, 60 * 1000L));
-        // 状态后端
-        env.setStateBackend(new FsStateBackend("hdfs:///flink/cp/xxx"));
         // 本地调试时要指定能访问hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "deploy");
 
