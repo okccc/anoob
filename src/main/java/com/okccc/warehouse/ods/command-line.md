@@ -48,8 +48,11 @@
 [root@cdh1 ~]$ hdfs dfs -mv /aaa/* /bbb/
 # 删除hdfs文件,其实是移到回收站了,还可以通过-mv还原,如果-rm -skipTrash跳过回收站就是彻底删除无法还原
 [root@cdh1 ~]$ hdfs dfs -rm /aaa/angela.txt
-# 删除hdfs文件夹
+# 删除hdfs目录
 [root@cdh1 ~]$ hdfs dfs -rm -r /aaa
+# 删除hdfs指定时间的目录
+[root@cdh1 ~]$ hdfs dfs -ls /flink/cp/xxx | grep -v '2022-07-08' | awk '{print $8}' | xargs hdfs dfs -rm -r
+[root@cdh1 ~]$ hdfs dfs -ls /flink/cp/xxx | awk '$6 > "2022-07-08" && $6 < "2022-07-25" {print $8}' | xargs hdfs dfs -rm -r
 # hdfs总空间大小
 [root@cdh1 ~]$ hdfs dfs -df -h /
 Filesystem    Size   Used  Available  Use%
