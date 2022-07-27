@@ -504,10 +504,16 @@ mysql> show master status;
 +------------------+----------+--------------+------------------+-------------------+
 | mysql-bin.000001 |      154 |              |                  |                   |
 +------------------+----------+--------------+------------------+-------------------+
-# 刷新日志,会生成新的binlog
+# 刷新日志,会生成新的binlog文件
 mysql> flush logs;
 # 查看binlog文件内容,默认第一个也可以手动指定
 mysql> show binlog events [in 'mysql-bin.000002'] \G
++------------------+-----+----------------+-----------+-------------+-----------------------------------------------------------------------+
+| Log_name         | Pos | Event_type     | Server_id | End_log_pos | Info                                                                  |
++------------------+-----+----------------+-----------+-------------+-----------------------------------------------------------------------+
+| mysql-bin.000013 |   4 | Format_desc    |         2 |         125 | Server ver: 8.0.20, Binlog ver: 4                                     |
+| mysql-bin.000013 | 125 | Previous_gtids |         2 |         196 | 4bb5251c-f391-11ec-b5da-525400667343:1-19273                          |
++------------------+-----+----------------+-----------+-------------+-----------------------------------------------------------------------+
 # 清空binlog
 mysql> reset master;
 # 先导入初始测试数据,不然canal启动时读不到数据
@@ -531,6 +537,7 @@ mysql> grant all on *.* to 'maxwell'@'%' identified by 'maxwell';
 canal.serverMode = kafka                 # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
 canal.mq.servers = cdh1:9092,cdh2:9092   # kafka地址,逗号分隔
 canal.destinations = example1,example2   # canal默认单实例,可以拷贝conf/example配置多实例,通常一个ip对应一个instance
+canal.instance.filter.query.ddl = true   # canal默认抓所有binlog,可以过滤ddl语句
 # instance实例配置(修改后直接生效不用重启)
 [root@cdh1 ~]$ vim conf/example/instance.properties
 canal.instance.master.address={ip:port}  # mysql地址
