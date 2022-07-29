@@ -192,8 +192,14 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 [root@cdh1 ~]$ start-cluster.sh / stop-cluster.sh
 # 查看任务列表
 [root@cdh1 ~]$ bin/flink list [-a/-r/-s]  # -a显示所有,-r显示运行的,-s显示调度的
-# 提交任务
-[root@cdh1 ~]$ /bin/flink run -m yarn-cluster -d -ynm demo -yjm 2048m -ytm 4096m -ys 1 -yqu root.bi -c com.okccc.Demo ./demo.jar
+# 提交任务(per-job模式,只支持yarn在flink1.15已弃用)
+[root@cdh1 ~]$ /bin/flink run -m yarn-cluster -d -ynm demo -yjm 2048m -ytm 4096m -ys 1 -yqu root.flink -c com.okccc.Demo ./demo.jar
+# 提交任务(application模式,可选参数 https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/deployment/config/)
+[root@cdh1 ~]$ /bin/flink run-application -t yarn-application \
+-Dclassloader.resolve-order=parent-first \
+-Dyarn.application.name=demo \
+-Dyarn.application.queue=root.flink \
+-c com.okccc.Demo ./demo.jar
 # 触发保存点,可以定期触发比如有时候要回滚前两天的数据
 [root@cdh1 ~]$ /bin/flink savepoint ${jobId} ${savepointPath} -yid ${yarnAppId}
 # 取消任务(废弃)
@@ -202,7 +208,7 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 [root@cdh1 ~]$ /bin/flink stop --savepointPath ${savepointPath} ${jobId} -yid ${yarnAppId}
 Savepoint completed. Path: hdfs:///flink/sp/ghs/savepoint-d03533-402a0f6593cd
 # 从保存点恢复,-n(allowNonRestoredState)跳过无法映射到新程序的状态
-[root@cdh1 ~]$ /bin/flink run -s ${savepointPath}
+[root@cdh1 ~]$ /bin/flink run-application -t yarn-application -s ${savepointPath}
 # 从检查点的元数据文件恢复,注意保存点路径指定到目录而检查点路径指定到文件
-[root@cdh1 ~]$ /bin/flink run -s ${checkpointPath}/chk-${id}/_metadata
+[root@cdh1 ~]$ /bin/flink run-application -t yarn-application -s ${checkpointPath}/chk-${id}/_metadata
 ```
