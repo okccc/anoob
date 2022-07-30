@@ -1,21 +1,15 @@
 package com.okccc.jdbc;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import org.apache.commons.dbcp.BasicDataSourceFactory;
 
 import javax.sql.DataSource;
-import java.io.FileReader;
 import java.sql.*;
 import java.util.Properties;
 
-@SuppressWarnings("all")
 public class JdbcUtil {
     public static void main(String[] args) throws Exception {
         // 提供数据库连接和关闭操作的工具类
         getConnection();
-        getC3P0Connection();
-        getDBCPConnection();
         getDruidConnection();
     }
 
@@ -37,34 +31,34 @@ public class JdbcUtil {
         return conn;
     }
 
-    // 使用c3p0数据库连接池(速度慢,但很稳定)
-    private static ComboPooledDataSource cpds = new ComboPooledDataSource("mysql01");
-    public static Connection getC3P0Connection() throws SQLException {
-        // 获取连接
-        Connection conn = cpds.getConnection();
-        System.out.println(conn);  // com.mchange.v2.c3p0.impl.NewProxyConnection@71a794e5 [wrapping: com.mysql.jdbc.JDBC4Connection@6db7a02e]
-        return conn;
-    }
-
-    // 使用dbcp数据库连接池(速度比c3p0快,但是本身有点bug)
-    private static DataSource source;
-    static{
-        try {
-            // 1.加载配置文件
-            Properties prop = new Properties();
-            prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("dbcp.properties"));
-            // 2.创建数据源
-            source = BasicDataSourceFactory.createDataSource(prop);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public static Connection getDBCPConnection() throws SQLException {
-        // 3.获取连接
-        Connection conn = source.getConnection();
-        System.out.println(conn);  // jdbc:mysql:///test, UserName=root@localhost, MySQL-AB JDBC Driver
-        return conn;
-    }
+//    // 使用c3p0数据库连接池(速度慢,但很稳定)
+//    private static ComboPooledDataSource cpds = new ComboPooledDataSource("mysql01");
+//    public static Connection getC3P0Connection() throws SQLException {
+//        // 获取连接
+//        Connection conn = cpds.getConnection();
+//        System.out.println(conn);  // com.mchange.v2.c3p0.impl.NewProxyConnection@71a794e5 [wrapping: com.mysql.jdbc.JDBC4Connection@6db7a02e]
+//        return conn;
+//    }
+//
+//    // 使用dbcp数据库连接池(速度比c3p0快,但是本身有点bug)
+//    private static DataSource source;
+//    static{
+//        try {
+//            // 1.加载配置文件
+//            Properties prop = new Properties();
+//            prop.load(ClassLoader.getSystemClassLoader().getResourceAsStream("dbcp.properties"));
+//            // 2.创建数据源
+//            source = BasicDataSourceFactory.createDataSource(prop);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    public static Connection getDBCPConnection() throws SQLException {
+//        // 3.获取连接
+//        Connection conn = source.getConnection();
+//        System.out.println(conn);  // jdbc:mysql:///test, UserName=root@localhost, MySQL-AB JDBC Driver
+//        return conn;
+//    }
 
     // 使用druid数据库连接池(集C3P0和DBCP优点于一身的数据库连接池,推荐使用)
     private static DataSource dataSource;

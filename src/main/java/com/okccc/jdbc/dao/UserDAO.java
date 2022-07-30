@@ -11,7 +11,7 @@ import java.util.List;
 public class UserDAO extends DAO{
 
     public static void main(String[] args) throws SQLException {
-        Connection conn = JdbcUtil.getC3P0Connection();
+        Connection conn = JdbcUtil.getDruidConnection();
         User cus = new User(1, "grubby", "orc@qq.com", new Date(1234567890L));
 //        addCustomer(conn, cus);
 //        deleteById(conn, 19);

@@ -46,7 +46,7 @@ public class DAO {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JdbcUtil.getC3P0Connection();
+            conn = JdbcUtil.getDruidConnection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
@@ -95,7 +95,7 @@ public class DAO {
         try {
             // 1.获取连接
 //            conn = JDBCUtils.getConnection();
-            conn = JdbcUtil.getDBCPConnection();
+            conn = JdbcUtil.getDruidConnection();
             // 2.预编译sql
             ps = conn.prepareStatement(sql);
             // 3.填充占位符
