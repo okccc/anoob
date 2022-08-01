@@ -41,8 +41,8 @@ public class CollectionDemo {
          * 比较器排序：往TreeSet的构造函数传入实现了Comparator接口重写compare方法的子类对象,让集合具备比较大小功能
          *
          * HashMap如何解决hash冲突？
-         * hash冲突：put元素时会判断key的hashCode值,值相同说明索引位置相同,再判断key是否相同,不相同就会产生hash冲突
-         * HashMao采用链表法,发生碰撞时讲对象存储到链表的下一个节点,每个链表节点存储键值对
+         * hash冲突：hash表的本质是数组,存放键值对Entry,两个不同key的hashcode值相同,后面key发现数组位置已经被前面key占了,导致冲突
+         * HashMap采用链表法,发生碰撞时将对象存储到链表的下一个节点
          *
          * 增强for循环
          * 格式：for(类型 变量 : 数组or集合){}
