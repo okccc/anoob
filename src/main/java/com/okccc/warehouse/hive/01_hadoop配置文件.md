@@ -267,5 +267,11 @@
         <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
         <value>0.8</value>
     </property>
+   <!-- 容量调度器中的资源计算器,Default默认只比较内存申请资源时每个容器只分配一个VCore,而Dominant会综合考虑cpu和内存的情况 -->
+    <property>
+        <name>yarn.scheduler.capacity.resource-calculator</name>
+<!--        <value>org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator</value> -->
+        <value>org.apache.hadoop.yarn.util.resource.DominantResourceCalculator</value>
+    </property>
 </configuration>
 ```
