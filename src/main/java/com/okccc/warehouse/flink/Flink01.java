@@ -10,8 +10,6 @@ import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -146,6 +144,7 @@ public class Flink01 {
         DataStreamSource<Event> inputStream03 = env.addSource(new UserActionSource());
 
         // 针对流中每个输入元素：map输出1个元素,filter输出0/1个元素,flatMap输出0/1/N个元素,flatMap是map和filter的泛化实现
+        // 所以不能用map算子过滤数据,会报空指针异常,filter和flatMap算子可以
         // MapFunction/KeySelector/ReduceFunction/ProcessWindowFunction/AggregateFunction等所有UDF都继承自Function接口
         SingleOutputStreamOperator<WordCount> mapStream = inputStream.flatMap(new FlatMapFunction<String, WordCount>() {
             // 输入类型String,输出类型WordCount
