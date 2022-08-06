@@ -1,4 +1,4 @@
-package com.okccc.warehouse.flink;
+package com.okccc.flink;
 
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.state.MapState;
