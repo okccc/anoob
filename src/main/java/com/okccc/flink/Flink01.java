@@ -81,12 +81,17 @@ public class Flink01 {
          * JobMaster：接收要执行的应用,将JobGraph转换成ExecutionGraph,并向RM申请资源分发给TaskManager,每个job都对应一个JobMaster
          * TaskManager：执行任务处理数据,对应一个jvm进程,包含一定数量的任务槽task slots,对应其能并行处理的任务数
          *
-         * 并行度和任务槽
+         * 并行度
          * 并行度：算子之间有执行顺序,每来一条数据都要经过source/transform/sink依次执行,算子在同一时刻只能处理一条数据,为了提高吞吐量
          * 将算子拆分成多个并行子任务,分发到不同节点实现"并行计算",算子的子任务个数就是"并行度",不同算子可以设置不同并行度,程序取最大并行度
-         * 算子链：source和map之间的数据流不会重分区,并行度相同的one-to-one算子可以合并成"算子链",减少资源消耗,类似spark窄依赖
-         * 而map和keyBy之间的数据流会基于hashCode按键分区,属于redistributing操作会伴随shuffle的过程,类似spark宽依赖
-         * 任务槽：每个任务都占据一个task slot,对应一组独立计算资源,但是不同算子耗费资源不一样,忙的忙死闲的闲死,为了充分利用集群资源,
+         * Source端并行度通常设置为kafka对应topic的分区数,如果消费速度跟不上生产速度可以考虑扩大kafka分区同时调大并行度
+         * map/filter/flatMap等处理较快的算子和source端保持一致即可,keyBy之后的算子建议设置为2的整次幂
+         * Sink端并行度要看下游系统的承受能力,如果是写kafka就和分区数保持一致即可
+         * 算子链
+         * source和map之间的数据流不会重分区,并行度相同的one-to-one算子可以合并成"算子链",减少资源消耗,类似spark窄依赖
+         * map和keyBy之间的数据流会基于hashCode按键分区,属于redistributing操作,会伴随shuffle的过程,类似spark宽依赖
+         * 任务槽
+         * 每个任务都占据一个task slot,对应一组独立计算资源,但是不同算子耗费资源不一样,忙的忙死闲的闲死,为了充分利用集群资源,
          * 不同算子的子任务可以共享任务槽,并行度(TaskManager实际使用的并发,动态概念) <= 任务槽(TaskManager拥有的并发能力,静态概念)
          *
          * State
