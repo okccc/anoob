@@ -195,14 +195,15 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 # 提交任务(per-job模式,只支持yarn在flink1.15已弃用)
 [root@cdh1 ~]$ /bin/flink run -m yarn-cluster -d -ynm demo -yjm 2048m -ytm 4096m -ys 1 -yqu root.flink -c com.okccc.Demo ./demo.jar
 # 提交任务(application模式,可选参数 https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/deployment/config/)
-[root@cdh1 ~]$ /bin/flink run-application -t yarn-application \
--p 3 \                                      # 先设为1做压测,并行度=高峰期QPS/单并行度处理能力,乘以1.2倍比较保险
--Dyarn.application.name=demo \              # 指定yarn任务名称
--Dyarn.application.queue=root.flink \       # 指定yarn队列
--Djobmanager.memory.process.size=2048mb \   # 指定JobManager总进程大小
--Dtaskmanager.memory.process.size=4096mb \  # 指定每个TaskManager总进程大小
--Dtaskmanager.numberOfTaskSlots=2 \         # 指定每个TM的slot数,默认值1
--Dyarn.containers.vcores=3 \                # 指定单个容器的vcore数,默认=单个TM的slot数,需修改capacity-scheduler.xml配置
+[root@cdh1 ~]$ /bin/flink run-application \
+-t yarn-application \
+-p 3 \                                      # 先做压测,查看Metrics - numRecordsOutPerSecond,并行度=高峰期QPS/单并行度处理能力
+-Dyarn.application.name=demo \              # yarn任务名称
+-Dyarn.application.queue=root.flink \       # yarn队列
+-Djobmanager.memory.process.size=2048mb \   # JobManager进程大小
+-Dtaskmanager.memory.process.size=4096mb \  # 单个TaskManager进程大小
+-Dtaskmanager.numberOfTaskSlots=2 \         # 单个TaskManager的slot数,比如并行度为5则需要5/2≈3个TaskManager
+-Dyarn.containers.vcores=3 \                # 单个容器的vcore数,默认=单个TaskManager的slot数
 -Dclassloader.resolve-order=parent-first \
 -c com.okccc.Demo ./demo.jar
 # 触发保存点,可以定期触发比如有时候要回滚前两天的数据
