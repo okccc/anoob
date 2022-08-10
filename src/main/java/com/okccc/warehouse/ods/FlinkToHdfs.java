@@ -7,6 +7,7 @@ import com.okccc.realtime.utils.PropertiesUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -15,6 +16,7 @@ import org.apache.flink.util.Collector;
 
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Author: okccc
@@ -37,17 +39,23 @@ public class FlinkToHdfs {
         // 1.创建流处理环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-        // 开启检查点
-        env.enableCheckpointing(60 * 1000L);
-        CheckpointConfig config = env.getCheckpointConfig();
-        config.setCheckpointTimeout(60 * 1000L);
-        config.setCheckpointStorage("hdfs:///flink/cp/xxx");
-        // 检查点保留策略：job取消时默认会自动删除检查点,可以保留防止任务故障重启失败,还能从检查点恢复任务,后面手动删除即可
-        config.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
         // 设置状态后端
         env.setStateBackend(new EmbeddedRocksDBStateBackend());
+        // 检查点时间间隔：通常1~5分钟,查看Checkpoints - Summary - End to End Duration,综合考虑性能和时效性
+        env.enableCheckpointing(TimeUnit.MINUTES.toMillis(2), CheckpointingMode.EXACTLY_ONCE);
+        CheckpointConfig config = env.getCheckpointConfig();
+        // 检查点存储路径
+        config.setCheckpointStorage("hdfs:///flink/cp/xxx");
+        // 检查点超时时间
+        config.setCheckpointTimeout(TimeUnit.MINUTES.toMillis(5));
+        // 检查点可容忍的连续失败次数
+        config.setTolerableCheckpointFailureNumber(3);
+        // 检查点最小等待间隔,通常是时间间隔一半
+        config.setMinPauseBetweenCheckpoints(TimeUnit.MINUTES.toMillis(1));
+        // 检查点保留策略：job取消时默认会自动删除检查点,可以保留防止任务故障重启失败,还能从检查点恢复任务,后面手动删除即可
+        config.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
         // 重启策略：重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
-        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, 60 * 1000L));
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, TimeUnit.MINUTES.toMillis(1)));
         // 本地调试时要指定能访问hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "deploy");
 
