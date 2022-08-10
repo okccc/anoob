@@ -204,9 +204,19 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 -Dtaskmanager.memory.process.size=4096mb \  # 单个TaskManager进程大小
 -Dtaskmanager.numberOfTaskSlots=2 \         # 单个TaskManager的slot数,比如并行度为5则需要5/2≈3个TaskManager,即6个任务槽
 -Dyarn.containers.vcores=3 \                # 单个容器的vcore数,默认=taskmanager.numberOfTaskSlots(可选)
+# 状态后端rocksdb调优(可选)
 -Dstate.backend.latency-track.keyed-state-enabled=true \  # 开启访问状态的性能监控,查看Metrics - state相关指标
 -Dstate.backend.incremental=true \          # 开启增量检查点,对比开启前后Checkpoints - History - Checkpointed Data Size大小
 -Dstate.backend.local-recovery=true \       # 开启本地恢复,任务故障时从本地状态进行恢复,不需要从hdfs拉取数据
+-Dstate.backend.rocksdb.localdir=/data1/rocksdb,/data2/rocksdb,/data3/rocksdb  # 配置多目录,单磁盘io有限,多磁盘分担压力(可选)
+-Dstate.backend.rocksdb.predefined-options=SPINNING_DISK_OPTIMIZED_HIGH_MEM \  # 设置预定义选项为 机械硬盘+内存模式
+-Dstate.backend.rocksdb.thread.num=4 \           # 增大后台线程数
+-Dstate.backend.rocksdb.block.cache-size=64m \   # 增大block缓存
+-Dstate.backend.rocksdb.writebuffer.size=128m \  # 增大writebuffer阈值
+-Dstate.backend.rocksdb.writebuffer.count=5 \    # 增大writebuffer数量
+-Dstate.backend.rocksdb.writebuffer.number-to-merge=3 \  # 增大writebuffer合并数
+-Dstate.backend.rocksdb.compaction.level.max-size-level-base=320m \  # 增大level阈值
+-Dstate.backend.rocksdb.memory.partitioned-index-filters=true \  # 开启分区索引功能
 -Dclassloader.resolve-order=parent-first \
 -c com.okccc.Demo ./demo.jar
 # 触发保存点,可以定期触发比如有时候要回滚前两天的数据
