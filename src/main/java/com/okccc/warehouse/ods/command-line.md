@@ -206,6 +206,7 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 -Dyarn.containers.vcores=3 \                # 单个容器的vcore数,默认=taskmanager.numberOfTaskSlots(可选)
 -Dstate.backend.latency-track.keyed-state-enabled=true \  # 开启访问状态的性能监控,查看Metrics - state相关指标
 -Dstate.backend.incremental=true \          # 开启增量检查点,对比开启前后Checkpoints - History - Checkpointed Data Size大小
+-Dstate.backend.local-recovery=true \       # 开启本地恢复,任务故障时从本地状态进行恢复,不需要从hdfs拉取数据
 -Dclassloader.resolve-order=parent-first \
 -c com.okccc.Demo ./demo.jar
 # 触发保存点,可以定期触发比如有时候要回滚前两天的数据
