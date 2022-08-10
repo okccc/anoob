@@ -205,6 +205,7 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 -Dtaskmanager.numberOfTaskSlots=2 \         # 单个TaskManager的slot数,比如并行度为5则需要5/2≈3个TaskManager,即6个任务槽
 -Dyarn.containers.vcores=3 \                # 单个容器的vcore数,默认=taskmanager.numberOfTaskSlots(可选)
 -Dstate.backend.latency-track.keyed-state-enabled=true \  # 开启访问状态的性能监控,查看Metrics - state相关指标
+-Dstate.backend.incremental=true \          # 开启增量检查点,对比开启前后Checkpoints - History - Checkpointed Data Size大小
 -Dclassloader.resolve-order=parent-first \
 -c com.okccc.Demo ./demo.jar
 # 触发保存点,可以定期触发比如有时候要回滚前两天的数据
