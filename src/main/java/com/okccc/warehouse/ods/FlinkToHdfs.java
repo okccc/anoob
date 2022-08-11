@@ -39,6 +39,8 @@ public class FlinkToHdfs {
         // 1.创建流处理环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
+        // 禁用算子链,方便定位导致反压的具体算子
+        env.disableOperatorChaining();
         // 设置状态后端
         env.setStateBackend(new EmbeddedRocksDBStateBackend());
         // 检查点时间间隔：通常1~5分钟,查看Checkpoints - Summary - End to End Duration,综合考虑性能和时效性
