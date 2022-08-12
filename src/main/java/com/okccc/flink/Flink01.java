@@ -132,6 +132,13 @@ public class Flink01 {
          * 限制在于外部系统必须支持幂等写入,比如redis/mysql/es,并且在做保存点时可能会出现短暂不一致的情况
          * 两阶段提交(2PC)：将事务和检查点绑定,当第一条数据到来或者收到检查点分界线时sink端就开启事务,后面数据都由这个事务写入外部系统,
          * 但此时事务还没提交,所以外部系统的数据并不可用,处于"预提交状态",等到sink端收到JobManager发来检查点完成的通知时才正式提交事务
+         *
+         * 反压
+         * 场景1：当前节点发送速率跟不上生产速率,比如flatMap算子一条输入多条输出,当前节点就是反压根源
+         * 场景2：下游节点接收速率较慢,通过反压机制限制了上游节点发送速率,继续排查下游节点,一直找到第一个OK的就是反压根源(常见)
+         * 反压可能导致state过大甚至OOM以及checkpoint超时失败,先找到第一个出现反压的节点,根源要么是这个节点要么是紧挨着的下游节点
+         * WebUI查看算子反压程度：Overview - BackPressure - Backpressure Status(OK/LOW/HIGH)
+         * Metrics指标分析：buffers.outPoolUsage发送端buffer使用率/buffers.inPoolUsage接收端buffer使用率
          */
 
         // 创建流处理执行环境
