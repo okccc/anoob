@@ -139,8 +139,9 @@ public class Flink01 {
          * 反压可能导致state过大甚至OOM以及checkpoint超时失败,先找到第一个出现反压的节点,根源要么是这个节点要么是紧挨着的下游节点
          * WebUI查看算子反压程度：Overview - BackPressure - Backpressure Status(OK/LOW/HIGH)
          * Metrics指标分析：buffers.outPoolUsage发送端buffer使用率/buffers.inPoolUsage接收端buffer使用率
-         * 反压原因：1.数据倾斜
+         * 反压原因：1.数据倾斜 2.cpu/内存资源不足
          * 查看数据是否倾斜：Overview - SubTasks - RecordsReceived & RecordsSent
+         * 火焰图：对TaskManager进行CPU profile,横向是出现次数对应执行时长,纵向是调用链顶层就是正在执行函数,过宽说明存在性能瓶颈
          */
 
         // 创建流处理执行环境

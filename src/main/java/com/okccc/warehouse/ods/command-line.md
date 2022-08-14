@@ -217,6 +217,8 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 -Dstate.backend.rocksdb.writebuffer.number-to-merge=3 \  # 增大writebuffer合并数
 -Dstate.backend.rocksdb.compaction.level.max-size-level-base=320m \  # 增大level阈值
 -Dstate.backend.rocksdb.memory.partitioned-index-filters=true \  # 开启分区索引功能
+# 反压调优(可选)
+-Drest.flamegraph.enabled=true \  # 开启火焰图,分析性能瓶颈
 -Dclassloader.resolve-order=parent-first \
 -c com.okccc.Demo ./demo.jar
 # 触发保存点,可以定期触发比如有时候要回滚前两天的数据
