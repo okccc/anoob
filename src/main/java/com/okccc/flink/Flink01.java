@@ -142,6 +142,7 @@ public class Flink01 {
          * 反压原因：1.数据倾斜 2.cpu/内存资源不足
          * 查看数据是否倾斜：Overview - SubTasks - RecordsReceived & RecordsSent
          * 火焰图：对TaskManager进行CPU profile,横向是出现次数对应执行时长,纵向是调用链顶层就是正在执行函数,过宽说明存在性能瓶颈
+         * 下载GC日志：对TaskManager进行内存分析,尤其是full gc后老年代剩余大小
          */
 
         // 创建流处理执行环境

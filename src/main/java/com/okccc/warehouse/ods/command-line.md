@@ -219,6 +219,7 @@ ${path}/lib/${project}-1.0-SNAPSHOT.jar 10 >> ${path}/log/${project}.log &
 -Dstate.backend.rocksdb.memory.partitioned-index-filters=true \  # 开启分区索引功能
 # 反压调优(可选)
 -Drest.flamegraph.enabled=true \  # 开启火焰图,分析性能瓶颈
+-Denv.java.opts="-XX:+PrintGCDetails -XX:+PrintGCDateStamps" \  # 打印GC日志,yarn模式看日志不方便,下载到本地使用GCViewer分析
 -Dclassloader.resolve-order=parent-first \
 -c com.okccc.Demo ./demo.jar
 # 触发保存点,可以定期触发比如有时候要回滚前两天的数据
