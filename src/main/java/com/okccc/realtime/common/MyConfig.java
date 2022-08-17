@@ -36,10 +36,8 @@ public class MyConfig {
     public static final Integer REDIS_PORT = 6379;
 
     // hdfs
-    public static final String HDFS_URL = "hdfs://dev-bigdata-cdh1:8020";
+    public static final String HDFS_URL = "hdfs://localhost:8020";
 
     // es
-//    public static final String ES_SERVER = "http://localhost:9200";
-    public static final String ES_SERVER = "http://10.19.120.63:9200";
-//    public static final String ES_SERVER = "http://10.10.78.191:9200";
+    public static final String ES_SERVER = "http://localhost:9200";
 }

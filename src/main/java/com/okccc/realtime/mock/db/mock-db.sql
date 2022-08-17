@@ -17,7 +17,7 @@ MySQL - 5.7.29-log : Database - gmall2020
 CREATE TABLE if not exists `activity_info` (
                                  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '活动id',
                                  `activity_name` varchar(200) DEFAULT NULL COMMENT '活动名称',
-                                 `activity_type` varchar(10) DEFAULT NULL COMMENT '活动类型（1：满减，2：折扣）',
+                                 `activity_type` varchar(10) DEFAULT NULL COMMENT '活动类型(1：满减，2：折扣)',
                                  `activity_desc` varchar(2000) DEFAULT NULL COMMENT '活动描述',
                                  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
                                  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
@@ -3303,9 +3303,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133585,'4',15,4488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(133586,'4',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(133586,'4',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(133587,'4',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133587,'4',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133588,'10',5,999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -3325,7 +3325,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133596,'15',26,129.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133597,'21',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133597,'21',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133598,'73',35,5499.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3335,7 +3335,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133601,'73',26,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',41),
 
-(133602,'73',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
+(133602,'73',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
 (133603,'73',9,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
@@ -3371,11 +3371,11 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133619,'107',16,4488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(133620,'107',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(133620,'107',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (133621,'107',7,1299.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133622,'107',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',77),
+(133622,'107',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',77),
 
 (133623,'110',13,4188.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -3393,9 +3393,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133630,'115',11,8197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWASR1YAADsOUYB-2g312.jpg','Apple iPhone 12 (A2404) 64GB 白色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133631,'115',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133631,'115',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(133632,'117',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133632,'117',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133633,'117',23,40.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liuAJTluAAVP1d_tXYs725.jpg','十月稻田 辽河长粒香 东北大米 5kg',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -3417,7 +3417,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133642,'163',2,6999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(133643,'163',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133643,'163',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133644,'163',17,6699.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg','TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3439,7 +3439,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133653,'176',4,999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',100),
 
-(133654,'176',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133654,'176',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133655,'176',19,11999.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg','TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3483,7 +3483,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133675,'196',5,999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133676,'196',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133676,'196',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133677,'196',4,999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
@@ -3499,7 +3499,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133683,'206',13,4188.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',37),
 
-(133684,'206',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133684,'206',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133685,'206',2,6999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',77),
 
@@ -3529,7 +3529,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133698,'244',30,69.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
-(133699,'244',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133699,'244',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133700,'268',35,5499.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3537,7 +3537,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133702,'268',23,40.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liuAJTluAAVP1d_tXYs725.jpg','十月稻田 辽河长粒香 东北大米 5kg',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
-(133703,'272',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
+(133703,'272',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
 (133704,'272',35,5499.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -3583,7 +3583,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133725,'315',4,999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(133726,'315',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133726,'315',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133727,'315',22,39.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg','十月稻田 长粒香大米 东北大米 东北香米 5kg',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
@@ -3623,7 +3623,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133745,'352',15,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133746,'352',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133746,'352',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133747,'352',1,5999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3685,7 +3685,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133776,'423',26,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',17),
 
-(133777,'428',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133777,'428',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133778,'428',30,69.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
@@ -3731,7 +3731,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133799,'458',30,69.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
-(133800,'458',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133800,'458',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133801,'458',22,39.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg','十月稻田 长粒香大米 东北大米 东北香米 5kg',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -3739,7 +3739,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133803,'459',18,9199.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAAHK_AAHxOsbi0Gc462.jpg','TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',59),
 
-(133804,'459',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133804,'459',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133805,'459',19,11999.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg','TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
@@ -3797,11 +3797,11 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133832,'491',8,8197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',39),
 
-(133833,'497',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133833,'497',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133834,'497',6,1299.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133835,'497',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133835,'497',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133836,'505',1,5999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3823,7 +3823,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133845,'527',10,8197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAbqkuAAENKBtJukQ551.jpg','Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(133846,'527',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',75),
+(133846,'527',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',75),
 
 (133847,'529',28,129.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z03女王红 性感冷艳 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3865,7 +3865,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133866,'556',27,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133867,'556',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133867,'556',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133868,'556',34,3927.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -3895,7 +3895,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133881,'570',11,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWASR1YAADsOUYB-2g312.jpg','Apple iPhone 12 (A2404) 64GB 白色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(133882,'570',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133882,'570',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133883,'570',16,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -3915,7 +3915,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133891,'589',6,1299.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
-(133892,'589',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',37),
+(133892,'589',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',37),
 
 (133893,'589',34,3927.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
@@ -3925,7 +3925,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133896,'601',10,8197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAbqkuAAENKBtJukQ551.jpg','Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(133897,'614',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133897,'614',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133898,'614',5,999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
 
@@ -3981,7 +3981,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133924,'646',5,999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',24),
 
-(133925,'646',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133925,'646',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133926,'646',15,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4033,7 +4033,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133950,'687',27,129.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(133951,'687',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133951,'687',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133952,'687',19,11999.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg','TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -4041,7 +4041,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133954,'692',28,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z03女王红 性感冷艳 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133955,'698',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133955,'698',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (133956,'698',20,2899.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0kIGAWtMyAAGxs6Q350k510.jpg','小米电视E65X 65英寸 全面屏 4K超高清HDR 蓝牙遥控内置小爱 2+8GB AI人工智能液晶网络平板电视 L65M5-EA',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4071,9 +4071,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133969,'713',1,5999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',17),
 
-(133970,'713',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(133970,'713',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(133971,'716',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(133971,'716',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (133972,'716',34,3927.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4093,7 +4093,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133980,'720',34,3927.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
-(133981,'720',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133981,'720',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133982,'728',23,40.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liuAJTluAAVP1d_tXYs725.jpg','十月稻田 辽河长粒香 东北大米 5kg',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4121,7 +4121,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (133994,'738',24,11.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg','金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(133995,'738',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(133995,'738',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (133996,'744',19,11999.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg','TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -4135,7 +4135,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134001,'753',27,129.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134002,'753',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134002,'753',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134003,'768',4,999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -4185,7 +4185,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134026,'843',7,1299.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134027,'843',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134027,'843',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134028,'861',17,6699.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg','TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4271,7 +4271,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134069,'950',7,1299.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134070,'950',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134070,'950',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134071,'954',35,5499.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
@@ -4357,7 +4357,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134112,'1066',21,3299.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0kICAaGuxAAKnO3DNDcY020.jpg','小米电视4A 70英寸 4K超高清 HDR 二级能效 2GB+16GB L70M5-4A 内置小爱 智能网络液晶平板教育电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',98),
 
-(134113,'1066',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
+(134113,'1066',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
 (134114,'1066',7,1299.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4381,9 +4381,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134124,'1088',9,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134125,'1088',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134125,'1088',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134126,'1099',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134126,'1099',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134127,'1099',31,69.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',85),
 
@@ -4409,7 +4409,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134138,'1118',17,6699.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg','TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134139,'1118',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134139,'1118',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134140,'1118',34,3927.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4435,7 +4435,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134151,'1136',28,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z03女王红 性感冷艳 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134152,'1136',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
+(134152,'1136',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
 
 (134153,'1162',31,69.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4455,7 +4455,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134161,'1167',14,4188.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134162,'1170',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
+(134162,'1170',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
 (134163,'1170',16,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -4527,7 +4527,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134197,'1247',5,999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134198,'1247',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134198,'1247',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134199,'1247',6,1299.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -4557,7 +4557,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134212,'1277',14,4188.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(134213,'1277',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134213,'1277',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134214,'1277',6,1299.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',90),
 
@@ -4575,7 +4575,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134221,'1287',25,23.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg','金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134222,'1287',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(134222,'1287',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (134223,'1287',2,6999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4737,7 +4737,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134302,'1435',12,9197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 128GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134303,'1435',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
+(134303,'1435',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
 (134304,'1451',10,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAbqkuAAENKBtJukQ551.jpg','Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -4787,7 +4787,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134327,'1493',26,129.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134328,'1493',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
+(134328,'1493',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
 (134329,'1493',12,9197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 128GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
@@ -4805,7 +4805,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134336,'1519',9,8197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134337,'1519',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134337,'1519',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134338,'1519',25,23.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg','金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
@@ -4861,7 +4861,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134364,'1559',1,5999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',20),
 
-(134365,'1559',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134365,'1559',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134366,'1559',10,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAbqkuAAENKBtJukQ551.jpg','Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',89),
 
@@ -4951,7 +4951,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134409,'1669',17,6699.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg','TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134410,'1669',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
+(134410,'1669',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
 (134411,'1669',13,4188.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4963,7 +4963,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134415,'1673',26,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134416,'1673',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134416,'1673',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134417,'1673',2,6999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -4979,7 +4979,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134423,'1682',16,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134424,'1682',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',91),
+(134424,'1682',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',91),
 
 (134425,'1682',4,999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5013,13 +5013,13 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134440,'1744',6,1299.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134441,'1744',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134441,'1744',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134442,'1744',9,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134443,'1748',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134443,'1748',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134444,'1748',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134444,'1748',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134445,'1748',5,999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5061,11 +5061,11 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134464,'1775',13,4188.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134465,'1775',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134465,'1775',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134466,'1775',30,69.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134467,'1775',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(134467,'1775',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (134468,'1780',9,8197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',51),
 
@@ -5129,7 +5129,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134498,'1848',1,5999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134499,'1848',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',65),
+(134499,'1848',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',65),
 
 (134500,'1848',31,69.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',73),
 
@@ -5189,7 +5189,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134528,'1919',29,69.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eAS25WAAEYg9IP_7o495.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M01醉蔷薇',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134529,'1919',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134529,'1919',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134530,'1919',25,23.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg','金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
@@ -5199,7 +5199,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134533,'1935',34,3927.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',27),
 
-(134534,'1935',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
+(134534,'1935',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
 (134535,'1935',24,11.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg','金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5237,7 +5237,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134552,'1995',31,69.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134553,'1995',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',11),
+(134553,'1995',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',11),
 
 (134554,'1995',23,40.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liuAJTluAAVP1d_tXYs725.jpg','十月稻田 辽河长粒香 东北大米 5kg',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5309,7 +5309,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134588,'2070',13,4188.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134589,'2070',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134589,'2070',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134590,'2070',35,5499.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -5371,13 +5371,13 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134619,'2139',30,69.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',14),
 
-(134620,'2139',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(134620,'2139',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (134621,'2139',27,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134622,'2139',35,5499.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',13),
 
-(134623,'2140',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134623,'2140',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134624,'2140',16,4488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',65),
 
@@ -5423,7 +5423,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134645,'2239',16,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134646,'2239',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',99),
+(134646,'2239',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',99),
 
 (134647,'2239',29,69.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eAS25WAAEYg9IP_7o495.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M01醉蔷薇',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5453,7 +5453,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134660,'2260',35,5499.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',80),
 
-(134661,'2260',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134661,'2260',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134662,'2267',34,3927.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5525,7 +5525,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134696,'2330',19,11999.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg','TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
-(134697,'2330',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134697,'2330',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134698,'2330',25,23.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg','金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
 
@@ -5535,7 +5535,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134701,'2340',31,69.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134702,'2340',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134702,'2340',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134703,'2340',23,40.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liuAJTluAAVP1d_tXYs725.jpg','十月稻田 辽河长粒香 东北大米 5kg',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -5595,7 +5595,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134731,'2452',34,3927.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
-(134732,'2452',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134732,'2452',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134733,'2481',9,8197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
@@ -5641,7 +5641,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134754,'2539',35,5499.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
-(134755,'2539',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134755,'2539',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134756,'2539',21,3299.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0kICAaGuxAAKnO3DNDcY020.jpg','小米电视4A 70英寸 4K超高清 HDR 二级能效 2GB+16GB L70M5-4A 内置小爱 智能网络液晶平板教育电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5661,13 +5661,13 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134764,'2559',25,23.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg','金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',33),
 
-(134765,'2559',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',96),
+(134765,'2559',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',96),
 
 (134766,'2559',27,129.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134767,'2574',22,39.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg','十月稻田 长粒香大米 东北大米 东北香米 5kg',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134768,'2574',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(134768,'2574',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (134769,'2574',35,5499.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg','华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -5677,7 +5677,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134772,'2574',17,6699.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg','TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134773,'2574',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134773,'2574',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134774,'2578',34,3927.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -5687,7 +5687,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134777,'2585',31,69.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134778,'2585',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(134778,'2585',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (134779,'2596',34,3927.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5701,9 +5701,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134784,'2621',28,129.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z03女王红 性感冷艳 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134785,'2621',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
+(134785,'2621',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
-(134786,'2621',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
+(134786,'2621',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
 (134787,'2624',9,8197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -5797,15 +5797,15 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134832,'2710',22,39.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg','十月稻田 长粒香大米 东北大米 东北香米 5kg',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
-(134833,'2710',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',22),
+(134833,'2710',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',22),
 
 (134834,'2710',2,6999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134835,'2710',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
+(134835,'2710',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
 
 (134836,'2718',3,5999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 透明版 游戏手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',66),
 
-(134837,'2718',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134837,'2718',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134838,'2718',17,6699.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg','TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5827,7 +5827,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134847,'2721',30,69.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(134848,'2721',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134848,'2721',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134849,'2721',17,6699.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg','TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5877,7 +5877,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134872,'2804',15,4488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134873,'2804',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
+(134873,'2804',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',2),
 
 (134874,'2804',26,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5893,7 +5893,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134880,'2817',8,8197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',66),
 
-(134881,'2817',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
+(134881,'2817',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',2),
 
 (134882,'2830',5,999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -5907,7 +5907,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134887,'2849',16,4488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134888,'2849',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',72),
+(134888,'2849',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',72),
 
 (134889,'2849',10,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAbqkuAAENKBtJukQ551.jpg','Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -5977,7 +5977,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134922,'2888',4,999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(134923,'2888',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',15),
+(134923,'2888',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',15),
 
 (134924,'2888',31,69.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
@@ -5993,7 +5993,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134930,'2898',4,999.00,1,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134931,'2914',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
+(134931,'2914',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
 (134932,'2928',2,6999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -6039,9 +6039,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134953,'2970',20,2899.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0kIGAWtMyAAGxs6Q350k510.jpg','小米电视E65X 65英寸 全面屏 4K超高清HDR 蓝牙遥控内置小爱 2+8GB AI人工智能液晶网络平板电视 L65M5-EA',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(134954,'2970',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134954,'2970',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(134955,'2970',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134955,'2970',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134956,'2970',31,69.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
@@ -6063,7 +6063,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (134965,'2988',1,5999.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
-(134966,'2988',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(134966,'2988',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (134967,'2988',14,4188.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',56),
 
@@ -6151,7 +6151,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135009,'3056',22,39.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg','十月稻田 长粒香大米 东北大米 东北香米 5kg',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135010,'3056',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(135010,'3056',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (135011,'3056',19,11999.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg','TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2403',NULL),
 
@@ -6171,7 +6171,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135019,'3060',28,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z03女王红 性感冷艳 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135020,'3060',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135020,'3060',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135021,'3061',11,8197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWASR1YAADsOUYB-2g312.jpg','Apple iPhone 12 (A2404) 64GB 白色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -6197,7 +6197,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135032,'3083',4,999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135033,'3083',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(135033,'3083',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (135034,'3085',12,9197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 128GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',45),
 
@@ -6215,7 +6215,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135041,'3095',8,8197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2404',1),
 
-(135042,'3095',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135042,'3095',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135043,'3095',16,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -6251,7 +6251,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135059,'3126',15,4488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135060,'3126',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(135060,'3126',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
 (135061,'3126',2,6999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -6383,7 +6383,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135125,'3311',14,4188.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',58),
 
-(135126,'3311',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(135126,'3311',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (135127,'3311',10,8197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAbqkuAAENKBtJukQ551.jpg','Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -6399,7 +6399,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135133,'3317',30,69.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135134,'3317',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',89),
+(135134,'3317',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',89),
 
 (135135,'3317',13,4188.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
@@ -6445,7 +6445,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135156,'3417',4,999.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135157,'3417',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
+(135157,'3417',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
 (135158,'3417',15,4488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',87),
 
@@ -6535,7 +6535,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135201,'3484',15,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135202,'3484',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',76),
+(135202,'3484',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',76),
 
 (135203,'3485',24,11.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg','金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',50),
 
@@ -6563,7 +6563,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135215,'3501',12,9197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 128GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135216,'3501',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135216,'3501',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135217,'3511',19,11999.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg','TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',49),
 
@@ -6589,7 +6589,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135228,'3520',8,8197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(135229,'3520',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135229,'3520',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135230,'3521',15,4488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -6599,7 +6599,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135233,'3521',30,69.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135234,'3524',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135234,'3524',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135235,'3524',12,9197.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 128GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -6623,7 +6623,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135245,'3529',34,3927.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(135246,'3529',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135246,'3529',32,300.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135247,'3529',8,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -6679,7 +6679,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135273,'3570',26,129.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
-(135274,'3570',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',41),
+(135274,'3570',33,488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',41),
 
 (135275,'3585',27,129.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
@@ -6755,9 +6755,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135311,'3700',15,4488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135312,'3700',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
+(135312,'3700',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
-(135313,'3700',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',18),
+(135313,'3700',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',18),
 
 (135314,'3700',7,1299.00,2,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',41),
 
@@ -6787,7 +6787,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135327,'3717',15,4488.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135328,'3731',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',63),
+(135328,'3731',32,300.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',63),
 
 (135329,'3731',22,39.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg','十月稻田 长粒香大米 东北大米 东北香米 5kg',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',65),
 
@@ -6817,7 +6817,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135342,'3742',31,69.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135343,'3742',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135343,'3742',33,488.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135344,'3747',16,4488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',72),
 
@@ -6863,11 +6863,11 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135365,'3809',9,8197.00,2,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135366,'3809',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
+(135366,'3809',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
 (135367,'3809',24,11.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg','金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',29),
 
-(135368,'3809',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
+(135368,'3809',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
 (135369,'3827',30,69.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2402',65),
 
@@ -6883,7 +6883,7 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135375,'3848',13,4188.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135376,'3848',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
+(135376,'3848',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
 (135377,'3848',9,8197.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg','Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2403',NULL),
 
@@ -6921,9 +6921,9 @@ insert  into `cart_info`(`id`,`user_id`,`sku_id`,`cart_price`,`sku_num`,`img_url
 
 (135394,'3914',7,1299.00,3,'http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米',NULL,'2020-12-04 23:28:47',NULL,0,NULL,'2401',NULL),
 
-(135395,'3914',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
+(135395,'3914',33,488.00,1,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2401',NULL),
 
-(135396,'3914',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
+(135396,'3914',32,300.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2404',1),
 
 (135397,'3941',24,11.00,3,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg','金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g',NULL,'2020-12-04 23:28:47',NULL,1,'2020-12-04 23:28:51','2402',80),
 
@@ -7611,11 +7611,11 @@ CREATE TABLE if not exists `coupon_info` (
                                `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '购物券编号',
                                `coupon_name` varchar(100) DEFAULT NULL COMMENT '购物券名称',
                                `coupon_type` varchar(10) DEFAULT NULL COMMENT '购物券类型 1 现金券 2 折扣券 3 满减券 4 满件打折券',
-                               `condition_amount` decimal(10,2) DEFAULT NULL COMMENT '满额数（3）',
-                               `condition_num` bigint(20) DEFAULT NULL COMMENT '满件数（4）',
+                               `condition_amount` decimal(10,2) DEFAULT NULL COMMENT '满额数(3)',
+                               `condition_num` bigint(20) DEFAULT NULL COMMENT '满件数(4)',
                                `activity_id` bigint(20) DEFAULT NULL COMMENT '活动编号',
-                               `benefit_amount` decimal(16,2) DEFAULT NULL COMMENT '减金额（1 3）',
-                               `benefit_discount` decimal(10,2) DEFAULT NULL COMMENT '折扣（2 4）',
+                               `benefit_amount` decimal(16,2) DEFAULT NULL COMMENT '减金额(1 3)',
+                               `benefit_discount` decimal(10,2) DEFAULT NULL COMMENT '折扣(2 4)',
                                `create_time` datetime DEFAULT NULL COMMENT '创建时间',
                                `range_type` varchar(10) DEFAULT NULL COMMENT '范围类型 1、商品(spuid) 2、品类(三级分类id) 3、品牌',
                                `limit_num` int(11) NOT NULL DEFAULT '0' COMMENT '最多领用次数',
@@ -7665,7 +7665,7 @@ CREATE TABLE if not exists `coupon_use` (
                               `coupon_id` bigint(20) DEFAULT NULL COMMENT '购物券ID',
                               `user_id` bigint(20) DEFAULT NULL COMMENT '用户ID',
                               `order_id` bigint(20) DEFAULT NULL COMMENT '订单ID',
-                              `coupon_status` varchar(10) DEFAULT NULL COMMENT '购物券状态（1：未使用 2：已使用）',
+                              `coupon_status` varchar(10) DEFAULT NULL COMMENT '购物券状态(1：未使用 2：已使用)',
                               `get_time` datetime DEFAULT NULL COMMENT '获取时间',
                               `using_time` datetime DEFAULT NULL COMMENT '使用时间',
                               `used_time` datetime DEFAULT NULL COMMENT '支付时间',
@@ -8517,9 +8517,9 @@ CREATE TABLE if not exists `order_detail` (
                                 `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
                                 `order_id` bigint(20) DEFAULT NULL COMMENT '订单编号',
                                 `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
-                                `sku_name` varchar(200) DEFAULT NULL COMMENT 'sku名称（冗余)',
-                                `img_url` varchar(200) DEFAULT NULL COMMENT '图片名称（冗余)',
-                                `order_price` decimal(10,2) DEFAULT NULL COMMENT '购买价格(下单时sku价格）',
+                                `sku_name` varchar(200) DEFAULT NULL COMMENT 'sku名称(冗余)',
+                                `img_url` varchar(200) DEFAULT NULL COMMENT '图片名称(冗余)',
+                                `order_price` decimal(10,2) DEFAULT NULL COMMENT '购买价格(下单时sku价格)',
                                 `sku_num` varchar(200) DEFAULT NULL COMMENT '购买个数',
                                 `create_time` datetime DEFAULT NULL COMMENT '创建时间',
                                 `source_type` varchar(20) DEFAULT NULL COMMENT '来源类型',
@@ -8542,7 +8542,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78752,26188,15,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg',4488.00,'3','2020-12-04 23:28:49','2401',NULL,13464.00,NULL,NULL),
 
-(78753,26188,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:49','2401',NULL,900.00,NULL,NULL),
+(78753,26188,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:49','2401',NULL,900.00,NULL,NULL),
 
 (78754,26189,5,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'3','2020-12-04 23:28:49','2401',NULL,2997.00,NULL,NULL),
 
@@ -8552,7 +8552,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78757,26190,23,'十月稻田 辽河长粒香 东北大米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liuAJTluAAVP1d_tXYs725.jpg',40.00,'3','2020-12-04 23:28:49','2401',NULL,120.00,NULL,NULL),
 
-(78758,26191,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:49','2401',NULL,900.00,NULL,NULL),
+(78758,26191,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:49','2401',NULL,900.00,NULL,NULL),
 
 (78759,26192,8,'Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg',8197.00,'2','2020-12-04 23:28:49','2401',NULL,16394.00,NULL,NULL),
 
@@ -8560,7 +8560,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78761,26192,26,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'3','2020-12-04 23:28:49','2402',41,317.00,NULL,70.00),
 
-(78762,26192,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:49','2404',1,976.00,NULL,NULL),
+(78762,26192,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:49','2404',1,976.00,NULL,NULL),
 
 (78763,26192,24,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg',11.00,'1','2020-12-04 23:28:49','2401',NULL,11.00,NULL,NULL),
 
@@ -8576,7 +8576,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78769,26195,13,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg',4188.00,'3','2020-12-04 23:28:49','2401',NULL,12064.00,500.00,NULL),
 
-(78770,26196,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:49','2401',NULL,300.00,NULL,NULL),
+(78770,26196,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:49','2401',NULL,300.00,NULL,NULL),
 
 (78771,26197,23,'十月稻田 辽河长粒香 东北大米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liuAJTluAAVP1d_tXYs725.jpg',40.00,'2','2020-12-04 23:28:49','2401',NULL,80.00,NULL,NULL),
 
@@ -8586,7 +8586,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78774,26199,24,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg',11.00,'1','2020-12-04 23:28:49','2401',NULL,11.00,NULL,NULL),
 
-(78775,26199,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:49','2401',NULL,1464.00,NULL,NULL),
+(78775,26199,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:49','2401',NULL,1464.00,NULL,NULL),
 
 (78776,26199,34,'华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg',3927.00,'3','2020-12-04 23:28:49','2404',1,11781.00,NULL,NULL),
 
@@ -8610,7 +8610,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78786,26202,18,'TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAAHK_AAHxOsbi0Gc462.jpg',9199.00,'1','2020-12-04 23:28:49','2403',NULL,9199.00,NULL,NULL),
 
-(78787,26202,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:49','2401',NULL,1464.00,NULL,NULL),
+(78787,26202,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:49','2401',NULL,1464.00,NULL,NULL),
 
 (78788,26202,4,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'1','2020-12-04 23:28:49','2403',NULL,999.00,NULL,NULL),
 
@@ -8618,7 +8618,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78790,26203,35,'华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg',5499.00,'2','2020-12-04 23:28:49','2401',NULL,10998.00,NULL,NULL),
 
-(78791,26203,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:49','2401',NULL,488.00,NULL,NULL),
+(78791,26203,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:49','2401',NULL,488.00,NULL,NULL),
 
 (78792,26203,2,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg',6999.00,'3','2020-12-04 23:28:49','2402',77,20297.00,700.00,NULL),
 
@@ -8628,9 +8628,9 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78795,26205,30,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg',69.00,'1','2020-12-04 23:28:49','2403',NULL,69.00,NULL,NULL),
 
-(78796,26205,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:49','2401',NULL,976.00,NULL,NULL),
+(78796,26205,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:49','2401',NULL,976.00,NULL,NULL),
 
-(78797,26206,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:49','2403',NULL,900.00,NULL,NULL),
+(78797,26206,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:49','2403',NULL,900.00,NULL,NULL),
 
 (78798,26206,35,'华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg',5499.00,'1','2020-12-04 23:28:49','2401',NULL,5499.00,NULL,NULL),
 
@@ -8648,7 +8648,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78805,26208,4,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'1','2020-12-04 23:28:49','2401',NULL,999.00,NULL,NULL),
 
-(78806,26208,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:49','2401',NULL,976.00,NULL,NULL),
+(78806,26208,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:49','2401',NULL,976.00,NULL,NULL),
 
 (78807,26209,27,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'2','2020-12-04 23:28:49','2403',NULL,258.00,NULL,NULL),
 
@@ -8712,7 +8712,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78837,26220,31,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg',69.00,'3','2020-12-04 23:28:50','2401',NULL,207.00,NULL,NULL),
 
-(78838,26220,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2401',NULL,900.00,NULL,NULL),
+(78838,26220,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2401',NULL,900.00,NULL,NULL),
 
 (78839,26220,22,'十月稻田 长粒香大米 东北大米 东北香米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg',39.00,'3','2020-12-04 23:28:50','2401',NULL,117.00,NULL,NULL),
 
@@ -8740,9 +8740,9 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78851,26224,27,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'2','2020-12-04 23:28:50','2401',NULL,258.00,NULL,NULL),
 
-(78852,26225,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
+(78852,26225,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
 
-(78853,26225,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(78853,26225,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
 (78854,26226,3,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 透明版 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg',5999.00,'2','2020-12-04 23:28:50','2403',NULL,11998.00,NULL,NULL),
 
@@ -8776,7 +8776,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78869,26232,6,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',1299.00,'1','2020-12-04 23:28:50','2403',NULL,1299.00,NULL,NULL),
 
-(78870,26232,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2402',37,1464.00,NULL,NULL),
+(78870,26232,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2402',37,1464.00,NULL,NULL),
 
 (78871,26232,34,'华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg',3927.00,'1','2020-12-04 23:28:50','2403',NULL,3927.00,NULL,NULL),
 
@@ -8832,7 +8832,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78897,26243,26,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'2','2020-12-04 23:28:50','2401',NULL,258.00,NULL,NULL),
 
-(78898,26244,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
+(78898,26244,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
 
 (78899,26245,25,'金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg',23.00,'2','2020-12-04 23:28:50','2401',NULL,46.00,NULL,NULL),
 
@@ -8842,11 +8842,11 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78902,26246,24,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg',11.00,'3','2020-12-04 23:28:50','2401',NULL,33.00,NULL,NULL),
 
-(78903,26246,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(78903,26246,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
 (78904,26247,34,'华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg',3927.00,'1','2020-12-04 23:28:50','2401',NULL,3927.00,NULL,NULL),
 
-(78905,26247,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2401',NULL,900.00,NULL,NULL),
+(78905,26247,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2401',NULL,900.00,NULL,NULL),
 
 (78906,26248,4,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'2','2020-12-04 23:28:50','2401',NULL,1998.00,NULL,NULL),
 
@@ -8874,7 +8874,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78918,26251,7,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',1299.00,'2','2020-12-04 23:28:50','2401',NULL,2598.00,NULL,NULL),
 
-(78919,26251,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2401',NULL,600.00,NULL,NULL),
+(78919,26251,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2401',NULL,600.00,NULL,NULL),
 
 (78920,26252,4,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'3','2020-12-04 23:28:50','2403',NULL,2997.00,NULL,NULL),
 
@@ -8916,7 +8916,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78939,26258,18,'TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAAHK_AAHxOsbi0Gc462.jpg',9199.00,'2','2020-12-04 23:28:50','2401',NULL,18398.00,NULL,NULL),
 
-(78940,26258,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2401',NULL,600.00,NULL,NULL),
+(78940,26258,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2401',NULL,600.00,NULL,NULL),
 
 (78941,26259,35,'华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg',5499.00,'1','2020-12-04 23:28:50','2403',NULL,5499.00,NULL,NULL),
 
@@ -8946,9 +8946,9 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78954,26266,9,'Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg',8197.00,'2','2020-12-04 23:28:50','2401',NULL,16394.00,NULL,NULL),
 
-(78955,26266,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(78955,26266,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
-(78956,26267,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
+(78956,26267,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
 
 (78957,26267,31,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg',69.00,'2','2020-12-04 23:28:50','2402',85,138.00,NULL,NULL),
 
@@ -8970,7 +8970,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78966,26270,28,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z03女王红 性感冷艳 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'3','2020-12-04 23:28:50','2401',NULL,387.00,NULL,NULL),
 
-(78967,26270,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2404',2,488.00,NULL,NULL),
+(78967,26270,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2404',2,488.00,NULL,NULL),
 
 (78968,26271,1,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg',5999.00,'1','2020-12-04 23:28:50','2401',NULL,5999.00,NULL,NULL),
 
@@ -8986,7 +8986,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78974,26274,5,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'2','2020-12-04 23:28:50','2401',NULL,1998.00,NULL,NULL),
 
-(78975,26274,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2401',NULL,976.00,NULL,NULL),
+(78975,26274,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2401',NULL,976.00,NULL,NULL),
 
 (78976,26274,6,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',1299.00,'2','2020-12-04 23:28:50','2401',NULL,2598.00,NULL,NULL),
 
@@ -8998,7 +8998,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (78980,26276,16,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg',4488.00,'1','2020-12-04 23:28:50','2402',92,4488.00,NULL,NULL),
 
-(78981,26276,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(78981,26276,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
 (78982,26277,11,'Apple iPhone 12 (A2404) 64GB 白色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWASR1YAADsOUYB-2g312.jpg',8197.00,'2','2020-12-04 23:28:50','2402',63,16394.00,NULL,NULL),
 
@@ -9084,7 +9084,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79023,26295,30,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1eASPU7AAEiYRrkMww103.jpg',69.00,'2','2020-12-04 23:28:50','2401',NULL,138.00,NULL,NULL),
 
-(79024,26296,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2403',NULL,300.00,NULL,NULL),
+(79024,26296,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2403',NULL,300.00,NULL,NULL),
 
 (79025,26296,12,'Apple iPhone 12 (A2404) 128GB 黑色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg',9197.00,'1','2020-12-04 23:28:50','2403',NULL,9197.00,NULL,NULL),
 
@@ -9138,7 +9138,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79050,26306,24,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg',11.00,'1','2020-12-04 23:28:50','2401',NULL,11.00,NULL,NULL),
 
-(79051,26306,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2404',1,600.00,NULL,NULL),
+(79051,26306,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2404',1,600.00,NULL,NULL),
 
 (79052,26306,16,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB亮黑色全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg',4488.00,'1','2020-12-04 23:28:50','2401',NULL,4488.00,NULL,NULL),
 
@@ -9158,7 +9158,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79060,26310,17,'TCL 65Q10 65英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAe9mBAAHubDHNM_s207.jpg',6699.00,'1','2020-12-04 23:28:50','2401',NULL,6699.00,NULL,NULL),
 
-(79061,26310,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2401',NULL,976.00,NULL,NULL),
+(79061,26310,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2401',NULL,976.00,NULL,NULL),
 
 (79062,26310,9,'Apple iPhone 12 (A2404) 64GB 红色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAJllcAAEY0AkXL8M782.jpg',8197.00,'2','2020-12-04 23:28:50','2401',NULL,16394.00,NULL,NULL),
 
@@ -9194,7 +9194,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79078,26317,8,'Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg',8197.00,'3','2020-12-04 23:28:50','2401',NULL,24591.00,NULL,NULL),
 
-(79079,26318,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2402',65,900.00,NULL,NULL),
+(79079,26318,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2402',65,900.00,NULL,NULL),
 
 (79080,26318,24,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg',11.00,'1','2020-12-04 23:28:50','2402',47,11.00,NULL,NULL),
 
@@ -9240,7 +9240,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79101,26329,27,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'3','2020-12-04 23:28:50','2401',NULL,387.00,NULL,NULL),
 
-(79102,26330,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
+(79102,26330,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
 
 (79103,26330,22,'十月稻田 长粒香大米 东北大米 东北香米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg',39.00,'3','2020-12-04 23:28:50','2401',NULL,117.00,NULL,NULL),
 
@@ -9252,7 +9252,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79107,26333,8,'Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAVRWzAABUiOmA0ic932.jpg',8197.00,'1','2020-12-04 23:28:50','2401',NULL,8197.00,NULL,NULL),
 
-(79108,26334,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2402',99,976.00,NULL,NULL),
+(79108,26334,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2402',99,976.00,NULL,NULL),
 
 (79109,26335,25,'金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg',23.00,'2','2020-12-04 23:28:50','2401',NULL,46.00,NULL,NULL),
 
@@ -9262,7 +9262,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79112,26337,35,'华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AiAbf9pAAJ-rvQXZj4029.jpg',5499.00,'3','2020-12-04 23:28:50','2402',80,16497.00,NULL,NULL),
 
-(79113,26337,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2401',NULL,600.00,NULL,NULL),
+(79113,26337,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'2','2020-12-04 23:28:50','2401',NULL,600.00,NULL,NULL),
 
 (79114,26338,7,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',1299.00,'3','2020-12-04 23:28:50','2401',NULL,3897.00,NULL,NULL),
 
@@ -9288,7 +9288,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79125,26342,19,'TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg',11999.00,'1','2020-12-04 23:28:50','2403',NULL,11999.00,NULL,NULL),
 
-(79126,26342,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(79126,26342,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
 (79127,26342,25,'金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg',23.00,'3','2020-12-04 23:28:50','2404',2,69.00,NULL,NULL),
 
@@ -9352,7 +9352,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79157,26355,25,'金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AaH20AATmWw3ydsA295.jpg',23.00,'1','2020-12-04 23:28:50','2402',33,23.00,NULL,NULL),
 
-(79158,26355,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2402',96,300.00,NULL,NULL),
+(79158,26355,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2402',96,300.00,NULL,NULL),
 
 (79159,26355,27,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'1','2020-12-04 23:28:50','2401',NULL,129.00,NULL,NULL),
 
@@ -9362,7 +9362,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79162,26357,18,'TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2uAAHK_AAHxOsbi0Gc462.jpg',9199.00,'3','2020-12-04 23:28:50','2401',NULL,27597.00,NULL,NULL),
 
-(79163,26358,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2403',NULL,1464.00,NULL,NULL),
+(79163,26358,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2403',NULL,1464.00,NULL,NULL),
 
 (79164,26359,31,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg',69.00,'2','2020-12-04 23:28:50','2401',NULL,138.00,NULL,NULL),
 
@@ -9372,11 +9372,11 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79167,26362,22,'十月稻田 长粒香大米 东北大米 东北香米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg',39.00,'2','2020-12-04 23:28:50','2404',1,78.00,NULL,NULL),
 
-(79168,26362,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2404',2,976.00,NULL,NULL),
+(79168,26362,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2404',2,976.00,NULL,NULL),
 
 (79169,26363,3,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 透明版 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg',5999.00,'1','2020-12-04 23:28:50','2402',66,5999.00,NULL,NULL),
 
-(79170,26363,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(79170,26363,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
 (79171,26363,13,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg',4188.00,'1','2020-12-04 23:28:50','2402',23,4188.00,NULL,NULL),
 
@@ -9386,7 +9386,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79174,26364,14,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB冰霜银全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg',4188.00,'1','2020-12-04 23:28:50','2402',41,4188.00,NULL,NULL),
 
-(79175,26364,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
+(79175,26364,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
 
 (79176,26365,24,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg',11.00,'3','2020-12-04 23:28:50','2401',NULL,33.00,NULL,NULL),
 
@@ -9406,11 +9406,11 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79184,26370,26,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 ','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0yceAC5dfAAH_Rtwwzq8880.jpg',129.00,'1','2020-12-04 23:28:50','2403',NULL,129.00,NULL,NULL),
 
-(79185,26370,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2404',2,488.00,NULL,NULL),
+(79185,26370,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2404',2,488.00,NULL,NULL),
 
 (79186,26371,14,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB冰霜银全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg',4188.00,'3','2020-12-04 23:28:50','2402',29,12564.00,NULL,NULL),
 
-(79187,26371,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2402',72,488.00,NULL,NULL),
+(79187,26371,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2402',72,488.00,NULL,NULL),
 
 (79188,26371,10,'Apple iPhone 12 (A2404) 64GB 蓝色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWAbqkuAAENKBtJukQ551.jpg',8197.00,'2','2020-12-04 23:28:50','2401',NULL,16394.00,NULL,NULL),
 
@@ -9424,7 +9424,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79193,26374,2,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg',6999.00,'2','2020-12-04 23:28:50','2404',1,13298.00,700.00,NULL),
 
-(79194,26374,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2402',15,976.00,NULL,NULL),
+(79194,26374,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2402',15,976.00,NULL,NULL),
 
 (79195,26374,31,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg',69.00,'3','2020-12-04 23:28:50','2403',NULL,207.00,NULL,NULL),
 
@@ -9444,9 +9444,9 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79203,26380,2,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg',6999.00,'2','2020-12-04 23:28:50','2401',NULL,13621.07,376.93,NULL),
 
-(79204,26380,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(79204,26380,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
-(79205,26380,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2401',NULL,900.00,NULL,NULL),
+(79205,26380,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2401',NULL,900.00,NULL,NULL),
 
 (79206,26380,11,'Apple iPhone 12 (A2404) 64GB 白色 支持移动联通电信5G 双卡双待手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-rgfWASR1YAADsOUYB-2g312.jpg',8197.00,'3','2020-12-04 23:28:50','2402',39,24591.00,NULL,NULL),
 
@@ -9456,7 +9456,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79209,26382,1,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 陶瓷黑 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAIpgZAAIvrX6L9fo612.jpg',5999.00,'3','2020-12-04 23:28:50','2403',NULL,17673.93,323.07,NULL),
 
-(79210,26382,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2401',NULL,976.00,NULL,NULL),
+(79210,26382,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2401',NULL,976.00,NULL,NULL),
 
 (79211,26382,2,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg',6999.00,'3','2020-12-04 23:28:50','2403',NULL,20620.07,376.93,NULL),
 
@@ -9492,7 +9492,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79227,26388,22,'十月稻田 长粒香大米 东北大米 东北香米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg',39.00,'2','2020-12-04 23:28:50','2401',NULL,78.00,NULL,NULL),
 
-(79228,26388,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
+(79228,26388,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2401',NULL,300.00,NULL,NULL),
 
 (79229,26388,19,'TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0i2-AU8esAAIV74ZBdhU344.jpg',11999.00,'2','2020-12-04 23:28:50','2403',NULL,23998.00,NULL,NULL),
 
@@ -9512,7 +9512,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79237,26391,4,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'2','2020-12-04 23:28:50','2401',NULL,1998.00,NULL,NULL),
 
-(79238,26391,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2401',NULL,488.00,NULL,NULL),
+(79238,26391,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2401',NULL,488.00,NULL,NULL),
 
 (79239,26392,6,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',1299.00,'2','2020-12-04 23:28:50','2402',12,2598.00,NULL,NULL),
 
@@ -9530,7 +9530,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79246,26394,22,'十月稻田 长粒香大米 东北大米 东北香米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg',39.00,'1','2020-12-04 23:28:50','2401',NULL,39.00,NULL,NULL),
 
-(79247,26395,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
+(79247,26395,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2401',NULL,1464.00,NULL,NULL),
 
 (79248,26395,2,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rfvmAcbl2AAFopp2WGBQ404.jpg',6999.00,'2','2020-12-04 23:28:50','2401',NULL,13298.00,700.00,NULL),
 
@@ -9612,7 +9612,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79287,26412,4,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',999.00,'2','2020-12-04 23:28:50','2401',NULL,1998.00,NULL,NULL),
 
-(79288,26412,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2404',1,1464.00,NULL,NULL),
+(79288,26412,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'3','2020-12-04 23:28:50','2404',1,1464.00,NULL,NULL),
 
 (79289,26412,15,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 8GB+128GB冰霜银全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaAbYPbAAHJf20K7J4980.jpg',4488.00,'1','2020-12-04 23:28:50','2402',87,4488.00,NULL,NULL),
 
@@ -9714,9 +9714,9 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79338,26433,13,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg',4188.00,'1','2020-12-04 23:28:50','2401',NULL,4188.00,NULL,NULL),
 
-(79339,26434,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2404',1,976.00,NULL,NULL),
+(79339,26434,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'2','2020-12-04 23:28:50','2404',1,976.00,NULL,NULL),
 
-(79340,26434,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2402',18,300.00,NULL,NULL),
+(79340,26434,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'1','2020-12-04 23:28:50','2402',18,300.00,NULL,NULL),
 
 (79341,26434,31,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg',69.00,'1','2020-12-04 23:28:50','2402',88,69.00,NULL,NULL),
 
@@ -9752,7 +9752,7 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79357,26442,13,'华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-sklaALrngAAHGDqdpFtU741.jpg',4188.00,'1','2020-12-04 23:28:50','2401',NULL,4188.00,NULL,NULL),
 
-(79358,26442,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2404',1,488.00,NULL,NULL),
+(79358,26442,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2404',1,488.00,NULL,NULL),
 
 (79359,26442,7,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 8GB+128GB 明月灰 游戏智能手机 小米 红米','http://47.93.148.192:8080/group1/M00/00/01/rBHu8l-rgJqAHPnoAAF9hoDNfsc505.jpg',1299.00,'2','2020-12-04 23:28:50','2401',NULL,2598.00,NULL,NULL),
 
@@ -9766,9 +9766,9 @@ insert  into `order_detail`(`id`,`order_id`,`sku_id`,`sku_name`,`img_url`,`order
 
 (79364,26445,22,'十月稻田 长粒香大米 东北大米 东北香米 5kg','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0liqAARz7AAHeAIWIl4I126.jpg',39.00,'3','2020-12-04 23:28:50','2404',1,117.00,NULL,NULL),
 
-(79365,26445,33,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2401',NULL,488.00,NULL,NULL),
+(79365,26445,33,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',488.00,'1','2020-12-04 23:28:50','2401',NULL,488.00,NULL,NULL),
 
-(79366,26445,32,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2404',1,900.00,NULL,NULL),
+(79366,26445,32,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',300.00,'3','2020-12-04 23:28:50','2404',1,900.00,NULL,NULL),
 
 (79367,26446,24,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g','http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0l72AKuQVAALmOIO3U5M856.jpg',11.00,'3','2020-12-04 23:28:50','2402',80,33.00,NULL,NULL),
 
@@ -29046,7 +29046,7 @@ CREATE TABLE if not exists `order_info` (
                               `payment_way` varchar(20) DEFAULT NULL COMMENT '付款方式',
                               `delivery_address` varchar(1000) DEFAULT NULL COMMENT '送货地址',
                               `order_comment` varchar(200) DEFAULT NULL COMMENT '订单备注',
-                              `out_trade_no` varchar(50) DEFAULT NULL COMMENT '订单交易编号（第三方支付用)',
+                              `out_trade_no` varchar(50) DEFAULT NULL COMMENT '订单交易编号(第三方支付用)',
                               `trade_body` varchar(200) DEFAULT NULL COMMENT '订单描述(第三方支付用)',
                               `create_time` datetime DEFAULT NULL COMMENT '创建时间',
                               `operate_time` datetime DEFAULT NULL COMMENT '操作时间',
@@ -29061,7 +29061,7 @@ CREATE TABLE if not exists `order_info` (
                               `original_total_amount` decimal(16,2) DEFAULT NULL COMMENT '原价金额',
                               `feight_fee` decimal(16,2) DEFAULT NULL COMMENT '运费',
                               `feight_fee_reduce` decimal(16,2) DEFAULT NULL COMMENT '运费减免',
-                              `refundable_time` datetime DEFAULT NULL COMMENT '可退款日期（签收后30天）',
+                              `refundable_time` datetime DEFAULT NULL COMMENT '可退款日期(签收后30天)',
                               PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=26449 DEFAULT CHARSET=utf8 COMMENT='订单表 订单表';
 
@@ -29075,7 +29075,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26190,'费香月','13650276126',125.00,'1005',11,NULL,'第4大街第37号楼7单元641门','描述863198','753956295699514','十月稻田 辽河长粒香 东北大米 5kg等3件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/345112.jpg',14,0.00,0.00,120.00,5.00,NULL,NULL),
 
-(26191,'茅影','13859603376',914.00,'1004',21,NULL,'第10大街第4号楼6单元683门','描述525263','269919345794314','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等3件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/595317.jpg',30,0.00,0.00,900.00,14.00,NULL,NULL),
+(26191,'茅影','13859603376',914.00,'1004',21,NULL,'第10大街第4号楼6单元683门','描述525263','269919345794314','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等3件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/595317.jpg',30,0.00,0.00,900.00,14.00,NULL,NULL),
 
 (26192,'吴枫','13879090180',29418.00,'1005',73,NULL,'第5大街第15号楼9单元472门','描述788659','252235794332735','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机等11件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/499635.jpg',8,0.00,70.00,29479.00,9.00,NULL,NULL),
 
@@ -29085,7 +29085,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26195,'东郭岩','13494583657',11575.00,'1001',110,NULL,'第8大街第16号楼1单元268门','描述514774','541425947265431','华为 HUAWEI P40 麒麟990 5G SoC芯片 5000万超感知徕卡三摄 30倍数字变焦 6GB+128GB亮黑色全网通5G手机等3件商品','2020-12-04 23:28:49','2020-12-04 23:28:51','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/796968.jpg',1,500.00,0.00,12064.00,11.00,NULL,NULL),
 
-(26196,'蒋枝思','13020148637',311.00,'1005',115,NULL,'第5大街第13号楼6单元748门','描述766393','246924823665346','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/444658.jpg',17,0.00,0.00,300.00,11.00,NULL,NULL),
+(26196,'蒋枝思','13020148637',311.00,'1005',115,NULL,'第5大街第13号楼6单元748门','描述766393','246924823665346','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/444658.jpg',17,0.00,0.00,300.00,11.00,NULL,NULL),
 
 (26197,'郑贵福','13944996074',24677.00,'1005',117,NULL,'第9大街第27号楼4单元233门','描述321569','658552677282929','十月稻田 辽河长粒香 东北大米 5kg等5件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/494382.jpg',9,0.00,0.00,24671.00,6.00,NULL,NULL),
 
@@ -29105,7 +29105,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26205,'钱炎','13121895815',4062.00,'1004',244,NULL,'第18大街第31号楼3单元995门','描述272174','322672452341626','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米等6件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/983837.jpg',18,0.00,0.00,4042.00,20.00,NULL,NULL),
 
-(26206,'顾蓉眉','13840296393',31047.00,'1004',272,NULL,'第19大街第35号楼9单元769门','描述131275','476944564374317','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等8件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/878587.jpg',23,0.00,0.00,31029.00,18.00,NULL,NULL),
+(26206,'顾蓉眉','13840296393',31047.00,'1004',272,NULL,'第19大街第35号楼9单元769门','描述131275','476944564374317','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等8件商品','2020-12-04 23:28:49','2020-12-04 23:28:52','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/878587.jpg',23,0.00,0.00,31029.00,18.00,NULL,NULL),
 
 (26207,'西门榕风','13348730989',40784.00,'1001',290,NULL,'第1大街第37号楼1单元929门','描述934146','218699854634985','TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视等9件商品','2020-12-04 23:28:49','2020-12-04 23:28:51','2020-12-04 23:43:49',NULL,NULL,NULL,'http://img.gmall.com/735912.jpg',22,0.00,0.00,40769.00,15.00,NULL,NULL),
 
@@ -29143,7 +29143,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26224,'濮阳梁','13268272651',8129.00,'1004',479,NULL,'第15大街第36号楼6单元475门','描述396375','746964624595178','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/316843.jpg',20,0.00,0.00,8112.00,17.00,NULL,NULL),
 
-(26225,'谢广志','13566425993',1769.00,'1001',497,NULL,'第10大街第8号楼1单元334门','描述964222','866253175963466','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/512479.jpg',25,0.00,0.00,1764.00,5.00,NULL,NULL),
+(26225,'谢广志','13566425993',1769.00,'1001',497,NULL,'第10大街第8号楼1单元334门','描述964222','866253175963466','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/512479.jpg',25,0.00,0.00,1764.00,5.00,NULL,NULL),
 
 (26226,'钱纨','13472211325',65796.00,'1004',517,NULL,'第2大街第31号楼9单元368门','描述884729','473947279694138','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 透明版 游戏手机等10件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/461735.jpg',34,700.00,0.00,66484.00,12.00,NULL,NULL),
 
@@ -29181,7 +29181,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26243,'尹和','13153873983',19930.00,'1004',709,NULL,'第18大街第31号楼8单元618门','描述589899','634848326639571','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机等6件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/924554.jpg',22,700.00,0.00,20624.00,6.00,NULL,NULL),
 
-(26244,'司马馥筠','13677493247',314.00,'1004',720,NULL,'第1大街第39号楼4单元744门','描述466595','251977573928892','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/246951.jpg',21,0.00,0.00,300.00,14.00,NULL,NULL),
+(26244,'司马馥筠','13677493247',314.00,'1004',720,NULL,'第1大街第39号楼4单元744门','描述466595','251977573928892','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/246951.jpg',21,0.00,0.00,300.00,14.00,NULL,NULL),
 
 (26245,'慕容楠榕','13279719092',270.00,'1001',735,NULL,'第3大街第26号楼3单元491门','描述522575','197975596135734','金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面等5件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/648153.jpg',22,0.00,0.00,253.00,17.00,NULL,NULL),
 
@@ -29227,7 +29227,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26266,'袁妍茜','13505414705',26060.00,'1005',1088,NULL,'第10大街第3号楼4单元447门','描述176161','561492341913542','Apple iPhone 12 (A2404) 64GB 白色 支持移动联通电信5G 双卡双待手机等6件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/281894.jpg',11,0.00,0.00,26055.00,5.00,NULL,NULL),
 
-(26267,'熊新','13649440807',5344.00,'1005',1099,NULL,'第13大街第33号楼8单元181门','描述943872','128743322461488','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等7件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/891895.jpg',31,0.00,0.00,5334.00,10.00,NULL,NULL),
+(26267,'熊新','13649440807',5344.00,'1005',1099,NULL,'第13大街第33号楼8单元181门','描述943872','128743322461488','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等7件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/891895.jpg',31,0.00,0.00,5334.00,10.00,NULL,NULL),
 
 (26268,'李真','13607242822',1386.00,'1004',1118,NULL,'第7大街第10号楼3单元342门','描述211641','264298246578763','十月稻田 长粒香大米 东北大米 东北香米 5kg等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/258659.jpg',28,0.00,0.00,1377.00,9.00,NULL,NULL),
 
@@ -29285,7 +29285,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26295,'伏雁蓓','13515756423',146.00,'1004',1488,NULL,'第8大街第12号楼6单元883门','描述834199','482947528482818','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/869628.jpg',8,0.00,0.00,138.00,8.00,NULL,NULL),
 
-(26296,'康轮翰','13264436609',9505.00,'1004',1493,NULL,'第4大街第11号楼5单元927门','描述235431','314974248416792','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/768854.jpg',3,0.00,0.00,9497.00,8.00,NULL,NULL),
+(26296,'康轮翰','13264436609',9505.00,'1004',1493,NULL,'第4大街第11号楼5单元927门','描述235431','314974248416792','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/768854.jpg',3,0.00,0.00,9497.00,8.00,NULL,NULL),
 
 (26297,'何子杰','13374632597',8435.00,'1005',1519,NULL,'第17大街第13号楼4单元836门','描述757681','872581683338233','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/483591.jpg',27,0.00,0.00,8415.00,20.00,NULL,NULL),
 
@@ -29329,7 +29329,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26317,'平时泰','13025245540',25602.00,'1005',1834,NULL,'第18大街第34号楼2单元993门','描述846468','571868535711486','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/131434.jpg',5,0.00,0.00,25590.00,12.00,NULL,NULL),
 
-(26318,'轩辕彩春','13869369629',17312.00,'1004',1848,NULL,'第2大街第38号楼7单元289门','描述972458','561767412147143','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等6件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/538451.jpg',26,0.00,0.00,17305.00,7.00,NULL,NULL),
+(26318,'轩辕彩春','13869369629',17312.00,'1004',1848,NULL,'第2大街第38号楼7单元289门','描述972458','561767412147143','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等6件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/538451.jpg',26,0.00,0.00,17305.00,7.00,NULL,NULL),
 
 (26319,'茅宏','13648933885',9273.00,'1001',1886,NULL,'第7大街第6号楼4单元251门','描述783766','936962644575127','TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/815458.jpg',6,0.00,0.00,9268.00,5.00,NULL,NULL),
 
@@ -29353,7 +29353,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26329,'郑翠雅','13055169586',397.00,'1005',2139,NULL,'第9大街第29号楼3单元136门','描述225973','413689781412949','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/699288.jpg',27,0.00,0.00,387.00,10.00,NULL,NULL),
 
-(26330,'伍俊','13426176418',437.00,'1004',2140,NULL,'第6大街第7号楼4单元347门','描述328689','978916699882837','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/174975.jpg',34,0.00,0.00,417.00,20.00,NULL,NULL),
+(26330,'伍俊','13426176418',437.00,'1004',2140,NULL,'第6大街第7号楼4单元347门','描述328689','978916699882837','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/174975.jpg',34,0.00,0.00,417.00,20.00,NULL,NULL),
 
 (26331,'夏侯学祥','13172989183',16532.00,'1004',2162,NULL,'第16大街第4号楼5单元396门','描述818754','736675593415139','索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/867944.jpg',21,0.00,0.00,16523.00,9.00,NULL,NULL),
 
@@ -29361,7 +29361,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26333,'南宫新','13930496650',8209.00,'1001',2214,NULL,'第10大街第1号楼3单元816门','描述253375','514387481628474','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机等1件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/295812.jpg',5,0.00,0.00,8197.00,12.00,NULL,NULL),
 
-(26334,'庞敬震','13907924076',988.00,'1001',2239,NULL,'第18大街第1号楼8单元882门','描述283396','233383621631254','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/268142.jpg',29,0.00,0.00,976.00,12.00,NULL,NULL),
+(26334,'庞敬震','13907924076',988.00,'1001',2239,NULL,'第18大街第1号楼8单元882门','描述283396','233383621631254','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/268142.jpg',29,0.00,0.00,976.00,12.00,NULL,NULL),
 
 (26335,'宇文豪心','13836965431',1056.00,'1001',2257,NULL,'第8大街第15号楼9单元689门','描述248497','627783722214584','金沙河面条 银丝挂面900g*3包 爽滑 细面条 龙须面 速食面等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/145721.jpg',14,0.00,0.00,1045.00,11.00,NULL,NULL),
 
@@ -29409,7 +29409,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26357,'萧莉桂','13637185522',27602.00,'1004',2585,NULL,'第15大街第17号楼8单元864门','描述565762','679356961256659','TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/449292.jpg',30,0.00,0.00,27597.00,5.00,NULL,NULL),
 
-(26358,'黄先','13301246831',1482.00,'1004',2621,NULL,'第9大街第26号楼6单元627门','描述218677','433723553973864','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/478175.jpg',1,0.00,0.00,1464.00,18.00,NULL,NULL),
+(26358,'黄先','13301246831',1482.00,'1004',2621,NULL,'第9大街第26号楼6单元627门','描述218677','433723553973864','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/478175.jpg',1,0.00,0.00,1464.00,18.00,NULL,NULL),
 
 (26359,'殷德行','13541403123',154.00,'1004',2666,NULL,'第5大街第28号楼6单元419门','描述888224','366928329329219','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶等2件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/666792.jpg',16,0.00,0.00,138.00,16.00,NULL,NULL),
 
@@ -29483,7 +29483,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26394,'尹林有','13826906584',16488.00,'1004',3110,NULL,'第2大街第1号楼5单元337门','描述179312','681934764856573','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/486951.jpg',21,0.00,0.00,16473.00,15.00,NULL,NULL),
 
-(26395,'李伊亚','13943704976',30705.00,'1005',3126,NULL,'第8大街第4号楼3单元133门','描述516734','861859416495583','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等9件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/173737.jpg',19,700.00,0.00,31388.00,17.00,NULL,NULL),
+(26395,'李伊亚','13943704976',30705.00,'1005',3126,NULL,'第8大街第4号楼3单元133门','描述516734','861859416495583','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等9件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/173737.jpg',19,700.00,0.00,31388.00,17.00,NULL,NULL),
 
 (26396,'邹昌成','13223616056',26606.00,'1004',3185,NULL,'第17大街第37号楼8单元866门','描述673678','125241291581637','Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/188536.jpg',6,0.00,0.00,26591.00,15.00,NULL,NULL),
 
@@ -29561,7 +29561,7 @@ insert  into `order_info`(`id`,`consignee`,`consignee_tel`,`total_amount`,`order
 
 (26433,'乐天','13551185872',10328.00,'1001',3666,NULL,'第13大街第21号楼3单元648门','描述234742','689587879518329','小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 8GB+128GB 透明版 游戏手机等3件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/745321.jpg',30,0.00,0.00,10316.00,12.00,NULL,NULL),
 
-(26434,'葛娅琦','13074368245',1358.00,'1005',3700,NULL,'第10大街第7号楼5单元565门','描述925382','439952953391149','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/528672.jpg',26,0.00,0.00,1345.00,13.00,NULL,NULL),
+(26434,'葛娅琦','13074368245',1358.00,'1005',3700,NULL,'第10大街第7号楼5单元565门','描述925382','439952953391149','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等4件商品','2020-12-04 23:28:50','2020-12-04 23:28:52','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/528672.jpg',26,0.00,0.00,1345.00,13.00,NULL,NULL),
 
 (26435,'顾羽希','13824590951',38581.00,'1001',3711,NULL,'第6大街第33号楼3单元488门','描述245555','361978623149767','Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米等11件商品','2020-12-04 23:28:50','2020-12-04 23:28:51','2020-12-04 23:43:50',NULL,NULL,NULL,'http://img.gmall.com/377553.jpg',9,0.00,0.00,38573.00,8.00,NULL,NULL),
 
@@ -29603,7 +29603,7 @@ CREATE TABLE if not exists `order_refund_info` (
                                      `refund_amount` decimal(16,2) DEFAULT NULL COMMENT '退款金额',
                                      `refund_reason_type` varchar(200) DEFAULT NULL COMMENT '原因类型',
                                      `refund_reason_txt` varchar(20) DEFAULT NULL COMMENT '原因内容',
-                                     `refund_status` varchar(10) DEFAULT NULL COMMENT '退款状态（0：待审批 1：已退款）',
+                                     `refund_status` varchar(10) DEFAULT NULL COMMENT '退款状态(0：待审批 1：已退款)',
                                      `create_time` datetime DEFAULT NULL COMMENT '创建时间',
                                      PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5205 DEFAULT CHARSET=utf8 COMMENT='退单表';
@@ -31159,7 +31159,7 @@ CREATE TABLE if not exists `payment_info` (
                                 `out_trade_no` varchar(50) DEFAULT NULL COMMENT '对外业务编号',
                                 `order_id` bigint(50) DEFAULT NULL COMMENT '订单编号',
                                 `user_id` bigint(20) DEFAULT NULL,
-                                `payment_type` varchar(20) DEFAULT NULL COMMENT '支付类型（微信 支付宝）',
+                                `payment_type` varchar(20) DEFAULT NULL COMMENT '支付类型(微信 支付宝)',
                                 `trade_no` varchar(50) DEFAULT NULL COMMENT '交易编号',
                                 `total_amount` decimal(10,2) DEFAULT NULL COMMENT '支付金额',
                                 `subject` varchar(200) DEFAULT NULL COMMENT '交易内容',
@@ -31180,13 +31180,13 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17509,'753956295699514',26190,11,'1102','2322541259114773165124238765577361',125.00,'十月稻田 辽河长粒香 东北大米 5kg等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17510,'269919345794314',26191,21,'1102','4544416334513338693247633962218534',914.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17510,'269919345794314',26191,21,'1102','4544416334513338693247633962218534',914.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17511,'252235794332735',26192,73,'1102','5986831349262128866175894442235358',29418.00,'Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机等11件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17512,'559136128773882',26193,104,'1102','5853526965466727635223271498378263',11152.00,'华为智慧屏V65i 65英寸 HEGE-560B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 4GB+32GB 星际黑等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17513,'246924823665346',26196,115,'1102','6643297519861932232915415423123857',311.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17513,'246924823665346',26196,115,'1102','6643297519861932232915415423123857',311.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17514,'658552677282929',26197,117,'1102','3685917849724756813592959977663836',24677.00,'十月稻田 辽河长粒香 东北大米 5kg等5件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31198,7 +31198,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17518,'322672452341626',26205,244,'1102','6992155593985542339496156513726337',4062.00,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米等6件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17519,'476944564374317',26206,272,'1102','8784523924563815373142923926118855',31047.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等8件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17519,'476944564374317',26206,272,'1102','8784523924563815373142923926118855',31047.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等8件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17520,'292268245172132',26208,315,'1101','7421376217473915871167354859421241',1984.00,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 冰雾白 游戏智能手机 小米 红米等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31256,7 +31256,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17547,'634848326639571',26243,709,'1101','6318578112738597657693846927355416',19930.00,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机等6件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17548,'251977573928892',26244,720,'1102','6769522537329972946833967668644811',314.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17548,'251977573928892',26244,720,'1102','6769522537329972946833967668644811',314.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等1件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17549,'966928663267261',26246,738,'1101','1752923389853397354668518492111525',8509.00,'小米10 至尊纪念版 双模5G 骁龙865 120HZ高刷新率 120倍长焦镜头 120W快充 12GB+256GB 陶瓷黑 游戏手机等7件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31288,7 +31288,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17563,'561492341913542',26266,1088,'1103','2163488525136596863315555289539926',26060.00,'Apple iPhone 12 (A2404) 64GB 白色 支持移动联通电信5G 双卡双待手机等6件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17564,'128743322461488',26267,1099,'1102','9428122671911915532735354416939384',5344.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等7件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17564,'128743322461488',26267,1099,'1102','9428122671911915532735354416939384',5344.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等7件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17565,'264298246578763',26268,1118,'1102','2837692998951565651825928172149279',1386.00,'十月稻田 长粒香大米 东北大米 东北香米 5kg等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31330,7 +31330,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17584,'482947528482818',26295,1488,'1101','3284826938253987374894982422794826',146.00,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M02干玫瑰等2件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17585,'314974248416792',26296,1493,'1101','4492925318133762647552842785468816',9505.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等2件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17585,'314974248416792',26296,1493,'1101','4492925318133762647552842785468816',9505.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等2件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17586,'872581683338233',26297,1519,'1101','5424372747689581926767184188332747',8435.00,'华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电等2件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31364,7 +31364,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17601,'571868535711486',26317,1834,'1101','5658989691372464225652832521543175',25602.00,'Redmi 10X 4G Helio G85游戏芯 4800万超清四摄 5020mAh大电量 小孔全面屏 128GB大存储 4GB+128GB 明月灰 游戏智能手机 小米 红米等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17602,'561767412147143',26318,1848,'1101','3658635313564254624478296126168631',17312.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等6件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17602,'561767412147143',26318,1848,'1101','3658635313564254624478296126168631',17312.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等6件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17603,'653859892831386',26321,1935,'1101','9131727311568983136951483749641221',17073.00,'华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31380,7 +31380,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17609,'413689781412949',26329,2139,'1102','8694839499774378556172556617477957',397.00,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Z02少女红 活力青春 璀璨金钻哑光唇膏 等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17610,'978916699882837',26330,2140,'1102','8992653597668151512948323531173729',437.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17610,'978916699882837',26330,2140,'1102','8992653597668151512948323531173729',437.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17611,'736675593415139',26331,2162,'1102','4491364674326473163272358519761834',16532.00,'索芙特i-Softto 口红不掉色唇膏保湿滋润 璀璨金钻哑光唇膏 Y01复古红 百搭气质 璀璨金钻哑光唇膏 等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31420,7 +31420,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17629,'679356961256659',26357,2585,'1102','2522674142545853694776438924556266',27602.00,'TCL 75Q10 75英寸 QLED原色量子点电视 安桥音响 AI声控智慧屏 超薄全面屏 MEMC防抖 3+32GB 平板电视等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17630,'433723553973864',26358,2621,'1102','6184942254288486574398299724694254',1482.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17630,'433723553973864',26358,2621,'1102','6184942254288486574398299724694254',1482.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17631,'366928329329219',26359,2666,'1101','2662431664759634586949932572326545',154.00,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶等2件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31474,7 +31474,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17656,'681934764856573',26394,3110,'1102','8734297973787263558298689676326425',16488.00,'Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17657,'861859416495583',26395,3126,'1102','4268318528786231527257787613161679',30705.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等9件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17657,'861859416495583',26395,3126,'1102','4268318528786231527257787613161679',30705.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等9件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17658,'125241291581637',26396,3185,'1103','5458734485541566197569385695189957',26606.00,'Apple iPhone 12 (A2404) 64GB 黑色 支持移动联通电信5G 双卡双待手机等3件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31526,7 +31526,7 @@ insert  into `payment_info`(`id`,`out_trade_no`,`order_id`,`user_id`,`payment_ty
 
 (17682,'484565989166614',26432,3645,'1102','5741121282513975149558843381499225',28511.00,'TCL 85Q6 85英寸 巨幕私人影院电视 4K超高清 AI智慧屏 全景全面屏 MEMC运动防抖 2+16GB 液晶平板电视机等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
-(17683,'439952953391149',26434,3700,'1101','6449318322172797535359544341561966',1358.00,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
+(17683,'439952953391149',26434,3700,'1101','6449318322172797535359544341561966',1358.00,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
 (17684,'994512892746254',26437,3732,'1101','2598793199983168832214479198428466',16428.00,'金沙河面条 原味银丝挂面 龙须面 方便速食拉面 清汤面 900g等4件商品',NULL,'2020-12-04 23:28:51','2020-12-04 23:29:11',NULL),
 
@@ -31551,7 +31551,7 @@ CREATE TABLE if not exists `refund_payment` (
                                   `out_trade_no` varchar(50) DEFAULT NULL COMMENT '对外业务编号',
                                   `order_id` bigint(20) DEFAULT NULL COMMENT '订单编号',
                                   `sku_id` bigint(20) DEFAULT NULL,
-                                  `payment_type` varchar(20) DEFAULT NULL COMMENT '支付类型（微信 支付宝）',
+                                  `payment_type` varchar(20) DEFAULT NULL COMMENT '支付类型(微信 支付宝)',
                                   `trade_no` varchar(50) DEFAULT NULL COMMENT '交易编号',
                                   `total_amount` decimal(10,2) DEFAULT NULL COMMENT '退款金额',
                                   `subject` varchar(200) DEFAULT NULL COMMENT '交易内容',
@@ -31707,7 +31707,7 @@ CREATE TABLE if not exists `seckill_goods` (
 
 CREATE TABLE if not exists `sku_attr_value` (
                                   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
-                                  `attr_id` bigint(20) DEFAULT NULL COMMENT '属性id（冗余)',
+                                  `attr_id` bigint(20) DEFAULT NULL COMMENT '属性id(冗余)',
                                   `value_id` bigint(20) DEFAULT NULL COMMENT '属性值id',
                                   `sku_id` bigint(20) DEFAULT NULL COMMENT 'skuid',
                                   `attr_name` varchar(30) DEFAULT NULL COMMENT '属性名',
@@ -31982,7 +31982,7 @@ insert  into `sku_attr_value`(`id`,`attr_id`,`value_id`,`sku_id`,`attr_name`,`va
 CREATE TABLE if not exists `sku_image` (
                              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
                              `sku_id` bigint(20) DEFAULT NULL COMMENT '商品id',
-                             `img_name` varchar(200) DEFAULT NULL COMMENT '图片名称（冗余）',
+                             `img_name` varchar(200) DEFAULT NULL COMMENT '图片名称(冗余)',
                              `img_url` varchar(300) DEFAULT NULL COMMENT '图片路径(冗余)',
                              `spu_img_id` bigint(20) DEFAULT NULL COMMENT '商品图片id',
                              `is_default` varchar(4000) DEFAULT NULL COMMENT '是否默认',
@@ -32395,9 +32395,9 @@ CREATE TABLE if not exists `sku_info` (
                             `sku_desc` varchar(2000) DEFAULT NULL COMMENT '商品规格描述',
                             `weight` decimal(10,2) DEFAULT NULL COMMENT '重量',
                             `tm_id` bigint(20) DEFAULT NULL COMMENT '品牌(冗余)',
-                            `category3_id` bigint(20) DEFAULT NULL COMMENT '三级分类id（冗余)',
+                            `category3_id` bigint(20) DEFAULT NULL COMMENT '三级分类id(冗余)',
                             `sku_default_img` varchar(300) DEFAULT NULL COMMENT '默认显示图片(冗余)',
-                            `is_sale` tinyint(3) NOT NULL DEFAULT '0' COMMENT '是否销售（1：是 0：否）',
+                            `is_sale` tinyint(3) NOT NULL DEFAULT '0' COMMENT '是否销售(1：是 0：否)',
                             `create_time` datetime DEFAULT NULL COMMENT '创建时间',
                             PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='库存单元表';
@@ -32468,9 +32468,9 @@ insert  into `sku_info`(`id`,`spu_id`,`price`,`sku_name`,`sku_desc`,`weight`,`tm
 
 (31,10,69,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏 M03赤茶',1.00,9,477,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-0y1WATxItAAEcZnKxvfI617.jpg',0,'2020-11-18 15:23:36'),
 
-(32,11,300,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',1.00,11,473,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',0,'2020-11-18 15:50:11'),
+(32,11,300,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 5号淡香水35ml',1.00,11,473,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MKAbhV8AACzhzshAss449.jpg',0,'2020-11-18 15:50:11'),
 
-(33,11,488,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',1.00,11,473,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',0,'2020-11-18 15:50:58'),
+(33,11,488,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT 粉邂逅淡香水35ml',1.00,11,473,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-00MSABFB2AAHD3bWoRhw015.jpg',0,'2020-11-18 15:50:58'),
 
 (34,12,3927,'华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电','华为智慧屏V55i-J 55英寸 HEGE-550B 4K全面屏智能电视机 多方视频通话 AI升降摄像头 银钻灰 京品家电',30.00,3,86,'http://47.93.148.192:8080/group1/M00/00/02/rBHu8l-02AyARcFFAAKGCeWL410100.jpg',0,'2020-11-18 16:16:43'),
 
@@ -32806,7 +32806,7 @@ insert  into `spu_image`(`id`,`spu_id`,`img_name`,`img_url`) values
 CREATE TABLE if not exists `spu_info` (
                             `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '商品id',
                             `spu_name` varchar(200) DEFAULT NULL COMMENT '商品名称',
-                            `description` varchar(1000) DEFAULT NULL COMMENT '商品描述(后台简述）',
+                            `description` varchar(1000) DEFAULT NULL COMMENT '商品描述(后台简述)',
                             `category3_id` bigint(20) DEFAULT NULL COMMENT '三级分类id',
                             `tm_id` bigint(20) DEFAULT NULL COMMENT '品牌id',
                             PRIMARY KEY (`id`) USING BTREE
@@ -32836,7 +32836,7 @@ insert  into `spu_info`(`id`,`spu_name`,`description`,`category3_id`,`tm_id`) va
 
 (10,'CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏','CAREMiLLE珂曼奶油小方口红 雾面滋润保湿持久丝缎唇膏',477,9),
 
-(11,'香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT ','香奈儿（Chanel）女士香水5号香水 粉邂逅柔情淡香水EDT ',473,11),
+(11,'香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT ','香奈儿(Chanel)女士香水5号香水 粉邂逅柔情淡香水EDT ',473,11),
 
 (12,'华为智慧屏 4K全面屏智能电视机','华为智慧屏 4K全面屏智能电视机',86,3);
 
@@ -32849,7 +32849,7 @@ CREATE TABLE if not exists `spu_poster` (
                               `img_url` varchar(200) DEFAULT NULL COMMENT '文件路径',
                               `create_time` datetime NOT NULL COMMENT '创建时间',
                               `update_time` datetime NOT NULL COMMENT '更新时间',
-                              `is_deleted` tinyint(3) NOT NULL DEFAULT '0' COMMENT '逻辑删除 1（true）已删除， 0（false）未删除',
+                              `is_deleted` tinyint(3) NOT NULL DEFAULT '0' COMMENT '逻辑删除 1(true)已删除， 0(false)未删除',
                               PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='商品海报表';
 
