@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# crontab执行结果和手动执行结果不一样,是因为两者环境变量不一样,脚本开头添加
+source /etc/profile
+
 # 待监控的任务
 tables='ghs_user node_flow_record lesson_flow_record student_record ghs_wechat_account lesson'
 
