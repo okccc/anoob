@@ -13,7 +13,7 @@ hosts=(cdh25 cdh26 cdh27 cdh28 cdh29 cdh30 cdh31 cdh32 cdh33)
 
 for host in ${hosts[*]}
 do
-    scp ${file_path} ${host}:${file_path}
+  scp ${file_path} ${host}:${file_path}
 
 	if [ $? -eq 0 ] ; then
 			echo "Sync success; Target host is: $host."

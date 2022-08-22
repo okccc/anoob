@@ -1,6 +1,6 @@
 #!/bin/bash
 
-YESTERDAY=`date -d yesterday +%Y-%m-%d`
+YESTERDAY=$(date -d yesterday +%Y-%m-%d)
 
 # sed可以将表头字段前面的表名去掉
 hive -e "set hive.cli.print.header=true;select * from dw.dw_debit_info where dt=${YESTERDAY};" | sed "s/user_info.//g" > /home/aaa.csv
