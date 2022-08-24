@@ -54,6 +54,12 @@
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
         </dependency>
+        <!-- 日期时间格式转换 -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.10.10</version>
+        </dependency>
         <!-- junit测试 -->
         <dependency>
             <groupId>junit</groupId>
