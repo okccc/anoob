@@ -6,6 +6,7 @@ import com.okccc.realtime.utils.MyFlinkUtil;
 import com.okccc.realtime.utils.PropertiesUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -35,6 +36,12 @@ public class FlinkToHdfs {
          * 从保存点恢复任务报错：Truncation is not available in hadoop version < 2.7 , You are on Hadoop 2.6.0
          * https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/connectors/datastream/filesystem/#important-considerations
          */
+
+        // 获取命令行参数
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        boolean isLocalKeyBy = parameterTool.getBoolean("local-keyBy", false);
+        boolean isTwoPhase = parameterTool.getBoolean("two-phase", false);
+        int randomNum = parameterTool.getInt("random-num", 5);
 
         // 1.创建流处理环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
