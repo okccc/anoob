@@ -40,7 +40,7 @@ import java.util.Random;
 /**
  * Author: okccc
  * Date: 2021/9/1 下午2:35
- * Desc: flink简介
+ * Desc: flink简介、部署模式、运行架构、DataStream-API、时间和窗口、处理函数、多流转换、状态编程、容错机制
  */
 public class Flink01 {
     public static void main(String[] args) throws Exception {
@@ -140,10 +140,14 @@ public class Flink01 {
          * WebUI查看算子反压程度：Overview - BackPressure - Backpressure Status(OK/LOW/HIGH)
          * Metrics指标分析：buffers.outPoolUsage发送端buffer使用率/buffers.inPoolUsage接收端buffer使用率
          * 反压原因：1.数据倾斜 2.cpu/内存资源不足 3.外部组件交互
-         * 查看数据是否倾斜：Overview - SubTasks - RecordsReceived & RecordsSent
+         * 查看数据是否倾斜：Overview - SubTasks - Bytes Received & Bytes Sent
          * 火焰图：对TaskManager进行CPU profile,横向是出现次数对应执行时长,纵向是调用链顶层就是正在执行函数,过宽说明存在性能瓶颈
          * 下载GC日志：对TaskManager进行内存分析,尤其是full gc后老年代剩余大小
          * Source端或Sink端性能较差,看看kafka是否需要扩容、clickhouse是否达到瓶颈、hbase的rowkey是否遇到热点问题
+         *
+         * 数据倾斜
+         * 1.keyBy之前发生倾斜
+         * 比如kafka分区间数据不均匀,flink程序即使不分组也会倾斜,此时可以通过shuffle/rebalance/rescale等算子先强制将数据均匀分配
          */
 
         // 创建流处理执行环境
