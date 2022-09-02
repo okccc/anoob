@@ -148,6 +148,8 @@ public class Flink01 {
          * 数据倾斜
          * 1.keyBy之前发生倾斜
          * 比如kafka分区间数据不均匀,flink程序即使不分组也会倾斜,此时可以通过shuffle/rebalance/rescale等算子先强制将数据均匀分配
+         * 2.keyBy之后窗口聚合发生倾斜
+         * 窗口操作本质上是赞批处理,可以使用两阶段聚合,先将key拼接随机数后缀打散进行分组开窗聚合,再还原key按照(key,windowEnd)分组聚合
          */
 
         // 创建流处理执行环境
