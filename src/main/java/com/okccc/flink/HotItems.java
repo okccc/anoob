@@ -106,7 +106,7 @@ public class HotItems {
         }
     }
 
-    // 自定义全窗口函数
+    // 自定义窗口处理函数
     public static class WindowResult extends ProcessWindowFunction<Integer, ItemViewCount, String, TimeWindow> {
         @Override
         public void process(String key, Context context, Iterable<Integer> elements, Collector<ItemViewCount> out) throws Exception {

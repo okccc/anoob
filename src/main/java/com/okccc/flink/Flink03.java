@@ -30,7 +30,7 @@ public class Flink03 {
          * 滑动窗口：窗口大小固定,有滑动间隔所以会有重叠,一个元素可以属于多个窗口
          * 会话窗口：前两者统计网站pv/uv这种固定时间,而用户访问行为是不固定的,超时时间内没收到数据就生成新窗口,只有flink支持会话窗口
          *
-         * 全窗口函数
+         * 窗口处理函数
          * ProcessWindowFunction<IN, OUT, KEY, W extends Window>
          * IN： 输入元素类型
          * OUT：输出元素类型
@@ -51,7 +51,7 @@ public class Flink03 {
          *
          * 总结：
          * 1.开窗需求通常都是结合两者一起使用,keyBy() + window() + aggregate(AggregateFunction(), ProcessWindowFunction())
-         * 窗口闭合时,增量聚合函数会将累加结果发送给全窗口函数,这样既不需要收集全部数据又能访问窗口信息,除非是排序和求中位数这种全局操作
+         * 窗口闭合时,增量聚合函数会将累加结果发送给窗口处理函数,这样既不需要收集全部数据又能访问窗口信息,除非是排序和求中位数这种全局操作
          * 2.window()是flink语法糖,底层就是KeyedProcessFunction + 状态变量 + 定时器,一般直接开窗就行,除非特别复杂的需求才会用大招
          */
 
@@ -70,8 +70,8 @@ public class Flink03 {
 
     // 演示ProcessWindowFunction
     private static void demo01(StreamExecutionEnvironment env) {
-        // 需求：使用全窗口函数,统计每个用户每5秒钟的pv
-        // 分析：按照用户分组,窗口大小5秒,pv对应全窗口函数的迭代器,所以是keyBy(user) + window(5s) + process(Iterable)
+        // 需求：使用窗口处理函数,统计每个用户每5秒钟的pv
+        // 分析：按照用户分组,窗口大小5秒,pv对应窗口处理函数的迭代器,所以是keyBy(user) + window(5s) + process(Iterable)
         env.addSource(new Flink01.UserActionSource())
                 // 分组：按照用户分组
                 .keyBy(r -> r.user)
@@ -137,7 +137,7 @@ public class Flink03 {
         }
     }
 
-    // 自定义全窗口函数,输入类型是前面增量聚合函数的输出类型
+    // 自定义窗口处理函数,输入类型是前面增量聚合函数的输出类型
     public static class MyProcessWindowFunction extends ProcessWindowFunction<Integer, String, String, TimeWindow> {
         @Override
         public void process(String key, Context context, Iterable<Integer> elements, Collector<String> out) throws Exception {

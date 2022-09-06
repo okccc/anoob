@@ -109,7 +109,7 @@ public class HotPages {
         }
     }
 
-    // 自定义全窗口函数
+    // 自定义窗口处理函数
     public static class WindowResult extends ProcessWindowFunction<Integer, PageViewCount, String, TimeWindow> {
         @Override
         public void process(String key, Context context, Iterable<Integer> elements, Collector<PageViewCount> out) throws Exception {

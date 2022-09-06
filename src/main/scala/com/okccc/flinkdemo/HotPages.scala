@@ -107,7 +107,7 @@ class PageCountAgg extends AggregateFunction[LogEvent, Int, Int] {
   override def merge(a: Int, b: Int): Int = 0
 }
 
-// 自定义全窗口函数
+// 自定义窗口处理函数
 class PageWindowResult extends ProcessWindowFunction[Int, PageViewCount, String, TimeWindow] {
   override def process(key: String, context: Context, elements: Iterable[Int], out: Collector[PageViewCount]): Unit = {
     out.collect(PageViewCount(key, context.window.getEnd, elements.iterator.next()))

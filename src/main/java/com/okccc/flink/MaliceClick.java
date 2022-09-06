@@ -101,7 +101,7 @@ public class MaliceClick {
         }
     }
 
-    // 自定义全窗口函数
+    // 自定义窗口处理函数
     public static class WindowResult extends ProcessWindowFunction<Integer, ClickCount, Tuple2<String, String>, TimeWindow> {
         @Override
         public void process(Tuple2<String, String> key, Context context, Iterable<Integer> elements, Collector<ClickCount> out) {

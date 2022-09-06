@@ -101,7 +101,7 @@ class UVCountAggWithBloomFilter extends AggregateFunction[UserBehavior, (Int, Bl
   override def merge(a: (Int, BloomFilter[String]), b: (Int, BloomFilter[String])): (Int, BloomFilter[String]) = null
 }
 
-// 自定义全窗口函数
+// 自定义窗口处理函数
 class UVWindowResult extends ProcessWindowFunction[Int, UVCount, Int, TimeWindow] {
   override def process(key: Int, context: Context, elements: Iterable[Int], out: Collector[UVCount]): Unit = {
     out.collect(UVCount(new Timestamp(context.window.getStart), new Timestamp(context.window.getEnd), elements.iterator.next()))

@@ -148,7 +148,7 @@ public class UniqueVisitor {
         }
     }
 
-    // 自定义全窗口函数
+    // 自定义窗口处理函数
     public static class WindowResult extends ProcessWindowFunction<Integer, UniqueVisitorCount, Integer, TimeWindow> {
         @Override
         public void process(Integer integer, Context context, Iterable<Integer> elements, Collector<UniqueVisitorCount> out) {

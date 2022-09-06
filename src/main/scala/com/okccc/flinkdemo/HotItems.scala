@@ -97,7 +97,7 @@ class AvgAgg extends AggregateFunction[UserBehavior, (Long, Int), Long]{
   override def merge(a: (Long, Int), b: (Long, Int)): (Long, Int) = (a._1 + b._1, a._2 + b._2)
 }
 
-// 自定义全窗口函数
+// 自定义窗口处理函数
 class ItemWindowResult() extends ProcessWindowFunction[Int, ItemViewCount, String, TimeWindow] {
   override def process(key: String, context: Context, elements: Iterable[Int], out: Collector[ItemViewCount]): Unit = {
     out.collect(ItemViewCount(key, context.window.getStart, context.window.getEnd, elements.iterator.next()))

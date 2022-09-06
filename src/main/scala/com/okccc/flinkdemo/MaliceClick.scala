@@ -80,7 +80,7 @@ class ClickCountAgg extends AggregateFunction[ClickEvent, Int, Int] {
   override def merge(a: Int, b: Int): Int = a + b
 }
 
-// 自定义全窗口函数
+// 自定义窗口处理函数
 class ClickWindowResult extends WindowFunction[Int, ClickCount, (String, String), TimeWindow] {
   override def apply(key: (String, String), window: TimeWindow, input: Iterable[Int], out: Collector[ClickCount]): Unit = {
     // 收集结果封装成样例类
