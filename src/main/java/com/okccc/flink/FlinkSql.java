@@ -2,15 +2,17 @@ package com.okccc.flink;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-import static org.apache.flink.table.api.Expressions.$;
-
 import java.sql.Timestamp;
+import java.time.Duration;
+
+import static org.apache.flink.table.api.Expressions.$;
 
 /**
  * Author: okccc
@@ -30,6 +32,11 @@ public class FlinkSql {
         // 创建表环境
         EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        // flink-sql调优
+        Configuration conf = tableEnv.getConfig().getConfiguration();
+        // 1.设置空闲状态保留时间：join操作的左右表数据、distinct操作的重复数据都会一直存在状态里,需要定时清除
+        tableEnv.getConfig().setIdleStateRetention(Duration.ofHours(1));
+        conf.setString("table.exec.state.ttl", "1 h");
 
         // 获取数据源
         SingleOutputStreamOperator<UserBehavior> stream = env
