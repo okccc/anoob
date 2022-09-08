@@ -37,6 +37,12 @@ public class FlinkSql {
         // 1.设置空闲状态保留时间：join操作的左右表数据、distinct操作的重复数据都会一直存在状态里,需要定时清除
         tableEnv.getConfig().setIdleStateRetention(Duration.ofHours(1));
         conf.setString("table.exec.state.ttl", "1 h");
+        // 2.开启微批处理：缓存一定数据再触发处理,减少对state的访问,通过增加延迟提高吞吐量并减少数据输出量,聚合场景下能显著提升性能
+        conf.setString("table.exec.mini-batch.enabled", "true");
+        // 批量输出的间隔时间
+        conf.setString("table.exec.mini-batch.allow-latency", "5 s");
+        // 防止OOM设置每个批次最多缓存的数据条数
+        conf.setString("table.exec.mini-batch.size", "20000");
 
         // 获取数据源
         SingleOutputStreamOperator<UserBehavior> stream = env
