@@ -43,6 +43,8 @@ public class FlinkSql {
         conf.setString("table.exec.mini-batch.allow-latency", "5 s");
         // 防止OOM设置每个批次最多缓存的数据条数
         conf.setString("table.exec.mini-batch.size", "20000");
+        // 3.开启LocalGlobal：两阶段聚合解决数据倾斜问题,针对SUM/COUNT/MAX/MIN/AVG等普通聚合
+        conf.setString("table.optimizer.agg-phase-strategy", "TWO_PHASE");
 
         // 获取数据源
         SingleOutputStreamOperator<UserBehavior> stream = env
