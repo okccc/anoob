@@ -45,6 +45,10 @@ public class FlinkSql {
         conf.setString("table.exec.mini-batch.size", "20000");
         // 3.开启LocalGlobal：两阶段聚合解决数据倾斜问题,针对SUM/COUNT/MAX/MIN/AVG等普通聚合
         conf.setString("table.optimizer.agg-phase-strategy", "TWO_PHASE");
+        // 4.开启Split Distinct：针对COUNT DISTINCT
+        conf.setString("table.optimizer.distinct-agg.split.enabled", "true");
+        // 第一层打散的bucket数目
+        conf.setString("table.optimizer.distinct-agg.split.bucket-num", "1024");
 
         // 获取数据源
         SingleOutputStreamOperator<UserBehavior> stream = env
