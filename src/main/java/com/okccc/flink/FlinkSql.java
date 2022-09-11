@@ -49,6 +49,8 @@ public class FlinkSql {
         conf.setString("table.optimizer.distinct-agg.split.enabled", "true");
         // 第一层打散的bucket数目
         conf.setString("table.optimizer.distinct-agg.split.bucket-num", "1024");
+        // 5.指定时区
+        conf.setString("table.local-time-zone", "Asia/Shanghai");
 
         // 获取数据源
         SingleOutputStreamOperator<UserBehavior> stream = env
