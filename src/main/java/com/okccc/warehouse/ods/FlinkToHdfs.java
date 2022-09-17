@@ -1,6 +1,7 @@
 package com.okccc.warehouse.ods;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.utils.MyFlinkUtil;
 import com.okccc.realtime.utils.PropertiesUtil;
@@ -87,22 +88,53 @@ public class FlinkToHdfs {
         SingleOutputStreamOperator<String> result = dataStream.flatMap(new FlatMapFunction<String, String>() {
             @Override
             public void flatMap(String s, Collector<String> collector) throws Exception {
+                /**
+                 * {
+                 *     "data":[
+                 *         {
+                 *             "id":"1569218871220281347",
+                 *             "bid":"55bbb915032946dea0358dd3bed520d8",
+                 *             "location_id":"870a02ebe77445b5a939cd5597598594",
+                 *             "create_time":"2022-09-12 14:58:28",
+                 *             "update_time":"2022-09-12 14:58:28",
+                 *         },
+                 *         {
+                 *             "id":"1569218871220281349",
+                 *             "bid":"55bbb915032946dea0358dd3bed520d8",
+                 *             "location_id":"9a1605a057ad4a7cac9366652ff4b8a2",
+                 *             "create_time":"2022-09-12 14:58:28",
+                 *             "update_time":"2022-09-12 14:58:28",
+                 *         }
+                 *     ],
+                 *     "database":"eduplatform3",
+                 *     "es":1662965908000,
+                 *     "id":5354427,
+                 *     "isDdl":false,
+                 *     "table":"knowledge_flow_record11",
+                 *     "ts":1662965908508,
+                 *     "type":"INSERT"
+                 * }
+                 */
                 JSONObject jsonObject = JSON.parseObject(s);
                 String table = jsonObject.getString("table");
-                JSONObject data = jsonObject.getJSONArray("data").getJSONObject(0);
                 if (table.startsWith(tableName)) {
-                    StringBuilder sb = new StringBuilder();
-                    String[] arr = columns.split(",");
-                    for (int i = 0; i < arr.length; i++) {
-                        String value = data.getString(arr[i]);
-                        if (i == arr.length - 1) {
-                            sb.append(value);
-                        } else {
-                            // 字段分隔符要和hive建表语句保持一致,默认是\001
-                            sb.append(value).append("\001");
+                    // 注意：canal返回的是数组,data可能包含不止一条记录
+                    JSONArray dataArray = jsonObject.getJSONArray("data");
+                    for (int i = 0; i < dataArray.size(); i++) {
+                        JSONObject data = dataArray.getJSONObject(i);
+                        StringBuilder sb = new StringBuilder();
+                        String[] arr = columns.split(",");
+                        for (int j = 0; j < arr.length; j++) {
+                            String value = data.getString(arr[j]);
+                            if (j == arr.length - 1) {
+                                sb.append(value);
+                            } else {
+                                // 字段分隔符要和hive建表语句保持一致,默认是\001
+                                sb.append(value).append("\001");
+                            }
                         }
+                        collector.collect(sb.toString());
                     }
-                    collector.collect(sb.toString());
                 }
             }
         });
