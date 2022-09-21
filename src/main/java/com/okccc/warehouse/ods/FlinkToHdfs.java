@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.realtime.utils.MyFlinkUtil;
 import com.okccc.realtime.utils.PropertiesUtil;
+import com.okccc.realtime.utils.StringUtil;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -44,6 +45,14 @@ public class FlinkToHdfs {
         boolean isTwoPhase = parameterTool.getBoolean("two-phase", false);
         int randomNum = parameterTool.getInt("random-num", 5);
 
+        // 获取表和字段
+        String mysqlTable = "orders";
+        Properties load = PropertiesUtil.load("config.properties");
+        String hiveTable = load.getProperty(mysqlTable + ".table");
+        String columns = load.getProperty(mysqlTable + ".columns");
+        // 输出路径
+        String output = "hdfs:///user/hive/warehouse/ods.db/" + hiveTable;
+
         // 1.创建流处理环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -52,10 +61,10 @@ public class FlinkToHdfs {
         // 设置状态后端
         env.setStateBackend(new EmbeddedRocksDBStateBackend());
         // 检查点时间间隔：通常1~5分钟,查看Checkpoints - Summary - End to End Duration,综合考虑性能和时效性
-        env.enableCheckpointing(TimeUnit.MINUTES.toMillis(2), CheckpointingMode.EXACTLY_ONCE);
+        env.enableCheckpointing(TimeUnit.MINUTES.toMillis(1), CheckpointingMode.EXACTLY_ONCE);
         CheckpointConfig config = env.getCheckpointConfig();
         // 检查点存储路径
-        config.setCheckpointStorage("hdfs:///flink/cp/xxx");
+        config.setCheckpointStorage("hdfs:///flink/cp/mysql/" + mysqlTable);
         // 检查点超时时间
         config.setCheckpointTimeout(TimeUnit.MINUTES.toMillis(5));
         // 检查点可容忍的连续失败次数
@@ -69,25 +78,18 @@ public class FlinkToHdfs {
         // 本地调试时要指定能访问hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "deploy");
 
-        // 获取表和字段
-        String tableName = "xxx";
-        Properties load = PropertiesUtil.load("config.properties");
-        String columns = load.getProperty(tableName + ".columns");
-        // 输出路径
-        String output = "hdfs:///user/hive/warehouse/ods.db/ods_xxx_realtime";
-
         // 2.获取kafka数据
         ArrayList<String> topics = new ArrayList<>();
         topics.add("eduplatform01");
         topics.add("eduplatform02");
-        String groupId = tableName + "_g";
+        String groupId = mysqlTable + "_g";
         DataStreamSource<String> dataStream = env.addSource(MyFlinkUtil.getKafkaSource(topics, groupId));
 //        dataStream.print(">>>");
 
         // 3.数据处理
         SingleOutputStreamOperator<String> result = dataStream.flatMap(new FlatMapFunction<String, String>() {
             @Override
-            public void flatMap(String s, Collector<String> collector) throws Exception {
+            public void flatMap(String value, Collector<String> out) {
                 /**
                  * {
                  *     "data":[
@@ -115,25 +117,16 @@ public class FlinkToHdfs {
                  *     "type":"INSERT"
                  * }
                  */
-                JSONObject jsonObject = JSON.parseObject(s);
+                JSONObject jsonObject = JSON.parseObject(value);
                 String table = jsonObject.getString("table");
-                if (table.startsWith(tableName)) {
+                String isDdl = jsonObject.getString("isDdl");
+                if (table.startsWith(mysqlTable) && "false".equals(isDdl)) {
                     // 注意：canal返回的是数组,data可能包含不止一条记录
                     JSONArray dataArray = jsonObject.getJSONArray("data");
                     for (int i = 0; i < dataArray.size(); i++) {
                         JSONObject data = dataArray.getJSONObject(i);
-                        StringBuilder sb = new StringBuilder();
-                        String[] arr = columns.split(",");
-                        for (int j = 0; j < arr.length; j++) {
-                            String value = data.getString(arr[j]);
-                            if (j == arr.length - 1) {
-                                sb.append(value);
-                            } else {
-                                // 字段分隔符要和hive建表语句保持一致,默认是\001
-                                sb.append(value).append("\001");
-                            }
-                        }
-                        collector.collect(sb.toString());
+                        String record = StringUtil.getCanalData(columns, data, jsonObject);
+                        out.collect(record);
                     }
                 }
             }

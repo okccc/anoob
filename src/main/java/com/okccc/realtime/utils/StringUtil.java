@@ -1,5 +1,7 @@
 package com.okccc.realtime.utils;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.net.URLDecoder;
 import java.util.HashMap;
 
@@ -48,6 +50,28 @@ public class StringUtil {
             }
         }
         return str;
+    }
+
+    // 解析canal抓取binlog返回的数据
+    public static String getCanalData(String columns, JSONObject data, JSONObject jsonObject) {
+        StringBuilder sb = new StringBuilder();
+        String[] arr = columns.split(";");
+        String[] arr1 = arr[0].split(",");
+        String[] arr2 = arr[1].split(",");
+        for (String s : arr1) {
+            // java中的null在hive表无法通过where ${column} is null查询,因为hive底层使用'\N'存储空值,需要手动转换
+            // 并且修改hive表信息显式指定空值 alter table ${table} set serdeproperties('serialization.null.format'='\N');
+            Object value = data.getOrDefault(s, "\\N");
+            sb.append(value == null ? "\\N" : value.toString()).append("\001");
+        }
+        for (int i = 0; i < arr2.length; i++) {
+            if (i == arr2.length - 1) {
+                sb.append(jsonObject.getString(arr2[i]));
+            } else {
+                sb.append(jsonObject.getString(arr2[i])).append("\001");
+            }
+        }
+        return sb.toString();
     }
 
     public static void main(String[] args) {
