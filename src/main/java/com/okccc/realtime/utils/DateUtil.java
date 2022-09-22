@@ -16,16 +16,17 @@ import java.util.Date;
 @SuppressWarnings("unused")
 public class DateUtil {
 
-    // 方法内部的局部变量是单线程访问,而类中的成员变量可能会被多线程同时访问,如果涉及修改操作就会存在线程安全问题
+    // 方法中的局部变量是单线程访问,而类中的成员变量可能会被多线程同时访问,如果涉及修改操作就会存在线程安全问题
+    // SimpleDateFormat源码943行format()和1532行parse()都使用了线程不安全的Calendar对象,导致SimpleDateFormat线程不安全
+    // 解决方法：1.将sdf定义为局部变量(开销大) 2.加synchronized/lock锁(性能差不适合高并发场景) 3.使用DateTimeFormatter代替(推荐)
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    // 将long类型转换成字符串
+    public static String longToStr(Long ts) {
+        return sdf.format(new Date(ts));
+    }
     // 将字符串转换成long类型
     public static long strToLong(String str) throws ParseException {
         return sdf.parse(str).getTime();
-    }
-    // 将long类型转换成字符串
-    public static String longToStr(Long ts) {
-        // 查看SimpleDateFormat源码943行发现是setTime操作,存在线程安全问题,可以使用org.joda.time包提供的类
-        return sdf.format(new Date(ts));
     }
 
     // 日期时间格式常量

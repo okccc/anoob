@@ -154,4 +154,26 @@ public class Test01 {
         System.out.println(list);  // [10, 20, 30]
     }
 
+    @Test
+    public void testSimpleDateFormat() {
+        // 演示SimpleDateFormat线程安全问题
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (int i = 0; i < 10; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // java.lang.NumberFormatException: empty String
+                        // java.lang.NumberFormatException: multiple points
+                        // java.lang.NumberFormatException: For input string: ""
+                        // java.lang.NumberFormatException: For input string: "E.4220622"
+                        System.out.println(sdf.parse("2022-09-20 12:30:26"));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
+
 }
