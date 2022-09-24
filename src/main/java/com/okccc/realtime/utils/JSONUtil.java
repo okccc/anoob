@@ -1,6 +1,7 @@
 package com.okccc.realtime.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeFilter;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,8 +34,18 @@ public class JSONUtil {
 
 //        test01();
 //        test02();
-        test03();
+//        test03();
 //        test04();
+
+        String str = "[{\"Name\":\"nick\",\"Value\":\"Ted\"},{\"Name\":\"info\",\"Value\":[{\"Name\":\"other\",\"Value\":[{\"Name\":\"course\",\"Value\":[{\"Name\":\"unit\",\"Value\":\"377\"},{\"Name\":\"index\",\"Value\":0}]},{\"Name\":\"unlocked\",\"Value\":true}]},{\"Name\":\"cnt\",\"Value\":\"3\"}]},{\"Name\":\"gender\",\"Value\":\"boy\"}]";
+        JSONArray jsonArray = JSON.parseArray(str);
+        JSONObject input = convertJsonArrayToJsonObject(jsonArray);
+        // {"nick":"Ted","gender":"boy","info":"[{\"Value\":[{\"Value\":[{\"Value\":\"377\",\"Name\":\"unit\"},{\"Value\":0,\"Name\":\"index\"}],\"Name\":\"course\"},{\"Value\":true,\"Name\":\"unlocked\"}],\"Name\":\"other\"},{\"Value\":\"3\",\"Name\":\"cnt\"}]"}
+        System.out.println(input);
+        JSONObject output = new JSONObject();
+        jsonLoop(input, output);
+        // {"nick":"Ted","gender":"boy","info":{"other":{"course":{"unit":"377","index":"0"},"unlocked":"true"},"cnt":"3"}}
+        System.out.println(output);
     }
 
     public static void test01() {
@@ -123,6 +135,37 @@ public class JSONUtil {
                 }
         }, SerializerFeature.WriteMapNullValue);
         System.out.println(str04);  // {"age":0,"gender":"","name":"grubby"}
+    }
+
+    public static void jsonLoop(JSONObject input, JSONObject output) {
+        // 解析json对象嵌套多层json数组
+        for (Map.Entry<String, Object> entry : input.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value == null) {
+                output.put(key, "\\N");
+            } else if (value.toString().startsWith("[{")) {
+                // 关键点：value是json数组就继续递归
+                JSONArray jsonArray = JSON.parseArray(value.toString());
+                JSONObject input01 = convertJsonArrayToJsonObject(jsonArray);
+                JSONObject output01 = new JSONObject();
+                jsonLoop(input01, output01);
+                // 添加到外层json对象
+                output.put(key, output01);
+            } else {
+                output.put(key, value.toString());
+            }
+        }
+    }
+
+    public static JSONObject convertJsonArrayToJsonObject(JSONArray jsonArray) {
+        // 将json数组拆散拼接成json对象
+        JSONObject jsonObject = new JSONObject();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject obj = jsonArray.getJSONObject(i);
+            jsonObject.put(obj.getString("Name"), obj.getString("Value"));
+        }
+        return jsonObject;
     }
 
     @Data
