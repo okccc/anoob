@@ -34,6 +34,7 @@ public class DateUtil {
     private static final DateTimeFormatter HOUR_FORMATTER = DateTimeFormat.forPattern("HH");
     private static final DateTimeFormatter DATEHOUR_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATETIMEXXX_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     // 获取当前日期
     public static String getCurrentDate() {
@@ -59,6 +60,10 @@ public class DateUtil {
     // Long -> "yyyy-MM-dd HH:mm:ss"
     public static String parseUnixToDateTime(Long ts) {
         return new DateTime(new Date(ts)).toString(DATETIME_FORMATTER);
+    }
+    // MongoShake将mongodb-oplog同步到kafka的ts字段 7144730126129823758 -> 2022-09-18 22:41:54.000
+    public static String parseUnixToDateTimeXXX(String str) {
+        return new DateTime(new Date((Long.parseLong(str) >> 32) * 1000)).toString(DATETIMEXXX_FORMATTER);
     }
     // "yyyy-MM-dd HH:mm:ss" -> Long
     public static Long parseDateTimeToUnix(String str) {
