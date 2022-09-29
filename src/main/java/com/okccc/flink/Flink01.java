@@ -281,7 +281,7 @@ public class Flink01 {
         }
     }
 
-    // POJO类必须满足三个条件：公有类,公有字段,公有无参构造  类似scala的case class
+    // POJO是简单的java对象,没有继承类/实现接口/绑定框架,更纯净,JavaBean则会封装一些简单逻辑
     public static class Event {
         public String user;
         public String url;
