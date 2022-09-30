@@ -49,12 +49,29 @@ public class SkewDemo01 extends BaseEnvironment {
             jsonStream
                     .keyBy(r -> r.f0)
                     .window(TumblingProcessingTimeWindows.of(Time.seconds(10)))
-                    .reduce((value1, value2) -> Tuple2.of(value1.f0, value1.f1 + value2.f1))
+                    .reduce(
+                            // 预聚合函数
+                            new ReduceFunction<Tuple2<String, Integer>>() {
+                                @Override
+                                public Tuple2<String, Integer> reduce(Tuple2<String, Integer> value1, Tuple2<String, Integer> value2) {
+                                    return Tuple2.of(value1.f0, value1.f1 + value2.f1);
+                                }
+                            },
+                            // 窗口处理函数
+                            new ProcessWindowFunction<Tuple2<String, Integer>, Tuple3<String, Integer, Long>, String, TimeWindow>() {
+                                @Override
+                                public void process(String s, Context context, Iterable<Tuple2<String, Integer>> elements, Collector<Tuple3<String, Integer, Long>> out) {
+                                    Tuple2<String, Integer> tuple2 = elements.iterator().next();
+                                    long windowEnd = context.window().getEnd();
+                                    out.collect(Tuple3.of(tuple2.f0, tuple2.f1, windowEnd));
+                                }
+                            }
+                    )
                     .print().setParallelism(1);
         } else {
             // 第一次聚合
             SingleOutputStreamOperator<Tuple3<String, Integer, Long>> firstAgg = jsonStream
-                    // 拼接随机数后缀将key打散,随机数范围需要手动测试选择一个合适值
+                    // 拼接随机数后缀将key打散,比如mid-001变成mid-001-0、mid-001-1、mid-001-2,随机数范围需手动测试选择合适值
                     .map(new MapFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
                         final Random random = new Random();
                         @Override
@@ -72,7 +89,7 @@ public class SkewDemo01 extends BaseEnvironment {
                                     return Tuple2.of(value1.f0, value1.f1 + value2.f1);
                                 }
                             },
-                            // 全窗口函数
+                            // 窗口处理函数
                             new ProcessWindowFunction<Tuple2<String, Integer>, Tuple3<String, Integer, Long>, String, TimeWindow>() {
                                 @Override
                                 public void process(String s, Context context, Iterable<Tuple2<String, Integer>> elements, Collector<Tuple3<String, Integer, Long>> out) {
