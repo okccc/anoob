@@ -179,6 +179,10 @@ hive> select min(dt) from test;
 -- 如果hive表的数据不是使用insert语句插入而是通过hdfs命令行或api写入的话,hive表的分区信息在metastore是没有的,可通过该命令修复
 hive> set hive.msck.path.validation=ignore;
 hive> msck repair table ${table};
+-- hive表字段太多不好查看数据,可以打印列名并行转列显示
+hive> set hive.cli.print.header=true;  -- 打印列名
+hive> set hive.cli.print.row.to.vertical=true;  -- 开启行转列,前提是开启打印列名
+hive> set hive.cli.print.row.to.vertical.num=1;  -- 设置每行显示列数
 -- 查找所有函数
 hive> show functions;
 -- 查看某个函数使用案例
