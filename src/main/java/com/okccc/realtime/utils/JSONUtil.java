@@ -33,7 +33,7 @@ public class JSONUtil {
          */
 
 //        test01();
-//        test02();
+        test02();
 //        test03();
 //        test04();
 
@@ -71,16 +71,23 @@ public class JSONUtil {
     }
 
     public static void test02() {
-        // 往json对象添加包含json的字符串会转译生成反斜杠
+        // 往JSONObject添加json格式的字符串会转译生成反斜杠
         JSONObject json01 = new JSONObject();
         JSONObject json02 = new JSONObject();
         JSONObject json03 = new JSONObject();
-        json01.put("k1", "v1");
-        json02.put("k1", json01);
-        json03.put("k1", json01.toJSONString());
-        System.out.println(json01);  // {"k1":"v1"}
-        System.out.println(json02);  // {"k1":{"k1":"v1"}}
-        System.out.println(json03);  // {"k1":"{\"k1\":\"v1\"}"}
+        json01.put("k1", Arrays.asList("a,b,c".split(",")));
+        json02.put("k2", json01);
+        json03.put("k3", json01.toJSONString());
+        System.out.println(json01);  // {"k1":["a","b","c"]}
+        System.out.println(json02);  // {"k2":{"k1":["a","b","c"]}}
+        System.out.println(json03);  // {"k3":"{\"k1\":[\"a\",\"b\",\"c\"]}"}
+        // JSONObject的key是字符串,但value可能是各种数据类型,所以获取value是get()而不是getString()
+        JSONObject json04 = new JSONObject();
+        JSONObject json05 = new JSONObject();
+        json04.put("k4", json01.getString("k1"));
+        json05.put("k5", json01.get("k1"));
+        System.out.println(json04);  // {"k4":"[a, b, c]"}
+        System.out.println(json05);  // {"k5":["a","b","c"]}
     }
 
     public static void test03() {
