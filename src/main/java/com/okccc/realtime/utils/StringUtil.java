@@ -61,8 +61,8 @@ public class StringUtil {
         for (String s : arr1) {
             // java中的null在hive表无法通过where ${column} is null查询,因为hive底层使用'\N'存储空值,需要手动转换
             // 并且修改hive表信息显式指定空值 alter table ${table} set serdeproperties('serialization.null.format'='\N');
-            Object value = data.getOrDefault(s, "\\N");
-            sb.append(value == null ? "\\N" : value.toString()).append("\001");
+            String value = data.getString(s);
+            sb.append(value == null ? "\\N" : value).append("\001");
         }
         for (int i = 0; i < arr2.length; i++) {
             if (i == arr2.length - 1) {
