@@ -185,7 +185,7 @@ mysql> alter table test engine=innodb;
     
 -- 事务隔离级别：由于事务隔离是通过加锁实现的,所以隔离强度递增性能递减
 -- 读未提交：不加锁,性能最好,但是相当于裸奔,连脏读都无法解决(不考虑)
--- 读已提交：事务A只能读到事务B已提交的的数据,解决脏读,但是做不到可重复读,也无法解决幻读
+-- 读已提交：事务A只能读到事务B已提交的的数据,解决脏读,但是做不到可重复读,也无法解决幻读(oracle默认)
 -- 可重复读：事务A读不到事务B已提交的数据,事务A开始时数据啥样在事务A提交前都不会变,解决脏读和不可重复读但可能会幻读(mysql默认)
 -- 序列化：加锁,将事务变成顺序执行,相当于单线程,性能最差(不考虑)
 -- 查看事务隔离级别
@@ -537,7 +537,7 @@ mysql> grant all on *.* to 'maxwell'@'%' identified by 'maxwell';
 canal.serverMode = kafka                 # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
 canal.mq.servers = cdh1:9092,cdh2:9092   # kafka地址,逗号分隔
 canal.destinations = example1,example2   # canal默认单实例,可以拷贝conf/example配置多实例,通常一个ip对应一个instance
-canal.instance.filter.query.ddl = true   # canal默认抓所有binlog,可以过滤ddl语句
+canal.instance.filter.query.ddl = true   # canal默认抓所有binlog,可以过滤ddl语句,防止CREATE TABLE等语句解析异常
 # instance实例配置(修改后直接生效不用重启)
 [root@cdh1 ~]$ vim conf/example/instance.properties
 canal.instance.master.address={ip:port}  # mysql地址
