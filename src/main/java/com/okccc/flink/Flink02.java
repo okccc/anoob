@@ -21,9 +21,9 @@ public class Flink02 {
         /*
          * RichFunction
          * DataStream API提供的转换算子都有其Rich版本,都继承自RichFunction接口,有额外三个方法
-         * open()：生命周期初始化,比如创建数据库连接,在map/filter这些算子之前被调用
+         * open()：生命周期开始时执行,只执行一次,用于初始化操作,比如创建数据库连接,在map/join这些算子之前被调用
          * getRuntimeContext()：处理数据时可以获取函数执行的上下文信息,比如任务并行度、子任务名称和索引、访问分区状态等
-         * close()：生命周期结束,比如关闭数据库连接、清空状态
+         * close()：生命周期结束前执行,只执行一次,做一些清理操作,比如关闭数据库连接、清空状态,在程序结束前被调用
          *
          * DataStream API提供的普通算子功能有限,flink提供了更底层的8大处理函数,都继承自RichFunction接口
          * ProcessFunction/KeyedProcessFunction/ProcessWindowFunction/ProcessAllWindowFunction/
@@ -71,7 +71,7 @@ public class Flink02 {
                     public void open(Configuration parameters) throws Exception {
                         super.open(parameters);
                         // 子任务索引和并行度有关,一个并行度索引就是0,两个并行度索引就是0和1
-                        System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
+                        System.out.println("open方法执行：生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
                     }
                     @Override
                     public Integer map(Integer value) {
@@ -80,7 +80,7 @@ public class Flink02 {
                     @Override
                     public void close() throws Exception {
                         super.close();
-                        System.out.println("生命周期结束");
+                        System.out.println("close方法执行：生命周期结束");
                     }
                 })
                 .print();
