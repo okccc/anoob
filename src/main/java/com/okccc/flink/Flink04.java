@@ -77,7 +77,7 @@ public class Flink04 {
                     String[] words = value.split("\\s");
                     return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000L);
                 })
-                // Tuple是flink给java设置的新数据类型,使用lambda表达式会有泛型擦除问题,需要显示指定返回类型,或者直接使用匿名内部类
+                // Tuple是flink给java设置的新数据类型,使用lambda表达式会泛型丢失,需要显示指定返回类型,或者直接使用匿名内部类
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 // 提取时间戳生成水位线
                 .assignTimestampsAndWatermarks(
