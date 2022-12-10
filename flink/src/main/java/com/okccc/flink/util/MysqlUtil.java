@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Author: okccc
- * Date: 2021/10/25 下午4:32
- * Desc: 读写mysql的工具类
+ * @Author: okccc
+ * @Date: 2021/10/25 下午4:32
+ * @Desc: 读写mysql的工具类
  */
 public class MysqlUtil {
 

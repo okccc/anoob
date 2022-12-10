@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.okccc</groupId>
-    <artifactId>javase</artifactId>
+    <artifactId>j2se</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -14,23 +14,29 @@
     </properties>
 
     <dependencies>
-        <!-- slf4j -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-<!--        &lt;!&ndash; log4j(log for java) 2.17.1之前版本有安全漏洞 &ndash;&gt;-->
+        <!-- log4j(log for java) 2.17.1之前版本有安全漏洞 -->
 <!--        <dependency>-->
 <!--            <groupId>org.apache.logging.log4j</groupId>-->
 <!--            <artifactId>log4j-core</artifactId>-->
 <!--            <version>2.17.1</version>-->
 <!--        </dependency>-->
+
+        <!-- slf4j(simple logging facade for java): 简单日志门面,提供统一的日志接口,只包含slf4j-api.jar,没有具体实现 -->
+        <!-- log4j(log for java): 可单独使用的日志框架,没有直接实现slf4j接口,需添加适配器slf4j-log4j12.jar将其和slf4j接口绑定 -->
+        <!-- logback: 可单独使用的日志框架,直接实现slf4j接口,是log4j的改良版,综合考虑解耦和性能项目中通常使用slf4j + logback组合 -->
+        <!-- slf4j会导致简易日志log4j失效,此时需要借助logback打印日志,resources目录添加logback.xml -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
+        <!-- 阿里巴巴开源json解析框架 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.76</version>
+        </dependency>
 
         <!-- lombok用来简化JavaBean和日志开发,需要在plugins里面安装 -->
         <dependency>
@@ -40,18 +46,18 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- 操作java bean的工具类 -->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+
         <!-- mysql -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.16</version>
-            <exclusions>
-                <!-- mysql8的高版本com.google.protobuf:protobuf-java:jar:3.6.1会导致hbase用不了,需手动去除 -->
-                <exclusion>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- druid连接池(推荐) https://mvnrepository.com/artifact/com.alibaba/druid -->
         <dependency>

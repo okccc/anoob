@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Author: okccc
- * Date: 2022/1/28 3:34 下午
- * Desc: 读写hive的工具类
+ * @Author: okccc
+ * @Date: 2022/1/28 3:34 下午
+ * @Desc: 读写hive的工具类
  */
 public class HiveUtil {
 

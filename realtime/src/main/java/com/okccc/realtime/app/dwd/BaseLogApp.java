@@ -20,9 +20,9 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
 /**
- * Author: okccc
- * Date: 2021/10/3 下午4:32
- * Desc: 日志数据分流
+ * @Author: okccc
+ * @Date: 2021/10/3 下午4:32
+ * @Desc: 日志数据分流
  */
 public class BaseLogApp {
     public static void main(String[] args) throws Exception {

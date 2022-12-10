@@ -5,9 +5,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Author: okccc
- * Date: 2021/11/4 上午11:07
- * Desc: 线程池工具类
+ * @Author: okccc
+ * @Date: 2021/11/4 上午11:07
+ * @Desc: 线程池工具类
  */
 public class ThreadPoolUtil {
 

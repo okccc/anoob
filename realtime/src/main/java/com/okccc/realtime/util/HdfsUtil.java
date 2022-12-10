@@ -11,9 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Author: okccc
- * Date: 2021/10/27 上午11:33
- * Desc: hdfs工具类
+ * @Author: okccc
+ * @Date: 2021/10/27 上午11:33
+ * @Desc: hdfs工具类
  */
 public class HdfsUtil {
 

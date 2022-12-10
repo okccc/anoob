@@ -7,9 +7,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 /**
- * Author: okccc
- * Date: 2020/12/15 4:16 下午
- * Desc: 日期时间工具类
+ * @Author: okccc
+ * @Date: 2020/12/15 4:16 下午
+ * @Desc: 日期时间工具类
  */
 object DateUtil {
 

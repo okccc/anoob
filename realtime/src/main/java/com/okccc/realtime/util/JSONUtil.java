@@ -13,9 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 /**
- * Author: okccc
- * Date: 2021/11/23 下午6:09
- * Desc: 处理JSON格式数据的工具类
+ * @Author: okccc
+ * @Date: 2021/11/23 下午6:09
+ * @Desc: 处理JSON格式数据的工具类
  */
 public class JSONUtil {
     public static void main(String[] args) {

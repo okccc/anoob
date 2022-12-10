@@ -26,9 +26,9 @@ import java.util.Properties;
 import java.util.Random;
 
 /**
- * Author: okccc
- * Date: 2021/10/11 下午2:18
- * Desc: 实时统计1小时内的页面访问量(PV=PageView)
+ * @Author: okccc
+ * @Date: 2021/10/11 下午2:18
+ * @Desc: 实时统计1小时内的页面访问量(PV=PageView)
  */
 public class PageView {
     public static void main(String[] args) throws Exception {

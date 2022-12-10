@@ -8,9 +8,9 @@ import java.util.Properties
 import scala.io.BufferedSource
 
 /**
- * Author: okccc
- * Date: 2021/5/28 下午3:52
- * Desc: kafka生产者工具类
+ * @Author: okccc
+ * @Date: 2021/5/28 下午3:52
+ * @Desc: kafka生产者工具类
  */
 object KafkaProdUtil {
 

@@ -10,9 +10,9 @@ import java.util
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Author: okccc
- * Date: 2021/6/23 上午10:38
- * Desc: 日志解析工具类
+ * @Author: okccc
+ * @Date: 2021/6/23 上午10:38
+ * @Desc: 日志解析工具类
  */
 object LogParseUtil {
   private val logger: Logger = LoggerFactory.getLogger(LogParseUtil.getClass)

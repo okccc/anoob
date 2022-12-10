@@ -15,9 +15,9 @@ import java.time.Duration
 import java.util
 
 /**
- * Author: okccc
- * Date: 2021/10/14 下午4:39
- * Desc: 5秒内连续3次登录失败(严格近邻)、15分钟内未支付的超时订单(宽松近邻)
+ * @Author: okccc
+ * @Date: 2021/10/14 下午4:39
+ * @Desc: 5秒内连续3次登录失败(严格近邻)、15分钟内未支付的超时订单(宽松近邻)
  */
 
 // 输入数据样例类

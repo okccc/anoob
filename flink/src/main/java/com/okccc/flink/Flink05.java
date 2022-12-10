@@ -22,9 +22,9 @@ import org.apache.flink.util.Collector;
 import java.sql.Timestamp;
 
 /**
- * Author: okccc
- * Date: 2021/9/18 下午2:28
- * Desc: flink多流转换
+ * @Author: okccc
+ * @Date: 2021/9/18 下午2:28
+ * @Desc: flink多流转换
  */
 public class Flink05 {
     public static void main(String[] args) throws Exception {

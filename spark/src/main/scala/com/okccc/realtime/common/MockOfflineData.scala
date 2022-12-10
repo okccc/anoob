@@ -10,9 +10,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 /**
- * Author: okccc
- * Date: 2021/5/28 下午1:52
- * Desc: 模拟生成离线数据写入hive
+ * @Author: okccc
+ * @Date: 2021/5/28 下午1:52
+ * @Desc: 模拟生成离线数据写入hive
  */
 object MockOfflineData {
 

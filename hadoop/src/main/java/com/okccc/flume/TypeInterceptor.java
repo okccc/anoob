@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Author: okccc
- * Date: 2020/12/6 19:47
- * Desc: 给不同类型的日志添加header区分
+ * @Author: okccc
+ * @Date: 2020/12/6 19:47
+ * @Desc: 给不同类型的日志添加header区分
  */
 public class TypeInterceptor implements Interceptor {
     @Override

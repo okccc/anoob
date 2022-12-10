@@ -5,9 +5,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * Author: okccc
- * Date: 2021/11/29 下午3:00
- * Desc: 支付实体类
+ * @Author: okccc
+ * @Date: 2021/11/29 下午3:00
+ * @Desc: 支付实体类
  */
 @Data
 public class PaymentInfo {

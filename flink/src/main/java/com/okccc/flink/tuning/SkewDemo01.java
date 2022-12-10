@@ -22,9 +22,9 @@ import org.apache.flink.util.Collector;
 import java.util.Random;
 
 /**
- * Author: okccc
- * Date: 2022/8/3 4:05 下午
- * Desc: flink数据倾斜优化之twoPhaseKeyBy
+ * @Author: okccc
+ * @Date: 2022/8/3 4:05 下午
+ * @Desc: flink数据倾斜优化之twoPhaseKeyBy
  */
 public class SkewDemo01 extends BaseEnvironment {
     public static void main(String[] args) throws Exception {

@@ -10,9 +10,9 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
 /**
- * Author: okccc
- * Date: 2021/10/18 下午3:23
- * Desc: 自定义反序列化器,封装返回的数据格式,方便解析
+ * @Author: okccc
+ * @Date: 2021/10/18 下午3:23
+ * @Desc: 自定义反序列化器,封装返回的数据格式,方便解析
  */
 public class MyDeserialization implements DebeziumDeserializationSchema<String> {
     @Override

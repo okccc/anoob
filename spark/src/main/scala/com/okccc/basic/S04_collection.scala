@@ -4,9 +4,9 @@ import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
- * Author: okccc
- * Date: 2021/4/28 上午9:56
- * Desc: scala常用集合类
+ * @Author: okccc
+ * @Date: 2021/4/28 上午9:56
+ * @Desc: scala常用集合类
  */
 object S04_collection {
   def main(args: Array[String]): Unit = {

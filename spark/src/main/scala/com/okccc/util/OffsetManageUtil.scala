@@ -7,9 +7,9 @@ import redis.clients.jedis.Jedis
 import java.util
 
 /**
- * Author: okccc
- * Date: 2020/12/21 6:14 下午
- * Desc: 手动维护offset的工具类
+ * @Author: okccc
+ * @Date: 2020/12/21 6:14 下午
+ * @Desc: 手动维护offset的工具类
  */
 object OffsetManageUtil {
 

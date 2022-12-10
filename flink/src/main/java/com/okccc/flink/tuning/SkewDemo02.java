@@ -12,9 +12,9 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 /**
- * Author: okccc
- * Date: 2022/8/3 4:05 下午
- * Desc: flink数据倾斜优化之localAgg
+ * @Author: okccc
+ * @Date: 2022/8/3 4:05 下午
+ * @Desc: flink数据倾斜优化之localAgg
  */
 public class SkewDemo02 extends BaseEnvironment {
     public static void main(String[] args) throws Exception {

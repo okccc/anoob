@@ -3,9 +3,9 @@ package com.okccc.util
 import java.util
 
 /**
- * Author: okccc
- * Date: 2022/12/3 10:51 下午
- * Desc:
+ * @Author: okccc
+ * @Date: 2022/12/3 10:51 下午
+ * @Desc:
  */
 object StringUtil {
 

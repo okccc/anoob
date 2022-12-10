@@ -12,9 +12,9 @@ import org.apache.flink.util.Collector;
 import java.sql.Timestamp;
 
 /**
- * Author: okccc
- * Date: 2021/9/7 下午4:49
- * Desc: flink处理函数
+ * @Author: okccc
+ * @Date: 2021/9/7 下午4:49
+ * @Desc: flink处理函数
  */
 public class Flink02 {
     public static void main(String[] args) throws Exception {

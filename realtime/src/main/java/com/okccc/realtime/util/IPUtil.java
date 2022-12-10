@@ -14,9 +14,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 /**
- * Author: okccc
- * Date: 2021/10/28 上午10:20
- * Desc: 解析IP地址
+ * @Author: okccc
+ * @Date: 2021/10/28 上午10:20
+ * @Desc: 解析IP地址
  */
 public class IPUtil {
     

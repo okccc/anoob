@@ -8,9 +8,9 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * Author: okccc
- * Date: 2020/11/29 22:04
- * Desc: 模拟kafka消费者,实际场景一般是SparkStreaming或Flink
+ * @Author: okccc
+ * @Date: 2020/11/29 22:04
+ * @Desc: 模拟kafka消费者,实际场景一般是SparkStreaming或Flink
  */
 public class ConsumerDemo {
     public static void main(String[] args) {

@@ -17,9 +17,9 @@ import redis.clients.jedis.Jedis
 import scala.collection.mutable.ListBuffer
 
 /**
- * Author: okccc
- * Date: 2020/12/13 11:24
- * Desc: 实时需求一日活统计DailyActiveUser
+ * @Author: okccc
+ * @Date: 2020/12/13 11:24
+ * @Desc: 实时需求一日活统计DailyActiveUser
  */
 object DauApp {
 

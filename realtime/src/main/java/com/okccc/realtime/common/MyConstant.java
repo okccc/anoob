@@ -1,9 +1,9 @@
 package com.okccc.realtime.common;
 
 /**
- * Author: okccc
- * Date: 2021/12/29 2:54 下午
- * Desc: 电商业务常量
+ * @Author: okccc
+ * @Date: 2021/12/29 2:54 下午
+ * @Desc: 电商业务常量
  */
 public class MyConstant {
 

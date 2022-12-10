@@ -6,9 +6,9 @@ import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
- * Author: okccc
- * Date: 2022/12/4 7:11 下午
- * Desc: 
+ * @Author: okccc
+ * @Date: 2022/12/4 7:11 下午
+ * @Desc:
  */
 object S03_DStream {
   def main(args: Array[String]): Unit = {

@@ -10,9 +10,9 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 
 /**
- * Author: okccc
- * Date: 2020/12/6 19:34
- * Desc: 日志解析工具类
+ * @Author: okccc
+ * @Date: 2020/12/6 19:34
+ * @Desc: 日志解析工具类
  */
 public class LogUtil {
 

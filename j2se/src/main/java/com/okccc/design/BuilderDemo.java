@@ -1,9 +1,9 @@
 package com.okccc.design;
 
 /**
- * Author: okccc
- * Date: 2020/12/31 2:09 下午
- * Desc: java构造者模式
+ * @Author: okccc
+ * @Date: 2020/12/31 2:09 下午
+ * @Desc: java构造者模式
  */
 public class BuilderDemo {
     public static void main(String[] args) {

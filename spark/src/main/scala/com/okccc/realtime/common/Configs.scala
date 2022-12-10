@@ -3,9 +3,9 @@ package com.okccc.realtime.common
 import java.util.Properties
 
 /**
- * Author: okccc
- * Date: 2021/6/15 上午9:37
- * Desc: 项目中用到的配置常量
+ * @Author: okccc
+ * @Date: 2021/6/15 上午9:37
+ * @Desc: 项目中用到的配置常量
  */
 object Configs {
 

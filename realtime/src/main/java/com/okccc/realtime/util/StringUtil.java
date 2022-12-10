@@ -6,9 +6,9 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 
 /**
- * Author: okccc
- * Date: 2021/10/26 下午6:24
- * Desc: 字符串工具类
+ * @Author: okccc
+ * @Date: 2021/10/26 下午6:24
+ * @Desc: 字符串工具类
  */
 public class StringUtil {
 

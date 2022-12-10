@@ -1,4 +1,4 @@
-package com.okccc.realtime.ods;
+package com.okccc.realtime.app.ods;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Author: okccc
- * Date: 2022/1/24 2:46 下午
- * Desc: 除了sqoop/datax以外,还可以手动同步mysql某一天历史数据到hive
+ * @Author: okccc
+ * @Date: 2022/1/24 2:46 下午
+ * @Desc: 除了sqoop/datax以外,还可以手动同步mysql某一天历史数据到hive
  */
 public class MysqlToHdfs {
 

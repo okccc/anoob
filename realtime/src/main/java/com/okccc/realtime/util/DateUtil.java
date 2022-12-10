@@ -9,9 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Author: okccc
- * Date: 2021/10/26 下午2:04
- * Desc: 日期时间工具类
+ * @Author: okccc
+ * @Date: 2021/10/26 下午2:04
+ * @Desc: 日期时间工具类
  */
 @SuppressWarnings("unused")
 public class DateUtil {

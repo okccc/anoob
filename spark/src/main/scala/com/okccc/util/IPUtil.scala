@@ -9,9 +9,9 @@ import com.alibaba.sec.client.FastIPGeoClient
 import java.util
 
 /**
- * Author: okccc
- * Date: 2021/7/7 下午3:36
- * Desc: 解析IP地址
+ * @Author: okccc
+ * @Date: 2021/7/7 下午3:36
+ * @Desc: 解析IP地址
  */
 object IPUtil {
 

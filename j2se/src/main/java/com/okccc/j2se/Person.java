@@ -3,9 +3,9 @@ package com.okccc.j2se;
 import java.io.Serializable;
 
 /**
- * Author: okccc
- * Date: 2021/11/15 下午3:45
- * Desc: java模板类
+ * @Author: okccc
+ * @Date: 2021/11/15 下午3:45
+ * @Desc: java模板类
  */
 public class Person implements Serializable, Comparable<Person> {
 

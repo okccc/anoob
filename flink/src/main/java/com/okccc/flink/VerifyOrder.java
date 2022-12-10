@@ -16,9 +16,9 @@ import java.sql.Timestamp;
 import java.time.Duration;
 
 /**
- * Author: okccc
- * Date: 2021/9/23 下午3:37
- * Desc: 订单支付和账单流水实时对账
+ * @Author: okccc
+ * @Date: 2021/9/23 下午3:37
+ * @Desc: 订单支付和账单流水实时对账
  */
 public class VerifyOrder {
     public static void main(String[] args) throws Exception {

@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Author: okccc
- * Date: 2022/1/13 10:11 上午
- * Desc: 关键词主题实体类
+ * @Author: okccc
+ * @Date: 2022/1/13 10:11 上午
+ * @Desc: 关键词主题实体类
  */
 @Data
 @NoArgsConstructor

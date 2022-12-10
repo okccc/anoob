@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Author: okccc
- * Date: 2021/10/27 上午11:22
- * Desc: 读写clickhouse的工具类
+ * @Author: okccc
+ * @Date: 2021/10/27 上午11:22
+ * @Desc: 读写clickhouse的工具类
  */
 public class ClickHouseUtil {
 

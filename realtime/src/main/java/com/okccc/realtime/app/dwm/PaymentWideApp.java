@@ -21,9 +21,9 @@ import org.apache.flink.util.Collector;
 import java.time.Duration;
 
 /**
- * Author: okccc
- * Date: 2021/11/29 下午3:36
- * Desc: 支付宽表
+ * @Author: okccc
+ * @Date: 2021/11/29 下午3:36
+ * @Desc: 支付宽表
  */
 public class PaymentWideApp {
     public static void main(String[] args) throws Exception {

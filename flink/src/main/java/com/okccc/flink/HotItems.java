@@ -25,9 +25,9 @@ import java.util.Comparator;
 import java.util.Properties;
 
 /**
- * Author: okccc
- * Date: 2021/9/15 下午5:22
- * Desc: 实时统计1小时内的热门商品排名,5分钟刷新一次(有序数据)
+ * @Author: okccc
+ * @Date: 2021/9/15 下午5:22
+ * @Desc: 实时统计1小时内的热门商品排名,5分钟刷新一次(有序数据)
  * 分析：先按照商品分组统计pv,窗口大小1hour,滑动间隔5min,再按照窗口分组进行排序
  * 流程：分流 - 开窗 - 聚合 - 分流 - 聚合
  */

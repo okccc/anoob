@@ -15,9 +15,9 @@ import java.time.Duration;
 import static org.apache.flink.table.api.Expressions.$;
 
 /**
- * Author: okccc
- * Date: 2021/9/20 下午12:47
- * Desc: flink sql实现实时热门商品统计
+ * @Author: okccc
+ * @Date: 2021/9/20 下午12:47
+ * @Desc: flink sql实现实时热门商品统计
  */
 public class FlinkSql {
     public static void main(String[] args) throws Exception {

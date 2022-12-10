@@ -10,9 +10,9 @@ import org.apache.flink.util.Collector
 import java.time.Duration
 
 /**
- * Author: okccc
- * Date: 2021/4/9 11:22 上午
- * Desc: 订单支付和账单流水实时对账
+ * @Author: okccc
+ * @Date: 2021/4/9 11:22 上午
+ * @Desc: 订单支付和账单流水实时对账
  */
 
 // 订单事件样例类

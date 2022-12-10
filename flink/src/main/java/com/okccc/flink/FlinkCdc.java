@@ -14,9 +14,9 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
 /**
- * Author: okccc
- * Date: 2021/8/27 上午10:22
- * Desc: flink-cdc动态读取mysql数据
+ * @Author: okccc
+ * @Date: 2021/8/27 上午10:22
+ * @Desc: flink-cdc动态读取mysql数据
  */
 public class FlinkCdc {
     public static void main(String[] args) throws Exception {

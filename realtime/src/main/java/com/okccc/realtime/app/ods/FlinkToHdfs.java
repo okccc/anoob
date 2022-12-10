@@ -1,4 +1,4 @@
-package com.okccc.realtime.ods;
+package com.okccc.realtime.app.ods;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -22,9 +22,9 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Author: okccc
- * Date: 2022/7/8 5:04 下午
- * Desc: flink消费kafka数据写入hdfs
+ * @Author: okccc
+ * @Date: 2022/7/8 5:04 下午
+ * @Desc: flink消费kafka数据写入hdfs
  */
 public class FlinkToHdfs {
     public static void main(String[] args) throws Exception {

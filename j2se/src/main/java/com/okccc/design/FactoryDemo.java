@@ -1,9 +1,9 @@
 package com.okccc.design;
 
 /**
- * Author: okccc
- * Date: 2021/7/13 下午8:43
- * Desc: java工厂模式
+ * @Author: okccc
+ * @Date: 2021/7/13 下午8:43
+ * @Desc: java工厂模式
  */
 public class FactoryDemo {
     public static void main(String[] args) {

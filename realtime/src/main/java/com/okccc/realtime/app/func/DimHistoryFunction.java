@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Author: okccc
- * Date: 2021/11/17 下午3:03
- * Desc: canal/maxwell是基于binlog抓最新数据,mysql中维度表的历史数据要先通过flink-cdc手动同步到hbase
+ * @Author: okccc
+ * @Date: 2021/11/17 下午3:03
+ * @Desc: canal/maxwell是基于binlog抓最新数据,mysql中维度表的历史数据要先通过flink-cdc手动同步到hbase
  */
 public class DimHistoryFunction {
     public static void main(String[] args) throws Exception {

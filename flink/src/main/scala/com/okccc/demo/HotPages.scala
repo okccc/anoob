@@ -19,9 +19,9 @@ import java.util
 import scala.collection.mutable.ListBuffer
 
 /**
- * Author: okccc
- * Date: 2021/3/4 2:46 下午
- * Desc: 实时统计10分钟内的热门页面排名,5秒钟刷新一次(乱序数据)
+ * @Author: okccc
+ * @Date: 2021/3/4 2:46 下午
+ * @Desc: 实时统计10分钟内的热门页面排名,5秒钟刷新一次(乱序数据)
  */
 
 // 输入数据样例类

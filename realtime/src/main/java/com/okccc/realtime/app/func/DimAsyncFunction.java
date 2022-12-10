@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Author: okccc
- * Date: 2021/11/5 下午4:38
- * Desc: 维度表的异步查询
+ * @Author: okccc
+ * @Date: 2021/11/5 下午4:38
+ * @Desc: 维度表的异步查询
  */
 
 // 输入数据可能是订单宽表流、支付宽表流或其它宽表流,所以使用泛型<T>设计成通用类

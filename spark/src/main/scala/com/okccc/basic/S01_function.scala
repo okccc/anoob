@@ -4,9 +4,9 @@ import scala.collection.immutable
 import scala.util.control.Breaks.{break, breakable}
 
 /**
- * Author: okccc
- * Date: 2021/4/28 上午9:56
- * Desc:
+ * @Author: okccc
+ * @Date: 2021/4/28 上午9:56
+ * @Desc:
  */
 object S01_function {
   def main(args: Array[String]): Unit = {

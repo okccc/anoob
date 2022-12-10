@@ -17,11 +17,11 @@ public class IOFileDemo {
 //        common();
 //        traverse();
 
-//        File dir = new File("ability/input/aaa");
+//        File dir = new File("j2se/input/aaa");
 //        recursive(dir);
 
-//        File dir = new File("ability/input");
-//        File merge_file = new File("ability/output/merge.txt");
+//        File dir = new File("j2se/input");
+//        File merge_file = new File("j2se/output/merge.txt");
 //        mergeSmallFile(dir, merge_file);
 
 //        checkList();
@@ -31,8 +31,8 @@ public class IOFileDemo {
 
     public static void common() throws IOException {
         // 将文件(夹)封装成File对象
-        File file = new File("ability/input/ccc.txt");
-        File dir = new File("ability/input/aaa");
+        File file = new File("j2se/input/ccc.txt");
+        File dir = new File("j2se/input/aaa");
         // 获取
         System.out.println(file.getName());  // ccc.txt
         System.out.println(file.getAbsolutePath());  // D:\PycharmProjects\anoob\java\input\ccc.txt
@@ -164,7 +164,7 @@ public class IOFileDemo {
 
     public static void checkList() throws IOException {
         // 需求：列出目录下的文件清单
-        File dir = new File("ability/input");
+        File dir = new File("j2se/input");
         // 存放File对象的集合
         List<File> list = new ArrayList<>();
         System.out.println(list);  // []
@@ -172,7 +172,7 @@ public class IOFileDemo {
         digui(dir, list);
         System.out.println(list);  // [java\input\aaa\bbb\ccc.txt, java\input\aaa\bbb.txt, java\input\aaa.txt]
         // 写入清单文件
-        BufferedWriter bw = new BufferedWriter(new FileWriter(new File("ability/output/checklist")));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(new File("j2se/output/checklist")));
         for (File file : list) {
             bw.write(file.getAbsolutePath());
             bw.newLine();

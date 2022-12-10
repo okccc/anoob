@@ -21,9 +21,9 @@ import java.util.Properties
 import scala.util.Random
 
 /**
- * Author: okccc
- * Date: 2021/3/18 4:16 下午
- * Desc: 实时统计1小时内的页面访问量(PV=PageView)
+ * @Author: okccc
+ * @Date: 2021/3/18 4:16 下午
+ * @Desc: 实时统计1小时内的页面访问量(PV=PageView)
  */
 
 // 输出结果样例类

@@ -3,9 +3,9 @@ package com.okccc.basic
 import scala.collection.mutable
 
 /**
- * Author: okccc
- * Date: 2021/4/28 上午9:56
- * Desc:
+ * @Author: okccc
+ * @Date: 2021/4/28 上午9:56
+ * @Desc:
  */
 object S05_group {
   def main(args: Array[String]): Unit = {

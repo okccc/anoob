@@ -23,9 +23,9 @@ import java.sql.Timestamp;
 import java.time.Duration;
 
 /**
- * Author: okccc
- * Date: 2021/10/12 下午4:05
- * Desc: 广告点击刷单行为分析
+ * @Author: okccc
+ * @Date: 2021/10/12 下午4:05
+ * @Desc: 广告点击刷单行为分析
  */
 public class MaliceClick {
     public static void main(String[] args) throws Exception {

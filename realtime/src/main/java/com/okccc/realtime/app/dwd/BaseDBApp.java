@@ -25,9 +25,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import javax.annotation.Nullable;
 
 /**
- * Author: okccc
- * Date: 2021/10/7 下午3:45
- * Desc: 业务数据动态分流
+ * @Author: okccc
+ * @Date: 2021/10/7 下午3:45
+ * @Desc: 业务数据动态分流
  */
 public class BaseDBApp {
     public static void main(String[] args) throws Exception {

@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Author: okccc
- * Date: 2021/10/19 上午11:16
- * Desc: 自定义广播处理函数,实现动态分流
+ * @Author: okccc
+ * @Date: 2021/10/19 上午11:16
+ * @Desc: 自定义广播处理函数,实现动态分流
  */
 public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, String, JSONObject> {
     // 声明侧输出流标签

@@ -13,9 +13,9 @@ import org.apache.flink.streaming.api.functions.source.datagen.RandomGenerator;
 import org.apache.flink.streaming.api.functions.source.datagen.SequenceGenerator;
 
 /**
- * Author: okccc
- * Date: 2022/8/30 6:12 下午
- * Desc: flink使用DataGeneratorSource造数据,生成随机数
+ * @Author: okccc
+ * @Date: 2022/8/30 6:12 下午
+ * @Desc: flink使用DataGeneratorSource造数据,生成随机数
  */
 public class DataGenDemo01 {
     public static void main(String[] args) throws Exception {

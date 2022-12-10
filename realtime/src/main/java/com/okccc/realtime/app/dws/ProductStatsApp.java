@@ -36,9 +36,9 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Author: okccc
- * Date: 2021/12/24 11:28 上午
- * Desc: 商品主题宽表
+ * @Author: okccc
+ * @Date: 2021/12/24 11:28 上午
+ * @Desc: 商品主题宽表
  */
 public class ProductStatsApp {
     public static void main(String[] args) throws Exception {

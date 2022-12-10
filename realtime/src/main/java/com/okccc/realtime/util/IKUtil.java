@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: okccc
- * Date: 2022/1/13 10:22 上午
- * Desc: IK分词器工具类
+ * @Author: okccc
+ * @Date: 2022/1/13 10:22 上午
+ * @Desc: IK分词器工具类
  */
 public class IKUtil {
 

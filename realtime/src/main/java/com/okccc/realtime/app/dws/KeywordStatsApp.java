@@ -12,9 +12,9 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 /**
- * Author: okccc
- * Date: 2022/1/13 11:00 上午
- * Desc: flink sql统计关键词主题宽表
+ * @Author: okccc
+ * @Date: 2022/1/13 11:00 上午
+ * @Desc: flink sql统计关键词主题宽表
  * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/dev/table/functions/udfs/
  */
 public class KeywordStatsApp {

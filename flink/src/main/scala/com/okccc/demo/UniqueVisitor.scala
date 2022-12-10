@@ -20,9 +20,9 @@ import java.util
 import java.util.Properties
 
 /**
- * Author: okccc
- * Date: 2021/3/18 4:17 下午
- * Desc: 实时统计1小时内的独立访客数(UV=UniqueVisitor)
+ * @Author: okccc
+ * @Date: 2021/3/18 4:17 下午
+ * @Desc: 实时统计1小时内的独立访客数(UV=UniqueVisitor)
  */
 
 // 输出结果样例类

@@ -8,9 +8,9 @@ import java.util
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Author: okccc
- * Date: 2021/7/21 下午6:28
- * Desc: 解析canal数据的工具类
+ * @Author: okccc
+ * @Date: 2021/7/21 下午6:28
+ * @Desc: 解析canal数据的工具类
  */
 object CanalUtil {
 

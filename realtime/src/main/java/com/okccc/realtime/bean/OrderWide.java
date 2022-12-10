@@ -7,9 +7,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.math.BigDecimal;
 
 /**
- * Author: okccc
- * Date: 2021/10/28 下午6:20
- * Desc: 订单宽表实体类
+ * @Author: okccc
+ * @Date: 2021/10/28 下午6:20
+ * @Desc: 订单宽表实体类
  */
 @Data
 @AllArgsConstructor

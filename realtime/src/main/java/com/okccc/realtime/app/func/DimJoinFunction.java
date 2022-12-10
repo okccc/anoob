@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import java.text.ParseException;
 
 /**
- * Author: okccc
- * Date: 2021/11/5 下午5:47
- * Desc: 维度关联接口
+ * @Author: okccc
+ * @Date: 2021/11/5 下午5:47
+ * @Desc: 维度关联接口
  */
 public interface DimJoinFunction<T> {
 

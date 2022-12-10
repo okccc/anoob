@@ -1,9 +1,9 @@
 package com.okccc.design.princple;
 
 /**
- * Author: okccc
- * Date: 2021/8/3 下午3:30
- * Desc: 接口隔离原则
+ * @Author: okccc
+ * @Date: 2021/8/3 下午3:30
+ * @Desc: 接口隔离原则
  */
 public class InterfaceIsolation {
     public static void main(String[] args) {

@@ -6,9 +6,9 @@ import org.apache.kafka.common.Cluster;
 import java.util.Map;
 
 /**
- * Author: okccc
- * Date: 2022/5/11 3:44 下午
- * Desc: kafka生产者分区器
+ * @Author: okccc
+ * @Date: 2022/5/11 3:44 下午
+ * @Desc: kafka生产者分区器
  */
 public class PartitionerDemo implements Partitioner {
     @Override

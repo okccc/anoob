@@ -20,9 +20,9 @@ import java.sql.Timestamp;
 import java.time.Duration;
 
 /**
- * Author: okccc
- * Date: 2021/9/13 下午2:06
- * Desc: flink水位线
+ * @Author: okccc
+ * @Date: 2021/9/13 下午2:06
+ * @Desc: flink水位线
  */
 public class Flink04 {
     public static void main(String[] args) throws Exception {

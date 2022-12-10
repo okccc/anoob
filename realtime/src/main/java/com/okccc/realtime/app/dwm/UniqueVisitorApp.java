@@ -16,9 +16,9 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 /**
- * Author: okccc
- * Date: 2021/10/25 下午6:20
- * Desc: 独立访客统计,从用户行为日志中过滤去重得到
+ * @Author: okccc
+ * @Date: 2021/10/25 下午6:20
+ * @Desc: 独立访客统计,从用户行为日志中过滤去重得到
  */
 public class UniqueVisitorApp {
     public static void main(String[] args) throws Exception {

@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * Author: okccc
- * Date: 2021/12/13 2:55 下午
- * Desc: 访客主题实体类
+ * @Author: okccc
+ * @Date: 2021/12/13 2:55 下午
+ * @Desc: 访客主题实体类
  */
 @Data
 @AllArgsConstructor

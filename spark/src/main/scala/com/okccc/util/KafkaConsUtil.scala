@@ -11,9 +11,9 @@ import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, Loca
 import scala.collection.mutable
 
 /**
- * Author: okccc
- * Date: 2020/12/12 17:52
- * Desc: SparkStreaming读取kafka的工具类
+ * @Author: okccc
+ * @Date: 2020/12/12 17:52
+ * @Desc: SparkStreaming读取kafka的工具类
  */
 object KafkaConsUtil {
 

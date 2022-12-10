@@ -1,9 +1,9 @@
 package com.okccc.realtime.common;
 
 /**
- * Author: okccc
- * Date: 2021/10/20 下午2:50
- * Desc: 实时数仓配置常量
+ * @Author: okccc
+ * @Date: 2021/10/20 下午2:50
+ * @Desc: 实时数仓配置常量
  */
 public class MyConfig {
 

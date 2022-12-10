@@ -1,9 +1,9 @@
 package com.okccc.design.princple;
 
 /**
- * Author: okccc
- * Date: 2021/8/3 下午5:02
- * Desc: 里式替换原则
+ * @Author: okccc
+ * @Date: 2021/8/3 下午5:02
+ * @Desc: 里式替换原则
  */
 public class LiskovReplace {
     public static void main(String[] args) {

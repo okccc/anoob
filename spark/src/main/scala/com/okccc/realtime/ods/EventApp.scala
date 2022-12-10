@@ -15,9 +15,9 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Author: okccc
- * Date: 2021/7/3 下午5:14
- * Desc: SparkStreaming实时读取flume同步到kafka的日志数据并解析写入hive
+ * @Author: okccc
+ * @Date: 2021/7/3 下午5:14
+ * @Desc: SparkStreaming实时读取flume同步到kafka的日志数据并解析写入hive
  */
 object EventApp {
   def main(args: Array[String]): Unit = {

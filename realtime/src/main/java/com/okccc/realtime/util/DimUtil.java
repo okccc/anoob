@@ -9,9 +9,9 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 /**
- * Author: okccc
- * Date: 2021/11/2 上午11:00
- * Desc: 基于phoenix读写hbase维度数据的工具类
+ * @Author: okccc
+ * @Date: 2021/11/2 上午11:00
+ * @Desc: 基于phoenix读写hbase维度数据的工具类
  */
 public class DimUtil {
 

@@ -75,7 +75,7 @@ public class IONetDemo {
         // 获取打开该url连接的输入流
         InputStream is = url.openStream();
         // 创建输出流
-        FileOutputStream fos = new FileOutputStream("output/baidu",true);
+        FileOutputStream fos = new FileOutputStream("j2se/output/baidu",true);
         // 读写数据
         byte[] arr = new byte[1024];
         while(is.read(arr) != -1){
@@ -105,10 +105,10 @@ public class IONetDemo {
             OutputStream os = s.getOutputStream();
             PrintWriter pw = new PrintWriter(s.getOutputStream(),true);
             // 字节文件输出流
-            File file = new File("output/aaa.png");
+            File file = new File("j2se/output/aaa.png");
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
             // 字符文件输出流
-            BufferedWriter bw = new BufferedWriter(new FileWriter("output/aaa.txt"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter("j2se/output/aaa.txt"));
 
             // 1.聊天信息
 //        String line;
@@ -161,9 +161,9 @@ public class IONetDemo {
             // 标准输入流
             BufferedReader br1 = new BufferedReader(new InputStreamReader(System.in));
             // 字节文件输入流
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream("input/aaa.png"));
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream("j2se/input/aaa.png"));
             // 字符文件输入流
-            BufferedReader br2 = new BufferedReader(new FileReader("input/aaa.txt"));
+            BufferedReader br2 = new BufferedReader(new FileReader("j2se/input/aaa.txt"));
             // Socket输入流
             InputStream is = s.getInputStream();
             BufferedReader br3 = new BufferedReader(new InputStreamReader(s.getInputStream()));

@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: okccc
- * Date: 2021/10/22 下午3:17
- * Desc: 使用phoenix读写hbase的工具类
+ * @Author: okccc
+ * @Date: 2021/10/22 下午3:17
+ * @Desc: 使用phoenix读写hbase的工具类
  */
 public class PhoenixUtil {
 

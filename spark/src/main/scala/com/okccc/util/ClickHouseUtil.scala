@@ -9,9 +9,9 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.collection.mutable.ListBuffer
 
 /**
- * Author: okccc
- * Date: 2021/6/3 下午4:31
- * Desc: 读写ClickHouse的工具类,类似mysql
+ * @Author: okccc
+ * @Date: 2021/6/3 下午4:31
+ * @Desc: 读写ClickHouse的工具类,类似mysql
  */
 object ClickHouseUtil {
 

@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * Author: okccc
- * Date: 2022/1/7 10:14 上午
- * Desc: 地区主题实体类
+ * @Author: okccc
+ * @Date: 2022/1/7 10:14 上午
+ * @Desc: 地区主题实体类
  */
 @NoArgsConstructor
 @AllArgsConstructor

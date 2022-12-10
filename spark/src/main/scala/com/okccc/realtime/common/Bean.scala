@@ -3,7 +3,7 @@ package com.okccc.realtime.common
 import java.util
 
 /**
- * Desc: 日活信息样例类
+ * @Desc: 日活信息样例类
  */
 case class DauInfo(
                     mid: String,  // 设备id

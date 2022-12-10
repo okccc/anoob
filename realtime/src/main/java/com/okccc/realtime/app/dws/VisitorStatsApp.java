@@ -25,9 +25,9 @@ import org.apache.flink.util.Collector;
 import java.time.Duration;
 
 /**
- * Author: okccc
- * Date: 2021/12/13 10:14 上午
- * Desc: 访客主题宽表
+ * @Author: okccc
+ * @Date: 2021/12/13 10:14 上午
+ * @Desc: 访客主题宽表
  */
 public class VisitorStatsApp {
     public static void main(String[] args) throws Exception {

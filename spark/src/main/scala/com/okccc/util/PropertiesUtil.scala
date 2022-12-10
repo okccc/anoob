@@ -3,9 +3,9 @@ package com.okccc.util
 import java.util.Properties
 
 /**
- * Author: okccc
- * Date: 2020/12/12 17:16
- * Desc: 读取配置文件的工具类
+ * @Author: okccc
+ * @Date: 2020/12/12 17:16
+ * @Desc: 读取配置文件的工具类
  */
 object PropertiesUtil {
 

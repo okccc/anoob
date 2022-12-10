@@ -13,9 +13,9 @@ import org.apache.spark.streaming.kafka010.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
- * Author: okccc
- * Date: 2020/12/20 12:24 下午
- * Desc: SparkStreaming实时读取canal同步到kafka的业务数据并解析写入hive
+ * @Author: okccc
+ * @Date: 2020/12/20 12:24 下午
+ * @Desc: SparkStreaming实时读取canal同步到kafka的业务数据并解析写入hive
  */
 object CanalApp {
   def main(args: Array[String]): Unit = {

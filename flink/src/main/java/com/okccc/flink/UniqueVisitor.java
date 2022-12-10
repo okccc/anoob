@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.Properties;
 
 /**
- * Author: okccc
- * Date: 2021/9/27 下午5:24
- * Desc: 实时统计1小时内的独立访客数(UV=UniqueVisitor)
+ * @Author: okccc
+ * @Date: 2021/9/27 下午5:24
+ * @Desc: 实时统计1小时内的独立访客数(UV=UniqueVisitor)
  */
 public class UniqueVisitor {
     public static void main(String[] args) throws Exception {

@@ -11,9 +11,9 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.collection.mutable.ListBuffer
 
 /**
- * Author: okccc
- * Date: 2021/4/19 上午9:44
- * Desc: 读写mysql的工具类
+ * @Author: okccc
+ * @Date: 2021/4/19 上午9:44
+ * @Desc: 读写mysql的工具类
  */
 object MysqlUtil {
 

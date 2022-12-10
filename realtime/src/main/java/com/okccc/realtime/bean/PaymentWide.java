@@ -8,9 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 
 /**
- * Author: okccc
- * Date: 2021/11/29 下午3:02
- * Desc: 支付宽表实体类
+ * @Author: okccc
+ * @Date: 2021/11/29 下午3:02
+ * @Desc: 支付宽表实体类
  */
 @Data
 @AllArgsConstructor

@@ -10,9 +10,9 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 /**
- * Author: okccc
- * Date: 2022/1/6 3:46 下午
- * Desc: flink sql统计地区主题宽表
+ * @Author: okccc
+ * @Date: 2022/1/6 3:46 下午
+ * @Desc: flink sql统计地区主题宽表
  * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/kafka/
  * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/dev/table/sql/create/
  */

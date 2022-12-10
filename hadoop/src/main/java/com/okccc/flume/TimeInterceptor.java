@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Author: okccc
- * Date: 2022/2/28 5:15 下午
- * Desc: 给header添加事件时间解决0点漂移问题
+ * @Author: okccc
+ * @Date: 2022/2/28 5:15 下午
+ * @Desc: 给header添加事件时间解决0点漂移问题
  */
 public class TimeInterceptor implements Interceptor {
     @Override

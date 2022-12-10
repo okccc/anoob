@@ -1,6 +1,5 @@
 package com.okccc.j2se;
 
-import java.io.File;
 import java.io.FileReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -22,12 +21,12 @@ public class ReflectDemo {
          */
 
 //        getClassObject();
-        getClassField();
+//        getClassField();
 //        getClassMethod();
 //        getClassConstructor();
 //        getClassOther();
 //        test01();
-//        test02();
+        test02();
     }
 
     // 获取Class类对象的三种方式
@@ -179,7 +178,7 @@ public class ReflectDemo {
         // 创建属性集合
         Properties prop = new Properties();
         // 关联输入流,从文件读取属性
-        FileReader fr = new FileReader(new File("input/pci.properties"));
+        FileReader fr = new FileReader("j2se/input/pci.properties");
         prop.load(fr);
         // 遍历集合
         Set<String> keys = prop.stringPropertyNames();

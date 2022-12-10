@@ -22,9 +22,9 @@ import java.util.Properties
 import scala.collection.mutable.ListBuffer
 
 /**
- * Author: okccc
- * Date: 2021/2/23 11:16 上午
- * Desc: 实时统计1小时内的热门商品排名,5分钟刷新一次(有序数据)
+ * @Author: okccc
+ * @Date: 2021/2/23 11:16 上午
+ * @Desc: 实时统计1小时内的热门商品排名,5分钟刷新一次(有序数据)
  */
 
 // 输入数据样例类

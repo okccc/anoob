@@ -6,9 +6,9 @@ import java.util.Properties
 import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
 
 /**
- * Author: okccc
- * Date: 2020/12/13 10:31
- * Desc: 获取Jedis的工具类
+ * @Author: okccc
+ * @Date: 2020/12/13 10:31
+ * @Desc: 获取Jedis的工具类
  */
 object RedisUtil {
 

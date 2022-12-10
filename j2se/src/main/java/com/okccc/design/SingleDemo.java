@@ -1,9 +1,9 @@
 package com.okccc.design;
 
 /**
- * Author: okccc
- * Date: 2020/12/31 2:09 下午
- * Desc: java单例模式
+ * @Author: okccc
+ * @Date: 2020/12/31 2:09 下午
+ * @Desc: java单例模式
  */
 public class SingleDemo {
     public static void main(String[] args) {

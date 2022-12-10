@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Author: okccc
- * Date: 2021/10/27 下午4:29
- * Desc: 用户跳出明细统计
+ * @Author: okccc
+ * @Date: 2021/10/27 下午4:29
+ * @Desc: 用户跳出明细统计
  */
 public class UserJumpDetailApp {
     public static void main(String[] args) throws Exception {

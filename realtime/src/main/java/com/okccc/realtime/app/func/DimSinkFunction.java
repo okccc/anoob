@@ -5,9 +5,9 @@ import com.okccc.realtime.util.DimUtil;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 
 /**
- * Author: okccc
- * Date: 2021/10/24 下午1:33
- * Desc: 通过phoenix将canal/maxwell抓取的维度数据写入hbase
+ * @Author: okccc
+ * @Date: 2021/10/24 下午1:33
+ * @Desc: 通过phoenix将canal/maxwell抓取的维度数据写入hbase
  */
 public class DimSinkFunction extends RichSinkFunction<JSONObject> {
 

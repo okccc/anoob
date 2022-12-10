@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: okccc
- * Date: 2022/1/24 2:56 下午
- * Desc: 发送http请求的工具类
+ * @Author: okccc
+ * @Date: 2022/1/24 2:56 下午
+ * @Desc: 发送http请求的工具类
  */
 public class HttpUtil {
 

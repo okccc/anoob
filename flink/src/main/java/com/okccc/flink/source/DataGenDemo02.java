@@ -6,9 +6,9 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 /**
- * Author: okccc
- * Date: 2022/8/30 6:12 下午
- * Desc: flink-sql版本的DataGeneratorSource
+ * @Author: okccc
+ * @Date: 2022/8/30 6:12 下午
+ * @Desc: flink-sql版本的DataGeneratorSource
  */
 public class DataGenDemo02 {
     public static void main(String[] args) throws Exception {

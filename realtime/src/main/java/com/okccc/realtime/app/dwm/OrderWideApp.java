@@ -27,9 +27,9 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Author: okccc
- * Date: 2021/10/28 下午5:43
- * Desc: 订单宽表
+ * @Author: okccc
+ * @Date: 2021/10/28 下午5:43
+ * @Desc: 订单宽表
  */
 public class OrderWideApp {
     public static void main(String[] args) throws Exception {

@@ -15,9 +15,9 @@ import java.sql.Timestamp
 import java.time.Duration
 
 /**
- * Author: okccc
- * Date: 2021/3/29 7:56 下午
- * Desc: 广告点击刷单行为分析
+ * @Author: okccc
+ * @Date: 2021/3/29 7:56 下午
+ * @Desc: 广告点击刷单行为分析
  */
 
 // 输入数据样例类

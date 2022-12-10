@@ -9,9 +9,9 @@ import org.slf4j.{Logger, LoggerFactory}
 import java.util
 
 /**
- * Author: okccc
- * Date: 2021/1/29 4:55 下午
- * Desc: spark读写hive的工具类
+ * @Author: okccc
+ * @Date: 2021/1/29 4:55 下午
+ * @Desc: spark读写hive的工具类
  */
 object HiveUtil {
 

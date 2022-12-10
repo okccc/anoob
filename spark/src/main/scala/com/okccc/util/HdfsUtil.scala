@@ -7,9 +7,9 @@ import org.apache.hadoop.fs.{ContentSummary, FileStatus, FileSystem, Path}
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Author: okccc
- * Date: 2021/7/20 下午2:02
- * Desc: hdfs工具类
+ * @Author: okccc
+ * @Date: 2021/7/20 下午2:02
+ * @Desc: hdfs工具类
  */
 object HdfsUtil {
 

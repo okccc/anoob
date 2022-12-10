@@ -27,9 +27,9 @@ import java.util.Comparator;
 import java.util.Map;
 
 /**
- * Author: okccc
- * Date: 2021/10/9 下午5:59
- * Desc: 实时统计10min内的热门页面排名,5s刷新一次(乱序数据)
+ * @Author: okccc
+ * @Date: 2021/10/9 下午5:59
+ * @Desc: 实时统计10min内的热门页面排名,5s刷新一次(乱序数据)
  */
 public class HotPages {
     public static void main(String[] args) throws Exception {
@@ -42,7 +42,7 @@ public class HotPages {
 
         // 获取数据源
         SingleOutputStreamOperator<String> result = env
-                .readTextFile("input/apache.log")
+                .readTextFile("flink/input/apache.log")
                 // 将流数据封装成POJO类
                 .map(new MapFunction<String, LogEvent>() {
                     @Override

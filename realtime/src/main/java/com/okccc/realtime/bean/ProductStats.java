@@ -8,9 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Author: okccc
- * Date: 2021/12/27 2:55 下午
- * Desc: 商品主题实体类
+ * @Author: okccc
+ * @Date: 2021/12/27 2:55 下午
+ * @Desc: 商品主题实体类
  * Builder：使用构造者模式创建对象,给度量数据设置初始值后,将流数据转换成实体类时就不用再挨个赋值
  * Builder.Default：构造者模式创建对象时初始值会丢失,比如给属性赋初始值0L,不加该注解就会变成null
  */
