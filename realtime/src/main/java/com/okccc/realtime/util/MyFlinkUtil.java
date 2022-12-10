@@ -1,4 +1,4 @@
-package com.okccc.realtime.utils;
+package com.okccc.realtime.util;
 
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;

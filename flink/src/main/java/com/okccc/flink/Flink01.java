@@ -1,7 +1,7 @@
 package com.okccc.flink;
 
 import com.alibaba.fastjson.JSON;
-import com.okccc.realtime.utils.MysqlUtil;
+import com.okccc.flink.util.MysqlUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
