@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Author: okccc
- * Date: 2021/9/1 下午2:35
- * Desc: flink简介、部署模式、运行架构、DataStream-API、时间和窗口、处理函数、多流转换、状态编程、容错机制
+ * @Author: okccc
+ * @Date: 2021/9/1 下午2:35
+ * @Desc: flink简介、部署模式、运行架构、DataStream-API、时间和窗口、处理函数、多流转换、状态编程、容错机制
  */
 public class Flink01 {
     public static void main(String[] args) throws Exception {
@@ -90,6 +90,7 @@ public class Flink01 {
          * 算子链
          * source和map之间的数据流不会重分区,并行度相同的one-to-one算子可以合并成"算子链",减少资源消耗,类似spark窄依赖
          * map和keyBy之间的数据流会基于hashCode按键分区,属于redistributing操作,会伴随shuffle的过程,类似spark宽依赖
+         * flink on yarn - Apache Flink Dashboard - Overview - Running Jobs - Tasks - Parallelism查看合并情况
          * 任务槽
          * 每个任务都占据一个task slot,对应一组独立计算资源,但是不同算子耗费资源不一样,忙的忙死闲的闲死,为了充分利用集群资源,
          * 不同算子的子任务可以共享任务槽,并行度(TaskManager实际使用的并发,动态概念) <= 任务槽(TaskManager拥有的并发能力,静态概念)
