@@ -204,6 +204,57 @@ public class JdbcUtil {
         return list;
     }
 
+    /**
+     * 批量更新插入(upsert)
+     */
+    public static void upsert(List<String> records, String table, String columns) throws Exception {
+        // 拼接upsert语句
+        // replace into是先delete再insert,直接删数据有点危险不建议
+        // mysql的upsert操作ON DUPLICATE key update导致主键ID跳跃增长,很快突破int类型最大值 https://blog.csdn.net/ke2602060221/article/details/126143254
+        // url添加&allowMultiQueries=true支持多条sql语句执行,每次执行insert前先调用alter table t1 auto_increment=1;性能会稍微降低
+        // INSERT INTO t1 VALUES(...) 常规insert语句
+        // ON DUPLICATE KEY 表示后面语句是当数据有冲突时才会执行,什么属性的字段会有冲突呢？主键(Primary Key)和唯一索引(Unique Key)
+        // UPDATE k1=v1,k2=v2... 常规update语句
+        StringBuilder sb = new StringBuilder();
+        sb.append("alter table ").append(table).append(" auto_increment=1;");
+        sb.append("insert into ").append(table).append(" values (null,?,?) on duplicate key update ");
+        for (String column : columns.split(",")) {
+            sb.append(column).append("=values(").append(column).append("),");
+        }
+        String sql = sb.substring(0, sb.length() - 1);
+        // alter table user_info auto_increment=1;insert into user_info values (null,?,?) on duplicate key update name=values(name),age=values(age)
+        System.out.println(sql);
+
+        // 1.获取连接
+        if (conn == null) {
+            initDruidConnection();
+        }
+        try {
+            // 关闭自动提交事务
+            conn.setAutoCommit(false);
+            // 2.预编译sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+            // 遍历结果集
+            for (String record : records) {
+                // 3.填充占位符
+                String[] arr = record.split(",");
+                for (int i = 0; i < arr.length; i++) {
+                    ps.setObject(i + 1, arr[i]);
+                }
+                // 攒一批sql
+                ps.addBatch();
+            }
+            // 执行批处理
+            ps.executeBatch();
+            // 所有语句都执行完手动提交
+            conn.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 事务失败回滚
+            conn.rollback();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         // 当表名刚好是数据库关键字时要加斜引号`order`
         // 当表的列名和类的属性名不一致时,查询sql要使用属性名作为列名的别名,不然报错 java.lang.NoSuchFieldException: order_id
@@ -215,5 +266,11 @@ public class JdbcUtil {
         System.out.println(queryList(User.class, sql02, 1));
         System.out.println(queryList(JSONObject.class, sql03));
         System.out.println(queryList(JSONObject.class, sql04, 1));
+
+        ArrayList<String> records = new ArrayList<>();
+        records.add("grubby,18");
+        records.add("moon,19");
+        records.add("sky,20");
+        upsert(records, "user_info", "name,age");
     }
 }
