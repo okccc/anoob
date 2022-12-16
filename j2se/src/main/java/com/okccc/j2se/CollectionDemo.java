@@ -1,5 +1,7 @@
 package com.okccc.j2se;
 
+import com.okccc.pojo.Person;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

@@ -1,4 +1,4 @@
-package com.okccc.j2se;
+package com.okccc.pojo;
 
 import java.io.Serializable;
 
@@ -10,8 +10,11 @@ import java.io.Serializable;
 public class Person implements Serializable, Comparable<Person> {
 
     private static final long SERIAL_VERSION_UID = 5898267155926398171L;
+
     private String name;
+
     private int age;
+
     private transient String idcard;
 
     public Person() {

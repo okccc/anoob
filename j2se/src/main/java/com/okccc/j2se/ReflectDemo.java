@@ -1,5 +1,7 @@
 package com.okccc.j2se;
 
+import com.okccc.pojo.Person;
+
 import java.io.FileReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -43,7 +45,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的属性
     private static void getClassField() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.j2se.Person");
+        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
 //        Field[] fields = clazz.getFields();  // 只能获取public修饰的属性
         Field[] fields = clazz.getDeclaredFields();  // 获取所有属性,但是private修饰的属性要先获取访问权限
         for (Field field : fields) {
@@ -59,7 +61,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的方法
     private static void getClassMethod() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.j2se.Person");
+        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             // 修饰符
@@ -86,7 +88,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的构造器
     private static void getClassConstructor() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.j2se.Person");
+        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
             // 修饰符
@@ -111,7 +113,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的其它结构：包、父类、接口、泛型、注解
     private static void getClassOther() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.j2se.Person");
+        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
         // 获取包
         Package pack = clazz.getPackage();
         System.out.println(pack.getName());  // basic
@@ -134,7 +136,7 @@ public class ReflectDemo {
         // 获取所有泛型接口
         Type[] genericInterfaces = clazz.getGenericInterfaces();
         for (Type genericInterface : genericInterfaces) {
-            System.out.println(genericInterface.getTypeName());  // java.io.Serializable  java.lang.Comparable<com.okccc.j2se.Person>
+            System.out.println(genericInterface.getTypeName());  // java.io.Serializable  java.lang.Comparable<com.okccc.pojo.Person>
         }
         // 泛型擦除：泛型是在编译期检查元素类型,并且只作用于编译期,而反射是作用于运行期,此时泛型已不存在
         List l1 = new ArrayList();
@@ -144,8 +146,8 @@ public class ReflectDemo {
 
     private static void test01() throws Exception {
         // 使用类加载器加载类
-        Class<?> clazz = Class.forName("com.okccc.j2se.Person");
-        System.out.println(clazz);  // class com.okccc.j2se.Person
+        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
+        System.out.println(clazz);  // class com.okccc.pojo.Person
         // 调用Class类的newInstance()方法,实例化一个带空参构造的对象(推荐)
         Person person = (Person) clazz.newInstance();
         System.out.println(person);  // null: 0: null
@@ -157,7 +159,7 @@ public class ReflectDemo {
         // 获取属性
         Field f1 = clazz.getDeclaredField("name");
         Field f2 = clazz.getDeclaredField("SERIAL_VERSION_UID");
-        // 由于类中字段是private的,要先获取访问权限,不然报错 java.lang.IllegalAccessException: Class com.okccc.j2se.ReflectDemo can not access a member of class com.okccc.j2se.Person with modifiers "private"
+        // 由于类中字段是private的,要先获取访问权限,不然报错 java.lang.IllegalAccessException: Class com.okccc.j2se.ReflectDemo can not access a member of class com.okccc.pojo.Person with modifiers "private"
         f1.setAccessible(true);
         f2.setAccessible(true);
         f1.set(person, "aaa");
