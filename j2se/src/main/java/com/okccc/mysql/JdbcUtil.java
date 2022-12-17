@@ -255,6 +255,44 @@ public class JdbcUtil {
         }
     }
 
+    /**
+     * 演示批量插入100万条数据
+     */
+    public static void insertBatch() throws Exception {
+        long start = System.currentTimeMillis();
+        // 1.获取连接
+        if (conn == null) {
+            initDruidConnection();
+        }
+        try {
+            // 关闭自动提交
+            conn.setAutoCommit(false);
+            // 2.预编译sql
+            String sql = "insert into test.aaa values (null,?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            // 3.填充占位符
+            for (int i = 1; i <= 1000000; i++) {
+                ps.setObject(1, "hello" + i);
+                // 挨个执行单条sql性能很差,插入100万条数据要好几个小时
+//                ps.execute();
+                // 攒一批sql
+                ps.addBatch();
+                if (i % 1000 == 0) {
+                    // 执行批处理,插入100万条数据只要30秒,如果关闭自动提交事务只要5秒
+                    // 要给url添加&rewriteBatchedStatements=true否则批处理不生效
+                    ps.executeBatch();
+                    // 清理批
+                    ps.clearBatch();
+                }
+            }
+            // 手动提交
+            conn.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("插入100万条数据耗时(ms): " + (System.currentTimeMillis() - start));
+    }
+
     public static void main(String[] args) throws Exception {
         // 当表名刚好是数据库关键字时要加斜引号`order`
         // 当表的列名和类的属性名不一致时,查询sql要使用属性名作为列名的别名,不然报错 java.lang.NoSuchFieldException: order_id
@@ -272,5 +310,7 @@ public class JdbcUtil {
         records.add("moon,19");
         records.add("sky,20");
         upsert(records, "user_info", "name,age");
+
+        insertBatch();
     }
 }
