@@ -293,6 +293,35 @@ public class JdbcUtil {
         System.out.println("插入100万条数据耗时(ms): " + (System.currentTimeMillis() - start));
     }
 
+    /**
+     * 批量修改(update、delete)
+     */
+    public static void update(String sql, Object ... args) throws Exception {
+        // 1.获取连接
+        if (conn == null) {
+            initDruidConnection();
+        }
+        try {
+            // 关闭自动提交事务
+            conn.setAutoCommit(false);
+            // 2.预编译sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+            // 3.填充占位符
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+            // 4.执行更新操作：execute是否执行,executeUpdate返回影响记录数
+            int i = ps.executeUpdate();
+            System.out.println(i + " rows affected");
+            // 5.手动提交事务
+            conn.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 事务失败回滚
+            conn.rollback();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         // 当表名刚好是数据库关键字时要加斜引号`order`
         // 当表的列名和类的属性名不一致时,查询sql要使用属性名作为列名的别名,不然报错 java.lang.NoSuchFieldException: order_id
@@ -312,5 +341,8 @@ public class JdbcUtil {
         upsert(records, "user_info", "name,age");
 
         insertBatch();
+
+        String sql05 = "update `order` set order_date = ? where order_id = ?";
+        update(sql05, "2022-12-01", 2);
     }
 }
