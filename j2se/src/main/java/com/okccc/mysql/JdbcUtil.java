@@ -322,6 +322,37 @@ public class JdbcUtil {
         }
     }
 
+    /**
+     * 演示带事务的更新
+     */
+    public static void updateWithTx() throws Exception {
+        // 获取连接
+        if (conn == null) {
+            initDruidConnection();
+        }
+        // 关闭自动提交事务
+        conn.setAutoCommit(false);
+        try {
+            // 事务操作1
+            String sql01 = "update test.user_account set balance = balance - 100 where id = 1";
+            PreparedStatement ps01 = conn.prepareStatement(sql01);
+            ps01.executeUpdate();
+            // 模拟异常
+            System.out.println(1/0);
+            // 事务操作2
+            String sql02 = "update test.user_account set balance = balance + 100 where id = 2";
+            PreparedStatement ps02 = conn.prepareStatement(sql02);
+            ps02.executeUpdate();
+            // 当一个事务内的操作都完成后,手动提交事务
+            conn.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.toString());
+            // 有异常就回滚事务
+            conn.rollback();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         // 当表名刚好是数据库关键字时要加斜引号`order`
         // 当表的列名和类的属性名不一致时,查询sql要使用属性名作为列名的别名,不然报错 java.lang.NoSuchFieldException: order_id
@@ -344,5 +375,7 @@ public class JdbcUtil {
 
         String sql05 = "update `order` set order_date = ? where order_id = ?";
         update(sql05, "2022-12-01", 2);
+
+        updateWithTx();
     }
 }
