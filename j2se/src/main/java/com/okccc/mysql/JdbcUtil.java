@@ -46,6 +46,16 @@ import java.util.*;
  * 一组事务中的所有操作要么全部成功(commit),要么全部失败(rollback),并且一旦提交就无法回滚
  * 1.DML操作一旦执行完就会自动提交数据 -> set autocommit = false
  * 2.数据库连接一旦断开也会自动提交数据 -> 将获取conn步骤从update方法中剥离出来单独关闭
+ *
+ * 常见错误
+ * Caused by: com.mysql.cj.exceptions.CJCommunicationsException:
+ * The last packet successfully received from the server was 5,811,951 milliseconds ago.
+ * The last packet sent successfully to the server was 5,812,024 milliseconds ago.
+ * is longer than the server configured value of 'wait_timeout'.
+ * You should consider either expiring and/or testing connection validity before use in your application, increasing the server
+ * configured values for client timeouts, or using the Connector/J connection property 'autoReconnect=true' to avoid this problem.
+ * 原因：当数据库重启或当前连接空闲时间超过mysql的wait_timeout,数据库会强行断开链接
+ * 解决：服务端调大wait_timeout(不建议),url设置autoReconnect=true(mysql5以后已失效),客户端使用前先conn.isValid()校验是否有效(推荐)
  */
 public class JdbcUtil {
 

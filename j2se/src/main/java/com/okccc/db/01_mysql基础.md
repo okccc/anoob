@@ -61,6 +61,9 @@ tail -f /var/log/mysqld.log
 mysql> show variables like 'max_connections' / select @@max_connections
 mysql> show status like 'Thread%';
 mysql> set global max_connections=1000;
+# 查看mysql连接等待的超时时间
+mysql> show variables like 'wait_timeout' / select @@wait_timeout
+mysql> set global wait_timeout=28800;
 # 批量插入数据
 mysql> source area.sql;
 ```
@@ -182,7 +185,7 @@ mysql> alter table test engine=innodb;
 -- 脏读：读到了别的事务还未提交的数据,这些数据可能会回滚也就是最终不一定存在的数据
 -- 不可重复读：在一个事务内,最开始读到的数据和事务结束前任意时刻读到的同一批数据不一致,针对update
 -- 幻读：事务A更新了数据但还未提交,此时事务B插入了与事务A修改之前相同的行数据且提交了,然后在事务A中查询发现刚才的修改好像没起作用,针对insert
-    
+
 -- 事务隔离级别：由于事务隔离是通过加锁实现的,所以隔离强度递增性能递减
 -- 读未提交：不加锁,性能最好,但是相当于裸奔,连脏读都无法解决(不考虑)
 -- 读已提交：事务A只能读到事务B已提交的的数据,解决脏读,但是做不到可重复读,也无法解决幻读(oracle默认)
@@ -207,7 +210,7 @@ create table if not exists `emp` (
 `id` int(11) not null auto_increment comment '编号',
 `name` varchar(20) not null default '' comment '姓名',
 `age` int(11) default null comment '年龄',
-`email` varchar(20) default null comment '邮箱',  
+`email` varchar(20) default null comment '邮箱',
 `birth` date default null comment '生日',
 primary key (`id`),                       -- 主键索引
 unique `idx_name` (`name`),               -- 唯一索引
