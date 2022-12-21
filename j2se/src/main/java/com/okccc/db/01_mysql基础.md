@@ -59,11 +59,20 @@ mysql> set global general_log_file='/var/log/mysqld.log';
 tail -f /var/log/mysqld.log
 # 查看mysql连接数
 mysql> show variables like 'max_connections' / select @@max_connections
-mysql> show status like 'Thread%';
 mysql> set global max_connections=1000;
 # 查看mysql连接等待的超时时间
 mysql> show variables like 'wait_timeout' / select @@wait_timeout
 mysql> set global wait_timeout=28800;
+# 查看mysql线程状态created/cached/connected/running
+mysql> show status like 'Thread%';
++-------------------------+-------+
+| Variable_name           | Value |
++-------------------------+-------+
+| Threads_cached          | 13    |  # 当前缓存的线程数,将客户端断开连接后的线程缓存起来,有新的请求连接时可以快速响应无需创建新线程
+| Threads_connected       | 8     |  # 当前连接的线程数,即正在使用的线程
+| Threads_created         | 21    |  # 已经创建的线程数,Threads_created = Threads_cached + Threads_connected
+| Threads_running         | 1     |  # 当前激活的线程数,Threads_running << Threads_connected,因为有些连接的线程处于sleep状态
++-------------------------+-------+
 # 批量插入数据
 mysql> source area.sql;
 ```
