@@ -96,7 +96,7 @@ public class JdbcUtil {
 
         // 1.读取配置文件
         Properties prop = new Properties();
-        prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+        prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("jdbc.properties"));
         // 2.获取连接信息
         String driver = prop.getProperty("jdbc.driver");
         String url = prop.getProperty("jdbc.url");
