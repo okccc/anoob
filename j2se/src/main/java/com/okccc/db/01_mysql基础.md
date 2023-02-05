@@ -534,7 +534,7 @@ mysql> source mock.sql
 # 模拟更新数据
 [root@cdh1 ~]$ vim application.properties
 [root@cdh1 ~]$ java -jar mock-db.jar
-# 注意：要给canal/maxwell账号读binlog的权限,主要是REPLICATION SLAVE
+# 注意：要给canal/maxwell账号读取binlog的权限REPLICATION CLIENT & SLAVE
 mysql> grant all on *.* to 'canal'@'%' identified by 'canal';
 mysql> grant all on *.* to 'maxwell'@'%' identified by 'maxwell';
 ```
