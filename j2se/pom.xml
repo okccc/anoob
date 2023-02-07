@@ -14,17 +14,14 @@
     </properties>
 
     <dependencies>
-        <!-- log4j(log for java) 2.17.1之前版本有安全漏洞 -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.logging.log4j</groupId>-->
-<!--            <artifactId>log4j-core</artifactId>-->
-<!--            <version>2.17.1</version>-->
-<!--        </dependency>-->
+        <!-- log4j2(推荐) 2.17.1之前版本有安全漏洞 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.17.1</version>
+        </dependency>
 
-        <!-- slf4j(simple logging facade for java): 简单日志门面,提供统一的日志接口,只包含slf4j-api.jar,没有具体实现 -->
-        <!-- log4j(log for java): 可单独使用的日志框架,没有直接实现slf4j接口,需添加适配器slf4j-log4j12.jar将其和slf4j接口绑定 -->
-        <!-- logback: 可单独使用的日志框架,直接实现slf4j接口,是log4j的改良版,综合考虑解耦和性能项目中通常使用slf4j + logback组合 -->
-        <!-- slf4j会导致简易日志log4j失效,此时需要借助logback打印日志,resources目录添加logback.xml -->
+        <!-- slf4j + logback -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
