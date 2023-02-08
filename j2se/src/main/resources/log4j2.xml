@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status：打印到控制台的Log4j内部日志的事件级别,ERROR > WARN > INFO > DEBUG > TRACE(查找Log4j故障的第一手工具) -->
+<!-- monitorInterval：检测配置文件是否有更新的时间间隔(秒) -->
+<configuration status="DEBUG" monitorInterval="60">
+    <!-- 自定义变量 -->
+    <properties>
+        <!-- 日志存放目录 -->
+        <property name="log_dir">j2se/logs</property>
+        <!-- pattern常用表达式：%d时间格式 %p日志级别 %c类的全路径,%c{1}只取类名 %l发生位置 %m日志信息 %n换行符 %t线程名 -->
+        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss:SSS} %p [%t] %l - %m%n</property>
+    </properties>
+
+    <!-- appenders输出目的地 -->
+    <appenders>
+        <!-- 控制台 -->
+        <console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${log_pattern}"/>
+        </console>
+
+        <!-- 普通文件,append控制每次运行程序时是否追加日志,本地调试用 -->
+        <File name="file" fileName="${log_dir}/tmp.log" append="true">
+            <PatternLayout pattern="${log_pattern}"/>
+        </File>
+
+        <!-- 滚动文件,记录线上日志 -->
+        <RollingFile name="rollingFile" fileName="${log_dir}/info.log" filePattern="${log_dir}/$${date:yyyy-MM}/info_%d{yyyy-MM-dd}_%i.log">
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${log_pattern}"/>
+            <Policies>
+                <!-- 基于时间的触发策略,filePattern设置成%d{yyyy-MM-dd}表示每天滚动一次 -->
+                <TimeBasedTriggeringPolicy/>
+                <!-- 基于大小的触发策略 -->
+                <SizeBasedTriggeringPolicy size="128M"/>
+            </Policies>
+        </RollingFile>
+
+        <!-- 记录druid的SQL语句 -->
+        <RollingFile name="druidRollingFile" fileName="${log_dir}/druid.log" filePattern="${log_dir}/$${date:yyyy-MM-dd}/druid_%d{yyyy-MM-dd-HH}_%i.log.gz">
+            <PatternLayout pattern="${log_pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="128M"/>
+            </Policies>
+        </RollingFile>
+    </appenders>
+
+    <!-- loggers记录器,只有定义了logger并引入的appender才会生效 -->
+    <loggers>
+        <!-- root logger有固定的默认名称,其它logger需要指定name属性 -->
+        <root level="DEBUG">
+            <appender-ref ref="console"/>
+            <appender-ref ref="file"/>
+            <appender-ref ref="rollingFile"/>
+        </root>
+
+        <!-- 记录druid-sql语句 -->
+        <logger name="druid.sql.Statement" level="DEBUG" additivity="false">
+            <appender-ref ref="druidRollingFile"/>
+        </logger>
+
+        <!-- 过滤spring和mybatis无用的DEBUG信息 -->
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.mybatis" level="INFO"/>
+        <logger name="org.thymeleaf" level="WARN"/>
+    </loggers>
+</configuration>
