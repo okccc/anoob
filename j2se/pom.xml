@@ -40,6 +40,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.20</version>
+            <!-- optional表示可选依赖,其他项目引入此项目时不会引入该依赖 -->
             <optional>true</optional>
         </dependency>
 
