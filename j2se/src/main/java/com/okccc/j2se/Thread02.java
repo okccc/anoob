@@ -7,29 +7,32 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * @Author: okccc
+ * @Date: 2020/9/13 11:06
+ * @Desc: java多线程
+ *
+ * 多线程间的通信
+ * 等待唤醒机制
+ * wait()：让线程阻塞,暂时存到线程池
+ * notify()：唤醒线程池中任意一个线程
+ * notifyAll()：唤醒线程池中所有线程
+ * wait和notify都是Object类方法,这俩都是监视器(锁)的方法,而锁可以是任意对象,所以这些方法定义在Object类
+ * wait和notify必须在synchronized中,wait是让线程释放锁,释放锁的前提是有锁(同步),notify是将锁交给正在wait的线程,也得有锁
+ *
+ * 单生产者单消费者模型没问题,因为除了生产者线程就是消费者线程
+ * 多生产者多消费者模型有问题
+ * 1.notify只会唤醒线程池中任意一个线程,有可能唤醒的是己方线程,应该改成notifyAll,但是这样效率很低,可以用condition监视器优化
+ * 2.if只会判断一次,比如A线程wait释放锁之后又被唤醒了是不会再次判断的,继续往下走就有可能导致线程安全问题,应该使用while循环
+ *
+ * jdk1.5以后将同步和锁封装成了对象
+ * Lock接口用来替代同步代码块/方法,将同步的隐式锁操作变成显式锁操作,而且一个锁上面可以挂多组监视器,更灵活且功能更强大
+ * lock()获取锁 | unlock()释放锁,是必须要执行的,通常定义在finally代码块中
+ * Condition接口用来替代Object类中的wait/notify/notifyAll,将这些监视器方法单独封装成Condition监视器对象,可以与任意锁组合
+ * wait -> await | notify -> signal | notifyAll -> signalAll
+ */
 public class Thread02 {
     public static void main(String[] args) throws IOException {
-        /*
-         * 多线程间的通信
-         * 等待唤醒机制
-         * wait()：让线程阻塞,暂时存到线程池
-         * notify()：唤醒线程池中任意一个线程
-         * notifyAll()：唤醒线程池中所有线程
-         * wait和notify都是Object类方法,这俩都是监视器(锁)的方法,而锁可以是任意对象,所以这些方法定义在Object类
-         * wait和notify必须在synchronized中,wait是让线程释放锁,释放锁的前提是有锁(同步),notify是将锁交给正在wait的线程,也得有锁
-         *
-         * 单生产者单消费者模型没问题,因为除了生产者线程就是消费者线程
-         * 多生产者多消费者模型有问题
-         * 1.notify只会唤醒线程池中任意一个线程,有可能唤醒的是己方线程,应该改成notifyAll,但是这样效率很低,可以用condition监视器优化
-         * 2.if只会判断一次,比如A线程wait释放锁之后又被唤醒了是不会再次判断的,继续往下走就有可能导致线程安全问题,应该使用while循环
-         *
-         * jdk1.5以后将同步和锁封装成了对象
-         * Lock接口用来替代同步代码块/方法,将同步的隐式锁操作变成显式锁操作,而且一个锁上面可以挂多组监视器,更灵活且功能更强大
-         * lock()获取锁 | unlock()释放锁,是必须要执行的,通常定义在finally代码块中
-         * Condition接口用来替代Object类中的wait/notify/notifyAll,将这些监视器方法单独封装成Condition监视器对象,可以与任意锁组合
-         * wait -> await | notify -> signal | notifyAll -> signalAll
-         */
-
 //        testWait();
         proCon();
 //        testPiped();
@@ -247,5 +250,3 @@ public class Thread02 {
         }
     }
 }
-
-

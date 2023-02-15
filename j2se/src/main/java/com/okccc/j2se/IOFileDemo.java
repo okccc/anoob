@@ -7,27 +7,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-@SuppressWarnings("unused")
+/**
+ * @Author: okccc
+ * @Date: 2020/9/11 10:06
+ * @Desc: java文件
+ */
 public class IOFileDemo {
-    public static void main(String[] args) throws IOException {
-        /*
-         * File：文件和路径名的抽象表示
-         */
-
-//        common();
-//        traverse();
-
-//        File dir = new File("j2se/input/aaa");
-//        recursive(dir);
-
-//        File dir = new File("j2se/input");
-//        File merge_file = new File("j2se/output/merge.txt");
-//        mergeSmallFile(dir, merge_file);
-
-//        checkList();
-
-        splitBigFile();
-    }
 
     public static void common() throws IOException {
         // 将文件(夹)封装成File对象
@@ -223,26 +208,19 @@ public class IOFileDemo {
     private static String getCount(int i) {
         return i < 10 ? ("0" + i) : (i + "");
     }
+
+    public static void main(String[] args) throws IOException {
+//        common();
+//        traverse();
+
+//        File dir = new File("j2se/input/aaa");
+//        recursive(dir);
+
+//        File dir = new File("j2se/input");
+//        File merge_file = new File("j2se/output/merge.txt");
+//        mergeSmallFile(dir, merge_file);
+
+//        checkList();
+        splitBigFile();
+    }
 }
-
-// 后缀名过滤器
-//class SuffixFilter implements FilenameFilter {
-//    private final String suffix;
-//
-//    public SuffixFilter(String suffix) {
-//        this.suffix = suffix;
-//    }
-//
-//    @Override
-//    public boolean accept(File dir, String name) {
-//        return name.endsWith(suffix);
-//    }
-//}
-
-// 隐藏文件过滤器
-//class IsHiddenFilter implements FileFilter {
-//    @Override
-//    public boolean accept(File pathname) {
-//        return pathname.isHidden();
-//    }
-//}

@@ -2,8 +2,8 @@ package com.okccc.mysql;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.fastjson.JSONObject;
-import com.okccc.pojo.Order;
-import com.okccc.pojo.User;
+import com.okccc.bean.Order;
+import com.okccc.bean.User;
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

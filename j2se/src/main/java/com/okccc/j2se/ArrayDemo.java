@@ -3,31 +3,34 @@ package com.okccc.j2se;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings("unused")
+/**
+ * @Author: okccc
+ * @Date: 2020/8/26 10:03
+ * @Desc: java数组
+ *
+ * 数组是引用数据类型,数组的元素可以是基本数据类型也可以是引用数据类型
+ * 数组长度是固定的,一旦初始化长度不可更改,但是可以更改元素值
+ * 数组中的元素是在内存空间中连续存储的
+ * 不同类型数组默认初始化值：整型 0 | 浮点型 0.0 | 字符型 '\u0000' | 布尔型 false | 引用类型 null
+ *
+ * public：权限必须是最大的
+ * static：JVM调用主函数是不需要对象的,直接用主函数所属类名调用即可
+ * void：主函数没有具体返回值
+ * main：jvm识别的固定名字
+ * String[] args：主函数的参数列表,数组类型的参数,里面的元素都是字符串类型,args是arguments
+ *
+ * System.out.println(args);           // [Ljava.lang.String;@3781efb9
+ * System.out.println(args.length);    // 0
+ * System.out.println(args[0]);        // java.lang.ArrayIndexOutOfBoundsException: 0
+ *
+ * break：跳出当前循环
+ * continue：跳出本次循环,继续下次循环
+ * return：退出当前执行的函数,如果是main函数就退出整个程序
+ * do while和while的区别在于不管条件是否满足,do while循环体至少执行一次
+ */
 public class ArrayDemo {
-    public static void main(String[] args) {
-        /*
-         * 数组是引用数据类型,数组的元素可以是基本数据类型也可以是引用数据类型
-         * 数组长度是固定的,一旦初始化长度不可更改,但是可以更改元素值
-         * 数组中的元素是在内存空间中连续存储的
-         * 不同类型数组默认初始化值：整型 0 | 浮点型 0.0 | 字符型 '\u0000' | 布尔型 false | 引用类型 null
-         *
-         * public：权限必须是最大的
-         * static：JVM调用主函数是不需要对象的,直接用主函数所属类名调用即可
-         * void：主函数没有具体返回值
-         * main：jvm识别的固定名字
-         * String[] args：主函数的参数列表,数组类型的参数,里面的元素都是字符串类型,args是arguments
-         *
-         * System.out.println(args);           // [Ljava.lang.String;@3781efb9
-         * System.out.println(args.length);    // 0
-         * System.out.println(args[0]);        // java.lang.ArrayIndexOutOfBoundsException: 0
-         *
-         * break：跳出当前循环
-         * continue：跳出本次循环,继续下次循环
-         * return：退出当前执行的函数,如果是main函数就退出整个程序
-         * do while和while的区别在于不管条件是否满足,do while循环体至少执行一次
-         */
 
+    public static void main(String[] args) {
         // 动态初始化：数组初始化和元素赋值分开进行
         int[] arr1 = new int[3];
         arr1[0] = 11;

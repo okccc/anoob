@@ -1,4 +1,4 @@
-package com.okccc.pojo;
+package com.okccc.bean;
 
 import java.io.Serializable;
 

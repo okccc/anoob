@@ -1,6 +1,6 @@
 package com.okccc.j2se;
 
-import com.okccc.pojo.Person;
+import com.okccc.bean.Person;
 
 import java.io.FileReader;
 import java.lang.annotation.Annotation;
@@ -10,18 +10,20 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-@SuppressWarnings("unused")
+/**
+ * @Author: okccc
+ * @Date: 2020/9/21 12:09
+ * @Desc: java反射
+ *
+ * 反射：动态获取类的结构信息,创建对象,获取属性,调用方法
+ * 类什么时候会被加载？
+ * new创建该类对象 | 调用类中静态成员 | 加载该类的子类 | 反射
+ * 静态加载：编译期加载类,类不存在则编译报错,依赖性太强
+ * 动态加载(反射)：运行期加载类,类不存在编译不报错,降低依赖性,可以将类的描述写到配置文件,在各种框架中很常用
+ * 实现反射机制的4个类：Class,Field,Method,Constructor
+ */
 public class ReflectDemo {
     public static void main(String[] args) throws Exception {
-        /*
-         * 反射：动态获取类的结构信息,创建对象,获取属性,调用方法
-         * 类什么时候会被加载？
-         * new创建该类对象 | 调用类中静态成员 | 加载该类的子类 | 反射
-         * 静态加载：编译期加载类,类不存在则编译报错,依赖性太强
-         * 动态加载(反射)：运行期加载类,类不存在编译不报错,降低依赖性,可以将类的描述写到配置文件,在各种框架中很常用
-         * 实现反射机制的4个类：Class,Field,Method,Constructor
-         */
-
 //        getClassObject();
 //        getClassField();
 //        getClassMethod();
@@ -45,7 +47,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的属性
     private static void getClassField() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
+        Class<?> clazz = Class.forName("com.okccc.bean.Person");
 //        Field[] fields = clazz.getFields();  // 只能获取public修饰的属性
         Field[] fields = clazz.getDeclaredFields();  // 获取所有属性,但是private修饰的属性要先获取访问权限
         for (Field field : fields) {
@@ -61,7 +63,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的方法
     private static void getClassMethod() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
+        Class<?> clazz = Class.forName("com.okccc.bean.Person");
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             // 修饰符
@@ -88,7 +90,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的构造器
     private static void getClassConstructor() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
+        Class<?> clazz = Class.forName("com.okccc.bean.Person");
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
             // 修饰符
@@ -113,7 +115,7 @@ public class ReflectDemo {
 
     // 通过反射获取类的其它结构：包、父类、接口、泛型、注解
     private static void getClassOther() throws Exception {
-        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
+        Class<?> clazz = Class.forName("com.okccc.bean.Person");
         // 获取包
         Package pack = clazz.getPackage();
         System.out.println(pack.getName());  // basic
@@ -146,7 +148,7 @@ public class ReflectDemo {
 
     private static void test01() throws Exception {
         // 使用类加载器加载类
-        Class<?> clazz = Class.forName("com.okccc.pojo.Person");
+        Class<?> clazz = Class.forName("com.okccc.bean.Person");
         System.out.println(clazz);  // class com.okccc.pojo.Person
         // 调用Class类的newInstance()方法,实例化一个带空参构造的对象(推荐)
         Person person = (Person) clazz.newInstance();
@@ -250,5 +252,4 @@ public class ReflectDemo {
             System.out.println("sound close");
         }
     }
-
 }

@@ -1,6 +1,6 @@
 package com.okccc.j2se;
 
-import com.okccc.pojo.Person;
+import com.okccc.bean.Person;
 
 import java.io.File;
 import java.io.FileReader;
@@ -8,68 +8,61 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-@SuppressWarnings("unused")
+/**
+ * @Author: okccc
+ * @Date: 2020/9/1 10:05
+ * @Desc: java集合
+ *
+ * 集合是存储对象的容器,只能存引用数据类型,不能存基本数据类型
+ * 集合长度是可变的,集合内部数据结构不同,有多种容器,不断向上抽取形成集合框架,Collection和Map是顶层接口
+ *
+ * 前缀名是数据结构,后缀名是集合体系
+ * Collection
+ *     |-- List
+ *         |-- Vector       数组结构,查询增删都慢,线程同步
+ *         |-- ArrayList    数组结构,查询快增删慢,线程不同步
+ *         |-- LinkedList   链表结构,增删快查询慢,线程不同步
+ *     |-- Set
+ *         |-- HashSet      哈希表(数组+链表,结合两者优点),唯一性,元素重写hashCode()和equals()方法,线程不同步
+ *             |-- LinkedHashSet  可排序
+ *         |-- TreeSet      二叉树,可排序,两个接口Comparable和Comparator,线程不同步
+ *
+ * Map(键相同值覆盖)
+ *     |-- HashTable  哈希表,唯一性,kv值不可为null,线程同步
+ *         |-- Properties  存储kv对的配置文件信息
+ *     |-- HashMap    哈希表,唯一性,kv值可以为null,线程不同步
+ *     |-- TreeMap    二叉树,可对key排序,不同步
+ *
+ * HashSet如何保证唯一性？
+ * 存储元素时先判断元素的hashcode()值是否相同,不同就直接添加,相同就继续判断元素的equals()方法,最终确定元素是否重复
+ *
+ * TreeSet如何保证唯一性？
+ * 根据比较方法的结果,返回0表示元素相同
+ *
+ * TreeSet如何排序？
+ * 自然排序：String/Integer/Double这些类都实现了Comparable接口重写compareTo方法,元素自身可以比较大小
+ * 比较器排序：往TreeSet的构造函数传入实现了Comparator接口重写compare方法的子类对象,让集合具备比较大小功能
+ *
+ * HashMap如何解决hash冲突？
+ * hash冲突：hash表的本质是数组,存放键值对Entry,两个不同key的hashcode值相同,后面key发现数组位置已经被前面key占了,导致冲突
+ * HashMap采用链表法,发生碰撞时将对象存储到链表的下一个节点
+ *
+ * 增强for循环
+ * 格式：for(类型 变量 : 数组or集合){}
+ * 普通for不需要遍历目标,可以定义控制循环的增量和条件
+ * 增强for必须有遍历目标(数组or集合),其实是一种简写形式
+ * 遍历集合时,如果仅仅是获取元素就用增强for,如果要操作索引就用普通for
+ *
+ * 泛型：jdk1.5出现的类型安全机制
+ * 对象实例化时不指定泛型默认是Object,泛型<T>限定具体引用类型,可以用在方法、类和接口中
+ * 1.编译时会检查添加元素的类型,确保类型安全
+ * 2.避免向下转型(强制类型转换) String - Object - String | String - String - String
+ * 泛型不具备继承性
+ * <?>表示任意类型的泛型,使用该通配符做泛型的集合只能读不能写除了null,因为不确定具体类型
+ * <? extends E> 限定传递的参数类型只能是E类型及其子类,使用该通配符做泛型的集合只能读不能写除了null
+ * <? super E> 限定传递的参数类型只能是E类型及其父类,使用该通配符做泛型的集合只能读不能写除了null和自身
+ */
 public class CollectionDemo {
-    public static void main(String[] args) throws IOException {
-        /*
-         * 集合是存储对象的容器,只能存引用数据类型,不能存基本数据类型
-         * 集合长度是可变的,集合内部数据结构不同,有多种容器,不断向上抽取形成集合框架,Collection和Map是顶层接口
-         *
-         * 前缀名是数据结构,后缀名是集合体系
-         * Collection
-         *     |-- List
-         *         |-- Vector       数组结构,查询增删都慢,线程同步
-         *         |-- ArrayList    数组结构,查询快增删慢,线程不同步
-         *         |-- LinkedList   链表结构,增删快查询慢,线程不同步
-         *     |-- Set
-         *         |-- HashSet      哈希表(数组+链表,结合两者优点),唯一性,元素重写hashCode()和equals()方法,线程不同步
-         *             |-- LinkedHashSet  可排序
-         *         |-- TreeSet      二叉树,可排序,两个接口Comparable和Comparator,线程不同步
-         *
-         * Map(键相同值覆盖)
-         *     |-- HashTable  哈希表,唯一性,kv值不可为null,线程同步
-         *         |-- Properties  存储kv对的配置文件信息
-         *     |-- HashMap    哈希表,唯一性,kv值可以为null,线程不同步
-         *     |-- TreeMap    二叉树,可对key排序,不同步
-         *
-         * HashSet如何保证唯一性？
-         * 存储元素时先判断元素的hashcode()值是否相同,不同就直接添加,相同就继续判断元素的equals()方法,最终确定元素是否重复
-         *
-         * TreeSet如何保证唯一性？
-         * 根据比较方法的结果,返回0表示元素相同
-         *
-         * TreeSet如何排序？
-         * 自然排序：String/Integer/Double这些类都实现了Comparable接口重写compareTo方法,元素自身可以比较大小
-         * 比较器排序：往TreeSet的构造函数传入实现了Comparator接口重写compare方法的子类对象,让集合具备比较大小功能
-         *
-         * HashMap如何解决hash冲突？
-         * hash冲突：hash表的本质是数组,存放键值对Entry,两个不同key的hashcode值相同,后面key发现数组位置已经被前面key占了,导致冲突
-         * HashMap采用链表法,发生碰撞时将对象存储到链表的下一个节点
-         *
-         * 增强for循环
-         * 格式：for(类型 变量 : 数组or集合){}
-         * 普通for不需要遍历目标,可以定义控制循环的增量和条件
-         * 增强for必须有遍历目标(数组or集合),其实是一种简写形式
-         * 遍历集合时,如果仅仅是获取元素就用增强for,如果要操作索引就用普通for
-         *
-         * 泛型：jdk1.5出现的类型安全机制
-         * 对象实例化时不指定泛型默认是Object,泛型<T>限定具体引用类型,可以用在方法、类和接口中
-         * 1.编译时会检查添加元素的类型,确保类型安全
-         * 2.避免向下转型(强制类型转换) String - Object - String | String - String - String
-         * 泛型不具备继承性
-         * <?>表示任意类型的泛型,使用该通配符做泛型的集合只能读不能写除了null,因为不确定具体类型
-         * <? extends E> 限定传递的参数类型只能是E类型及其子类,使用该通配符做泛型的集合只能读不能写除了null
-         * <? super E> 限定传递的参数类型只能是E类型及其父类,使用该通配符做泛型的集合只能读不能写除了null和自身
-         */
-
-//        testList();
-//        testSet();
-        testMap();
-//        testProperties();
-//        testAppCount();
-//        testCollections();
-//        wordCount();
-    }
 
     private static void testList() {
         // 创建ArrayList对象
@@ -301,4 +294,13 @@ public class CollectionDemo {
         System.out.println(sb);  // &(1) +(1) -(1) 1(1) a(2) b(1) c(2) d(2) f(2) g(1) s(2) v(1)
     }
 
+    public static void main(String[] args) throws IOException {
+//        testList();
+//        testSet();
+        testMap();
+//        testProperties();
+//        testAppCount();
+//        testCollections();
+//        wordCount();
+    }
 }

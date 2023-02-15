@@ -1,6 +1,6 @@
 package com.okccc.j2se;
 
-import com.okccc.pojo.Person;
+import com.okccc.bean.Person;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,67 +8,61 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-@SuppressWarnings("unused")
+/**
+ * @Author: okccc
+ * @Date: 2020/9/8 10:03
+ * @Desc: java IO流
+ *
+ * IO是相对于内存设备而言
+ * 键盘 -> System.in/out | 硬盘 -> FileXxx | 内存 -> 数组 | 网络 -> socket
+ * 输入流：将外设数据读取到内存
+ * 输出流：将内存数据写入到外设
+ * 字符流：字节流读取字节数据后,先不直接操作而是查指定的编码表获取对应的文字,再对这个文字进行操作,字符流 = 字节流 + 编码表
+ * 转换流：当字节流中的数据都是字符时,转换成字符流处理更加高效和方便,如果操作文本时涉及具体编码表也必须使用转换流
+ * 字节流顶层父类：InputStream、OutputStream
+ * 字符流顶层父类：Reader、Writer
+ * 这些体系的子类特点：前缀表示功能,后缀是父类名,构造函数可以传入String路径/File对象
+ * InputStream
+ *     |--FileInputStream
+ *     |--BufferedInputStream
+ * OutputStream
+ *     |--FileOutputStream
+ *     |--BufferedOutputStream
+ *     |--PrintStream
+ * Reader
+ *     |--FileReader
+ *     |--BufferedReader
+ *     |--InputStreamReader  // InputStream -> Reader
+ * Writer
+ *     |--FileWriter
+ *     |--BufferedWriter
+ *     |--OutputStreamWriter  // OutputStream -> Writer
+ *     |--PrintWriter
+ *
+ * 装饰器模式
+ * 装饰类用来包装原有的类,可以在不改变原先类结构的情况下动态扩展其功能,比继承更加灵活
+ * 场景：如果为了实现某个功能,对体系内所有类都添加子类会很臃肿,为何不把功能本身单独封装呢？谁要用就装饰谁
+ * Writer
+ *     |--FileWriter  // 操作文件
+ *         |--BufferedFileWriter
+ *     |--StringWriter  // 操作字符串
+ *         |--BufferedStringWriter
+ *     ...
+ * 装饰类和被装饰类要属于同一个父类或接口,这样才能在已有功能上扩展
+ * class BufferedWriter extends Writer{
+ *      BufferedWriter(Writer w){
+ *          ...
+ *      }
+ * }
+ *
+ * 序列化
+ * 将内存中的对象转换成字节进行持久化存储或网络传输,延长生命周期
+ * 序列化和反序列化的读写顺序要一致,因为数据类型可能不一样
+ * serialVersionUID给序列化的类添加版本号,兼容新旧版本,比如新版本加了字段反序列化时找不到旧版本的类会报错
+ * 对象序列化时默认序列化所有属性,transient关键字修饰的属性除外,生命周期仅存在于内存不会持久化到硬盘,通常用于卡号、密码等敏感信息
+ * 如果父类实现了Serializable接口,子类默认也实现了序列化
+ */
 public class IODemo {
-    public static void main(String[] args) throws IOException {
-        /*
-         * IO是相对于内存设备而言
-         * 键盘 -> System.in/out | 硬盘 -> FileXxx | 内存 -> 数组 | 网络 -> socket
-         * 输入流：将外设数据读取到内存
-         * 输出流：将内存数据写入到外设
-         * 字符流：字节流读取字节数据后,先不直接操作而是查指定的编码表获取对应的文字,再对这个文字进行操作,字符流 = 字节流 + 编码表
-         * 转换流：当字节流中的数据都是字符时,转换成字符流处理更加高效和方便,如果操作文本时涉及具体编码表也必须使用转换流
-         * 字节流顶层父类：InputStream、OutputStream
-         * 字符流顶层父类：Reader、Writer
-         * 这些体系的子类特点：前缀表示功能,后缀是父类名,构造函数可以传入String路径/File对象
-         * InputStream
-         *     |--FileInputStream
-         *     |--BufferedInputStream
-         * OutputStream
-         *     |--FileOutputStream
-         *     |--BufferedOutputStream
-         *     |--PrintStream
-         * Reader
-         *     |--FileReader
-         *     |--BufferedReader
-         *     |--InputStreamReader  // InputStream -> Reader
-         * Writer
-         *     |--FileWriter
-         *     |--BufferedWriter
-         *     |--OutputStreamWriter  // OutputStream -> Writer
-         *     |--PrintWriter
-         *
-         * 装饰器模式
-         * 装饰类用来包装原有的类,可以在不改变原先类结构的情况下动态扩展其功能,比继承更加灵活
-         * 场景：如果为了实现某个功能,对体系内所有类都添加子类会很臃肿,为何不把功能本身单独封装呢？谁要用就装饰谁
-         * Writer
-         *     |--FileWriter  // 操作文件
-         *         |--BufferedFileWriter
-         *     |--StringWriter  // 操作字符串
-         *         |--BufferedStringWriter
-         *     ...
-         * 装饰类和被装饰类要属于同一个父类或接口,这样才能在已有功能上扩展
-         * class BufferedWriter extends Writer{
-         *      BufferedWriter(Writer w){
-         *          ...
-         *      }
-         * }
-         *
-         * 序列化
-         * 将内存中的对象转换成字节进行持久化存储或网络传输,延长生命周期
-         * 序列化和反序列化的读写顺序要一致,因为数据类型可能不一样
-         * serialVersionUID给序列化的类添加版本号,兼容新旧版本,比如新版本加了字段反序列化时找不到旧版本的类会报错
-         * 对象序列化时默认序列化所有属性,transient关键字修饰的属性除外,生命周期仅存在于内存不会持久化到硬盘,通常用于卡号、密码等敏感信息
-         * 如果父类实现了Serializable接口,子类默认也实现了序列化
-         */
-
-//        byteStream();
-        charStream();
-//        tryIOException();
-//        objectStream();
-//        transformStream();
-//        sequenceStream();
-    }
 
     private static void byteStream() throws IOException {
         // 创建字节流对象
@@ -255,4 +249,12 @@ public class IODemo {
         }
     }
 
+    public static void main(String[] args) throws IOException {
+//        byteStream();
+        charStream();
+//        tryIOException();
+//        objectStream();
+//        transformStream();
+//        sequenceStream();
+    }
 }

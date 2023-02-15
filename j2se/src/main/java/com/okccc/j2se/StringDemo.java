@@ -4,64 +4,61 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @Author: okccc
+ * @Date: 2020/7/14 20:06
+ * @Desc: java字符串
+ *
+ * String
+ * 字符串是不可变的,因为String类被final修饰
+ * 字符串使用很频繁,为了避免产生大量String对象,java设计了字符串常量池,池中没有就创建,有就直接用
+ * 两种创建对象方式
+ * String s1 = "abc";
+ * jvm会先检查字符串常量池有没有"abc",有就直接返回引用地址,没有就在常量池开辟一块内存空间存放"abc",栈中的s1指向的是常量池的对象
+ * String s2 = new String("abc");
+ * jvm会先在堆开辟一块内存空间创建空字符串,然后检查字符串常量池有没有"abc",有就直接将空字符串指向它,没有就在常量池开辟一块内存空间
+ * 存放"abc"并将堆的空字符串指向它,栈中的s2指向的是堆的对象,其实是创建了两个对象,一个在堆一个在常量池,通常使用方式一性能更好
+ * ==比较地址值,equals比较内容
+ *
+ * Integer
+ * 为了方便操作基本数据类型的值,将其包装成类,在类中定义属性和行为
+ * byte/short/int/long/float/double/char/boolean
+ * Byte/Short/Integer/Long/Float/Double/Character/Boolean,使用方式和String类类似
+ * jdk1.5自动拆装箱
+ * Integer i = 10  // 将基本类型变量用包装类接收会自动装箱,调用了Integer.valueOf()方法
+ * int a = i | int b = i/10 | if(i>10)  // 将包装类赋值给基本类型、运算、比较时都会自动拆箱
+ *
+ * 三大容器：数组、集合、字符串缓冲区
+ * 字符串缓冲区：长度可变、可存储不同数据类型、最终转成字符串使用
+ * StringBuffer(jdk1.0)线程安全(synchronized)
+ * StringBuilder(jdk1.5)线程不安全,效率高
+ * 区别：String存放字符串常量,StringBuilder存放字符串变量
+ *
+ * 正则表达式操作字符串：匹配、查找、替换
+ * * : 零次或多次,等同于{0,}
+ * ? : 零次或一次,等同于{0,1}
+ * + : 一次或多次,等同于{1,}
+ * ^ : 字符串开头,如果在[]内表示取反
+ * $ : 字符串结尾
+ * . : 匹配除\n以外的任意单个字符
+ * [] : 匹配内容
+ * {} : 限定次数  {n}刚好n次  {n,}至少n次  {n,m}至少n次至多m次
+ * () : 子表达式  组: ((A)(B(C))) \1表示匹配到的第一个子串,\2表示匹配到的第二个子串
+ * \ : 转义下一个字符,在字符串里要写双斜杠\\
+ *
+ * \d : 匹配任意数字,等同于[0-9]
+ * \D : 匹配任意非数字,等同于[^0-9]
+ * \w : 匹配任意字符,等同于[a-zA-Z0-9_]
+ * \W : 匹配任意非字符,等同于[^a-zA-Z0-9_]
+ * \s : 匹配任意空白字符,等同于[\t\n\r\f]
+ * \S : 匹配任意非空字符,等同于[^\t\n\r\f]
+ * \b : 匹配任意边界,例如：er\b与never中er匹配,但与verb中er不匹配
+ * \B : 匹配任意非边界
+ *
+ * 在线正则表达式: http://tool.oschina.net/regex/
+ * 参考文档：http://www.runoob.com/python3/python3-reg-expressions.html
+ */
 public class StringDemo {
-    public static void main(String[] args) {
-        /*
-         * String
-         * 字符串是不可变的,因为String类被final修饰
-         * 字符串使用很频繁,为了避免产生大量String对象,java设计了字符串常量池,池中没有就创建,有就直接用
-         * 两种创建对象方式
-         * String s1 = "abc";
-         * jvm会先检查字符串常量池有没有"abc",有就直接返回引用地址,没有就在常量池开辟一块内存空间存放"abc",栈中的s1指向的是常量池的对象
-         * String s2 = new String("abc");
-         * jvm会先在堆开辟一块内存空间创建空字符串,然后检查字符串常量池有没有"abc",有就直接将空字符串指向它,没有就在常量池开辟一块内存空间
-         * 存放"abc"并将堆的空字符串指向它,栈中的s2指向的是堆的对象,其实是创建了两个对象,一个在堆一个在常量池,通常使用方式一性能更好
-         * ==比较地址值,equals比较内容
-         *
-         * Integer
-         * 为了方便操作基本数据类型的值,将其包装成类,在类中定义属性和行为
-         * byte/short/int/long/float/double/char/boolean
-         * Byte/Short/Integer/Long/Float/Double/Character/Boolean,使用方式和String类类似
-         * jdk1.5自动拆装箱
-         * Integer i = 10  // 将基本类型变量用包装类接收会自动装箱,调用了Integer.valueOf()方法
-         * int a = i | int b = i/10 | if(i>10)  // 将包装类赋值给基本类型、运算、比较时都会自动拆箱
-         *
-         * 三大容器：数组、集合、字符串缓冲区
-         * 字符串缓冲区：长度可变、可存储不同数据类型、最终转成字符串使用
-         * StringBuffer(jdk1.0)线程安全(synchronized)
-         * StringBuilder(jdk1.5)线程不安全,效率高
-         * 区别：String存放字符串常量,StringBuilder存放字符串变量
-         *
-         * 正则表达式操作字符串：匹配、查找、替换
-         * * : 零次或多次,等同于{0,}
-         * ? : 零次或一次,等同于{0,1}
-         * + : 一次或多次,等同于{1,}
-         * ^ : 字符串开头,如果在[]内表示取反
-         * $ : 字符串结尾
-         * . : 匹配除\n以外的任意单个字符
-         * [] : 匹配内容
-         * {} : 限定次数  {n}刚好n次  {n,}至少n次  {n,m}至少n次至多m次
-         * () : 子表达式  组: ((A)(B(C))) \1表示匹配到的第一个子串,\2表示匹配到的第二个子串
-         * \ : 转义下一个字符,在字符串里要写双斜杠\\
-         *
-         * \d : 匹配任意数字,等同于[0-9]
-         * \D : 匹配任意非数字,等同于[^0-9]
-         * \w : 匹配任意字符,等同于[a-zA-Z0-9_]
-         * \W : 匹配任意非字符,等同于[^a-zA-Z0-9_]
-         * \s : 匹配任意空白字符,等同于[\t\n\r\f]
-         * \S : 匹配任意非空字符,等同于[^\t\n\r\f]
-         * \b : 匹配任意边界,例如：er\b与never中er匹配,但与verb中er不匹配
-         * \B : 匹配任意非边界
-         *
-         * 在线正则表达式: http://tool.oschina.net/regex/
-         * 参考文档：http://www.runoob.com/python3/python3-reg-expressions.html
-         */
-
-//        string();
-//        integer();
-//        stringBuffer();
-        regex();
-    }
 
     public static void string() {
         // 创建字符串
@@ -162,4 +159,10 @@ public class StringDemo {
         System.out.println(str);  // 138****7154
     }
 
+    public static void main(String[] args) {
+//        string();
+//        integer();
+//        stringBuffer();
+        regex();
+    }
 }

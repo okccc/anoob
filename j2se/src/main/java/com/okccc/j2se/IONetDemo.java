@@ -3,45 +3,47 @@ package com.okccc.j2se;
 import java.io.*;
 import java.net.*;
 
-@SuppressWarnings("unused")
+/**
+ * @Author: okccc
+ * @Date: 2020/9/24 10:06
+ * @Desc: java网络
+ *
+ * 网络模型
+ * OSI七层模型                       TCP/IP模型
+ * 应用层 -- 网络应用                 应用层 -- HTTP(HyperText Transfer Protocol)/FTP/DNS/SMTP协议
+ * 表示层 -- 数据表示
+ * 会话层 -- 主机间通信
+ * 传输层 -- 端到端的连接             传输层 -- TCP(Transmission Control Protocol)/UDP(User Datagram Protocol)协议
+ * 网络层 -- 寻址和最短路径(路由器)     网络层 -- IP(Internet Protocol)协议：ip地址
+ * 链路层 -- 介质访问(交换机)          链路层 -- arp协议：mac地址
+ * 物理层 -- 二进制传输(网卡,网线)
+ *
+ * 网络结构
+ * CS结构(Client/Server)：客户端和服务端都要开发,成本高,不易维护,但是客户端可以分担一部分运算
+ * BS结构(Browser/Server)：只开发服务端,成本低,易维护,客户端由浏览器替代
+ *
+ * URI(Uniform Resource Identifier)：统一资源标识符,what the resource is
+ * URL(Uniform Resource Locator)：统一资源定位符,是URI的子集,what the resource is & how to get the resource
+ *
+ * 网络通信三要素
+ * ip
+ * 测试网卡：ping 127.0.0.1(本地回环地址)
+ * 屏蔽网址：在host文件里将要屏蔽的网址都配成127.0.0.1
+ *
+ * 端口
+ * 同一台机器可以部署http/ftp/smtp等多种网络服务,使用"ip+端口"确定唯一服务
+ * 有效端口：0~65533,其中0~1024是系统使用端口 | 80端口：http服务 | 21端口：ftp服务
+ *
+ * 协议
+ * TCP协议：1.建立连接(3次握手)形成通道,可靠 | 2.效率低 | 3.通过字节流传输,没有大小限制
+ * UDP协议：1.不建立连接,不可靠 | 2.效率高 | 3.发送的是独立的报文,有大小限制(不超过64k)
+ *
+ * Socket是基于tcp/ip协议的网络编程,套接字是两台机器间网络通信的端点
+ * ServerSocket 服务端套接字 | Socket 客户端套接字 | DatagramSocket 发送和接收数据包的套接字
+ * IO流是读写本地文件,末尾有-1或null作为结束标记,Socket是读写网络数据,网络传输是连续的没有末尾,需要自定义结束标记
+ */
 public class IONetDemo {
     public static void main(String[] args) throws Exception {
-        /*
-         * 网络模型
-         * OSI七层模型                       TCP/IP模型
-         * 应用层 -- 网络应用                 应用层 -- HTTP(HyperText Transfer Protocol)/FTP/DNS/SMTP协议
-         * 表示层 -- 数据表示
-         * 会话层 -- 主机间通信
-         * 传输层 -- 端到端的连接             传输层 -- TCP(Transmission Control Protocol)/UDP(User Datagram Protocol)协议
-         * 网络层 -- 寻址和最短路径(路由器)     网络层 -- IP(Internet Protocol)协议：ip地址
-         * 链路层 -- 介质访问(交换机)          链路层 -- arp协议：mac地址
-         * 物理层 -- 二进制传输(网卡,网线)
-         *
-         * 网络结构
-         * CS结构(Client/Server)：客户端和服务端都要开发,成本高,不易维护,但是客户端可以分担一部分运算
-         * BS结构(Browser/Server)：只开发服务端,成本低,易维护,客户端由浏览器替代
-         *
-         * URI(Uniform Resource Identifier)：统一资源标识符,what the resource is
-         * URL(Uniform Resource Locator)：统一资源定位符,是URI的子集,what the resource is & how to get the resource
-         *
-         * 网络通信三要素
-         * ip
-         * 测试网卡：ping 127.0.0.1(本地回环地址)
-         * 屏蔽网址：在host文件里将要屏蔽的网址都配成127.0.0.1
-         *
-         * 端口
-         * 同一台机器可以部署http/ftp/smtp等多种网络服务,使用"ip+端口"确定唯一服务
-         * 有效端口：0~65533,其中0~1024是系统使用端口 | 80端口：http服务 | 21端口：ftp服务
-         *
-         * 协议
-         * TCP协议：1.建立连接(3次握手)形成通道,可靠 | 2.效率低 | 3.通过字节流传输,没有大小限制
-         * UDP协议：1.不建立连接,不可靠 | 2.效率高 | 3.发送的是独立的报文,有大小限制(不超过64k)
-         *
-         * Socket是基于tcp/ip协议的网络编程,套接字是两台机器间网络通信的端点
-         * ServerSocket 服务端套接字 | Socket 客户端套接字 | DatagramSocket 发送和接收数据包的套接字
-         * IO流是读写本地文件,末尾有-1或null作为结束标记,Socket是读写网络数据,网络传输是连续的没有末尾,需要自定义结束标记
-         */
-
         testInet();
         testUrl();
     }

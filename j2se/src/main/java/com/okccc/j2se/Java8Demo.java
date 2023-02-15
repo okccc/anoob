@@ -1,34 +1,34 @@
 package com.okccc.j2se;
 
-import com.okccc.pojo.Person;
+import com.okccc.bean.Person;
 
 import java.util.*;
 import java.util.function.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-@SuppressWarnings("unused")
+/**
+ * @Author: okccc
+ * @Date: 2020/9/26 10:06
+ * @Desc: java8新特性
+ *
+ * lambda表达式
+ * 只有一个抽象方法的接口叫函数式接口,接口上方会添加@FunctionalInterface注解
+ * java内置四大核心函数式接口 Consumer<T> | Supplier<T> | Function<T,R> | Predicate<T>
+ * 当匿名内部类实现函数式接口时,可以用lambda表达式简化代码 (参数列表) -> {抽象方法重写} 只有单个参数或单行代码时可以省略括号
+ * 方法引用
+ * 如果lambda体中只有一行代码,这行代码为方法的调用,且调用方法的参数列表和返回值与实现的抽象方法的参数列表和返回值保持一致
+ * 那么可以继续简化为lambda的语法糖形式  方法引用(对象/类::方法名) | 构造器引用(类::new) | 数组引用(数组类型[]::new)
+ *
+ * Stream Api
+ * 对数组和集合生成的元素序列进行一系列的流式操作
+ * 创建流：可以通过数组/集合等数据源生成Stream对象
+ * 转换流：数据源transform操作会生成新的Stream对象,直到action操作才会触发计算(懒加载)
+ * 终止流：只执行一次,执行完流就关闭,继续执行后续代码会报错 java.lang.IllegalStateException: stream has already been operated upon or closed
+ * Optional是一个容器类,代表一个值存在或不存在,可以替换null值避免空指针异常
+ */
 public class Java8Demo {
     public static void main(String[] args) {
-        /*
-         * java8新特性
-         *
-         * lambda表达式
-         * 只有一个抽象方法的接口叫函数式接口,接口上方会添加@FunctionalInterface注解
-         * java内置四大核心函数式接口 Consumer<T> | Supplier<T> | Function<T,R> | Predicate<T>
-         * 当匿名内部类实现函数式接口时,可以用lambda表达式简化代码 (参数列表) -> {抽象方法重写} 只有单个参数或单行代码时可以省略括号
-         * 方法引用
-         * 如果lambda体中只有一行代码,这行代码为方法的调用,且调用方法的参数列表和返回值与实现的抽象方法的参数列表和返回值保持一致
-         * 那么可以继续简化为lambda的语法糖形式  方法引用(对象/类::方法名) | 构造器引用(类::new) | 数组引用(数组类型[]::new)
-         *
-         * Stream Api
-         * 对数组和集合生成的元素序列进行一系列的流式操作
-         * 创建流：可以通过数组/集合等数据源生成Stream对象
-         * 转换流：数据源transform操作会生成新的Stream对象,直到action操作才会触发计算(懒加载)
-         * 终止流：只执行一次,执行完流就关闭,继续执行后续代码会报错 java.lang.IllegalStateException: stream has already been operated upon or closed
-         * Optional是一个容器类,代表一个值存在或不存在,可以替换null值避免空指针异常
-         */
-
         testLambda();
         testMethodRef();
 
