@@ -82,10 +82,12 @@ public class ConsumerDemo {
         while (true) {
             // poll会从消费者上次提交的offset处拉取数据
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
             // assignment获取消费者分配到的分区信息
             Set<TopicPartition> assignment = consumer.assignment();
 //            System.out.println(assignment);  // [nginx-0, nginx-1, nginx-2, ...]
-            // seek会重置消费者分配到的分区偏移量,可以更加细粒度地控制offset
+
+            // seek会重置消费者分配到的分区偏移量,可以更加细粒度地控制offset,但是手动指定位置后每次poll的都是那个位置的数据
             // a.从头开始消费,分区的起始位置是0,但是随着日志定时清理,起始位置也会越来越大
 //            consumer.seekToBeginning(assignment);
             // b.从末尾开始消费
@@ -95,32 +97,33 @@ public class ConsumerDemo {
 //                consumer.seek(tp, 73935099);
 //            }
             // d.从指定时间点开始消费(更符合实际需求,比如要查找nginx日志2022-03-07 10:02:20的某条数据,将其转换成linux时间戳就行)
-//            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
-//            for (TopicPartition tp : assignment) {
-//                // 设置查询分区的时间戳
-////                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
+            Map<TopicPartition, Long> timestampsToSearch = new HashMap<>();
+            for (TopicPartition tp : assignment) {
+                // 设置查询分区的时间戳
+                timestampsToSearch.put(tp, 1646618540000L);  // 精准定位
 //                timestampsToSearch.put(tp, System.currentTimeMillis() - 2 * 3600 * 1000);  // 范围搜索
-//            }
-//            Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestampsToSearch);
-//            for (TopicPartition tp : assignment) {
-//                // 获取该分区的offset和时间戳
-//                OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
-//                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
-//                if (offsetAndTimestamp != null) {
-//                    // 根据时间戳寻址
-//                    consumer.seek(tp, offsetAndTimestamp.offset());
-//                }
-//            }
+            }
+            Map<TopicPartition, OffsetAndTimestamp> map = consumer.offsetsForTimes(timestampsToSearch);
+            for (TopicPartition tp : assignment) {
+                // 获取该分区的offset和时间戳
+                OffsetAndTimestamp offsetAndTimestamp = map.get(tp);
+                // 如果offset和时间戳不为空,说明当前分区有符合时间戳的条件信息
+                if (offsetAndTimestamp != null) {
+                    // 根据时间戳寻址
+                    consumer.seek(tp, offsetAndTimestamp.offset());
+                }
+            }
 
             // 消息被封装成ConsumerRecord对象
             for (ConsumerRecord<String, String> record : records) {
                 // 获取每条消息的元数据信息
-                System.out.println("ts=" + record.timestamp() + ", topic=" + record.topic() + ", partition=" +
-                        record.partition() + ", offset=" + record.offset() + ", value=" + record.value());
-//                if (record.value().contains("fecd454999de4384aa376cbb73436f4b")) {
-//                    System.out.println(record.value());
-//                }
+//                System.out.println(record.timestamp() + " - " + record.topic() + " - " + record.partition() + " - " + record.offset() + " - " + record.value());
+                if (record.value().contains("1753005805632")) {
+                    // record.timestamp(): kafka接收数据的时间戳,消费者5秒poll一次,每个轮询批次内的数据timestamp是一样的
+                    System.out.println(record.timestamp() + " - " + record.topic() + " - " + record.partition() + " - " + record.offset() + " - " + record.value());
+                }
             }
+
             // 手动提交offset
             consumer.commitAsync();
         }
