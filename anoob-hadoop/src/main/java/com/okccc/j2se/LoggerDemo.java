@@ -44,7 +44,7 @@ public class LoggerDemo {
     }
 
     public static void main(String[] args) {
-//        testLogback();
-        testLog4j2();
+        testLogback();
+//        testLog4j2();
     }
 }

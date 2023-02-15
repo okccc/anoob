@@ -2,7 +2,7 @@
 <!-- debug="true"会在控制台打印logback内部日志 -->
 <configuration debug="true">
     <!-- 日志文件存储地址绝对路径 -->
-    <property name="LOG_HOME" value="j2se/logs"/>
+    <property name="LOG_HOME" value="anoob-hadoop/logs"/>
 
     <!-- 指定日志输出位置 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">

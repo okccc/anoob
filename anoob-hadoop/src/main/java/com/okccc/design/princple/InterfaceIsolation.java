@@ -43,4 +43,3 @@ public class InterfaceIsolation {
         public void method03() {}
     }
 }
-

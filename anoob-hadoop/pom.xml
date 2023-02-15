@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.okccc</groupId>
-    <artifactId>j2se</artifactId>
+    <artifactId>anoob-hadoop</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -35,6 +35,13 @@
             <version>1.2.76</version>
         </dependency>
 
+        <!-- 操作java bean的工具类 -->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+
         <!-- lombok用来简化JavaBean和日志开发,需要在plugins里面安装 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -44,19 +51,13 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- 操作java bean的工具类 -->
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.3</version>
-        </dependency>
-
         <!-- mysql 8.0.28之前版本有安全漏洞 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.28</version>
         </dependency>
+
         <!-- druid连接池(推荐) https://mvnrepository.com/artifact/com.alibaba/druid -->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -64,5 +65,4 @@
             <version>1.2.5</version>
         </dependency>
     </dependencies>
-
 </project>

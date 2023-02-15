@@ -154,7 +154,7 @@ public class StringDemo {
             System.out.println(m.start() +"~"+ m.end());
         }
         // 屏蔽电话号码中间四位数
-        String str = "13818427154";
+        String str = "13866668888";
         str = str.replaceAll("(\\d{3})\\d{4}(\\d{3})", "$1****$2");
         System.out.println(str);  // 138****7154
     }
