@@ -120,6 +120,7 @@ public class ConsumerDemo {
 //                System.out.println(record.timestamp() + " - " + record.topic() + " - " + record.partition() + " - " + record.offset() + " - " + record.value());
                 if (record.value().contains("1753005805632")) {
                     // record.timestamp(): kafka接收数据的时间戳,消费者5秒poll一次,每个轮询批次内的数据timestamp是一样的
+                    // record.offset(): 消息在kafka分区的偏移量,可以用来判断是否重复消费,partition - offset相同说明重复消费了
                     System.out.println(record.timestamp() + " - " + record.topic() + " - " + record.partition() + " - " + record.offset() + " - " + record.value());
                 }
             }
