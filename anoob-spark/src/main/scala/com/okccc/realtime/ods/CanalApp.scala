@@ -2,12 +2,12 @@ package com.okccc.realtime.ods
 
 import com.alibaba.fastjson.{JSON, JSONArray, JSONObject}
 import com.okccc.realtime.common.Configs
-import com.okccc.util.{CanalUtil, HiveUtil, KafkaConsUtil, KafkaProdUtil, OffsetManageUtil}
+import com.okccc.util.{KafkaConsUtil, KafkaProdUtil, OffsetManageUtil}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.kafka010.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}

@@ -35,6 +35,13 @@
             <version>1.2.76</version>
         </dependency>
 
+        <!-- 日期时间格式转换 -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.10.10</version>
+        </dependency>
+
         <!-- 操作java bean的工具类 -->
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -65,34 +72,20 @@
             <version>1.2.5</version>
         </dependency>
 
-        <!-- hadoop -->
+        <!-- flume -->
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>2.8.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-core</artifactId>
+            <version>1.9.0</version>
+            <!-- 打包时排除,还能提升打包速度,本地调试代码: Edit Configurations - Include dependencies with "Provided" scope -->
+            <scope>provided</scope>
         </dependency>
 
-        <!-- hive -->
+        <!-- kafka -->
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-jdbc</artifactId>
-            <version>3.1.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.8.1</version>
         </dependency>
     </dependencies>
 </project>

@@ -3,8 +3,8 @@ package com.okccc.demo
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.api.common.serialization.SimpleStringSchema
-import org.apache.flink.shaded.guava18.com.google.common.base.Charsets
-import org.apache.flink.shaded.guava18.com.google.common.hash.{BloomFilter, Funnels}
+import org.apache.flink.shaded.guava30.com.google.common.base.Charsets
+import org.apache.flink.shaded.guava30.com.google.common.hash.{BloomFilter, Funnels}
 import org.apache.flink.streaming.api.scala.function.ProcessWindowFunction
 import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
@@ -62,7 +62,7 @@ object UniqueVisitor {
       // 1小时的滚动窗口
       .window(TumblingEventTimeWindows.of(Time.hours(1)))
       // 先增量聚合再全窗口处理,因为所有数据都在一个slot,所以不需要再按照窗口分组聚合
-      .aggregate(new UVCountAggWithBloomFilter(), new UVWindowResult())
+      .aggregate(new UVCountAgg(), new UVWindowResult())
       .print()
 
     // 启动任务
@@ -82,24 +82,24 @@ class UVCountAgg extends AggregateFunction[UserBehavior, util.HashSet[String], I
   override def merge(a: util.HashSet[String], b: util.HashSet[String]): util.HashSet[String] = null
 }
 
-// 由于BloomFilter没有.size这种api,可以借助元组(f0, f1)的第一个参数求BloomFilter的大小
-class UVCountAggWithBloomFilter extends AggregateFunction[UserBehavior, (Int, BloomFilter[String]), Int] {
-  override def createAccumulator(): (Int, BloomFilter[String]) = {
-    // 创建布隆过滤器,设置要去重的数据量和误差率
-    (0, BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), 100000, 0.01))
-  }
-  override def add(value: UserBehavior, accumulator: (Int, BloomFilter[String])): (Int, BloomFilter[String]) = {
-    // 如果布隆过滤器一定不包含当前userId就将其添加进来
-    if (!accumulator._2.mightContain(value.userId)) {
-      // put操作就是将字符串传入hash函数,将位图置为1
-      accumulator._2.put(value.userId)
-      return (accumulator._1 + 1, accumulator._2)
-    }
-    accumulator
-  }
-  override def getResult(accumulator: (Int, BloomFilter[String])): Int = accumulator._1
-  override def merge(a: (Int, BloomFilter[String]), b: (Int, BloomFilter[String])): (Int, BloomFilter[String]) = null
-}
+//// 由于BloomFilter没有.size这种api,可以借助元组(f0, f1)的第一个参数求BloomFilter的大小
+//class UVCountAggWithBloomFilter extends AggregateFunction[UserBehavior, (Int, BloomFilter[String]), Int] {
+//  override def createAccumulator(): (Int, BloomFilter[String]) = {
+//    // 创建布隆过滤器,设置要去重的数据量和误差率
+//    (0, BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), 100000, 0.01))
+//  }
+//  override def add(value: UserBehavior, accumulator: (Int, BloomFilter[String])): (Int, BloomFilter[String]) = {
+//    // 如果布隆过滤器一定不包含当前userId就将其添加进来
+//    if (!accumulator._2.mightContain(value.userId)) {
+//      // put操作就是将字符串传入hash函数,将位图置为1
+//      accumulator._2.put(value.userId)
+//      return (accumulator._1 + 1, accumulator._2)
+//    }
+//    accumulator
+//  }
+//  override def getResult(accumulator: (Int, BloomFilter[String])): Int = accumulator._1
+//  override def merge(a: (Int, BloomFilter[String]), b: (Int, BloomFilter[String])): (Int, BloomFilter[String]) = null
+//}
 
 // 自定义窗口处理函数
 class UVWindowResult extends ProcessWindowFunction[Int, UVCount, Int, TimeWindow] {

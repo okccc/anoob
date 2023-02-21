@@ -107,9 +107,9 @@ object LogParseUtil {
       event.append(jsonObj.getOrDefault(column, "-").toString)
     }
     // 省份/城市/分区
-    val res: String = IPUtil.getCity(jsonObj.getString("ip"))
-    val province: String = JSON.parseObject(res).getString("province")
-    val city: String = JSON.parseObject(res).getString("city")
+    val array: Array[String] = IPUtil.find(jsonObj.getString("ip"))
+    val province: String = array(1)
+    val city: String = array(2)
     val dt: String = DateUtil.getCurrentDate.replace("-", "")
     event.append(province, city, dt)
     // 返回结果

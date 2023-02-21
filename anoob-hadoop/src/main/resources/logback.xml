@@ -41,7 +41,7 @@
     </appender>
 
     <!-- 设置全局日志级别 -->
-    <root level="DEBUG">
+    <root level="WARN">
         <!-- 指定打印日志的appender -->
         <appender-ref ref="STDOUT" />
         <appender-ref ref="ASYNC_FILE" />
