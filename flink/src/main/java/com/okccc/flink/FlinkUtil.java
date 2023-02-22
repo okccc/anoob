@@ -4,6 +4,8 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 import java.util.Properties;
@@ -17,6 +19,7 @@ import java.util.UUID;
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/kafka/
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/filesystem/
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/connectors/datastream/elasticsearch/
+ * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
  * FlinkKafkaProducer已被弃用并将在Flink1.15中移除,请改用KafkaSink
  *
  * 常见错误
@@ -34,6 +37,20 @@ public class FlinkUtil {
 
     // kafka地址
     private static final String KAFKA_SERVER = "localhost:9092";
+
+    /**
+     * 从kafka读数据的消费者
+     */
+    public static KafkaSource<String> getKafkaSource(String groupId, String... topics) {
+        // 创建flink消费者对象
+        return KafkaSource.<String>builder()
+                .setBootstrapServers(KAFKA_SERVER)
+                .setTopics(topics)
+                .setGroupId(groupId)
+                .setStartingOffsets(OffsetsInitializer.latest())
+                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .build();
+    }
 
     /**
      * 往kafka写数据的生产者,将数据写入指定topic
