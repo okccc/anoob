@@ -1,8 +1,11 @@
 package com.okccc.flink;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.connector.file.sink.FileSink;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
@@ -14,8 +17,12 @@ import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
+import java.time.Duration;
+import java.time.ZoneId;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -124,6 +131,54 @@ public class FlinkUtil {
                 .setDeliverGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
                 .setTransactionalIdPrefix(UUID.randomUUID().toString())
                 .build();
+    }
+
+    /**
+     * 往hdfs写数据的生产者
+     */
+    public static FileSink<String> getHdfsSink(String output) {
+        return FileSink
+                // 行编码格式 Row-encoded Formats
+                .forRowFormat(new Path(output), new SimpleStringEncoder<String>("UTF-8"))
+                // 桶分配
+                .withBucketAssigner(new HiveBucketAssigner<>("yyyyMMdd", ZoneId.of("Asia/Shanghai")))
+                // 滚动策略,如果hadoop < 2.7就只能使用OnCheckpointRollingPolicy
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                // part file何时由inprogress变成finished
+                                .withRolloverInterval(Duration.ofSeconds(300))
+                                .withInactivityInterval(Duration.ofSeconds(300))
+                                .withMaxPartSize(MemorySize.ofMebiBytes(128 * 1024 * 1024))
+                                .build()
+                )
+                // Flink1.15版本开始FileSink支持已经提交pending文件的合并,避免生成大量小文件
+//                .enableCompact(
+//                        FileCompactStrategy.Builder.newBuilder()
+//                                .setNumCompactThreads(1)
+//                                // 每隔10个检查点就触发一次合并
+//                                .enableCompactionOnCheckpoint(10)
+//                                .build(),
+//                        new RecordWiseFileCompactor<>(
+//                                new DecoderBasedReader.Factory<>(SimpleStringDecoder::new)
+//                        )
+//                )
+                .build();
+        // 批量编码格式 Bulk-encoded Formats: Parquet Format、Avro Format、ORC Format
+    }
+
+    /**
+     * 自定义hive桶分配器,继承默认的基于时间的分配器DateTimeBucketAssigner
+     */
+    public static class HiveBucketAssigner<IN> extends DateTimeBucketAssigner<IN> {
+        public HiveBucketAssigner(String formatString, ZoneId zoneId) {
+            super(formatString, zoneId);
+        }
+
+        @Override
+        public String getBucketId(IN element, Context context) {
+            // flink分桶将文件放入不同文件夹,桶号对应hive分区,桶号默认返回时间字符串,而hive分区通常是dt=开头,所以要重写该方法
+            return "dt=" + super.getBucketId(element, context);
+        }
     }
 
     /**
