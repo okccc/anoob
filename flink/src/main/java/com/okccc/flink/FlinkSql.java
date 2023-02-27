@@ -1,15 +1,14 @@
 package com.okccc.flink;
 
+import com.okccc.bean.UserBehavior;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.*;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-import java.sql.Timestamp;
 import java.time.Duration;
 
 import static org.apache.flink.table.api.Expressions.$;
@@ -18,12 +17,27 @@ import static org.apache.flink.table.api.Expressions.$;
  * @Author: okccc
  * @Date: 2021/9/20 下午12:47
  * @Desc: flink sql实现实时热门商品统计
+ *
+ * flink sql像mysql和hive一样也对标准sql语法做了些扩展,可以实现简单需求,复杂的还得用DataStream提供的api
  */
 public class FlinkSql {
+
     public static void main(String[] args) throws Exception {
-        /*
-         * flink sql像mysql和hive一样也对标准sql语法做了些扩展,可以实现简单需求,复杂的还得用DataStream提供的api
-         */
+//        // 创建表环境
+//        EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
+//        TableEnvironment tableEnv = TableEnvironment.create(settings);
+//
+//        // 创建表描述器
+//        TableDescriptor tableDescriptor = TableDescriptor
+//                .forConnector("datagen")
+//                .schema(Schema.newBuilder().column("f0", DataTypes.STRING()).build())
+//                .build();
+//
+//        // 创建表
+//        tableEnv.createTable("t1", tableDescriptor);
+//
+//        // 执行sql
+//        tableEnv.executeSql("select * from t1");
 
         // 创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -54,7 +68,7 @@ public class FlinkSql {
 
         // 获取数据源
         SingleOutputStreamOperator<UserBehavior> stream = env
-                .readTextFile("input/UserBehavior.csv")
+                .readTextFile("flink/input/UserBehavior.csv")
                 // 将流数据封装成POJO类
                 .map(new MapFunction<String, UserBehavior>() {
                     @Override
@@ -68,7 +82,6 @@ public class FlinkSql {
                 .assignTimestampsAndWatermarks(
                         // 有序数据不用设置延迟时间
                         WatermarkStrategy.<UserBehavior>forMonotonousTimestamps()
-                                // 无序数据要设置延迟时间
                                 .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
                 );
 
@@ -78,7 +91,7 @@ public class FlinkSql {
                 $("timestamp").rowtime().as("ts")  // 将时间字段指定为事件时间
         );
         // 动态表 -> 数据流
-//        tableEnv.toDataStream(table).print();
+        tableEnv.toDataStream(table).print();
         // 创建临时视图
         tableEnv.createTemporaryView("userBehavior", table);
 
@@ -97,36 +110,5 @@ public class FlinkSql {
 
         // 启动任务
         env.execute();
-    }
-
-    // 输入数据POJO类
-    public static class UserBehavior {
-        public String userId;
-        public String itemId;
-        public String categoryId;
-        public String behavior;
-        public Long timestamp;
-
-        public UserBehavior() {
-        }
-
-        public UserBehavior(String userId, String itemId, String categoryId, String behavior, Long timestamp) {
-            this.userId = userId;
-            this.itemId = itemId;
-            this.categoryId = categoryId;
-            this.behavior = behavior;
-            this.timestamp = timestamp;
-        }
-
-        @Override
-        public String toString() {
-            return "UserBehavior{" +
-                    "userId='" + userId + '\'' +
-                    ", itemId='" + itemId + '\'' +
-                    ", categoryId='" + categoryId + '\'' +
-                    ", behavior='" + behavior + '\'' +
-                    ", timestamp=" + new Timestamp(timestamp) +
-                    '}';
-        }
     }
 }
