@@ -570,12 +570,10 @@ canal.mq.partitionHash=.*\\..*:id  # 设置regex匹配到的表的hash字段 .*\
 # 关闭canal
 [root@cdh1 ~]$ bin/stop.sh
 # 启动kafka消费者
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic canal
-{"data":[{"id":"9","name":"aaa"},{"id":"10","name":"bbb"}],"database":"canal","es":1608384750000,"id":21,"isDdl":false,
-"mysqlType":{"id":"bigint(20)","user_name":"varchar(20)","tel":"varchar(20)"},"old":null,"pkNames":["id"],"sql":"",
-"sqlType":{"id":-5,"user_name":12,"tel":12},"table":"z_user_info","ts":1608384750686,"type":"INSERT"}
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic ods_base_db
 # 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
 mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
+# canal/maxwell输出数据的"old"字段会显示update前的数据,业务处理非常有用,FlinkCdc也可以比较"before"和"after"判断具体更新情况
 ```
 
 ### maxwell
