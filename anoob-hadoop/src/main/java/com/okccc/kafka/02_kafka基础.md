@@ -280,6 +280,14 @@ Deletion of requested consumer groups ('g01') was successful.
 Error: Assignments can only be reset if the group 'g01' is inactive, but the current state is Stable.
 GROUP    TOPIC    PARTITION    NEW-OFFSET
 g01      nginx        0          0 
+
+# 查看topic消费情况
+groups=$(kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --list)
+for group in ${groups}
+do
+    kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --describe --group ${group} >> a.txt
+    sleep 5
+done
 ```
 
 ### kafka调优
