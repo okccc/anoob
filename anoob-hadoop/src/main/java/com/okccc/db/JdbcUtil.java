@@ -1,4 +1,4 @@
-package com.okccc.mysql;
+package com.okccc.db;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.fastjson.JSONObject;

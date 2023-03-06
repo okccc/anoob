@@ -15,6 +15,13 @@
     </properties>
 
     <dependencies>
+        <!-- flink源码大量依赖slf4j-api日志接口,所以当前工程选用logback日志实现 -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
         <!-- 阿里巴巴开源json解析框架 -->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -70,7 +77,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.16</version>
+            <version>8.0.28</version>
             <exclusions>
                 <!-- mysql8的高版本com.google.protobuf:protobuf-java:jar:3.6.1会导致hbase用不了,需手动去除 -->
                 <exclusion>
@@ -138,6 +145,7 @@
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>7.10.0</version>
         </dependency>
+
         <!-- java操作es的客户端工具jest(已废弃) -->
         <dependency>
             <groupId>io.searchbox</groupId>
@@ -191,22 +199,9 @@
             <artifactId>flink-connector-files</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink操作jdbc -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-jdbc_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <!-- flink操作redis,该jar包很久不更新了,用的还是flink1.2,所以不能放前面,不然会把flink1.13给覆盖掉 -->
-        <dependency>
-            <groupId>org.apache.bahir</groupId>
-            <artifactId>flink-connector-redis_2.11</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <!-- flink操作es,可能会和elasticsearch以及IK分词器的包存在依赖冲突,调试flink时要先把对方注释掉或者另启工程 -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch7_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
         <!-- flink cdc -->
@@ -220,10 +215,10 @@
             <artifactId>flink-connector-mysql-cdc</artifactId>
             <version>1.4.0</version>
         </dependency>
-        <!-- flink cep -->
+        <!-- flink-cep -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-cep-scala_2.12</artifactId>
+            <artifactId>flink-cep_2.12</artifactId>
             <version>${flink.version}</version>
         </dependency>
         <!-- flink sql -->
@@ -247,20 +242,8 @@
             <artifactId>flink-table-common</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink操作csv -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-csv</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <!-- flink操作json -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
 
-        <!-- ip地址库 -->
+        <!-- 全球IPv4地址归属地数据库(IPIP.NET版) -->
         <dependency>
             <groupId>net.ipip</groupId>
             <artifactId>ipdb</artifactId>
@@ -268,11 +251,11 @@
         </dependency>
         <!-- 阿里云ip地址库(收费,需购买授权文件和离线库,然后将阿里云的jar包mvn install到本地仓库) -->
         <!-- mvn install:install-file -DgroupId=com.alibaba -DartifactId=geoip -Dversion=1.2 -Dpackaging=jar -Dfile=geoip.jar -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>geoip</artifactId>
-            <version>1.2</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.alibaba</groupId>-->
+<!--            <artifactId>geoip</artifactId>-->
+<!--            <version>1.2</version>-->
+<!--        </dependency>-->
 
         <!-- IK分词器 -->
         <dependency>

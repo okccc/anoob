@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <flink.version>1.13.6</flink.version>
+        <flink.version>1.15.2</flink.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
@@ -51,18 +51,11 @@
             <version>1.9.3</version>
         </dependency>
 
-        <!-- mysql -->
+        <!-- mysql 8.0.28之前版本有安全漏洞 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.16</version>
-            <exclusions>
-                <!-- mysql8的高版本com.google.protobuf:protobuf-java:jar:3.6.1会导致hbase用不了,需手动去除 -->
-                <exclusion>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>8.0.28</version>
         </dependency>
         <!-- druid连接池(推荐) https://mvnrepository.com/artifact/com.alibaba/druid -->
         <dependency>
@@ -71,120 +64,107 @@
             <version>1.2.5</version>
         </dependency>
 
-        <!-- flink相关 -->
+        <!-- flink-java -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
             <version>${flink.version}</version>
         </dependency>
+
+        <!-- DataStream API -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-scala_2.12</artifactId>
+            <artifactId>flink-streaming-java</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-scala_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
+
         <!-- flink状态后端rocksdb -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-statebackend-rocksdb_2.12</artifactId>
+            <artifactId>flink-statebackend-rocksdb</artifactId>
             <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- flink客户端,可使用命令行flink run往yarn提交任务,jps发现会有CliFrontend进程 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-clients_2.12</artifactId>
+            <artifactId>flink-clients</artifactId>
             <version>${flink.version}</version>
         </dependency>
+
         <!-- flink操作kafka -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_2.12</artifactId>
+            <artifactId>flink-connector-kafka</artifactId>
             <version>${flink.version}</version>
         </dependency>
+
         <!-- flink操作hdfs -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-files</artifactId>
             <version>${flink.version}</version>
         </dependency>
+
         <!-- flink操作jdbc -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-jdbc_2.12</artifactId>
+            <artifactId>flink-connector-jdbc</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink操作redis,该jar包很久不更新了,用的还是flink1.2,所以不能放前面,不然会把flink1.13给覆盖掉 -->
+
+        <!-- flink操作redis(第三方提供的包) -->
         <dependency>
             <groupId>org.apache.bahir</groupId>
-            <artifactId>flink-connector-redis_2.11</artifactId>
-            <version>1.0</version>
+            <artifactId>flink-connector-redis_2.12</artifactId>
+            <version>1.1.0</version>
         </dependency>
-        <!-- flink操作es,可能会和elasticsearch以及IK分词器的包存在依赖冲突,调试flink时要先把对方注释掉或者另启工程 -->
+
+        <!-- flink操作es -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch7_2.12</artifactId>
+            <artifactId>flink-connector-elasticsearch7</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink cdc -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.ververica</groupId>-->
-        <!--            <artifactId>flink-connector-mysql-cdc</artifactId>-->
-        <!--            <version>2.0.0</version>-->
-        <!--        </dependency>-->
+        <!-- es间接依赖了log4j-api日志接口,需要提供log4j-core日志实现 -->
+        <!-- ERROR StatusLogger Log4j2 could not find a logging implementation. Please add log4j-core to the classpath -->
         <dependency>
-            <groupId>com.alibaba.ververica</groupId>
-            <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>1.4.0</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.17.1</version>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.flink</groupId>-->
+        <!--            <artifactId>flink-connector-elasticsearch-base</artifactId>-->
+        <!--            <version>${flink.version}</version>-->
+        <!--        </dependency>-->
+
+        <!-- flink cdc -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
         <!-- flink cep -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-cep-scala_2.12</artifactId>
+            <artifactId>flink-cep</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <!-- flink sql -->
+
+        <!-- Table API & SQL -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java-bridge_2.12</artifactId>
+            <artifactId>flink-table-api-java</artifactId>
             <version>${flink.version}</version>
         </dependency>
+        <!-- Table API & SQL + DataStream API -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-scala-bridge_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-planner-blink_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-common</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <!-- flink操作csv -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-csv</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <!-- flink操作json -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
+            <artifactId>flink-table-api-java-bridge</artifactId>
             <version>${flink.version}</version>
         </dependency>
     </dependencies>
-
 </project>

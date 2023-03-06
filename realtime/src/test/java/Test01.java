@@ -16,7 +16,7 @@ import java.util.concurrent.Future;
 public class Test01 {
 
     @Test
-    public void testStr() throws InterruptedException {
+    public void testStr() {
         // 获取36位长度的随机字符串
         System.out.println(UUID.randomUUID());
         // 截取字符串
@@ -31,6 +31,8 @@ public class Test01 {
         String str01 = "aaa";
         String[] arr = str01.split(",");
         System.out.println(arr[0]);  // aaa
+        // 注意：split切割字符串 "," ":" "@" "#"不需要转义, "." "|" "$" "*"是需要转义的,多个分隔符可以用"|"隔开,但是该转义的还得转义
+        System.out.println("tmp.orders".split("\\.")[1]);
         // 转换json字符串
         String str02 = "{\"a\":\"b\"}";
         try {

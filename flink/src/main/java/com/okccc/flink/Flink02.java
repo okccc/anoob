@@ -23,7 +23,7 @@ import java.sql.Timestamp;
  * DataStream API提供的转换算子都有其Rich版本,都继承自RichFunction接口,有额外三个方法
  * open()：流的生命周期开始时执行,只执行一次,用于初始化操作,比如创建数据库连接、实例化状态变量,在map/join这些算子前被调用
  * getRuntimeContext()：处理数据时可以获取函数执行的上下文信息,比如任务并行度、子任务名称和索引、访问键控状态等
- * close()：流的生命周期结束前执行,只执行一次,做一些清理操作,比如关闭数据库连接、清空状态,在程序结束前被调用
+ * close()：流的生命周期结束时执行,只执行一次,做一些清理操作,比如关闭数据库连接、清空状态,在程序结束前被调用
  *
  * DataStream API提供的普通算子功能有限,flink提供了更底层的8大处理函数,都继承自RichFunction接口
  * ProcessFunction、KeyedProcessFunction、ProcessWindowFunction、ProcessAllWindowFunction
@@ -68,17 +68,17 @@ public class Flink02 {
                         return Integer.parseInt(value) * 10;
                     }
 
-//                    @Override
-//                    public void close() throws Exception {
-//                        System.out.println("生命周期结束");
-//                    }
+                    @Override
+                    public void close() throws Exception {
+                        System.out.println("生命周期结束");
+                    }
                 })
                 .keyBy(r -> true)
                 .process(new KeyedProcessFunction<Boolean, Integer, Integer>() {
-//                    @Override
-//                    public void open(Configuration parameters) throws Exception {
-//                        System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
-//                    }
+                    @Override
+                    public void open(Configuration parameters) throws Exception {
+                        System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
+                    }
 
                     @Override
                     public void processElement(Integer value, KeyedProcessFunction<Boolean, Integer, Integer>.Context ctx, Collector<Integer> out) throws Exception {

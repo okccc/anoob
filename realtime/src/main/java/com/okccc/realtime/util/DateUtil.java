@@ -19,12 +19,15 @@ public class DateUtil {
     // 方法中的局部变量是单线程访问,而类中的成员变量可能会被多线程同时访问,如果涉及修改操作就会存在线程安全问题
     // SimpleDateFormat源码943行format()和1532行parse()都使用了线程不安全的Calendar对象,导致SimpleDateFormat线程不安全
     // 解决方法：1.将sdf定义为局部变量(开销大) 2.加synchronized/lock锁(性能差不适合高并发场景) 3.使用DateTimeFormatter代替(推荐)
+    @Deprecated
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     // 将long类型转换成字符串
+    @Deprecated
     public static String longToStr(Long ts) {
         return sdf.format(new Date(ts));
     }
     // 将字符串转换成long类型
+    @Deprecated
     public static long strToLong(String str) throws ParseException {
         return sdf.parse(str).getTime();
     }
