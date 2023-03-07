@@ -1,26 +1,26 @@
-- [参考文档](https://www.cnblogs.com/web424/p/6928992.html)
-### mongodb
+- [参考文档](http://c.biancheng.net/mongodb2/)
+### linux安装mongodb
 ```shell script
-# mongodb是一个基于分布式文件存储的NoSQL数据库,旨在为web应用提供可扩展的高性能数据存储解决方案  
-# 优点：数据结构灵活(类json格式)、高性能(支持mr处理海量数据)、扩展性好  
-# 缺点：nosql不支持事务和表关联等操作、占用空间大  
-# 配置MongoDb的yum源  
+# mongodb是一个基于分布式文件存储的NoSQL数据库,旨在为web应用提供可扩展的高性能数据存储解决方案
+# 优点：数据结构灵活(类json格式)、高性能(支持mr处理海量数据)、扩展性好
+# 缺点：nosql不支持事务和表关联等操作、占用空间大
+# 配置MongoDb的yum源
 [root@master1 ~]# vim /etc/yum.repos.d/mongodb-org-3.4.repo
-[mongodb-org-3.4]  
+[mongodb-org-3.4]
 name=MongoDB Repository  
 baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/
-gpgcheck=0  
-enabled=1  
-gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc  
-# 安装MongoDb  
-[root@master1 ~]# yum -y install mongodb-org  
-# 查看安装位置  
-[root@master1 ~]# whereis mongod  
+gpgcheck=0
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
+# 安装MongoDb
+[root@master1 ~]# yum -y install mongodb-org
+# 查看安装位置
+[root@master1 ~]# whereis mongod
 # 修改配置文件
-[root@master1 ~]# vim /etc/mongod.conf    
+[root@master1 ~]# vim /etc/mongod.conf
 # bindIp: 127.0.0.1  # Listen to local interface only, comment to listen on all interfaces.
 # 启动服务端
-[root@master1 ~]# systemctl start mongod && systemctl enable mongod 
+[root@master1 ~]# systemctl start mongod && systemctl enable mongod
 # 监控日志
 [root@master1 ~]# tail -f /var/log/mongodb/mongod.log
 # 数据备份
@@ -33,8 +33,29 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
 [root@master1 ~]# mongo
 MongoDB shell version v3.4.16
 connecting to: mongodb://127.0.0.1:27017  # 默认端口27017
-MongoDB server version: 3.4.16
 > 
+```
+
+### mac安装mongodb
+```shell
+# 下载
+[root@cdh1 ~]$ wget https://fastdl.mongodb.org/osx/mongodb-macos-x86_64-4.4.3.tgz
+# 解压
+[root@cdh1 ~]$ tar -zxvf mongodb-macos-x86_64-4.4.3.tgz
+[root@cdh1 ~]$ mv mongodb-macos-x86_64-4.4.3 mongodb
+# 创建目录存储数据和日志
+[root@cdh1 ~]$ mkdir data & mkdir log
+# 修改环境变量
+[root@cdh1 ~]$ open -e .bash_profile | vim ~/.bash_profile & source ~/.bash_profile
+export MONGODB_HOME=/Users/okc/modules/mongodb
+export PATH=$PATH:$MONGODB_HOME/bin
+# 启动服务端,--dbpath数据存放目录/--logpath日志存放目录/--fork后台运行
+[root@cdh1 ~]$ mongod --dbpath /Users/okc/modules/mongodb/data --logpath /Users/okc/modules/mongodb/log/mongo.log --fork
+# 启动客户端
+[root@cdh1 ~]$ mongo
+MongoDB shell version v4.4.1
+connecting to: mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb
+>
 ```
 
 ### type
