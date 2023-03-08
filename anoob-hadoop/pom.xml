@@ -72,6 +72,13 @@
             <version>1.2.5</version>
         </dependency>
 
+        <!-- mongodb -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.12.10</version>
+        </dependency>
+
         <!-- flume -->
         <dependency>
             <groupId>org.apache.flume</groupId>
