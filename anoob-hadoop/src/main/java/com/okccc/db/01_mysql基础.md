@@ -590,8 +590,12 @@ kafka_topic=ods_base_db                                         # 指定kafka的
 host=localhost                                                  # mysql地址
 user=maxwell                                                    # 连接mysql的用户名和密码
 password=maxwell
-client_id=maxwell_1                                             # 初始化时用到
+client_id=m01                                             # 初始化时用到
 producer_partition_by=database|table|primary_key|random|column  # 按照指定规则hash将消息发往多个partition
-# 启动maxwell
+# maxwell增量同步数据
 [root@cdh1 ~]$ bin/maxwell --config config.properties > maxwell.log 2>&1 &
+# maxwell全量同步历史数据
+[root@cdh1 ~]$ bin/maxwell-bootstrap --database mock --table user_info --config config.properties
+# 关闭maxwell
+[root@cdh1 ~]$ ps -ef | grep maxwell | grep -v grep | awk '{print $2}' | xargs kill -9
 ```
