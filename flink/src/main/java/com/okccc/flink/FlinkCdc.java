@@ -5,6 +5,7 @@ import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.StringDebeziumDeserializationSchema;
 import io.debezium.data.Envelope;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -46,7 +47,7 @@ public class FlinkCdc {
                 .password("root@123")
                 .startupOptions(StartupOptions.initial())  // initial启动时会扫描历史数据,然后继续读取最新的binlog
 //                .deserializer(new StringDebeziumDeserializationSchema())  // SourceRecord格式不太友好
-                .deserializer(new JsonDebeziumDeserializationSchema())  // 返回JSON方便解析(推荐)
+                .deserializer(new JsonDebeziumDeserializationSchema())  // binlog是二进制数据要反序列化,返回JSON方便解析(推荐)
 //                .deserializer(new MyDebeziumDeserializationSchema())  // 也可以自定义反序列化器
                 .build();
 
