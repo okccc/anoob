@@ -580,21 +580,22 @@ mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
 ```shell script
 # 安装(单机版)
 # 优点：1.能抓历史数据 2.数据格式更加轻量级,canal返回的是sql影响的多条记录组成的数组,maxwell返回的是一条一条记录,而且canal有很多冗余字段
-# 缺点：要修改/etc/my.cnf添加binlog-do-db=xxx并重启后才能生效,对数据库侵入性太强,慎用！
 [root@cdh1 ~]$ tar -xvf maxwell-1.25.0.tar.gz -C /User/okc/modules
 # 修改配置文件
 [root@cdh1 ~]$ vim config.properties
-producer=kafka
-kafka.bootstrap.servers=cdh1:9092,cdh2:9092                     # kafka地址,逗号分隔
-kafka_topic=ods_base_db                                         # 指定kafka的topic
-host=localhost                                                  # mysql地址
-user=maxwell                                                    # 连接mysql的用户名和密码
+host=localhost                                                          # mysql地址
+user=maxwell                                                            # 连接mysql的用户名和密码,需事先创建并授权
 password=maxwell
-client_id=m01                                             # 初始化时用到
-producer_partition_by=database|table|primary_key|random|column  # 按照指定规则hash将消息发往多个partition
+filter= exclude: *.*, include: db1.*, include:db2./lesson_\d+/          # maxwell默认抓所有库所有表,可以指定过滤规则
+jdbc_options=useSSL=false&serverTimezone=Asia/Shanghai                  # 时区
+client_id=m01                                                           # 初始化时用到
+producer=kafka
+kafka.bootstrap.servers=cdh1:9092,cdh2:9092                             # kafka地址,逗号分隔
+kafka_topic=ods_base_db                                                 # 指定kafka的topic
+producer_partition_by=database | table | primary_key | random | column  # 按照指定规则hash将消息发往多个partition
 # maxwell增量同步数据
 [root@cdh1 ~]$ bin/maxwell --config config.properties > maxwell.log 2>&1 &
-# maxwell全量同步历史数据
+# maxwell全量同步历史数据,bootstrap-start & bootstrap-complete是开始和结束的标志,bootstrap-insert才有数据
 [root@cdh1 ~]$ bin/maxwell-bootstrap --database mock --table user_info --config config.properties
 # 关闭maxwell
 [root@cdh1 ~]$ ps -ef | grep maxwell | grep -v grep | awk '{print $2}' | xargs kill -9
