@@ -577,26 +577,53 @@ mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
 ```
 
 ### maxwell
+- [maxwell官网](https://maxwells-daemon.io/)
 ```shell script
-# 安装(单机版)
-# 优点：1.能抓历史数据 2.数据格式更加轻量级,canal返回的是sql影响的多条记录组成的数组,maxwell返回的是一条一条记录,而且canal有很多冗余字段
-[root@cdh1 ~]$ tar -xvf maxwell-1.25.0.tar.gz -C /User/okc/modules
+# 优点：1.能抓历史数据 2.数据格式更加轻量级,canal返回的是包含多条记录的数组,maxwell返回的是一条记录
+# 缺点：默认抓所有库,每次都要修改/etc/my.cnf添加binlog-do-db=xxx并重启才能生效,对数据库侵入性太强
+# 安装(单机版),查看Changelog发现从1.30.0版本开始不支持jdk8
+[root@cdh1 ~]$ tar -xvf maxwell-1.29.2.tar.gz -C /User/okc/modules
 # 修改配置文件
 [root@cdh1 ~]$ vim config.properties
-host=localhost                                                          # mysql地址
-user=maxwell                                                            # 连接mysql的用户名和密码,需事先创建并授权
+host=localhost                              # mysql地址
+user=maxwell                                # 连接mysql的用户名和密码,需事先创建并授权
 password=maxwell
-filter= exclude: *.*, include: db1.*, include:db2./lesson_\d+/          # maxwell默认抓所有库所有表,可以指定过滤规则
-jdbc_options=useSSL=false&serverTimezone=Asia/Shanghai                  # 时区
-client_id=m01                                                           # 初始化时用到
+filter= exclude: *.*, include: db1.*        # 指定过滤规则,include: db1./lesson_\d+/  
+jdbc_options=useSSL=false&serverTimezone=Asia/Shanghai
+client_id=m01
 producer=kafka
-kafka.bootstrap.servers=cdh1:9092,cdh2:9092                             # kafka地址,逗号分隔
-kafka_topic=ods_base_db                                                 # 指定kafka的topic
-producer_partition_by=database | table | primary_key | random | column  # 按照指定规则hash将消息发往多个partition
-# maxwell增量同步数据
+kafka.bootstrap.servers=localhost:9092      # kafka地址
+kafka_topic=ods_base_db                     # 指定kafka的topic
+producer_partition_by=database              # 指定分区规则[database/table/primary_key/column],不然都会发到topic的0号分区
+# 初始化maxwell元数据库
+mysql> create database maxwell;
+# 启动maxwell,默认增量同步数据
 [root@cdh1 ~]$ bin/maxwell --config config.properties > maxwell.log 2>&1 &
-# maxwell全量同步历史数据,bootstrap-start & bootstrap-complete是开始和结束的标志,bootstrap-insert才有数据
-[root@cdh1 ~]$ bin/maxwell-bootstrap --database mock --table user_info --config config.properties
+# 此时元数据库会生成几张表bootstrap,columns,databases,heartbeats,positions,schemas
+mysql> select * from positions;
++-----------+------------------+-----------------+----------+-----------+--------------+---------------------+
+| server_id | binlog_file      | binlog_position | gtid_set | client_id | heartbeat_at | last_heartbeat_read |
++-----------+------------------+-----------------+----------+-----------+--------------+---------------------+
+|         1 | mysql-bin.000029 |        27789920 | NULL     | maxwell   |         NULL |       1678763426269 |
++-----------+------------------+-----------------+----------+-----------+--------------+---------------------+
+# maxwell支持全量同步历史数据,必须先开启增量才能使用
+[root@cdh1 ~]$ bin/maxwell-bootstrap --database realtime --table table_process --config config.properties
+connecting to jdbc:mysql://localhost:3306/maxwell?allowPublicKeyRetrieval=true&connectTimeout=5000&serverTimezone=Asia%2FShanghai&useSSL=false
+# maxwell日志
+11:22:52,879 INFO  SynchronousBootstrapper - bootstrapping started for realtime.table_process
+11:22:52,959 INFO  SynchronousBootstrapper - bootstrapping ended for #1 realtime.table_process  # 1是bootstrap表的主键id
+# 此时元数据库的bootstrap表会生成全量同步的记录
+mysql> select * from bootstrap;
++----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
+| id | database_name | table_name    | where_clause | is_complete | inserted_rows | total_rows | created_at | started_at          | completed_at        | binlog_file | binlog_position | client_id | comment |
++----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
+|  1 | realtime      | table_process | NULL         |           1 |            15 |         15 | NULL       | 2023-03-14 11:22:52 | 2023-03-14 11:22:52 | NULL        |               0 | maxwell   | NULL    |
++----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
+# kafka会收到一条元数据库bootstrap表的数据,bootstrap-start(complete)是开始和结束的标志,bootstrap-insert才是数据更新记录
+{"database":"maxwell","table":"bootstrap","type":"insert","ts":1678764171,"xid":150351,"commit":true,"data":{"id":1,"database_name":"realtime","table_name":"table_process","where_clause":null,"is_complete":0,"inserted_rows":0,"total_rows":15,"created_at":null,"started_at":null,"completed_at":null,"binlog_file":null,"binlog_position":0,"client_id":"maxwell","comment":null}}
+{"database":"realtime","table":"table_process","type":"bootstrap-start","ts":1678764172,"data":{}}
+{"database":"realtime","table":"table_process","type":"bootstrap-insert","ts":1678764172,"data":{"source_table":"base_category1","sink_table":"dim_base_category1","sink_columns":"id,name","sink_pk":"id","sink_extend":null}}
+{"database":"realtime","table":"table_process","type":"bootstrap-complete","ts":1678764172,"data":{}}
 # 关闭maxwell
 [root@cdh1 ~]$ ps -ef | grep maxwell | grep -v grep | awk '{print $2}' | xargs kill -9
 ```
