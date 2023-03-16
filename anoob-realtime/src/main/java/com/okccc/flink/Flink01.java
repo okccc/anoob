@@ -68,7 +68,7 @@ import org.apache.flink.util.Collector;
  * 算子任务会按并行度分为多个并行子任务执行,不同子任务占据不同task slot,所以状态在资源上是物理隔离的,只对当前子任务有效
  * 而且aggregate/window等有状态算子都会先keyBy,后续计算都是针对当前key的,所以状态也应该按照key隔离,于是状态分为以下两种
  * 算子状态(Operator State)：可见范围是当前子任务,相当于本地变量,范围太大应用场景较少
- * 按键分区状态(Keyed State)：可见范围是当前key,包括ValueState/ListState/MapState/AggregatingState/ReducingState
+ * 按键分区状态(Keyed State)：可见范围是当前key,包括ValueState/ListState/MapState/BroadcastState/AggregatingState/ReducingState
  *
  * Checkpoint
  * flink故障恢复机制的核心就是检查点,会定期拷贝当前状态(快照),时间节点是当所有任务都处理完一个相同输入数据时(检查点分界线)

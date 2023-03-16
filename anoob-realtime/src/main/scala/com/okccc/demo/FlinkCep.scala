@@ -3,11 +3,8 @@ package com.okccc.demo
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
 import org.apache.flink.cep.PatternSelectFunction
-import org.apache.flink.cep.scala.pattern.Pattern
-import org.apache.flink.cep.scala.{CEP, PatternStream}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.streaming.api.scala.{DataStream, OutputTag, StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util.Collector
 

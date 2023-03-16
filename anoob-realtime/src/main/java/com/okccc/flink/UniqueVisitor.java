@@ -49,7 +49,7 @@ public class UniqueVisitor {
         env.setParallelism(1);
 
         env
-                .readTextFile("anoob-flink/input/UserBehavior.csv")
+                .readTextFile("anoob-realtime/input/UserBehavior.csv")
                 // 将流数据封装成POJO类
                 .map(new MapFunction<String, UserBehavior>() {
                     @Override

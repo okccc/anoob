@@ -4,7 +4,6 @@ import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, Wat
 import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction
-import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
 
 import java.time.Duration

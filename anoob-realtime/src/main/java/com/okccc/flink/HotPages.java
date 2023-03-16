@@ -84,8 +84,8 @@ public class HotPages {
 
         SingleOutputStreamOperator<ApacheLog> dataStream = env
                 // socket方便调试代码,没问题再替换成kafka
-                .socketTextStream("localhost", 9999)
-//                .readTextFile("anoob-flink/input/ApacheLog.csv", "UTF-8")
+//                .socketTextStream("localhost", 9999)
+                .readTextFile("anoob-realtime/input/ApacheLog.csv", "UTF-8")
                 // 将输入数据封装成POJO类
                 .map(new MapFunction<String, ApacheLog>() {
                     @Override

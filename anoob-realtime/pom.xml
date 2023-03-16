@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.okccc</groupId>
-    <artifactId>flink</artifactId>
+    <artifactId>anoob-realtime</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -56,6 +56,12 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.28</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- druid连接池(推荐) https://mvnrepository.com/artifact/com.alibaba/druid -->
         <dependency>
@@ -107,6 +113,33 @@
             <version>${flink.version}</version>
         </dependency>
 
+        <!-- flink cdc -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <!-- flink cep -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-cep</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <!-- Table API & SQL -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-api-java</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <!--        &lt;!&ndash; Table API & SQL + DataStream API &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.flink</groupId>-->
+        <!--            <artifactId>flink-table-api-java-bridge</artifactId>-->
+        <!--            <version>${flink.version}</version>-->
+        <!--        </dependency>-->
+
         <!-- flink操作jdbc -->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -140,31 +173,61 @@
         <!--            <version>${flink.version}</version>-->
         <!--        </dependency>-->
 
-        <!-- flink cdc -->
+        <!-- hadoop -->
         <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>2.3.0</version>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>3.2.3</version>
         </dependency>
 
-        <!-- flink cep -->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.phoenix</groupId>-->
+<!--            <artifactId>phoenix-core</artifactId>-->
+<!--            <version>5.1.0</version>-->
+<!--        </dependency>-->
+
+                <!-- hbase -->
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-cep</artifactId>
-            <version>${flink.version}</version>
+            <groupId>org.apache.phoenix</groupId>
+            <artifactId>phoenix-spark</artifactId>
+            <version>5.0.0-HBase-2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- Table API & SQL -->
+        <!-- ClickHouse -->
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java</artifactId>
-            <version>${flink.version}</version>
+            <groupId>ru.yandex.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <!-- Table API & SQL + DataStream API -->
+
+        <!-- 全球IPv4地址归属地数据库(IPIP.NET版) -->
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java-bridge</artifactId>
-            <version>${flink.version}</version>
+            <groupId>net.ipip</groupId>
+            <artifactId>ipdb</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+
+        <!-- IK分词器 -->
+        <dependency>
+            <groupId>com.jianggujin</groupId>
+            <artifactId>IKAnalyzer-lucene</artifactId>
+            <version>8.0.0</version>
         </dependency>
     </dependencies>
 </project>

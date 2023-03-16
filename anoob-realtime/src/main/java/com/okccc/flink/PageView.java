@@ -34,7 +34,7 @@ public class PageView {
 //        env.setParallelism(1);
 
         env
-                .readTextFile("anoob-flink/input/UserBehavior.csv", "UTF-8")
+                .readTextFile("anoob-realtime/input/UserBehavior.csv", "UTF-8")
                 // 将输入数据封装成样例类
                 .map(new MapFunction<String, UserBehavior>() {
                     @Override

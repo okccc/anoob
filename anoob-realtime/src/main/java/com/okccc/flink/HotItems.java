@@ -52,7 +52,7 @@ public class HotItems {
         env.setParallelism(1);
 
         env
-                .readTextFile("anoob-flink/input/UserBehavior.csv", "UTF-8")
+                .readTextFile("anoob-realtime/input/UserBehavior.csv", "UTF-8")
                 // 将输入数据封装成POJO类
                 .map((MapFunction<String, UserBehavior>) value -> {
                     // 561558,3611281,965809,pv,1511658000

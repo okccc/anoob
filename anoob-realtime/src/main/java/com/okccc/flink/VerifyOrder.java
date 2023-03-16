@@ -29,7 +29,7 @@ public class VerifyOrder {
 
         // 订单流
         SingleOutputStreamOperator<OrderData> orderStream = env
-                .readTextFile("anoob-flink/input/OrderData.csv")
+                .readTextFile("anoob-realtime/input/OrderData.csv")
                 .map((MapFunction<String, OrderData>) value -> {
                     // 34729,pay,sd76f87d6,1558430844
                     String[] arr = value.split(",");
@@ -43,7 +43,7 @@ public class VerifyOrder {
 
         // 账单流
         SingleOutputStreamOperator<ReceiptData> receiptStream = env
-                .readTextFile("anoob-flink/input/ReceiptData.csv")
+                .readTextFile("anoob-realtime/input/ReceiptData.csv")
                 .map((MapFunction<String, ReceiptData>) value -> {
                     // ewr342as4,wechat,1558430845
                     String[] arr = value.split(",");

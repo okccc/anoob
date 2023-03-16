@@ -1,4 +1,4 @@
-package com.okccc.flink;
+package com.okccc.util;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -58,7 +58,8 @@ import java.util.concurrent.TimeUnit;
  *
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/kafka/
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/filesystem/
- * https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/connectors/datastream/elasticsearch/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/jdbc/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/elasticsearch/
  * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
  * FlinkKafkaProducer已被弃用并将在Flink1.15中移除,请改用KafkaSink
  *
@@ -229,7 +230,7 @@ public class FlinkUtil {
     }
 
     /**
-     * flink输出到mysql(不常用,mysql不适合存大量数据且性能一般)
+     * flink输出到jdbc(sql语句表和字段是写死的,所以只能单表写入,多表写入需要自定义SinkFunction)
      */
     @Deprecated
     public static SinkFunction<Tuple2<String, Integer>> getJdbcSink() {
@@ -327,7 +328,7 @@ public class FlinkUtil {
         // 读文件
         env
                 .fromSource(
-                        getFileSource("flink/input/UserBehavior.csv"),
+                        getFileSource("anoob-realtime/input/UserBehavior.csv"),
                         WatermarkStrategy.noWatermarks(),
                         "FileSource"
                 )

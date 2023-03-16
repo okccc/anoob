@@ -3,10 +3,6 @@ package com.okccc.demo
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.api.common.serialization.SimpleStringSchema
-import org.apache.flink.shaded.guava30.com.google.common.base.Charsets
-import org.apache.flink.shaded.guava30.com.google.common.hash.{BloomFilter, Funnels}
-import org.apache.flink.streaming.api.scala.function.ProcessWindowFunction
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow

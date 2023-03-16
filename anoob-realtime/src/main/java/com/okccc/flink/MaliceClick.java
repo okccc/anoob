@@ -37,7 +37,7 @@ public class MaliceClick {
 
         // 获取数据源
         SingleOutputStreamOperator<ClickData> filterStream = env
-                .readTextFile("anoob-flink/input/ClickData.csv")
+                .readTextFile("anoob-realtime/input/ClickData.csv")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, ClickData>) value -> {
                     // 578814,1715,guangdong,shenzhen,1511658330
