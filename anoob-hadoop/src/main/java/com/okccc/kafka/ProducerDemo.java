@@ -111,7 +111,7 @@ public class ProducerDemo {
 
         // 3.往kafka发送数据
         String topic = "nginx";
-        BufferedReader br = new BufferedReader(new FileReader("flink/input/ApacheLog.csv"));
+        BufferedReader br = new BufferedReader(new FileReader("input/ApacheLog.csv"));
         String line;
         while ((line = br.readLine()) != null) {
             // 开启事务
