@@ -44,7 +44,7 @@ import java.util.Map;
  * .notNext()        不想让某个事件严格近邻前一个事件
  * .notFollowedBy()  不想让某个事件在两个事件之间发生
  * .times()          定义事件次数
- * .within()         定义时间窗口
+ * .within()         定义时间窗口,相当于window()
  *
  * 总结：Pattern是flink语法糖,底层就是KeyedProcessFunction + 状态变量 + 定时器,一般直接cep就行,除非特别复杂的需求才会用大招
  */
@@ -55,7 +55,7 @@ public class FlinkCep {
      */
     private static void checkLoginFail(StreamExecutionEnvironment env) {
         KeyedStream<LoginData, String> dataStream = env
-                .readTextFile("flink/input/LoginData.csv")
+                .readTextFile("anoob-realtime/input/LoginData.csv")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, LoginData>) value -> {
                     // 5402,83.149.11.115,success,1558430815
@@ -75,7 +75,7 @@ public class FlinkCep {
                 .where(new SimpleCondition<LoginData>() {
                     @Override
                     public boolean filter(LoginData value) throws Exception {
-                        return value.eventType.equals("fail");
+                        return "fail".equals(value.eventType);
                     }
                 })
                 .times(3)
@@ -105,7 +105,7 @@ public class FlinkCep {
     private static void checkOrderPay(StreamExecutionEnvironment env) {
         // 业务系统需要不停判断订单支付时间是否超时,类似618这种促销场景数据量暴增对系统压力很大,可以考虑使用低延迟高吞吐的flink处理
         KeyedStream<OrderData, String> dataStream = env
-                .readTextFile("flink/input/OrderData.csv")
+                .readTextFile("anoob-realtime/input/OrderData.csv")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, OrderData>) value -> {
                     // 34729,create,,1558430842 | 34729,pay,sd76f87d6,1558430844
@@ -125,14 +125,14 @@ public class FlinkCep {
                 .where(new SimpleCondition<OrderData>() {
                     @Override
                     public boolean filter(OrderData value) throws Exception {
-                        return value.eventType.equals("create");
+                        return "create".equals(value.eventType);
                     }
                 })
                 .followedBy("pay")
                 .where(new SimpleCondition<OrderData>() {
                     @Override
                     public boolean filter(OrderData value) throws Exception {
-                        return value.eventType.equals("pay");
+                        return "pay".equals(value.eventType);
                     }
                 })
                 .within(Time.minutes(15));
@@ -176,7 +176,7 @@ public class FlinkCep {
      */
     private static void testStateMachine(StreamExecutionEnvironment env) {
         env
-                .readTextFile("flink/input/LoginData.csv")
+                .readTextFile("anoob-realtime/input/LoginData.csv")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, LoginData>) value -> {
                     // 5402,83.149.11.115,success,1558430815
@@ -217,10 +217,10 @@ public class FlinkCep {
                         }
                         // 计算即将要跳转的状态
                         String nextState = stateMachine.get(Tuple2.of(currentState.value(), value.eventType));
-                        if (nextState.equals("SUCCESS")) {
+                        if ("SUCCESS".equals(nextState)) {
                             // 登录成功,清空状态变量
                             currentState.clear();
-                        } else if (nextState.equals("FAIL")) {
+                        } else if ("FAIL".equals(nextState)) {
                             // 登录失败,输出结果(这里有缺陷,如果有延迟数据结果就有点问题,比如时间戳为43,44,47,42)
                             out.collect(value.userId + " 在 " + value.timestamp + " 已经连续三次登录失败！");
                         } else {
