@@ -12,7 +12,7 @@ export HBASE_MANAGES_ZK=false  # 用集群的zk而不是hbase自带的zk
 <configuration>
     <property>
         <name>hbase.rootdir</name>
-        <! 端口号要和core-site.xml保持一致,不然HMaster进程会挂掉 >
+        <!-- 端口号要和core-site.xml保持一致,不然HMaster进程会挂掉 -->
         <value>hdfs://localhost:9000/hbase</value>
     </property>
     <property>
@@ -31,7 +31,7 @@ export HBASE_MANAGES_ZK=false  # 用集群的zk而不是hbase自带的zk
         <name>hbase.wal.provider</name>
         <value>filesystem</value>
     </property>
-    <! phoenix不能直接创建schema,需要在hbase-site.xml开启权限 >
+    <!-- phoenix不能直接创建schema,需要在hbase-site.xml开启权限 -->
     <property>
         <name>phoenix.schema.isNamespaceMappingEnabled</name>
         <value>true</value>
@@ -90,7 +90,8 @@ hbase(main):001:0> disable 'student' & drop 'student'  # 删除表
 ### phoenix
 ```shell script
 # phoenix是hbase的开源sql皮肤,可以使用标准jdbc-api操作hbase
-# 安装
+# 下载地址 https://phoenix.apache.org/download.html
+[root@cdh1 ~]$ wget http://archive.apache.org/dist/phoenix/apache-phoenix-5.0.0-HBase-2.0/bin/apache-phoenix-5.0.0-HBase-2.0-bin.tar.gz
 [root@cdh1 ~]$ tar -xvf apache-phoenix-5.0.0-HBase-2.0-bin.tar.gz -C /opt/module/
 # 将phoenix-server.jar拷贝到hbase/lib
 [root@cdh1 ~]$ cp /phoenix/phoenix-5.0.0-HBase-2.0-server.jar /hbase/lib/
@@ -102,17 +103,14 @@ hbase(main):001:0> disable 'student' & drop 'student'  # 删除表
 [root@cdh1 ~]$ sqlline.py localhost:2181
 
 # 常用操作
-# 创建schema,phoenix中的schema/table/field会自动转换为大写,若要小写需使用双引号"student"
+# 创建schema,phoenix的schema/table/field会自动转换为大写,若要小写需使用双引号"student"
 jdbc:phoenix:localhost:2181> create schema if not exists dim
 # 查看所有表
 jdbc:phoenix:localhost:2181> !table
 # 查看表结构
-jdbc:phoenix:localhost:2181> !desc realtime.dim_sku_info
+jdbc:phoenix:localhost:2181> !desc dim.dim_sku_info
 # 创建表
-jdbc:phoenix:localhost:2181> CREATE TABLE IF NOT EXISTS dim.student(
-  id VARCHAR primary key,  # 指定单列作为RowKey
-  name VARCHAR,
-  addr VARCHAR);
+jdbc:phoenix:localhost:2181> create table if not exists dim.student(id varchar primary key, name varchar, addr varchar);
 # 更新数据
 jdbc:phoenix:localhost:2181> upsert into dim.student values('1001','grubby','上海');
 # 查询数据
