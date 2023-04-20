@@ -103,14 +103,18 @@ hbase(main):001:0> disable 'student' & drop 'student'  # 删除表
 [root@cdh1 ~]$ sqlline.py localhost:2181
 
 # 常用操作
-# 创建schema,phoenix的schema/table/field会自动转换为大写,若要小写需使用双引号"student"
+# 创建schema,通过phoenix操作的schema/table/field会自动转换为大写,若要小写需使用双引号"student"
 jdbc:phoenix:localhost:2181> create schema if not exists dim
+# 删除schema
+jdbc:phoenix:localhost:2181> drop schema dim;
 # 查看所有表
 jdbc:phoenix:localhost:2181> !table
 # 查看表结构
 jdbc:phoenix:localhost:2181> !desc dim.dim_sku_info
 # 创建表
 jdbc:phoenix:localhost:2181> create table if not exists dim.student(id varchar primary key, name varchar, addr varchar);
+# 删除表
+jdbc:phoenix:localhost:2181> drop table dim.student;
 # 更新数据
 jdbc:phoenix:localhost:2181> upsert into dim.student values('1001','grubby','上海');
 # 查询数据
