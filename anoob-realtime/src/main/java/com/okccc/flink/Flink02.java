@@ -57,6 +57,7 @@ public class Flink02 {
         env
                 .socketTextStream("localhost", 9999)
                 .map(new RichMapFunction<String, Integer>() {
+                    @Override
                     public void open(Configuration parameters) throws Exception {
                         // 子任务索引和并行度有关,一个并行度索引就是0,两个并行度索引就是0和1
                         System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
