@@ -268,8 +268,9 @@ Note: This will have no impact if delete.topic.enable is not set to true.
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --topic t01 [--from-beginning] [--max-messages 1]
 java bigdata
 
-# 查看消费者组列表/详细信息/删除
+# 查看消费者组列表
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
+# 查看消费者组详细信息(非常有用,消费进度能反映数据积压程度,看看是否需要提高消费者并行度,配合flink反压一起观察)
 [root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
 GROUP    TOPIC    PARTITION    CURRENT-OFFSET    LOG-END-OFFSET    LAG    CONSUMER-ID    HOST    CLIENT-ID
 g01      nginx        0             6845               6923        78     consumer-g01-1  /172.18.1.111   consumer-g01-1
