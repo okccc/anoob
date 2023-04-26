@@ -49,7 +49,7 @@ import org.apache.flink.util.Collector;
  * TaskManager：执行任务处理数据,对应一个jvm进程,包含一定数量的任务槽task slots,对应其能并行处理的任务数
  *
  * 并行度
- * 并行度：算子之间有执行顺序,每来一条数据都要经过source/transform/sink依次执行,算子在同一时刻只能处理一条数据,为了提高吞吐量
+ * 算子之间有执行顺序,每来一条数据都要经过source/transform/sink依次执行,算子都是单线程,同一时刻只能处理一条数据,为了提高吞吐量
  * 将算子拆分成多个并行子任务,分发到不同节点实现"并行计算",算子的子任务个数就是"并行度",不同算子可以设置不同并行度,程序取最大并行度
  * Source端并行度通常设置为kafka topic的分区数,如果消费速度跟不上生产速度可以考虑扩大kafka分区同时调大并行度
  * map/filter/flatMap等处理较快的算子和source端保持一致即可,keyBy之后的算子建议设置为2的整次幂
@@ -63,12 +63,14 @@ import org.apache.flink.util.Collector;
  * 不同算子的子任务可以共享任务槽,并行度(TaskManager实际使用的并发,动态概念) <= 任务槽(TaskManager拥有的并发能力,静态概念)
  *
  * State
+ * 状态主要用来保存中间结果,根据是否需要保存中间结果分为无状态和有状态
  * 无状态算子：不依赖其它数据,比如map/filter/flatMap只处理当前进来的数据
  * 有状态算子：会依赖其它数据,比如aggregate/window都会用到之前已经到达的数据,也就是所谓的状态
  * 算子任务会按并行度分为多个并行子任务执行,不同子任务占据不同task slot,所以状态在资源上是物理隔离的,只对当前子任务有效
  * 而且aggregate/window等有状态算子都会先keyBy,后续计算都是针对当前key的,所以状态也应该按照key隔离,于是状态分为以下两种
- * 算子状态(Operator State)：可见范围是当前子任务,相当于本地变量,范围太大应用场景较少
- * 按键分区状态(Keyed State)：可见范围是当前key,包括ValueState/ListState/MapState/BroadcastState/AggregatingState/ReducingState
+ * 算子状态(OperatorState)：可见范围是所有算子,相当于一个本地变量,比如消费kafka的偏移量
+ * 按键分区状态(KeyedState)：可见范围是当前key,包括ValueState、AppendingState(ListState/AggregatingState/ReducingState)、MapState
+ * 广播状态(BroadcastState)：将一个流的数据广播到所有下游任务,必须是MapState类型,BroadcastProcessFunction提供了处理广播数据流和普通数据流的接口
  *
  * Checkpoint
  * flink故障恢复机制的核心就是检查点,会定期拷贝当前状态(快照),时间节点是当所有任务都处理完一个相同输入数据时(检查点分界线)
