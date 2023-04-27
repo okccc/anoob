@@ -1,4 +1,4 @@
-package com.okccc.db;
+package com.okccc.util;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
