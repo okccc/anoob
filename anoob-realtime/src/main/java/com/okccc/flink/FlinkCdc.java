@@ -46,10 +46,11 @@ public class FlinkCdc {
         MySqlSource<String> mySqlSource = MySqlSource.<String>builder()
                 .hostname("localhost")
                 .port(3306)
-                .databaseList("mock")
-                .tableList()  // 默认监控所有表,也可以手动指定"ssm.t_user", "ssm.t_employee"
+                .databaseList("mock")  // lesson.*表示所有lesson开头的库
+                .tableList()  // 默认监控所有表,lesson.*\\.node_record.*表示lesson库下所有node_record开头的表
                 .username("root")
                 .password("root@123")
+                // 类似Kafka消费者,FlinkCDC也支持从开头、末尾、指定偏移量、指定时间戳进行消费
                 .startupOptions(StartupOptions.initial())  // initial启动时会扫描历史数据,然后继续读取最新的binlog
                 .serverTimeZone("Asia/Shanghai")
 //                .deserializer(new StringDebeziumDeserializationSchema())  // SourceRecord格式不太友好
