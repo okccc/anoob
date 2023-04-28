@@ -5,7 +5,6 @@ import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.StringDebeziumDeserializationSchema;
 import io.debezium.data.Envelope;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -27,8 +26,14 @@ import org.apache.kafka.connect.source.SourceRecord;
  * 常见错误
  * Access denied; you need (at least one of) the SUPER, REPLICATION CLIENT privilege(s) for this operation
  * 需要dba赋权：grant REPLICATION CLIENT on ${db}.${table} to '${username}'@'%'
+ *
  * Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure
  * 公司生产环境的mysql通常会在grant赋权user@'%'或者在VPN里面做网段限制,本地是连不上的,代码提交到服务器才能跑
+ *
+ * Caused by: org.apache.flink.table.api.ValidationException:
+ * The MySQL server has a timezone offset (0 seconds ahead of UTC) which does not match the configured timezone Asia/Shanghai.
+ * Specify the right server-time-zone to avoid inconsistencies for time-related fields.
+ * 如果是海外的数据库要设置serverTimeZone="UTC"
  */
 public class FlinkCdc {
 
@@ -46,13 +51,14 @@ public class FlinkCdc {
                 .username("root")
                 .password("root@123")
                 .startupOptions(StartupOptions.initial())  // initial启动时会扫描历史数据,然后继续读取最新的binlog
+                .serverTimeZone("Asia/Shanghai")
 //                .deserializer(new StringDebeziumDeserializationSchema())  // SourceRecord格式不太友好
                 .deserializer(new JsonDebeziumDeserializationSchema())  // binlog是二进制数据要反序列化,返回JSON方便解析(推荐)
 //                .deserializer(new MyDebeziumDeserializationSchema())  // 也可以自定义反序列化器
                 .build();
 
         env
-                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySqlSource")
+                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySql Source")
                 .print();
 
         // 启动任务
