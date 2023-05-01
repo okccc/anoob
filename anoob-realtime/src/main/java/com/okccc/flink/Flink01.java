@@ -72,6 +72,11 @@ import org.apache.flink.util.Collector;
  * 按键分区状态(KeyedState)：可见范围是当前key,包括ValueState、AppendingState(ListState/AggregatingState/ReducingState)、MapState
  * 广播状态(BroadcastState)：将一个流的数据广播到所有下游任务,必须是MapState类型,BroadcastProcessFunction提供了处理广播数据流和普通数据流的接口
  *
+ * StateBackend
+ * 状态后端负责读写本地状态,当状态数据较大时,可能有些是热数据有些是冷数据,比较理想的情况是热数据放内存保证性能,冷数据放磁盘节省资源
+ * HashMapStateBackend：状态放内存,读写速度极快但不安全,并且会消耗集群大量内存资源,适合较小state和window
+ * EmbeddedRocksDBStateBackend(推荐)：状态放RocksDB,硬盘存储读写时的序列化和反序列化会降低性能但是安全,适合超大state和window
+ *
  * Checkpoint
  * flink故障恢复机制的核心就是检查点,会定期拷贝当前状态(快照),时间节点是当所有任务都处理完一个相同输入数据时(检查点分界线)
  * "检查"是针对故障恢复的结果而言,故障恢复后继续处理的结果应该和发生故障前完全一致,所以也叫"一致性检查点",默认只保存最近一次检查点
