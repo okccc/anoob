@@ -38,7 +38,7 @@ import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand;
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDescription;
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 import org.apache.http.HttpHost;
-import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 
@@ -47,9 +47,6 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: okccc
@@ -67,11 +64,12 @@ import java.util.concurrent.TimeUnit;
  * Caused by: org.apache.kafka.common.errors.ProducerFencedException: Producer attempted an operation with an old epoch.
  * Either there is a newer producer with the same transactionalId, or the producer's transaction has been expired by the broker.
  * kafka生产者exactly_once：幂等性只能保证单分区单会话内数据不重复,完全不重复还得在幂等性的基础上开启事务
+ * 其实很多写kafka的场景只要保证at_least_once就行,尤其是数据量特别大时事务会严重影响性能,只要下游消费kafka的程序能保证幂等性即可
  *
  * Caused by: org.apache.kafka.common.KafkaException: Unexpected error in InitProducerIdResponse;
  * The transaction timeout is larger than the maximum value allowed by the broker (as configured by transaction.max.timeout.ms).
  * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/datastream/kafka/#kafka-producer-%E5%92%8C%E5%AE%B9%E9%94%99
- * Kafka broker事务最大超时时间transaction.max.timeout.ms=15分钟,而FlinkKafkaProducer的transaction.timeout.ms=1小时,
+ * Kafka broker事务最大超时时间transaction.max.timeout.ms=15分钟,而FlinkKafkaProducer的transaction.timeout.ms=1小时
  * 因此在使用Semantic.EXACTLY_ONCE模式之前应该调小transaction.timeout.ms的值
  */
 public class FlinkUtil {
@@ -120,6 +118,7 @@ public class FlinkUtil {
                 .setTopics(topics)
                 .setGroupId(groupId)
                 .setStartingOffsets(OffsetsInitializer.latest())
+                .setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
     }
@@ -128,9 +127,6 @@ public class FlinkUtil {
      * 往kafka写数据的生产者,将数据写入指定topic
      */
     public static KafkaSink<String> getKafkaSink(String topic) {
-        // 生产者属性配置
-        Properties prop = new Properties();
-        prop.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000);
         // 创建flink生产者对象
         return KafkaSink.<String>builder()
                 .setBootstrapServers(KAFKA_SERVER)
@@ -141,8 +137,6 @@ public class FlinkUtil {
                                 .build()
                 )
                 .setDeliverGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                .setTransactionalIdPrefix(UUID.randomUUID().toString())
-                .setKafkaProducerConfig(prop)
                 .build();
     }
 
@@ -154,7 +148,6 @@ public class FlinkUtil {
                 .setBootstrapServers(KAFKA_SERVER)
                 .setRecordSerializer(kafkaRecordSerializationSchema)
                 .setDeliverGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                .setTransactionalIdPrefix(UUID.randomUUID().toString())
                 .build();
     }
 
