@@ -60,7 +60,8 @@ public class Flink04 {
                     String[] words = value.split("\\s");
                     return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000L);
                 })
-                // Tuple是flink给java设置的新数据类型,使用lambda表达式会泛型丢失,需要显示指定返回类型,或者直接使用匿名内部类
+                // Tuple2是flink给java设置的新数据类型,使用lambda表达式会泛型丢失,需要显示指定返回类型,或者直接使用匿名内部类
+                // 比如按照Tuple2类型的字段进行keyBy会报错：The generic type parameters of 'Tuple2' are missing.
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 // window算子使用事件时间时必须分配时间戳和生成水位线
                 .assignTimestampsAndWatermarks(
