@@ -57,6 +57,8 @@ import java.util.ArrayList;
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/filesystem/
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/jdbc/
  * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/connectors/datastream/elasticsearch/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/ops/monitoring/checkpoint_monitoring/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/ops/monitoring/back_pressure/
  * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
  * FlinkKafkaProducer已被弃用并将在Flink1.15中移除,请改用KafkaSink
  *
@@ -78,24 +80,27 @@ public class FlinkUtil {
     private static final String KAFKA_SERVER = "localhost:9092";
 
     /**
-     * 配置检查点和状态后端
+     * 配置状态后端和检查点
      */
-    public static StreamExecutionEnvironment getExecutionEnvironment() {
-        // 创建流处理环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+    public static void setCheckpointAndStateBackend(StreamExecutionEnvironment env) {
         // 禁用算子链,方便定位导致反压的具体算子
         env.disableOperatorChaining();
+
         // 设置状态后端
 //        env.setStateBackend(new HashMapStateBackend());
         env.setStateBackend(new EmbeddedRocksDBStateBackend());
-        // 检查点时间间隔：通常1~5分钟,查看Checkpoints - Summary - End to End Duration,综合考虑性能和时效性
-        env.enableCheckpointing(TimeUnit.MINUTES.toMillis(2), CheckpointingMode.EXACTLY_ONCE);
+
+        // 开启检查点：通常1~5分钟执行一次,查看Checkpoints - Summary - End to End Duration,综合考虑性能和时效性
+        env.enableCheckpointing(60 * 1000, CheckpointingMode.EXACTLY_ONCE);
         CheckpointConfig config = env.getCheckpointConfig();
+
         // 检查点存储路径
-        config.setCheckpointStorage("hdfs://cdh1/flink/ck");
-        // 检查点超时时间
-        config.setCheckpointTimeout(TimeUnit.MINUTES.toMillis(5));
-        // 检查点可容忍的连续失败次数
+        config.setCheckpointStorage("hdfs://${ip}:${port}/flink/cp");
+
+        // 检查点超时时间,防止状态数据过大或反压导致检查点耗时过长 Checkpoint expired before completing.
+        config.setCheckpointTimeout(3 * 60 * 1000);
+
+        // 检查点可容忍的连续失败次数,不然一故障就报错 Exceeded checkpoint tolerable failure threshold.
         config.setTolerableCheckpointFailureNumber(3);
         // 检查点最小等待间隔,通常是时间间隔一半
         config.setMinPauseBetweenCheckpoints(TimeUnit.MINUTES.toMillis(1));
