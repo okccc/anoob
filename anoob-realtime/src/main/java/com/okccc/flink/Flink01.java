@@ -91,11 +91,6 @@ import org.apache.flink.util.Collector;
  * 保存点中状态是以(算子id-状态名称)这样的key-value组织起来的,保存点在程序修改后能兼容的前提是状态的拓扑结构和数据类型保持不变,
  * 对于不设置id的算子flink会自动配置,这样应用重启后可能会因为id不同导致无法兼容以前的状态,为了方便后期维护建议为每个算子都指定id
  *
- * StateBackend
- * 状态后端负责两件事：1.读写本地状态 2.将检查点写入远程持久化存储
- * HashMapStateBackend(默认)：本地状态放内存,读写速度极快但不安全,并且会消耗集群大量内存资源,适合较大state和window
- * EmbeddedRocksDBStateBackend：本地状态放RocksDB,硬盘存储读写时要序列化和反序列化会降低性能但是安全,适合超大state和window
- *
  * 状态一致性(结果准确性)
  * 最多一次：任务故障直接重启啥也不干,会丢数据但是速度最快
  * 至少一次：生产上至少得保证不丢数据,即任务故障时能够重放数据,比如kafka可以重置偏移量,有些特殊场景重复处理不影响结果比如uv
@@ -112,15 +107,17 @@ import org.apache.flink.util.Collector;
  *
  * 反压
  * 场景1：当前节点发送速率跟不上生产速率,比如flatMap算子一条输入多条输出,当前节点就是反压根源
- * 场景2：下游节点接收速率较慢,通过反压机制限制了上游节点发送速率,继续排查下游节点,一直找到第一个OK的就是反压根源(常见)
+ * 场景2：上游生产速率 > 下游消费速率,积压数据会填充到输入缓冲区,下游缓冲区满了就会传播到上游缓冲区,上游任务也被迫降低处理速率,从而形成反压
+ * 反压是服务器或算子过载的表现,会导致对齐的检查点耗时越来越长,未对齐的检查点越来越大
  * 反压可能导致state过大甚至OOM以及checkpoint超时失败,先找到第一个出现反压的节点,根源要么是这个节点要么是紧挨着的下游节点
- * WebUI查看算子反压程度：Overview - BackPressure - Backpressure Status(OK/LOW/HIGH)
+ * WebUI根据算子颜色查看反压程度,蓝色空闲/红色忙碌/黑色反压 Overview - BackPressure - Backpressure Status(OK/LOW/HIGH)
+ * 反压任务下游的忙碌任务往往是反压根源
  * Metrics指标分析：buffers.outPoolUsage发送端buffer使用率/buffers.inPoolUsage接收端buffer使用率
- * 反压原因：1.数据倾斜 2.cpu/内存资源不足 3.外部组件交互
- * 查看数据是否倾斜：Overview - SubTasks - Bytes Received & Bytes Sent
- * 火焰图：对TaskManager进行CPU profile,横向是出现次数对应执行时长,纵向是调用链顶层就是正在执行函数,过宽说明存在性能瓶颈
- * 下载GC日志：对TaskManager进行内存分析,尤其是full gc后老年代剩余大小
- * Source端或Sink端性能较差,看看kafka是否需要扩容、clickhouse是否达到瓶颈、hbase的rowkey是否遇到热点问题
+ *
+ * 反压原因
+ * 1.数据倾斜：Overview - SubTasks - Bytes Received & Bytes Sent
+ * 2.外部组件：Source端或Sink端性能较差,看看kafka是否需要扩容、clickhouse是否达到瓶颈、hbase的rowkey是否遇到热点问题
+ * 3.资源不足：下载GC日志分析TaskManager的内存尤其是full gc后老年代剩余大小,FlameGraph火焰图分析TaskManager的ON-CPU和Off-CPU
  *
  * 数据倾斜
  * 1.keyBy之前发生倾斜
