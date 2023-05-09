@@ -71,7 +71,7 @@ public class FlinkCep {
 
         // 定义匹配模板,类似正则表达式(主要就是写这玩意)
         Pattern<LoginData, LoginData> pattern = Pattern
-                .<LoginData>begin("fail")
+                .<LoginData>begin("begin")
                 .where(new SimpleCondition<LoginData>() {
                     @Override
                     public boolean filter(LoginData value) throws Exception {
@@ -90,9 +90,9 @@ public class FlinkCep {
                 .process(new PatternProcessFunction<LoginData, String>() {
                     @Override
                     public void processMatch(Map<String, List<LoginData>> match, Context ctx, Collector<String> out) throws Exception {
-                        LoginData firstFail = match.get("fail").get(0);
-                        LoginData secondFail = match.get("fail").get(1);
-                        LoginData thirdFail = match.get("fail").get(2);
+                        LoginData firstFail = match.get("begin").get(0);
+                        LoginData secondFail = match.get("begin").get(1);
+                        LoginData thirdFail = match.get("begin").get(2);
                         out.collect(firstFail.userId + " 连续三次登录失败 " + firstFail.timestamp + ", " + secondFail.timestamp + ", " + thirdFail.timestamp);
                     }
                 })
@@ -121,14 +121,14 @@ public class FlinkCep {
 
         // 定义匹配模板
         Pattern<OrderData, OrderData> pattern = Pattern
-                .<OrderData>begin("create")
+                .<OrderData>begin("begin")
                 .where(new SimpleCondition<OrderData>() {
                     @Override
                     public boolean filter(OrderData value) throws Exception {
                         return "create".equals(value.eventType);
                     }
                 })
-                .followedBy("pay")
+                .followedBy("followedBy")
                 .where(new SimpleCondition<OrderData>() {
                     @Override
                     public boolean filter(OrderData value) throws Exception {
@@ -147,20 +147,20 @@ public class FlinkCep {
                 .flatSelect(
                         // 将超时订单放到侧输出流
                         outputTag,
-                        // 超时订单：创建后未支付或超时支付
+                        // 超时订单：创建后15min内未支付或超时支付
                         new PatternFlatTimeoutFunction<OrderData, String>() {
                             @Override
                             public void timeout(Map<String, List<OrderData>> pattern, long timeoutTimestamp, Collector<String> out) throws Exception {
-                                OrderData create = pattern.get("create").get(0);
-                                out.collect("订单 " + create.orderId + " 已超时,创建时间为" + create.timestamp + ",当前时间为" + timeoutTimestamp);
+                                OrderData orderData = pattern.get("begin").get(0);
+                                out.collect("订单 " + orderData.orderId + " 已超时,创建时间为" + orderData.timestamp + ",当前时间为" + timeoutTimestamp);
                             }
                         },
-                        // 正常订单：创建后及时支付
+                        // 正常订单：创建后15min内及时支付
                         new PatternFlatSelectFunction<OrderData, String>() {
                             @Override
                             public void flatSelect(Map<String, List<OrderData>> pattern, Collector<String> out) throws Exception {
-                                OrderData pay = pattern.get("pay").get(0);
-                                out.collect("订单 " + pay.orderId + " 已支付,支付时间为" + pay.timestamp);
+                                OrderData orderData = pattern.get("followedBy").get(0);
+                                out.collect("订单 " + orderData.orderId + " 已支付,支付时间为" + orderData.timestamp);
                             }
                         }
                 );
