@@ -57,6 +57,14 @@ mysql> show variables like 'general%';
 mysql> set global general_log='on';
 mysql> set global general_log_file='/var/log/mysqld.log';
 tail -f /var/log/mysqld.log
+# 查看时区
+mysql> show variables like '%time_zone%';
++------------------+--------+
+| Variable_name    | Value  |
++------------------+--------+
+| system_time_zone | CST    |
+| time_zone        | +08:00 |
++------------------+--------+
 # 查看mysql连接数
 mysql> show variables like 'max_connections' / select @@max_connections
 mysql> set global max_connections=1000;
