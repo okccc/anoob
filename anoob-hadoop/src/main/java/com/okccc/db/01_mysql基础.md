@@ -81,6 +81,13 @@ mysql> show status like 'Thread%';
 | Threads_created         | 21    |  # 已经创建的线程数,Threads_created = Threads_cached + Threads_connected
 | Threads_running         | 1     |  # 当前激活的线程数,Threads_running << Threads_connected,因为有些连接的线程处于sleep状态
 +-------------------------+-------+
+# 查看mysql的QPS
+mysql> show status like 'Questions%';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| Questions     | 32    |
++---------------+-------+
 # 查看mysql线程池缓存大小
 mysql> show variables like 'thread_cache_size';
 +-------------------+-------+
