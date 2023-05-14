@@ -572,13 +572,15 @@ mysql> grant all on *.* to 'maxwell'@'%' identified by 'maxwell';
 ```shell script
 # 安装(单机版,canal很少宕机且单节点足够用所以不需要HA)
 # 集群：多台服务器干相同的活(两个厨师炒菜) | 分布式：多台服务器干不同的活(一个厨师炒菜一个小二传菜) | 高可用：多台服务器一个干活别的备份
-[root@cdh1 ~]$ tar -xvf canal.deployer-1.1.4.tar -C /Users/okc/modules
+# https://github.com/alibaba/canal/releases
+[root@cdh1 ~]$ tar -xvf canal.deployer-1.1.6.tar -C /Users/okc/modules
 # canal服务端配置(修改后先stop再startup,不然bin/canal.pid一直存在,example/meta.dat会记录mysql-bin.xxx的position,所以不会丢数据)
 [root@cdh1 ~]$ vim conf/canal.properties
 canal.serverMode = kafka                 # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
 canal.mq.servers = cdh1:9092,cdh2:9092   # kafka地址,逗号分隔
 canal.destinations = example1,example2   # canal默认单实例,可以拷贝conf/example配置多实例,通常一个ip对应一个instance
 canal.instance.filter.query.ddl = true   # canal默认抓所有binlog,可以过滤ddl语句,防止CREATE TABLE等语句解析异常
+
 # instance实例配置(修改后直接生效不用重启)
 [root@cdh1 ~]$ vim conf/example/instance.properties
 canal.instance.master.address={ip:port}  # mysql地址
@@ -594,10 +596,15 @@ canal.mq.partition=0
 # 方案2.将消息发往多个partition,按照主键进行hash保证相同id的更新记录进入同一个partition(推荐)
 canal.mq.partitionsNum=3
 canal.mq.partitionHash=.*\\..*:id  # 设置regex匹配到的表的hash字段 .*\\..*:id | .*\\..*:$pk$ | ${db}.${table}:${pk}
-# 启动canal
-[root@cdh1 ~]$ bin/startup.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题canal
-# 关闭canal
-[root@cdh1 ~]$ bin/stop.sh
+
+# 启动/关闭canal
+[root@cdh1 ~]$ startup.sh/stop.sh  # jps出现CanalLauncher进程说明启动成功,同时会创建instance.properties中配置的kafka主题canal
+# 查看日志
+[root@cdh1 ~]$ cat logs/canal/canal.log
+the canal server is running now ......
+[root@cdh1 ~]$ cat logs/example/example.log
+find start position successfully, the next step is binlog dump
+
 # 启动kafka消费者
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic ods_base_db
 # 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
