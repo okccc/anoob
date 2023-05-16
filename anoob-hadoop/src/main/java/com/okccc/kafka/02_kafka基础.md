@@ -111,31 +111,42 @@ esac
 # kafka故障重启可能会导致kafka的logs/meta.properties的cluster.id和zk中的/cluster/id不一致,把这个干掉,kafka重启之后会重新生成该文件
 ```
 
-### kafka安装
+### kafka3安装
 - [kafka3.x官方文档](https://kafka.apache.org/documentation/)
 ```shell script
 # 下载
-[root@cdh1~]$ wget https://mirror.bit.edu.cn/apache/kafka/2.4.1/kafka_2.12-2.4.1.tgz
+[root@cdh1~]$ wget https://archive.apache.org/dist/kafka/3.3.1/kafka_2.12-3.3.1.tgz
 # 安装
-[root@cdh1~]$ tar -xvf kafka_2.12-2.4.1.tgz -C /opt/module
-# 修改配置文件
+[root@cdh1~]$ tar -xvf kafka_2.12-3.3.1.tgz -C /opt/module
+# 添加到环境变量
+[root@cdh1 ~]$ vim /etc/profile
+export KAFKA_HOME=/opt/module/kafka_2.12-3.3.1
+export PATH=$PATH:$KAFKA_HOME/bin
+
+# 修改zookeeper配置文件
+[root@cdh1 ~]$ vim zookeeper.properties
+# 快照存储目录
+dataDir=${KAFKA_HOME}/data/zookeeper
+# 端口号
+clientPort=2181
+# 在dataDir目录下创建myid文件
+[root@cdh1 ~]$ echo 1 > myid
+
+# 修改kafka配置文件
 [root@cdh1~]$ vim server.properties
 # broker的全局唯一编号,不能重复
 broker.id=0
-# 开启删除topic功能,否则只是标记删除并没有真正删除
-delete.topic.enable=true
-# kafka日志存放路径,消息也存放在该目录
-log.dirs=/Users/okc/modules/kafka_2.12-2.4.1/logs
-# zk地址,创建kafka目录,不然kafka信息会被打散到zookeeper根目录下,不便于维护,kafka2.8以后不再依赖zk减少网络通信
-zookeeper.connect=cdh1:2181,cdh2:2181,cdh3:2181/kafka
-# 添加到环境变量
-[root@cdh1 ~]$ vim /etc/profile
-export KAFKA_HOME=/Users/okc/modules/kafka_2.12-2.4.1
-export PATH=$PATH:$KAFKA_HOME/bin
-# 分发到其他节点并修改broker.id
-[root@cdh1 ~]$ xsync /Users/okc/modules/kafka_2.12-2.4.1 & broker.id=1/2
+# 监听地址
+listeners=PLAINTEXT://localhost:9092
+# 数据存储目录
+log.dirs=${KAFKA_HOME}/data/kafka-logs
+# zk地址,kafka2.8以后自带zk减少网络通信
+zookeeper.connect=localhost:2181
 
-# broker配置
+# 分发到其他节点并修改broker.id
+[root@cdh1 ~]$ xsync /opt/module/kafka_2.12-3.3.1 && broker.id=1,2
+
+# broker配置(optional)
 # The largest record batch size allowed by Kafka
 # message.max.bytes是broker的配置,max.message.bytes是topic的配置
 message.max.bytes=10485760
@@ -144,7 +155,7 @@ log.retention.hours=168
 # The maximum size of a log segment file. When this size is reached a new log segment will be created.
 log.segment.bytes=1073741824
 
-# producer配置
+# producer配置(optional)
 # the default batch size in bytes when batching multiple records sent to a partition
 batch.size=16384
 # producer will wait for up to the given delay to allow other records to be sent so that the sends can be batched together
@@ -158,7 +169,7 @@ retries=0
 # The amount of time to wait before attempting to retry a failed request to a given topic partition
 retry.backoff.ms=100
 
-# consumer配置
+# consumer配置(optional)
 # The maximum amount of data per-partition the server will return
 max.partition.fetch.bytes=1048576
 # The maximum number of records returned in a single call to poll()
@@ -166,15 +177,17 @@ max.poll.records=500
 # the maximum amount of time the client will wait for the response of a request
 request.timeout.ms=305000
 
-# 启动kafka,默认是前台进程,可以在后台启动
-[root@cdh1 ~]$ kafka-server-start.sh -daemon /config/server.properties  # 日志默认存放在logs/server.log
-[root@cdh1 ~]$ nohup kafka-server-start.sh config/server.properties > (logs/server.log | /dev/null) 2>&1 &
+# 先启动zk
+[root@cdh1 ~]$ zookeeper-server-start.sh -daemon config/zookeeper.properties
+# 再启动kafka
+[root@cdh1 ~]$ kafka-server-start.sh -daemon /config/server.properties  # 启动日志存放在./logs/server.log
+[root@cdh1 ~]$ nohup kafka-server-start.sh config/server.properties > (./logs/server.log | /dev/null) 2>&1 &
 # 关闭/杀掉进程
-[root@cdh1 ~]$ kafka-server-stop.sh / ps -aux | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
+[root@cdh1 ~]$ kafka-server-stop.sh / ps -ef | grep -i 'kafka' | grep -v grep | awk '{print $2}' | xargs kill
 # 一键启动kafka集群
 [root@cdh1 ~]$ vim kafka.sh
 #!/bin/bash
-kafka_home=/opt/module/kafka_2.11-0.11.0.2
+kafka_home=/opt/module/kafka_2.12-3.3.1
 case $1 in
 "start"){
     for i in cdh1 cdh2 cdh3
@@ -216,77 +229,75 @@ offset
 ### kafka命令行
 ```shell script
 # 创建topic,必须指定分区数和副本数,额外配置信息可选,不写就使用默认值
-[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server cdh1:9092 --create --topic t01 --partitions 3 --replication-factor 2 [--config key=value]
-Topic creation {"version":1,"partitions":{"1":[1,2,0],"0":[0,1,2]}}
-Created topic "t01".
+[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server localhost:9092 --create --topic ods_base_db --partitions 3 --replication-factor 2 [--config key=value]
+Created topic ods_base_db.
 
 # 查看topic列表/详细信息,本地命令行也可以连接生产环境的kafka,只要指定对应的zk和kafka地址即可
-[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server cdh1:9092 --list
-[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server cdh1:9092 --describe [--topic t01]
-Topic:t01       PartitionCount:3        ReplicationFactor:2     Configs:
-    Topic: t01      Partition: 0    Leader: 2    Replicas: 2,1    Isr: 2,1  # 0/1/2表示broker.id
-    Topic: t01      Partition: 1    Leader: 0    Replicas: 0,2    Isr: 0,2
-    Topic: t01      Partition: 2    Leader: 1    Replicas: 1,0    Isr: 1,0
+[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server localhost:9092 --list
+[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server localhost:9092 --describe [--topic ods_base_db]
+Topic:ods_base_db    PartitionCount:3    ReplicationFactor:2    Configs: min.insync.replicas=1,max.message.bytes=8388608
+    Topic: ods_base_db    Partition: 0    Leader: 2    Replicas: 2,1    Isr: 2,1  # 0/1/2表示broker.id
+    Topic: ods_base_db    Partition: 1    Leader: 0    Replicas: 0,2    Isr: 0,2
+    Topic: ods_base_db    Partition: 2    Leader: 1    Replicas: 1,0    Isr: 1,0
+    
+# 删除topic,对应的数据文件和zk上的节点信息也会被删除
+[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic ods_base_db
 
 # 修改topic分区数,只能增加不能减少,因为partition可能已经有数据,增加后可能出现rebalance情况
-[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server cdh1:9092 --alter --topic t01 --partitions 2
-WARNING: If partitions are increased for a topic that has a key, the partition logic or ordering of message will affect
+[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic ods_base_db --partitions 2
 Adding partitions succeeded!
 
 # 手动调整分区副本,执行副本存储计划并验证
 [root@cdh1 ~]$ vim increase-replication-factor.json
 {"version":1,"partitions":[{"topic":"test","partition":0,"replicas":[0,1]},{"topic":"test","partition":1,"replicas":[0,1]},{"topic":"test","partition":2,"replicas":[1,0]}]}
-[root@cdh1 ~]$ kafka-reassign-partitions.sh --bootstrap-server cdh1:9092 --reassignment-json-file increase-replication-factor.json --execute
-[root@cdh1 ~]$ kafka-reassign-partitions.sh --bootstrap-server cdh1:9092 --reassignment-json-file increase-replication-factor.json --verify
+[root@cdh1 ~]$ kafka-reassign-partitions.sh --bootstrap-server localhost:9092 --reassignment-json-file increase-replication-factor.json --execute
+[root@cdh1 ~]$ kafka-reassign-partitions.sh --bootstrap-server localhost:9092 --reassignment-json-file increase-replication-factor.json --verify
 
 # 修改topic配置信息
-[root@cdh1 ~]$ kafka-configs.sh --bootstrap-server cdh1:9092 --entity-type topics --entity-name nginx --alter --add-config max.message.bytes=5242880
-Completed Updating config for entity: topic 'nginx'.
+[root@cdh1 ~]$ kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name ods_base_db --alter --add-config max.message.bytes=5242880
+Completed updating config for topic ods_base_db.
 # 查看修改内容
-[root@cdh1 ~]$ kafka-configs.sh --bootstrap-server cdh1:9092 --entity-type topics --describe [--entity-name nginx]
-Configs for topic 'nginx' are max.message.bytes=5242880
+[root@cdh1 ~]$ kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --describe [--entity-name ods_base_db]
+Dynamic configs for topic ods_base_db are:
+  max.message.bytes=5242880 sensitive=false synonyms={DYNAMIC_TOPIC_CONFIG:max.message.bytes=5242880, DEFAULT_CONFIG:message.max.bytes=1048588}
 # 修改完会在Configs中显示配置信息
-[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server cdh1:9092 --describe --topic nginx                                                                
-Topic: nginx	PartitionCount: 1	ReplicationFactor: 1	Configs: max.message.bytes=5242880
-	Topic: nginx	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic ods_base_db                                                                
+Topic: ods_base_db    PartitionCount: 1    ReplicationFactor: 1    Configs: max.message.bytes=5242880
 # 也可以在zk中查看topic配置信息
-[zk: cdh1:2181(CONNECTED) 0] get /config/topics/nginx
+[zk: cdh1:2181(CONNECTED) 0] get /config/topics/ods_base_db
 {"version":1,"config":{"max.message.bytes":"5242880"}}
 # 撤销修改
-[root@cdh1 ~]$ kafka-configs.sh --bootstrap-server cdh1:9092 --entity-type topics --entity-name nginx --alter --delete-config max.message.bytes
-Completed Updating config for entity: topic 'nginx'.
-
-# 删除topic,对应的数据文件和zk上的节点信息也会被删除
-[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server cdh1:9092 --delete --topic t01
-Topic t01 is marked for deletion.
-Note: This will have no impact if delete.topic.enable is not set to true.
+[root@cdh1 ~]$ kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name ods_base_db --alter --delete-config max.message.bytes
+Completed updating config for topic ods_base_db.
 
 # 生产者
-[root@cdh1 ~]$ kafka-console-producer.sh --broker-list cdh1:9092,cdh2:9092,cdh3:9092 --topic t01
+[root@cdh1 ~]$ kafka-console-producer.sh --bootstrap-server localhost:9092 --topic ods_base_db
 >java bigdata
 # 消费者
-[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --topic t01 [--from-beginning] [--max-messages 1]
+[root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic ods_base_db [--from-beginning] [--max-messages 1]
 java bigdata
 
 # 查看消费者组列表
-[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --list
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+g01
 # 查看消费者组详细信息(非常有用,消费进度能反映数据积压程度,看看是否需要提高消费者并行度,配合flink反压一起观察)
-[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --describe --group g01
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group g01
 GROUP    TOPIC    PARTITION    CURRENT-OFFSET    LOG-END-OFFSET    LAG    CONSUMER-ID    HOST    CLIENT-ID
-g01      nginx        0             6845               6923        78     consumer-g01-1  /172.18.1.111   consumer-g01-1
-[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092,cdh2:9092,cdh3:9092 --delete --group g01
+g01   ods_base_db     0             6845               6923        78     consumer-g01-1  /172.18.1.111   consumer-g01-1
+# 删除消费者组(必须先停掉消费者)
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server localhost:9092 --delete --group g01
 Deletion of requested consumer groups ('g01') was successful.
 # 重置消费者组的偏移量,to-earliest/to-latest/to-offset <Long>/shift-by <Long>/to-datetime <YYYY-MM-DDTHH:mm:SS.sss>
-[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --reset-offsets --group g01 --all-topics(--topic nginx) --to-earliest --execute
+[root@cdh1 ~]$ kafka-consumer-groups.sh --bootstrap-server localhost:9092 --reset-offsets --group g01 --all-topics(--topic nginx) --to-earliest --execute
 Error: Assignments can only be reset if the group 'g01' is inactive, but the current state is Stable.
 GROUP    TOPIC    PARTITION    NEW-OFFSET
 g01      nginx        0          0 
 
 # 查看topic消费情况
-groups=$(kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --list)
+groups=$(kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list)
 for group in ${groups}
 do
-    kafka-consumer-groups.sh --bootstrap-server cdh1:9092 --describe --group ${group} >> a.txt
+    kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group ${group} >> a.txt
     sleep 5
 done
 ```
