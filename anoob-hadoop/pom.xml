@@ -49,6 +49,13 @@
             <version>1.9.3</version>
         </dependency>
 
+        <!-- google开源的java核心增强库,包含各种常用工具类 -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+        </dependency>
+
         <!-- lombok用来简化JavaBean和日志开发,需要在plugins里面安装 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
