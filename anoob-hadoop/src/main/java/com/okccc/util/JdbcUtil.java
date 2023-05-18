@@ -109,45 +109,47 @@ public class JdbcUtil {
     }
 
     /**
-     * druid连接池获取数据库连接
+     * 创建数据库连接池
      */
-    public static void initDruidConnection() throws Exception {
-        if (dataSource == null) {
-            // 1.加载配置文件
-            Properties prop = new Properties();
-            prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("druid.properties"));
-            // 2.创建数据源(连接池),这里使用了工厂模式加载配置文件创建对象
-            dataSource = DruidDataSourceFactory.createDataSource(prop);
-        }
-        // 3.获取连接对象
-        conn = dataSource.getConnection();
-    }
+    public static DruidDataSource getDataSource(String driverClass, String jdbcUrl, String username, String password) {
+        // 创建连接池
+        DruidDataSource druidDataSource = new DruidDataSource();
 
-    /**
-     * 关闭数据库连接
-     */
-    public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        if (ps != null) {
-            try {
-                ps.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        // 连接信息
+        druidDataSource.setDriverClassName(driverClass);
+        druidDataSource.setUrl(jdbcUrl);
+        druidDataSource.setUsername(username);
+        druidDataSource.setPassword(password);
+
+        // 初始化时连接数,默认0
+        druidDataSource.setInitialSize(5);
+
+        // 最大活跃连接数,默认8
+        druidDataSource.setMaxActive(20);
+
+        // 最小空闲连接数,默认0
+        druidDataSource.setMinIdle(1);
+
+        // 没有空闲连接时等待的超时时间,默认-1表示一直等待
+        druidDataSource.setMaxWait(-1);
+
+        // 校验连接是否有效的sql
+        druidDataSource.setValidationQuery("select 1");
+
+        // 借出连接时是否校验(会降低性能)
+        druidDataSource.setTestOnBorrow(false);
+
+        // 归还连接时是否校验(会降低性能)
+        druidDataSource.setTestOnReturn(false);
+
+        // 连接空闲时是否校验(不影响性能,保证安全性)
+        druidDataSource.setTestWhileIdle(true);
+
+        // 连接空闲多久就回收(默认60s),是testWhileIdle的判断依据,要小于mysql的wait_timeout
+        druidDataSource.setTimeBetweenEvictionRunsMillis(60 * 1000L);
+
+        // 返回连接池
+        return druidDataSource;
     }
 
     /**
