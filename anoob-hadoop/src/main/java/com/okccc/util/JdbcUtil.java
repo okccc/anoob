@@ -56,6 +56,13 @@ import java.util.*;
  * configured values for client timeouts, or using the Connector/J connection property 'autoReconnect=true' to avoid this problem.
  * 原因：当数据库重启或当前连接空闲时间超过mysql的wait_timeout,数据库会强行断开链接
  * 解决：服务端调大wait_timeout(不建议),url设置autoReconnect=true(mysql5以后已失效),客户端使用前先conn.isValid()校验是否有效(推荐)
+ *
+ * com.alibaba.druid.pool.DruidAbstractDataSource - discard long time none received connection.
+ * jdbcUrl : jdbc:mysql://10.162.13.26:3306, version : 1.2.5, lastPacketReceivedIdleMillis : 163669
+ * 为什么要清空空闲60秒以上的连接?
+ * 阿里给数据库设置的空闲等待时间是60秒,mysql数据库到了空闲等待时间将关闭空闲连接,以提升数据库服务器的处理能力
+ * mysql默认空闲等待时间wait_timeout=8小时,如果数据库主动关闭了空闲连接而连接池并不知道,还在使用这个连接就会产生异常
+ * 解决：升级druid版本,或者启动程序时在运行参数中添加：-Ddruid.mysql.usePingMethod=false
  */
 public class JdbcUtil {
 
