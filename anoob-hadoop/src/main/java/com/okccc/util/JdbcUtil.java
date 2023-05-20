@@ -160,66 +160,51 @@ public class JdbcUtil {
     }
 
     /**
-     * 批量查询,将结果集封装成T类型对象(select)
+     * 批量查询,将结果集封装成T类型对象
      */
-    public static <T> List<T> queryList(Class<T> clazz, String sql, Object ... args) throws Exception {
-        // 存放查询结果的列表
-        List<T> list = new ArrayList<>();
-        // 1.获取连接,声明预编译和结果集
-        if (conn == null) {
-            initDruidConnection();
-        }
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            // 2.预编译sql
-            ps = conn.prepareStatement(sql);
-            // 3.填充占位符
-            for (int i = 0; i < args.length; i++) {
-                ps.setObject(i + 1, args[i]);
-            }
-            // 4.执行查询,返回结果集
-            rs = ps.executeQuery();
-            // 5.获取结果集的元数据信息,因为通用方法不知道具体字段,所以要先获取元数据进行分析
-            ResultSetMetaData md = rs.getMetaData();
-            // 遍历结果集
-            while (rs.next()) {
-                // 通过反射创建封装类型的对象
-                T obj = clazz.newInstance();
-                // 遍历所有列
-                for (int i = 0; i < md.getColumnCount(); i++) {
-                    // a.封装成JSONObject
-                    if (obj instanceof JSONObject) {
-                        // 从元数据获取列名
-                        String columnName = md.getColumnName(i + 1);
-                        // 从结果集获取列的值
-                        Object value = rs.getObject(i + 1);
-                        // 使用java bean工具类给对象的属性赋值
-                        BeanUtils.setProperty(obj, columnName, value);
-                    // b.封装成Java实体类
-                    } else {
-                        // 从元数据获取列的别名,对应java类的属性名
-                        String columnLabel = md.getColumnLabel(i + 1);
-                        // 从结果集获取列的值
-                        Object columnValue = rs.getObject(i + 1);
-                        // 通过反射获取类的属性并赋值
-                        Field field = clazz.getDeclaredField(columnLabel);
-                        field.setAccessible(true);
-                        field.set(obj, columnValue);
-                    }
+    public static <T> List<T> queryList(Connection conn, String sql, Class<T> clazz, Boolean underlineToCamel) throws Exception {
+        // 存放结果集的列表
+        ArrayList<T> list = new ArrayList<>();
+
+        // 预编译sql
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        // 执行查询,返回结果集
+        ResultSet rs = ps.executeQuery();
+
+        // 获取结果集的元数据信息
+        ResultSetMetaData md = rs.getMetaData();
+
+        // 行遍历,将行数据转换成T类型对象
+        while (rs.next()) {
+            // 通过反射创建对应封装类型的对象
+            T obj = clazz.newInstance();
+
+            // 列遍历,给T类型对象赋值
+            for (int i = 0; i < md.getColumnCount(); i++) {
+                // 从元数据获取字段名称,从结果集获取字段值
+                String columnName = md.getColumnName(i + 1);
+//                String columnName = md.getColumnName(i + 1).split("\\.")[1];  // hive列名会带库名前缀需手动去除
+                Object value = rs.getObject(i + 1);
+
+                // guava可以实现下划线(Mysql)和驼峰(JavaBean)的相互转换,update_time -> updateTime
+                if (underlineToCamel) {
+                    columnName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, columnName.toLowerCase());
                 }
-                list.add(obj);
+
+                // 泛型没有get/set方法,commons-beanutils可以给JavaBean(包括泛型)赋值
+                BeanUtils.setProperty(obj, columnName, value);
             }
-        } catch (Exception e) {
-            // 在控制台打印错误堆栈信息(本地调试)
-            e.printStackTrace();
-            // 记录日志方便追溯历史排查问题(线上代码)
-            logger.error(e.toString());
-        } finally {
-            // 6.释放资源：先别关闭conn,因为内存中的地址值并不会立即释放,此时conn!=null下次进来时就不会执行init,也就没有连接可用程序报错
-            close(null, ps, rs);
+
+            // 添加到列表
+            list.add(obj);
         }
-        // 返回查询结果
+
+        // 释放资源
+        ps.close();
+        rs.close();
+
+        // 返回结果集
         return list;
     }
 
