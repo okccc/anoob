@@ -1,22 +1,22 @@
-package com.okccc.db;
+package com.okccc.util;
 
-import com.alibaba.druid.pool.DruidDataSourceFactory;
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.pool.DruidPooledConnection;
 import com.alibaba.fastjson.JSONObject;
-import com.okccc.bean.Order;
-import com.okccc.bean.User;
+import com.google.common.base.CaseFormat;
+import com.okccc.bean.UserInfo;
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @Author: okccc
  * @Date: 2022/12/9 11:20
- * @Desc: jdbc工具类
+ * @Desc: jdbc通用工具类,包括mysql、hive、phoenix、clickhouse
+ * https://github.com/alibaba/druid/wiki/DruidDataSource%E9%85%8D%E7%BD%AE%E5%B1%9E%E6%80%A7%E5%88%97%E8%A1%A8
  *
  * JDBC(Java DataBase Connectivity)
  * jdbc是sun公司提供的操作数据库的接口java.sql.Driver,不同数据库厂商会提供相应的驱动类,比如
@@ -25,8 +25,8 @@ import java.util.*;
  *
  * ORM(object relation mapping)
  * mysql表和java类一一对应,表的一行对应类的一个对象,表的一列对应类的一个属性
- * 传统模式：java.sql.DriverManager每次都会创建新的连接,因为连接无法重用,如果连接过多或程序异常未及时关闭可能会OOM甚至服务器崩溃
- * 数据库连接池：javax.sql.DataSource会保持最小连接数,并且允许程序重复使用现有连接,当达到最大连接数时新的连接请求会被放入等待队列
+ * 普通连接：java.sql.DriverManager 每次都会创建新的连接,如果连接过多或程序异常未及时关闭,可能会OOM甚至服务器崩溃
+ * 数据库连接池：javax.sql.DataSource 会保持最小连接数,可以重复使用空闲连接,减少频繁创建和销毁连接带来的性能损耗,响应速度更快
  *
  * PreparedStatement优点
  * 1.预编译sql放入缓冲区提高效率,且下次执行相同sql时直接使用数据库缓冲区
@@ -66,15 +66,8 @@ import java.util.*;
  */
 public class JdbcUtil {
 
-    // 记录日志
-    private static final Logger logger = LoggerFactory.getLogger(JdbcUtil.class);
-
-    // 使用druid数据库连接池
-    private static DataSource dataSource;
-    private static Connection conn;
-
     /**
-     * 传统方式获取数据库连接
+     * 创建数据库连接
      */
     public static Connection getConnection() throws Exception {
 //        // 加载mysql驱动,Driver类是第三方api,可以改进为只用sun公司提供的java.sql包下的接口
@@ -82,12 +75,12 @@ public class JdbcUtil {
 //        // 数据库地址
 //        String url = "jdbc:mysql://localhost:3306/test";
 //        // 用户信息
-//        Properties info = new Properties();
-//        info.setProperty("user", "root");
-//        info.setProperty("password", "root");
+//        Properties prop = new Properties();
+//        prop.setProperty("user", "root");
+//        prop.setProperty("password", "root");
 //        // 获取连接
-//        Connection conn = driver.connect(url, info);
-//
+//        Connection conn = driver.connect(url, prop);
+
 //        // mysql连接配置信息
 //        String className = "com.mysql.jdbc.Driver";
 //        String url = "jdbc:mysql://localhost:3306/test";
@@ -101,17 +94,20 @@ public class JdbcUtil {
 //        // 获取连接
 //        Connection conn = DriverManager.getConnection(url, user, password);
 
-        // 1.读取配置文件
+        // 读取配置文件
         Properties prop = new Properties();
-        prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("jdbc.properties"));
-        // 2.获取连接信息
+        prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+
+        // 获取连接信息
         String driver = prop.getProperty("jdbc.driver");
         String url = prop.getProperty("jdbc.url");
         String user = prop.getProperty("jdbc.user");
         String password = prop.getProperty("jdbc.password");
-        // 3.通过反射加载驱动
+
+        // 通过反射加载驱动
         Class.forName(driver);
-        // 4.获取连接
+
+        // 获取连接
         return DriverManager.getConnection(url, user, password);
     }
 
@@ -211,14 +207,14 @@ public class JdbcUtil {
     /**
      * 批量更新插入(upsert)
      */
-    public static void upsert(List<String> records, String table, String columns) throws Exception {
+    public static void upsert(Connection conn, List<String> records, String table, String columns) throws Exception {
         // 拼接upsert语句
         // replace into是先delete再insert,直接删数据有点危险不建议
         // mysql的upsert操作ON DUPLICATE key update导致主键ID跳跃增长,很快突破int类型最大值 https://blog.csdn.net/ke2602060221/article/details/126143254
         // url添加&allowMultiQueries=true支持多条sql语句执行,每次执行insert前先调用alter table t1 auto_increment=1;性能会稍微降低
-        // INSERT INTO t1 VALUES(...) 常规insert语句
-        // ON DUPLICATE KEY 表示后面语句是当数据有冲突时才会执行,什么属性的字段会有冲突呢？主键(Primary Key)和唯一索引(Unique Key)
-        // UPDATE k1=v1,k2=v2... 常规update语句
+        // INSERT INTO t1 VALUES(...)    常规insert语句
+        // ON DUPLICATE KEY              当插入数据发生主键(Primary Key)或唯一键(Unique Key)冲突时就执行更新操作
+        // UPDATE k1=v1,k2=v2...         常规update语句
         StringBuilder sb = new StringBuilder();
         sb.append("alter table ").append(table).append(" auto_increment=1;");
         sb.append("insert into ").append(table).append(" values (null,?,?) on duplicate key update ");
@@ -229,18 +225,16 @@ public class JdbcUtil {
         // alter table user_info auto_increment=1;insert into user_info values (null,?,?) on duplicate key update name=values(name),age=values(age)
         System.out.println(sql);
 
-        // 1.获取连接
-        if (conn == null) {
-            initDruidConnection();
-        }
         try {
             // 关闭自动提交事务
             conn.setAutoCommit(false);
-            // 2.预编译sql
+
+            // 预编译sql
             PreparedStatement ps = conn.prepareStatement(sql);
+
             // 遍历结果集
             for (String record : records) {
-                // 3.填充占位符
+                // 填充占位符
                 String[] arr = record.split(",");
                 for (int i = 0; i < arr.length; i++) {
                     ps.setObject(i + 1, arr[i]);
@@ -248,13 +242,15 @@ public class JdbcUtil {
                 // 攒一批sql
                 ps.addBatch();
             }
+
             // 执行批处理
             ps.executeBatch();
+
             // 所有语句都执行完手动提交
             conn.commit();
         } catch (Exception e) {
             e.printStackTrace();
-            // 事务失败回滚
+            // 有异常就回滚事务
             conn.rollback();
         }
     }
@@ -262,19 +258,16 @@ public class JdbcUtil {
     /**
      * 演示批量插入100万条数据
      */
-    public static void insertBatch() throws Exception {
+    public static void insertBatch(Connection conn, String sql) throws Exception {
         long start = System.currentTimeMillis();
-        // 1.获取连接
-        if (conn == null) {
-            initDruidConnection();
-        }
         try {
             // 关闭自动提交
             conn.setAutoCommit(false);
-            // 2.预编译sql
-            String sql = "insert into test.aaa values (null,?)";
+
+            // 预编译sql
             PreparedStatement ps = conn.prepareStatement(sql);
-            // 3.填充占位符
+
+            // 填充占位符
             for (int i = 1; i <= 1000000; i++) {
                 ps.setObject(1, "hello" + i);
                 // 挨个执行单条sql性能很差,插入100万条数据要好几个小时
@@ -289,10 +282,13 @@ public class JdbcUtil {
                     ps.clearBatch();
                 }
             }
+
             // 手动提交
             conn.commit();
         } catch (Exception e) {
             e.printStackTrace();
+            // 有异常就回滚事务
+            conn.rollback();
         }
         System.out.println("插入100万条数据耗时(ms): " + (System.currentTimeMillis() - start));
     }
@@ -300,28 +296,27 @@ public class JdbcUtil {
     /**
      * 批量修改(update、delete)
      */
-    public static void update(String sql, Object ... args) throws Exception {
-        // 1.获取连接
-        if (conn == null) {
-            initDruidConnection();
-        }
+    public static void update(Connection conn, String sql, Object ... args) throws Exception {
         try {
-            // 关闭自动提交事务
+            // 关闭自动提交
             conn.setAutoCommit(false);
-            // 2.预编译sql
+
+            // 预编译sql
             PreparedStatement ps = conn.prepareStatement(sql);
-            // 3.填充占位符
+
+            // 填充占位符
             for (int i = 0; i < args.length; i++) {
                 ps.setObject(i + 1, args[i]);
             }
-            // 4.执行更新操作：execute是否执行,executeUpdate返回影响记录数
-            int i = ps.executeUpdate();
-            System.out.println(i + " rows affected");
-            // 5.手动提交事务
+
+            // 执行更新操作：execute是否执行,executeUpdate返回影响记录数
+            ps.executeUpdate();
+
+            // 手动提交
             conn.commit();
         } catch (Exception e) {
             e.printStackTrace();
-            // 事务失败回滚
+            // 有异常就回滚事务
             conn.rollback();
         }
     }
@@ -329,57 +324,62 @@ public class JdbcUtil {
     /**
      * 演示带事务的更新
      */
-    public static void updateWithTx() throws Exception {
-        // 获取连接
-        if (conn == null) {
-            initDruidConnection();
-        }
-        // 关闭自动提交事务
+    public static void updateWithTx(Connection conn) throws Exception {
+        // 关闭自动提交
         conn.setAutoCommit(false);
         try {
             // 事务操作1
             String sql01 = "update test.user_account set balance = balance - 100 where id = 1";
             PreparedStatement ps01 = conn.prepareStatement(sql01);
             ps01.executeUpdate();
+
             // 模拟异常
             System.out.println(1/0);
+
             // 事务操作2
             String sql02 = "update test.user_account set balance = balance + 100 where id = 2";
             PreparedStatement ps02 = conn.prepareStatement(sql02);
             ps02.executeUpdate();
-            // 当一个事务内的操作都完成后,手动提交事务
+
+            // 当同一个事务内的所有操作都完成后手动提交
             conn.commit();
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.toString());
             // 有异常就回滚事务
             conn.rollback();
         }
     }
 
     public static void main(String[] args) throws Exception {
-        // 当表名刚好是数据库关键字时要加斜引号`order`
-        // 当表的列名和类的属性名不一致时,查询sql要使用属性名作为列名的别名,不然报错 java.lang.NoSuchFieldException: order_id
-        String sql01 = "select order_id orderId, order_name orderName, order_date orderDate from `order`";
-        String sql02 = "select * from user_info where id = ?";
-        String sql03 = "select * from `order`";
-        String sql04 = "select * from user_info where id = ?";
-        System.out.println(queryList(Order.class, sql01));
-        System.out.println(queryList(User.class, sql02, 1));
-        System.out.println(queryList(JSONObject.class, sql03));
-        System.out.println(queryList(JSONObject.class, sql04, 1));
+        // 获取数据库连接
+        String driverClass = "com.mysql.cj.jdbc.Driver";
+        String jdbcUrl = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true&allowMultiQueries=true";
+        String username = "root";
+        String password = "root@123";
+        DruidDataSource dataSource = getDataSource(driverClass, jdbcUrl, username, password);
+        DruidPooledConnection conn = dataSource.getConnection();
 
+        // 演示更新插入
+        // create table user_info(user_id int primary key auto_increment, user_name varchar(10) unique key, age int);
         ArrayList<String> records = new ArrayList<>();
-        records.add("grubby,18");
-        records.add("moon,19");
-        records.add("sky,20");
-        upsert(records, "user_info", "name,age");
+        records.add("grubby, 19");
+        records.add("moon, 19");
+        records.add("sky, 20");
+        upsert(conn, records, "user_info", "user_name, age");
 
-        insertBatch();
+        // 演示批量查询
+        // 当表的列名和类的属性名不一致时,要用guava将下划线转换成驼峰,或者手动添加属性名作为列名的别名
+        String sql = "select user_id,user_name,age from user_info limit 1";
+        System.out.println(queryList(conn, sql, UserInfo.class, true));  // [UserInfo(userId=1, userName=grubby, age=18)]
+        System.out.println(queryList(conn, sql, JSONObject.class, false));  // [{"user_id":1,"user_name":"grubby","age":18}]
 
-        String sql05 = "update `order` set order_date = ? where order_id = ?";
-        update(sql05, "2022-12-01", 2);
+        // 演示批量插入
+        insertBatch(conn, "insert into test.aaa values(null,?)");
 
-        updateWithTx();
+        // 演示批量修改
+        update(conn, "update user_info set age = ? where user_id = ?", 19, 1);
+
+        // 演示事务操作
+        updateWithTx(conn);
     }
 }
