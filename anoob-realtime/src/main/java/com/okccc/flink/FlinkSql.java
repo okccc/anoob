@@ -1,51 +1,28 @@
 package com.okccc.flink;
 
-import com.okccc.bean.UserBehavior;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.*;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.api.Schema;
+import org.apache.flink.table.api.TableDescriptor;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.time.Duration;
 
-import static org.apache.flink.table.api.Expressions.$;
-
 /**
  * @Author: okccc
  * @Date: 2021/9/20 下午12:47
- * @Desc: flink sql实现实时热门商品统计
- *
- * flink sql像mysql和hive一样也对标准sql语法做了些扩展,可以实现简单需求,复杂的还得用DataStream提供的api
+ * @Desc: flink sql像mysql和hive一样也对标准sql语法做了些扩展,可以实现简单需求,复杂的还得用DataStream提供的api
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/concepts/time_attributes/
  */
 public class FlinkSql {
 
     public static void main(String[] args) throws Exception {
-//        // 创建表环境
-//        EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
-//        TableEnvironment tableEnv = TableEnvironment.create(settings);
-//
-//        // 创建表描述器
-//        TableDescriptor tableDescriptor = TableDescriptor
-//                .forConnector("datagen")
-//                .schema(Schema.newBuilder().column("f0", DataTypes.STRING()).build())
-//                .build();
-//
-//        // 创建表
-//        tableEnv.createTable("t1", tableDescriptor);
-//
-//        // 执行sql
-//        tableEnv.executeSql("select * from t1");
-
-        // 创建流处理执行环境
+        // 创建流处理执行环境,env执行DataStream相关操作
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        // 设置并行度
-        env.setParallelism(1);
-        // 创建表环境
-        EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
-        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        // 创建表环境,tableEnv执行Table相关操作
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
         // flink-sql调优
         Configuration conf = tableEnv.getConfig().getConfiguration();
         // 1.设置空闲状态保留时间：join操作的左右表数据、distinct操作的重复数据都会一直存在状态里,需要定时清除
@@ -66,49 +43,16 @@ public class FlinkSql {
         // 5.指定时区
         conf.setString("table.local-time-zone", "Asia/Shanghai");
 
-        // 获取数据源
-        SingleOutputStreamOperator<UserBehavior> stream = env
-                .readTextFile("flink/input/UserBehavior.csv")
-                // 将流数据封装成POJO类
-                .map(new MapFunction<String, UserBehavior>() {
-                    @Override
-                    public UserBehavior map(String value) {
-                        String[] arr = value.split(",");
-                        return new UserBehavior(arr[0], arr[1], arr[2], arr[3], Long.parseLong(arr[4]) * 1000);
-                    }
-                })
-                .filter(r -> r.behavior.equals("pv"))
-                // 提取时间戳生成水位线
-                .assignTimestampsAndWatermarks(
-                        // 有序数据不用设置延迟时间
-                        WatermarkStrategy.<UserBehavior>forMonotonousTimestamps()
-                                .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
-                );
-
-        // 数据流 -> 动态表
-        Table table = tableEnv.fromDataStream(
-                stream, $("userId"), $("itemId"), $("categoryId"), $("behavior"),
-                $("timestamp").rowtime().as("ts")  // 将时间字段指定为事件时间
-        );
-        // 动态表 -> 数据流
-        tableEnv.toDataStream(table).print();
+        // 创建表描述器
+        TableDescriptor tableDescriptor = TableDescriptor.forConnector("datagen")
+                .schema(Schema.newBuilder()
+                        .column("f0", DataTypes.STRING())
+                        .build())
+                .option("fields.f0.kind", "random")
+                .build();
         // 创建临时视图
-        tableEnv.createTemporaryView("userBehavior", table);
-
-        // 先按商品分组并开窗
-        String sql01 = "select itemId,count(*) as cnt,HOP_END(ts, interval '5' minute, interval '1' hour) as windowEnd "
-                + "from userBehavior group by itemId,HOP(ts, interval '5' minute, interval '1' hour)";
-        // 再按窗口分组并排序
-        String sql02 = "select *,row_number() over(partition by windowEnd order by cnt desc) as rn from (" + sql01 + ")";
-        // 取topN
-        String sql03 = "select * from (" + sql02 + ") where rn <= 3";
-
-        // 执行sql查询
-        Table query = tableEnv.sqlQuery(sql03);
-        // 将查询结果转换成数据流
-        tableEnv.toChangelogStream(query).print();
-
-        // 启动任务
-        env.execute();
+        tableEnv.createTemporaryTable("t1", tableDescriptor);
+        // 查询数据
+        tableEnv.sqlQuery("select * from t1 limit 10").execute().print();
     }
 }
