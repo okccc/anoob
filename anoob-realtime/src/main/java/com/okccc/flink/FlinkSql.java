@@ -4,6 +4,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.Schema;
+import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableDescriptor;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
@@ -14,6 +15,7 @@ import java.time.Duration;
  * @Date: 2021/9/20 下午12:47
  * @Desc: flink sql像mysql和hive一样也对标准sql语法做了些扩展,可以实现简单需求,复杂的还得用DataStream提供的api
  * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/concepts/time_attributes/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/sql/queries/window-agg/
  */
 public class FlinkSql {
 
@@ -54,5 +56,25 @@ public class FlinkSql {
         tableEnv.createTemporaryTable("t1", tableDescriptor);
         // 查询数据
         tableEnv.sqlQuery("select * from t1 limit 10").execute().print();
+
+        // 读取文件数据
+        tableEnv.executeSql(
+                "CREATE TEMPORARY TABLE user_behavior (\n" +
+                        "    `user_id`        STRING,\n" +
+                        "    `item_id`        STRING,\n" +
+                        "    `category_id`    STRING,\n" +
+                        "    `behavior`       STRING,\n" +
+                        "    `ts`             BIGINT\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'filesystem',\n" +
+                        "  'path' = '/Users/okc/projects/anoob/anoob-realtime/input/UserBehavior.csv',\n" +
+                        "  'format' = 'csv'\n" +
+                        ")"
+        );
+        // 查询测试
+        tableEnv.sqlQuery("select * from user_behavior limit 10").execute().print();
+        // 查看表结构
+        Table table = tableEnv.sqlQuery("select * from user_behavior");
+        table.printSchema();  // (`user_id` STRING,`item_id` STRING,`category_id` STRING,`behavior` STRING,`ts` BIGINT,`ts_ltz` TIMESTAMP_LTZ(3) *ROWTIME*)
     }
 }
