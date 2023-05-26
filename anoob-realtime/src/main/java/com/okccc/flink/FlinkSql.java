@@ -45,17 +45,17 @@ public class FlinkSql {
         // 5.指定时区
         conf.setString("table.local-time-zone", "Asia/Shanghai");
 
-        // 创建表描述器
-        TableDescriptor tableDescriptor = TableDescriptor.forConnector("datagen")
-                .schema(Schema.newBuilder()
-                        .column("f0", DataTypes.STRING())
-                        .build())
-                .option("fields.f0.kind", "random")
-                .build();
-        // 创建临时视图
-        tableEnv.createTemporaryTable("t1", tableDescriptor);
-        // 查询数据
-        tableEnv.sqlQuery("select * from t1 limit 10").execute().print();
+//        // 创建表描述器
+//        TableDescriptor tableDescriptor = TableDescriptor.forConnector("datagen")
+//                .schema(Schema.newBuilder()
+//                        .column("f0", DataTypes.STRING())
+//                        .build())
+//                .option("fields.f0.kind", "random")
+//                .build();
+//        // 创建临时视图
+//        tableEnv.createTemporaryTable("t1", tableDescriptor);
+//        // 查询数据
+//        tableEnv.sqlQuery("select * from t1 limit 10").execute().print();
 
         // 读取文件数据
         tableEnv.executeSql(
@@ -64,7 +64,13 @@ public class FlinkSql {
                         "    `item_id`        STRING,\n" +
                         "    `category_id`    STRING,\n" +
                         "    `behavior`       STRING,\n" +
-                        "    `ts`             BIGINT\n" +
+                        "    `ts`             BIGINT,\n" +
+                        // 涉及window的操作创建表时必须提供TIMESTAMP(3)或TIMESTAMP_LTZ(3)类型的时间列
+                        // 处理时间可以直接用PROCTIME()函数定义,返回TIMESTAMP_LTZ类型
+//                        "     `ts_ltz` AS PROCTIME()\n" +
+                        // 事件时间通常是将表中某个时间列转换成TIMESTAMP(3)或TIMESTAMP_LTZ(3)类型,并且要设置水位线
+                        "    `ts_ltz` AS TO_TIMESTAMP_LTZ(ts, 3),\n" +
+                        "    WATERMARK FOR ts_ltz AS ts_ltz - INTERVAL '3' SECOND\n" +
                         ") WITH (\n" +
                         "  'connector' = 'filesystem',\n" +
                         "  'path' = '/Users/okc/projects/anoob/anoob-realtime/input/UserBehavior.csv',\n" +
