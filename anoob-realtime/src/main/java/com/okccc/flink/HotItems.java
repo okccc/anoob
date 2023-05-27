@@ -63,7 +63,7 @@ public class HotItems {
                 .assignTimestampsAndWatermarks(
                         // 观察数据发现是顺序的,不用设置延迟时间
                         WatermarkStrategy.<UserBehavior>forMonotonousTimestamps()
-                                .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
+                                .withTimestampAssigner((element, recordTimestamp) -> element.ts)
                 )
                 // 按照商品分组
                 .keyBy(r -> r.itemId)
