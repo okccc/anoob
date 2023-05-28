@@ -69,6 +69,7 @@ public class FlinkSql {
                         // 处理时间可以直接用PROCTIME()函数定义,返回TIMESTAMP_LTZ类型
 //                        "     `ts_ltz` AS PROCTIME()\n" +
                         // 事件时间通常是将表中某个时间列转换成TIMESTAMP(3)或TIMESTAMP_LTZ(3)类型,并且要设置水位线
+                        // TO_TIMESTAMP是转换成UTC时间戳,TO_TIMESTAMP_LTZ是转换成本地时区的时间戳(UTC+8)
                         "    `ts_ltz` AS TO_TIMESTAMP_LTZ(ts, 3),\n" +
                         "    WATERMARK FOR ts_ltz AS ts_ltz - INTERVAL '3' SECOND\n" +
                         ") WITH (\n" +
