@@ -83,5 +83,20 @@ public class FlinkSql {
         // 查看表结构
         Table table = tableEnv.sqlQuery("select * from user_behavior");
         table.printSchema();  // (`user_id` STRING,`item_id` STRING,`category_id` STRING,`behavior` STRING,`ts` BIGINT,`ts_ltz` TIMESTAMP_LTZ(3) *ROWTIME*)
+
+        // 先按商品分组开窗
+        String sql01 = "SELECT item_id,window_start,window_end,count(*) cnt \n" +
+                "FROM TABLE(\n" +
+                "    HOP(TABLE user_behavior, DESCRIPTOR(ts_ltz), INTERVAL '5' MINUTES, INTERVAL '1' HOUR)) \n" +
+                "GROUP BY item_id,window_start,window_end";
+
+        // 再按窗口分组排序
+        String sql02 = "SELECT *,ROW_NUMBER() OVER(PARTITION BY window_start,window_end ORDER BY cnt DESC) AS rn FROM (" + sql01 + ")";
+
+        // 取topN
+        String sql03 = "SELECT * FROM (" + sql02 + ") WHERE rn <= 3";
+
+        // 查询结果
+        tableEnv.sqlQuery(sql03).execute().print();
     }
 }
