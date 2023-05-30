@@ -84,6 +84,34 @@
             <version>${flink.version}</version>
         </dependency>
 
+        <!-- contains the table runtime -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-runtime</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <!-- contains the query planner -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner-loader</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <!-- The JSON format allows to read and write JSON data based on an JSON schema -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-json</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <!-- The CSV format allows to read and write CSV data based on an CSV schema -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-csv</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
         <!-- flink状态后端rocksdb -->
         <dependency>
             <groupId>org.apache.flink</groupId>
