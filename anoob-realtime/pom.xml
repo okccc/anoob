@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <flink.version>1.15.2</flink.version>
+        <flink.version>1.16.0</flink.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
@@ -44,11 +44,25 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- 操作java bean的工具类 -->
+        <!-- 操作JavaBean的工具类 -->
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.3</version>
+        </dependency>
+
+        <!-- google开源的java核心增强库,包含各种常用工具类 -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+        </dependency>
+
+        <!-- java操作redis的客户端工具jedis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.3.0</version>
         </dependency>
 
         <!-- mysql 8.0.28之前版本有安全漏洞 -->
@@ -67,7 +81,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.5</version>
+            <version>1.2.16</version>
         </dependency>
 
         <!-- flink-java -->
@@ -155,19 +169,6 @@
             <version>${flink.version}</version>
         </dependency>
 
-        <!-- Table API & SQL -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <!--        &lt;!&ndash; Table API & SQL + DataStream API &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.flink</groupId>-->
-        <!--            <artifactId>flink-table-api-java-bridge</artifactId>-->
-        <!--            <version>${flink.version}</version>-->
-        <!--        </dependency>-->
-
         <!-- flink操作jdbc -->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -195,26 +196,8 @@
             <artifactId>log4j-core</artifactId>
             <version>2.17.1</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.flink</groupId>-->
-        <!--            <artifactId>flink-connector-elasticsearch-base</artifactId>-->
-        <!--            <version>${flink.version}</version>-->
-        <!--        </dependency>-->
 
-        <!-- hadoop -->
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>3.2.3</version>
-        </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>org.apache.phoenix</groupId>-->
-<!--            <artifactId>phoenix-core</artifactId>-->
-<!--            <version>5.1.0</version>-->
-<!--        </dependency>-->
-
-                <!-- hbase -->
+        <!-- hbase -->
         <dependency>
             <groupId>org.apache.phoenix</groupId>
             <artifactId>phoenix-spark</artifactId>
@@ -232,23 +215,6 @@
             <groupId>ru.yandex.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
             <version>0.3.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- 全球IPv4地址归属地数据库(IPIP.NET版) -->
-        <dependency>
-            <groupId>net.ipip</groupId>
-            <artifactId>ipdb</artifactId>
-            <version>1.1.3</version>
         </dependency>
 
         <!-- IK分词器 -->
