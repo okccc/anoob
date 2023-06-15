@@ -63,14 +63,22 @@ mysql> show variables like '%time_zone%';
 | Variable_name    | Value  |
 +------------------+--------+
 | system_time_zone | CST    |
-| time_zone        | +08:00 |
+| time_zone        | +08:00 |  # +00:00 +08:00 SYSTEM
 +------------------+--------+
 # 查看mysql连接数
-mysql> show variables like 'max_connections' / select @@max_connections
-mysql> set global max_connections=1000;
+mysql> show variables like 'max_connections' / select @@max_connections / set global max_connections=1000
++-----------------+-------+
+| Variable_name   | Value |
++-----------------+-------+
+| max_connections | 4500  |
++-----------------+-------+
 # 查看mysql连接等待的超时时间
-mysql> show variables like 'wait_timeout' / select @@wait_timeout
-mysql> set global wait_timeout=28800;
+mysql> show variables like 'wait_timeout' / select @@wait_timeout / set global wait_timeout=28800
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| wait_timeout  | 7200  |
++---------------+-------+
 # 查看mysql线程状态created/cached/connected/running
 mysql> show status like 'Thread%';
 +-------------------------+-------+
@@ -95,13 +103,6 @@ mysql> show variables like 'thread_cache_size';
 +-------------------+-------+
 | thread_cache_size | 512   |
 +-------------------+-------+
-# 查看mysql的QPS
-mysql> show status like 'Questions%';
-+---------------+-------+
-| Variable_name | Value |
-+---------------+-------+
-| Questions     | 32    |
-+---------------+-------+
 # 批量插入数据
 mysql> source area.sql;
 ```
@@ -643,23 +644,23 @@ mysql> select * from positions;
 |         1 | mysql-bin.000029 |        27789920 | NULL     | maxwell   |         NULL |       1678763426269 |
 +-----------+------------------+-----------------+----------+-----------+--------------+---------------------+
 # maxwell支持全量同步历史数据,必须先开启增量才能使用
-[root@cdh1 ~]$ bin/maxwell-bootstrap --database realtime --table table_process --config config.properties
-connecting to jdbc:mysql://localhost:3306/maxwell?allowPublicKeyRetrieval=true&connectTimeout=5000&serverTimezone=Asia%2FShanghai&useSSL=false
+[root@cdh1 ~]$ bin/maxwell-bootstrap --database mock --table base_trademark --config config.properties
+connecting to jdbc:mysql://localhost:3306/maxwell?allowPublicKeyRetrieval=true&connectTimeout=5000&serverTimezone=Asia%2FShanghai&zeroDateTimeBehavior=convertToNull&useSSL=false
 # maxwell日志
-11:22:52,879 INFO  SynchronousBootstrapper - bootstrapping started for realtime.table_process
-11:22:52,959 INFO  SynchronousBootstrapper - bootstrapping ended for #1 realtime.table_process  # 1是bootstrap表的主键id
+11:15:52,014 INFO  SynchronousBootstrapper - bootstrapping started for mock.base_trademark
+11:15:52,135 INFO  SynchronousBootstrapper - bootstrapping ended for #1 mock.base_trademark  # 1是bootstrap表的主键id
 # 此时元数据库的bootstrap表会生成全量同步的记录
 mysql> select * from bootstrap;
 +----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
 | id | database_name | table_name    | where_clause | is_complete | inserted_rows | total_rows | created_at | started_at          | completed_at        | binlog_file | binlog_position | client_id | comment |
 +----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
-|  1 | realtime      | table_process | NULL         |           1 |            15 |         15 | NULL       | 2023-03-14 11:22:52 | 2023-03-14 11:22:52 | NULL        |               0 | maxwell   | NULL    |
+|  1 | mock          | base_trademark | NULL        |           1 |            11 |         11 | NULL       | 2023-04-10 11:22:52 | 2023-04-10 11:22:52 | NULL        |               0 | maxwell   | NULL    |
 +----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
-# kafka会收到一条元数据库bootstrap表的数据,bootstrap-start(complete)是开始和结束的标志,bootstrap-insert才是数据更新记录
-{"database":"maxwell","table":"bootstrap","type":"insert","ts":1678764171,"xid":150351,"commit":true,"data":{"id":1,"database_name":"realtime","table_name":"table_process","where_clause":null,"is_complete":0,"inserted_rows":0,"total_rows":15,"created_at":null,"started_at":null,"completed_at":null,"binlog_file":null,"binlog_position":0,"client_id":"maxwell","comment":null}}
-{"database":"realtime","table":"table_process","type":"bootstrap-start","ts":1678764172,"data":{}}
-{"database":"realtime","table":"table_process","type":"bootstrap-insert","ts":1678764172,"data":{"source_table":"base_category1","sink_table":"dim_base_category1","sink_columns":"id,name","sink_pk":"id","sink_extend":null}}
-{"database":"realtime","table":"table_process","type":"bootstrap-complete","ts":1678764172,"data":{}}
+# kafka会收到一条元数据库bootstrap表的数据,然后bootstrap-start(complete)是开始和结束的标志,bootstrap-insert才是数据更新记录
+{"database":"maxwell","table":"bootstrap","type":"insert","ts":1681096551,"xid":1168952,"commit":true,"data":{"id":5,"database_name":"mock","table_name":"base_trademark","where_clause":null,"is_complete":0,"inserted_rows":0,"total_rows":11,"created_at":null,"started_at":null,"completed_at":null,"binlog_file":null,"binlog_position":0,"client_id":"maxwell","comment":null}}
+{"database":"mock","table":"base_trademark","type":"bootstrap-start","ts":1681096552,"data":{}}
+{"database":"mock","table":"base_trademark","type":"bootstrap-insert","ts":1681096552,"data":{"id":1,"tm_name":"苹果","logo_url":"/static/default.jpg"}}
+{"database":"mock","table":"base_trademark","type":"bootstrap-complete","ts":1681096552,"data":{}}
 # 关闭maxwell
 [root@cdh1 ~]$ ps -ef | grep maxwell | grep -v grep | awk '{print $2}' | xargs kill -9
 ```
