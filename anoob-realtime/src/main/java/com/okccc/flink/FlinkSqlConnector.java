@@ -41,6 +41,62 @@ public class FlinkSqlConnector {
         System.out.println(table.explain());
     }
 
+    /**
+     * FileSystem SQL Connector
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/filesystem/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/concepts/time_attributes/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/sql/queries/window-agg/
+     */
+    private static void getFileSystemConnector(StreamTableEnvironment tableEnv) {
+        // 读文件
+        tableEnv.executeSql(
+                "CREATE TABLE user_behavior (\n" +
+                        "    user_id        STRING,\n" +
+                        "    item_id        STRING,\n" +
+                        "    category_id    STRING,\n" +
+                        "    behavior       STRING,\n" +
+                        "    ts             BIGINT,\n" +
+                        // ProcessingTime可以直接调用PROCTIME()函数,返回TIMESTAMP_LTZ类型
+//                        "    ts_ltz         AS PROCTIME()\n" +
+                        // EventTime通常是将表中某个时间列转换成TIMESTAMP/TIMESTAMP_LTZ类型,并且要指定水位线策略
+                        "    ts_ltz         AS TO_TIMESTAMP_LTZ(ts, 3),\n" +
+                        "    WATERMARK FOR ts_ltz AS ts_ltz - INTERVAL '3' SECOND\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'filesystem',\n" +
+                        "  'path' = '/Users/okc/projects/anoob/anoob-realtime/input/UserBehavior.csv',\n" +
+                        "  'format' = 'csv'\n" +
+                        ")"
+        );
+        // 先按商品分组开窗聚合
+        String sql01 = "SELECT item_id,window_start,window_end,count(*) cnt\n" +
+                "FROM TABLE(\n" +
+                "    HOP(TABLE user_behavior, DESCRIPTOR(ts_ltz), INTERVAL '5' MINUTES, INTERVAL '1' HOUR))\n" +
+                "GROUP BY item_id,window_start,window_end";
+        // 再按窗口分组排序
+        String sql02 = "SELECT *,ROW_NUMBER() OVER(PARTITION BY window_start,window_end ORDER BY cnt DESC) AS rn FROM (" + sql01 + ")";
+        // 取topN
+        String sql03 = "SELECT * FROM (" + sql02 + ") WHERE rn <= 3";
+        // 查询结果
+        tableEnv.sqlQuery(sql03).execute().print();
+
+        // 写文件
+        tableEnv.executeSql(
+                "CREATE TABLE sink_fs (\n" +
+                        "    user_id        STRING,\n" +
+                        "    item_id        STRING,\n" +
+                        "    category_id    STRING,\n" +
+                        "    behavior       STRING,\n" +
+                        "    ts             BIGINT,\n" +
+                        "    dt             STRING\n" +  // dt是分区字段
+                        ") PARTITIONED BY (dt) WITH (\n" +
+                        "  'connector' = 'filesystem',\n" +
+                        "  'path' = '/Users/okc/projects/anoob/anoob-realtime/output',\n" +
+                        "  'format' = 'csv'\n" +
+                        ")"
+        );
+        tableEnv.executeSql("INSERT INTO sink_fs SELECT user_id,item_id,category_id,behavior,ts,DATE_FORMAT(ts_ltz, 'yyyyMMdd') FROM user_behavior");
+    }
+
     public static void main(String[] args) throws Exception {
         // 创建流处理执行环境,env执行DataStream相关操作
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -68,6 +124,7 @@ public class FlinkSqlConnector {
         // 5.指定时区
         conf.setString("table.local-time-zone", "Asia/Shanghai");
 
-        getDataGenConnector(tableEnv);
+//        getDataGenConnector(tableEnv);
+        getFileSystemConnector(tableEnv);
     }
 }
