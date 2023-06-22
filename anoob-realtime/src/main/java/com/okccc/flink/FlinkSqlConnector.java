@@ -97,6 +97,40 @@ public class FlinkSqlConnector {
         tableEnv.executeSql("INSERT INTO sink_fs SELECT user_id,item_id,category_id,behavior,ts,DATE_FORMAT(ts_ltz, 'yyyyMMdd') FROM user_behavior");
     }
 
+    /**
+     * JDBC SQL Connector
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/jdbc/
+     * The JDBC connector allows for reading data from and writing data into any relational databases with a JDBC driver.
+     * The connector operates in upsert mode if the primary key was defined, otherwise, the connector operates in append mode.
+     */
+    private static void getJdbcConnector(StreamTableEnvironment tableEnv) {
+        // 读mysql
+        tableEnv.executeSql(
+                "CREATE TABLE base_dic (\n" +
+                        "    dic_code        STRING,\n" +
+                        "    dic_name        STRING,\n" +
+                        "    parent_code     STRING,\n" +
+                        "    create_time     STRING,\n" +
+                        "    operate_time    STRING,\n" +
+                        "PRIMARY KEY (dic_code) NOT ENFORCED" +
+                        ") WITH (\n" +
+                        "  'connector' = 'jdbc',\n" +
+                        "  'driver' = 'com.mysql.cj.jdbc.Driver',\n" +
+                        "  'url' = 'jdbc:mysql://localhost:3306/mock',\n" +
+                        "  'table-name' = 'base_dic',\n" +
+                        "  'username' = 'root',\n" +
+                        "  'password' = 'root@123',\n" +
+                        // By default, lookup cache is not enabled. You can enable it by setting lookup.cache to PARTIAL.
+                        "  'lookup.cache' = 'PARTIAL',\n" +
+                        "  'lookup.partial-cache.max-rows' = '100',\n" +
+                        "  'lookup.partial-cache.expire-after-write' = '10 min',\n" +
+                        "  'lookup.partial-cache.cache-missing-key' = 'false'\n" +
+                        ")"
+        );
+        // 维度表数据是一次性查出来的,可以用sqlQuery()打印测试
+        tableEnv.sqlQuery("SELECT * FROM base_dic").execute().print();
+    }
+
     public static void main(String[] args) throws Exception {
         // 创建流处理执行环境,env执行DataStream相关操作
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -125,6 +159,7 @@ public class FlinkSqlConnector {
         conf.setString("table.local-time-zone", "Asia/Shanghai");
 
 //        getDataGenConnector(tableEnv);
-        getFileSystemConnector(tableEnv);
+//        getFileSystemConnector(tableEnv);
+        getJdbcConnector(tableEnv);
     }
 }
