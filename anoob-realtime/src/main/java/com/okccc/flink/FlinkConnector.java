@@ -3,8 +3,13 @@ package com.okccc.flink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.connector.sink2.SinkWriter;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.MemorySize;
+import org.apache.flink.connector.elasticsearch.sink.Elasticsearch7SinkBuilder;
+import org.apache.flink.connector.elasticsearch.sink.ElasticsearchEmitter;
+import org.apache.flink.connector.elasticsearch.sink.ElasticsearchSink;
+import org.apache.flink.connector.elasticsearch.sink.RequestIndexer;
 import org.apache.flink.connector.file.sink.FileSink;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
@@ -20,11 +25,15 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
 import org.apache.flink.streaming.api.functions.source.datagen.RandomGenerator;
+import org.apache.http.HttpHost;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.Requests;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -127,14 +136,52 @@ public class FlinkConnector {
         env.fromElements(Tuple2.of("orc", "grubby"), Tuple2.of("hum", "sky"), Tuple2.of("ne", "moon")).addSink(jdbcSink);
     }
 
+    /**
+     * Elasticsearch Connector
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/elasticsearch/
+     * This connector provides sinks that can request document actions to an Elasticsearch Index.
+     *
+     * 报错：[TOO_MANY_REQUESTS/12/disk usage exceeded flood-stage watermark, index has read-only-allow-delete block]
+     * 原因：flood stage disk watermark [95%] exceeded, all indices on this node will be marked read-only
+     * 解决：es数据节点磁盘使用率超过90%,此时为避免集群出现问题es会将数据索引上锁导致无法写入数据,需要清理磁盘空间
+     */
+    private static void getElasticsearchConnector(StreamExecutionEnvironment env) {
+        // 获取ElasticsearchSink
+        ElasticsearchSink<String> elasticsearchSink = new Elasticsearch7SinkBuilder<String>()
+                // es地址
+                .setHosts(new HttpHost("localhost", 9200, "http"))
+                // 发送数据
+                .setEmitter(
+                        new ElasticsearchEmitter<String>() {
+                            @Override
+                            public void emit(String element, SinkWriter.Context context, RequestIndexer requestIndexer) {
+                                // 创建IndexRequest对象
+                                IndexRequest indexRequest = Requests.indexRequest();
+                                // 指定_index和_id,不写id默认生成长度20的随机字符串
+                                indexRequest.index("index01");
+                                // 添加_source,必须是Map类型
+                                HashMap<String, String> map = new HashMap<>();
+                                map.put("name", element);
+                                indexRequest.source(map);
+                                // 添加IndexRequest对象
+                                requestIndexer.add(indexRequest);
+                            }
+                        }
+                )
+                // 将bulk批量操作的缓冲数设置为1,也就是来一条处理一条
+                // Instructs the sink to emit after every element, otherwise they would be buffered
+                .setBulkFlushMaxActions(1)
+                .build();
+
+        // 模拟数据写入
+        env.fromElements("grubby", "moon", "sky").sinkTo(elasticsearchSink);
+    }
+
     public static void main(String[] args) throws Exception {
         // 创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
-        getDataGenConnector(env);
-        getFileSystemConnector(env);
-        getJdbcConnector(env);
+        getElasticsearchConnector(env);
 
         // 启动任务
         env.execute();
