@@ -131,6 +131,28 @@ public class FlinkSqlConnector {
         tableEnv.sqlQuery("SELECT * FROM base_dic").execute().print();
     }
 
+    /**
+     * Elasticsearch SQL Connector
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/elasticsearch/
+     * The Elasticsearch connector allows for writing into an index of the Elasticsearch engine.
+     */
+    private static void getElasticsearchConnector(StreamTableEnvironment tableEnv) {
+        // 写es
+        tableEnv.executeSql(
+                "CREATE TABLE sink_es (\n" +
+                        "    user_id      BIGINT,\n" +
+                        "    user_name    STRING,\n" +
+                        "    race         STRING,\n" +
+                        "PRIMARY KEY (user_id) NOT ENFORCED\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'elasticsearch-7',\n" +
+                        "  'hosts' = 'http://localhost:9200',\n" +
+                        "  'index' = 'users'\n" +
+                        ");"
+        );
+        tableEnv.executeSql("INSERT INTO sink_es VALUES (1001, 'grubby',' orc')");
+    }
+
     public static void main(String[] args) throws Exception {
         // 创建流处理执行环境,env执行DataStream相关操作
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -160,6 +182,7 @@ public class FlinkSqlConnector {
 
 //        getDataGenConnector(tableEnv);
 //        getFileSystemConnector(tableEnv);
-        getJdbcConnector(tableEnv);
+//        getJdbcConnector(tableEnv);
+        getElasticsearchConnector(tableEnv);
     }
 }
