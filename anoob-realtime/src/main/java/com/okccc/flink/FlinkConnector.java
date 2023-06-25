@@ -2,10 +2,12 @@ package com.okccc.flink;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.connector.sink2.SinkWriter;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.MemorySize;
+import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.elasticsearch.sink.Elasticsearch7SinkBuilder;
 import org.apache.flink.connector.elasticsearch.sink.ElasticsearchEmitter;
 import org.apache.flink.connector.elasticsearch.sink.ElasticsearchSink;
@@ -17,6 +19,10 @@ import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -26,6 +32,8 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.
 import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
 import org.apache.flink.streaming.api.functions.source.datagen.RandomGenerator;
 import org.apache.http.HttpHost;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Requests;
 
@@ -34,6 +42,7 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -177,11 +186,70 @@ public class FlinkConnector {
         env.fromElements("grubby", "moon", "sky").sinkTo(elasticsearchSink);
     }
 
+    /**
+     * Kafka Connector
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/kafka
+     * Flink provides an Apache Kafka connector for reading data from and writing data to Kafka topics with exactly-once guarantees.
+     *
+     * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
+     * FlinkKafkaProducer已被弃用并将在Flink1.15中移除,请改用KafkaSink
+     * Sink端的EXACTLY_ONCE依赖于事务,会影响性能且容易出故障,大多数场景AT_LEAST_ONCE就行,只要下游kafka消费者能保证幂等性即可
+     */
+    private static void getKafkaConnector(StreamExecutionEnvironment env) {
+        // 读kafka
+        KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
+                .setBootstrapServers("localhost:9092")
+                .setTopics("ods_base_db")
+                .setGroupId("g01")
+                .setStartingOffsets(OffsetsInitializer.latest())
+                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
+                .build();
+        DataStreamSource<String> dataStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        dataStream.print();
+
+        // 生产者属性配置
+        Properties prop = new Properties();
+
+        // The transaction timeout is larger than the maximum value allowed by the broker (transaction.max.timeout.ms)
+        // https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/datastream/kafka/#kafka-producer-%E5%92%8C%E5%AE%B9%E9%94%99
+        // Kafka broker事务最大超时时间transaction.max.timeout.ms=15分钟,而FlinkKafkaProducer的transaction.timeout.ms=1小时,因此在使用Semantic.EXACTLY_ONCE模式之前应该调小transaction.timeout.ms的值
+        prop.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000);
+
+        // There is a newer producer with the same transactionalId which fences the current one
+        // kafka生产者exactly_once：幂等性只能保证单分区单会话内数据不重复,完全不重复还得在幂等性的基础上开启事务
+//        prop.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, UUID.randomUUID().toString());
+
+        // javax.management.InstanceAlreadyExistsException: kafka.producer:type=app-info,id=producer-kafka-sink-0-1
+        // 创建kafka客户端指定的clientId是一个固定值,并发量小时用完就销毁没问题,并发量大时比如ods层日志分流会连续创建多个kafka生产者,
+        // 可能会出现上次创建的clientId还没来得及销毁就又创建了一个新的连接导致clientId重复,这种场景必须保证每次建立连接的clientId唯一
+//        prop.put(ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString());
+
+        // 写kafka
+        KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
+                .setBootstrapServers("localhost:9092")
+                .setRecordSerializer(
+                        KafkaRecordSerializationSchema.builder()
+                                .setTopic("aaa")
+                                .setValueSerializationSchema(new SimpleStringSchema())
+                                .build()
+                )
+                .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+                .setKafkaProducerConfig(prop)
+                .build();
+        dataStream.sinkTo(kafkaSink);
+    }
+
     public static void main(String[] args) throws Exception {
         // 创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
+
+        getDataGenConnector(env);
+        getFileSystemConnector(env);
+        getJdbcConnector(env);
         getElasticsearchConnector(env);
+        getKafkaConnector(env);
 
         // 启动任务
         env.execute();
