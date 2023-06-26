@@ -153,6 +153,75 @@ public class FlinkSqlConnector {
         tableEnv.executeSql("INSERT INTO sink_es VALUES (1001, 'grubby',' orc')");
     }
 
+    /**
+     * Kafka SQL Connector
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/kafka/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
+     * The Kafka connector allows for reading data from and writing data into Kafka topics.
+     * The Upsert Kafka connector allows for reading data from and writing data into Kafka topics in the upsert fashion.
+     */
+    private static void getKafkaConnector(StreamTableEnvironment tableEnv) {
+        // 读kafka
+        tableEnv.executeSql(
+                "CREATE TABLE kafka_source (\n" +
+                        "    database    STRING,\n" +
+                        "    `table`     STRING,\n" +
+                        "    type        STRING,\n" +
+                        "    data        MAP<STRING,STRING>,\n" +
+                        "    `old`       MAP<STRING,STRING>,\n" +
+                        "    ts          TIMESTAMP(3) METADATA FROM 'timestamp'\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'kafka',\n" +
+                        "  'topic' = 'ods_base_db',\n" +
+                        "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
+                        "  'properties.group.id' = 'gg',\n" +
+                        "  'scan.startup.mode' = 'earliest-offset',\n" +
+                        "  'format' = 'json'\n" +
+                        ")"
+        );
+        // 打印测试,sqlQuery("")是批处理一次只能执行一个查询,后面代码就执行不到了
+        tableEnv.sqlQuery("SELECT * FROM kafka_source LIMIT 10").execute().print();
+        // 将动态表转换成流打印测试
+//        Table table = tableEnv.sqlQuery("SELECT * FROM kafka_source");
+//        tableEnv.toDataStream(table).print();
+
+        // append kafka
+        tableEnv.executeSql(
+                "CREATE TABLE kafka_sink (\n" +
+                        "    database    STRING,\n" +
+                        "    `table`     STRING,\n" +
+                        "    type        STRING,\n" +
+                        "    data        MAP<STRING,STRING>\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'kafka',\n" +
+                        "  'topic' = 'aaa',\n" +
+                        "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
+                        "  'format' = 'json'\n" +
+                        ")"
+        );
+        tableEnv.executeSql("INSERT INTO kafka_sink SELECT database,`table`,type,data FROM kafka_source");
+
+        // upsert kafka
+        tableEnv.executeSql(
+                "CREATE TABLE kafka_sink_upsert (\n" +
+                        "    database    STRING,\n" +
+                        "    `table`     STRING,\n" +
+                        "    type        STRING,\n" +
+                        "    data        MAP<STRING,STRING>,\n" +
+                        // 'upsert-kafka' tables require to define a PRIMARY KEY constraint.
+                        // Flink doesn't support ENFORCED mode for PRIMARY KEY constraint.
+                        "  PRIMARY KEY (`table`) NOT ENFORCED\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'upsert-kafka',\n" +
+                        "  'topic' = 'bbb',\n" +
+                        "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
+                        "  'key.format' = 'json',\n" +
+                        "  'value.format' = 'json'\n" +
+                        ")"
+        );
+        tableEnv.executeSql("INSERT INTO kafka_sink_upsert SELECT database,`table`,type,data FROM kafka_source");
+    }
+
     public static void main(String[] args) throws Exception {
         // 创建流处理执行环境,env执行DataStream相关操作
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -183,6 +252,7 @@ public class FlinkSqlConnector {
 //        getDataGenConnector(tableEnv);
 //        getFileSystemConnector(tableEnv);
 //        getJdbcConnector(tableEnv);
-        getElasticsearchConnector(tableEnv);
+//        getElasticsearchConnector(tableEnv);
+        getKafkaConnector(tableEnv);
     }
 }
