@@ -31,6 +31,11 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
 import org.apache.flink.streaming.api.functions.source.datagen.RandomGenerator;
+import org.apache.flink.streaming.connectors.redis.RedisSink;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDescription;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 import org.apache.http.HttpHost;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -187,6 +192,36 @@ public class FlinkConnector {
     }
 
     /**
+     * Redis Connector
+     * 很少用,redis只能存少量数据但速度极快,适合做缓存以及大数据场景下根据key查询的聚合结果、临时数据
+     */
+    private static void getRedisConnector(StreamExecutionEnvironment env) {
+        // 获取RedisSink
+        RedisSink<Tuple2<String, String>> redisSink = new RedisSink<>(
+                new FlinkJedisPoolConfig.Builder().setHost("localhost").setPort(6379).build(),
+                new RedisMapper<Tuple2<String, String>>() {
+                    @Override
+                    public RedisCommandDescription getCommandDescription() {
+                        return new RedisCommandDescription(RedisCommand.HSET, "war3");
+                    }
+
+                    @Override
+                    public String getKeyFromData(Tuple2<String, String> data) {
+                        return data.f0;
+                    }
+
+                    @Override
+                    public String getValueFromData(Tuple2<String, String> data) {
+                        return data.f1;
+                    }
+                }
+        );
+
+        // 模拟数据写入
+        env.fromElements(Tuple2.of("orc", "grubby"), Tuple2.of("hum", "sky"), Tuple2.of("ne", "moon")).addSink(redisSink);
+    }
+
+    /**
      * Kafka Connector
      * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/kafka
      * Flink provides an Apache Kafka connector for reading data from and writing data to Kafka topics with exactly-once guarantees.
@@ -249,6 +284,7 @@ public class FlinkConnector {
         getFileSystemConnector(env);
         getJdbcConnector(env);
         getElasticsearchConnector(env);
+        getRedisConnector(env);
         getKafkaConnector(env);
 
         // 启动任务
