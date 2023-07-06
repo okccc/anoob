@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <flink.version>1.16.0</flink.version>
+        <flink.version>1.17.1</flink.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
@@ -173,7 +173,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-jdbc</artifactId>
-            <version>${flink.version}</version>
+            <version>1.16.2</version>
         </dependency>
 
         <!-- flink操作redis(第三方提供的包) -->
@@ -187,7 +187,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-elasticsearch7</artifactId>
-            <version>${flink.version}</version>
+            <version>1.16.2</version>
         </dependency>
         <!-- es间接依赖了log4j-api日志接口,需要提供log4j-core日志实现 -->
         <!-- ERROR StatusLogger Log4j2 could not find a logging implementation. Please add log4j-core to the classpath -->
