@@ -37,6 +37,16 @@ public class StringUtil {
         return result;
     }
 
+    // \r(return)是回车符,光标移到本行开头,后面字符会覆盖前面字符
+    // \n(newLine)是换行符,光标移到下一行,Linux系统\n换行,Windows系统\r\n换行
+    public static String removeEscape(String str) {
+        System.out.println("hello\rworld");
+        System.out.println("hello\nworld");
+        System.out.println("hello\r\nworld");
+        // 匹配单个字符时不要用"\r|\n"应该用"[\r\n]",不然提示 Single character alternation in RegExp
+        return str.replaceAll("[\r\n\t]", "");
+    }
+
     // url解码
     public static String decode(String str) {
         if (str != null && !"".equals(str)) {
@@ -79,6 +89,8 @@ public class StringUtil {
         System.out.println(res);  // {jobName=userLabel, envType=online, groupId=g01, parallelism=6, topic=thrall}
         System.out.println(res.get("topic"));  // thrall
         System.out.println(trimComma(",flink data warehouse,"));  // flink data warehouse
+        System.out.println(removeEscape("申请：20230515(001号\r菲菲)\n" +
+                "审批：20230519(002号\t露露)"));
         System.out.println(decode("%22name%22%3D%22grubby%22%26%22age%22%3D%2218%22"));  // "name"="grubby"&"age"="18"
     }
 }
