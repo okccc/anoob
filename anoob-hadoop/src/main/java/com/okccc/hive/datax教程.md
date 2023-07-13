@@ -158,3 +158,26 @@
     }
 }
 ```
+
+### 参数配置
+```shell
+job.setting.speed.channel  # 全局channel并发数
+job.setting.speed.record  # 全局channel的record限速
+job.setting.speed.byte  # 全局channel的byte限速
+core.transport.channel.speed.record  # 单个channel的record限速
+core.transport.channel.speed.byte  # 单个channel的byte限速
+
+# 提升DataX Job的Channel并发数
+# 并发数 = TaskGroup数量 * 每个TaskGroup的Task数(默认5个并发执行conf/core.json)
+# 1.record限速
+# Channel个数 = job.setting.speed.record / core.transport.channel.speed.record
+# 2.byte限速
+# Channel个数 = job.setting.speed.byte / core.transport.channel.speed.byte
+# 3.直接配置Channel个数
+# 上面两个参数同时设置时取值小的作为最终的Channel数,如果没有上面两个参数job.setting.speed.channel才会生效
+
+# 提高jvm堆内存
+# 当提升DataX Job的Channel并发数时,内存占用会显著增加,因为DataX作为数据交换通道会在内存中缓存很多数据
+# 例如Channel中会有一个Buffer作为临时的数据交换缓冲区,而在Reader和Writer中也会存在一些Buffer,为了防止OOM要将jvm堆内存调大为4G
+# 可以直接更改datax.py的-Xms和-Xmx参数,或者在启动时加上对应参数 bin/datax.py --jvm="-Xms4G -Xmx4G" aaa.json
+```
