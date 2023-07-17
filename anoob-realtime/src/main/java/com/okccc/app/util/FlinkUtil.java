@@ -1,10 +1,14 @@
 package com.okccc.app.util;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 /**
  * @Author: okccc
@@ -62,5 +66,22 @@ public class FlinkUtil {
 
         // 本地调试时要指定能访问hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "deploy");
+    }
+
+    /**
+     * KafkaSource
+     * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/connectors/datastream/kafka/#kafka-source
+     */
+    public static KafkaSource<String> getKafkaSource(String groupId, String... topics) {
+        // 创建flink消费者对象
+        return KafkaSource.<String>builder()
+                .setBootstrapServers(KAFKA_SERVER)
+                .setTopics(topics)
+                .setGroupId(groupId)
+                .setStartingOffsets(OffsetsInitializer.latest())
+                .setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
+                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .build();
     }
 }
