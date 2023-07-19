@@ -127,4 +127,15 @@ public class FlinkUtil {
                 .setKafkaProducerConfig(prop)
                 .build();
     }
+
+    /**
+     * KafkaSink,将数据动态写入不同topic,传入KafkaRecordSerializationSchema接口,由调用者自己实现
+     */
+    public static <T> KafkaSink<T> getKafkaSinkBySchema(KafkaRecordSerializationSchema<T> kafkaRecordSerializationSchema) {
+        return KafkaSink.<T>builder()
+                .setBootstrapServers(KAFKA_SERVER)
+                .setRecordSerializer(kafkaRecordSerializationSchema)
+                .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+                .build();
+    }
 }
