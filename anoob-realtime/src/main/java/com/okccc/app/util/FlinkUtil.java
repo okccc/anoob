@@ -138,4 +138,23 @@ public class FlinkUtil {
                 .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
                 .build();
     }
+
+    /**
+     * KafkaSource DDL
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/kafka
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/formats/json/
+     * The Kafka connector allows for reading data from and writing data into Kafka topics.
+     */
+    public static String getKafkaSourceDdl(String topic, String groupId) {
+        // Could not find any factory for identifier 'json' that implements 'org.apache.flink.table.factories.DeserializationFormatFactory' in the classpath.
+        return " WITH ( " +
+                "  'connector' = 'kafka',\n" +
+                "  'topic' = '" + topic + "',\n" +
+                "  'properties.bootstrap.servers' = '" + KAFKA_SERVER + "',\n" +
+                "  'properties.group.id' = '" + groupId + "',\n" +
+                "  'scan.startup.mode' = 'latest-offset',\n" +
+                "  'format' = 'json',\n" +
+                "  'json.ignore-parse-errors' = 'true'\n" +  // 过滤非json数据
+                ")";
+    }
 }
