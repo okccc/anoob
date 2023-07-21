@@ -169,4 +169,19 @@ public class FlinkUtil {
                 "  'format' = 'json'\n" +
                 ")";
     }
+
+    /**
+     * UpsertKafkaSink DDL
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
+     * The Upsert Kafka connector allows for reading data from and writing data into Kafka topics in the upsert fashion.
+     */
+    public static String getUpsertKafkaSinkDdl(String topic) {
+        return " WITH ( " +
+                "  'connector' = 'upsert-kafka',\n" +
+                "  'topic' = '" + topic + "',\n" +
+                "  'properties.bootstrap.servers' = '" + KAFKA_SERVER + "',\n" +
+                "  'key.format' = 'json',\n" +
+                "  'value.format' = 'json'\n" +
+                ")";
+    }
 }
