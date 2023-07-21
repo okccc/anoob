@@ -157,4 +157,16 @@ public class FlinkUtil {
                 "  'json.ignore-parse-errors' = 'true'\n" +  // 过滤非json数据
                 ")";
     }
+
+    /**
+     * KafkaSink DDL
+     */
+    public static String getKafkaSinkDdl(String topic) {
+        return " WITH ( " +
+                "  'connector' = 'kafka',\n" +
+                "  'topic' = '" + topic + "',\n" +
+                "  'properties.bootstrap.servers' = '" + KAFKA_SERVER + "',\n" +
+                "  'format' = 'json'\n" +
+                ")";
+    }
 }
