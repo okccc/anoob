@@ -184,4 +184,22 @@ public class FlinkUtil {
                 "  'value.format' = 'json'\n" +
                 ")";
     }
+
+    /**
+     * 读取kafka业务主题ods_base_db,加购、下单、支付、退款、评论、收藏等场景都会用到
+     * {"database":"mock","table":"order_info","type":"update","data":{"user_id":"1493",...},"old":{...},"ts":1686551814}
+     */
+    public static String getOdsBaseDb(String groupId) {
+        // 数据库关键字要加``
+        return "CREATE TABLE IF NOT EXISTS ods_base_db (\n" +
+                "    database     STRING,\n" +
+                "    `table`      STRING,\n" +
+                "    type         STRING,\n" +
+                "    data         MAP<STRING, STRING>,\n" +
+                "    `old`        MAP<STRING, STRING>,\n" +
+                "    ts           BIGINT,\n" +
+                // 调用PROCTIME()函数获取系统时间,作为与字典表lookup join的处理时间字段
+                "    proc_time    AS PROCTIME()\n" +
+                ") " + getKafkaSourceDdl("ods_base_db", groupId);
+    }
 }
