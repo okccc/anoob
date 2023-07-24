@@ -202,4 +202,26 @@ public class FlinkUtil {
                 "    proc_time    AS PROCTIME()\n" +
                 ") " + getKafkaSourceDdl("ods_base_db", groupId);
     }
+
+    /**
+     * MysqlSource DDL
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/jdbc/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/jdbc/#lookup-cache
+     */
+    public static String getMysqlSourceDdl(String tableName) {
+        // 通常是读取mysql维度表和kafka事实表做lookup join
+        return " WITH ( " +
+                "  'connector' = 'jdbc',\n" +
+                "  'driver' = 'com.mysql.cj.jdbc.Driver',\n" +
+                "  'url' = 'jdbc:mysql://localhost:3306/mock',\n" +
+                "  'username' = 'root',\n" +
+                "  'password' = 'root@123',\n" +
+                "  'table-name' = '" + tableName + "',\n" +
+                // lookup缓存配置
+                "  'lookup.cache' = 'PARTIAL',\n" +
+                "  'lookup.partial-cache.max-rows' = '100',\n" +
+                "  'lookup.partial-cache.expire-after-write' = '10 min',\n" +
+                "  'lookup.partial-cache.cache-missing-key' = 'false'\n" +
+                ")";
+    }
 }
