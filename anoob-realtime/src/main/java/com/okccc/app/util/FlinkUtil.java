@@ -224,4 +224,18 @@ public class FlinkUtil {
                 "  'lookup.partial-cache.cache-missing-key' = 'false'\n" +
                 ")";
     }
+
+    /**
+     * 读取mysql字典表base_dic,加购、下单、支付、退款、评论等场景都会用到
+     */
+    public static String getBaseDic() {
+        return "CREATE TABLE IF NOT EXISTS base_dic (\n" +
+                "    dic_code        STRING,\n" +
+                "    dic_name        STRING,\n" +
+                "    parent_code     STRING,\n" +
+                "    create_time     STRING,\n" +
+                "    operate_time    STRING,\n" +
+                "PRIMARY KEY(dic_code) NOT ENFORCED\n" +
+                ")" + FlinkUtil.getMysqlSourceDdl("base_dic");
+    }
 }
