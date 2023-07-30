@@ -577,6 +577,7 @@ mysql> grant all on *.* to 'maxwell'@'%' identified by 'maxwell';
 [root@cdh1 ~]$ tar -xvf canal.deployer-1.1.6.tar -C /Users/okc/modules
 # canal服务端配置(修改后先stop再startup,不然bin/canal.pid一直存在,example/meta.dat会记录mysql-bin.xxx的position,所以不会丢数据)
 [root@cdh1 ~]$ vim conf/canal.properties
+canal.port = 11111                       # canal默认端口11111,当启动多个实例时会显示端口被占用"java.net.BindException: Address already in use",可通过lsof -i :port查看端口占用情况,此时需要将端口往后顺延
 canal.serverMode = kafka                 # 将canal输出到kafka,默认是tcp输出到canal客户端通过java代码处理
 canal.mq.servers = cdh1:9092,cdh2:9092   # kafka地址,逗号分隔
 canal.destinations = example1,example2   # canal默认单实例,可以拷贝conf/example配置多实例,通常一个ip对应一个instance
