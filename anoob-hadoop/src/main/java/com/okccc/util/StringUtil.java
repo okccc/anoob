@@ -1,5 +1,7 @@
 package com.okccc.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
 import java.net.URLDecoder;
@@ -11,6 +13,19 @@ import java.util.HashMap;
  * @Desc: 字符串工具类
  */
 public class StringUtil {
+
+    /**
+     * 校验日志是否json格式
+     */
+    public static boolean isJsonFormat(String str) {
+        try {
+            JSON.parse(str);
+            return true;
+        } catch (JSONException e) {
+//            e.printStackTrace();
+            return false;
+        }
+    }
 
     // 将main方法传入的字符串参数解析成键值对,类似hive函数str_to_map
     public static HashMap<String, String> strToMap(String args) {
@@ -49,7 +64,7 @@ public class StringUtil {
 
     // url解码
     public static String decode(String str) {
-        if (str != null && !"".equals(str)) {
+        if (str != null && str.length() > 0) {
             try {
                 // java.lang.IllegalArgumentException: URLDecoder: Incomplete trailing escape (%) pattern
                 // url解码,%在url中是特殊字符,要先将单独出现的%替换成编码后的%25,再对整个字符串解码
