@@ -107,5 +107,17 @@ public class StringUtil {
         System.out.println(removeEscape("申请：20230515(001号\r菲菲)\n" +
                 "审批：20230519(002号\t露露)"));
         System.out.println(decode("%22name%22%3D%22grubby%22%26%22age%22%3D%2218%22"));  // "name"="grubby"&"age"="18"
+
+        String str = "{\"@timestamp\":\"31/Jul/2023:10:37:11 +0800\",\"hostname\":\"tx-prod-bigdata-01\",\"ip\":\"120.32.103.75\",\"Method\":\"POST\",\"referer\":\"-\",\"request\":\"POST /home HTTP/1.1\",\"request_body\":\"v=3&e=%7B%22session_id%22%3A1690770146461%2C%22language%22%3A%22Chinese%22%2C%22user_id%22%3A%22c57921f5bd5e4b218d73e42c83e9945e%22%2C%22country%22%3A%22China%20mainland%22%2C%22device_id%22%3A%2220471BE4-0434-4641-9304-4246F41BF96B%22%2C%22version_name%22%3A%2211.0.1%22%2C%22platform%22%3A%22iOS%22%2C%22carrier%22%3A%22%E4%B8%AD%E5%9B%BD%E7%A7%BB%E5%8A%A8%22%2C%22timestamp%22%3A1690771006362%7D&upload_time=1690771030913\",\"status\":\"200\",\"agent\":\"niuwa/11.0.1.2101131825 CFNetwork/1408.0.4 Darwin/22.5.0\"}";
+        System.out.println(isJsonFormat(str));  // true
+        System.out.println(isJsonFormat(decode(str)));  // false,对整个字符串解码可能会导致数据格式变成非json
+        // 只对字符串内部的编码部分进行解码
+        JSONObject jsonObject = JSON.parseObject(str);
+        String newBody = decode(jsonObject.getString("request_body"));
+        jsonObject.put("request_body", newBody);
+        // 获取内部字段
+        HashMap<String, String> hashMap = strToMap(newBody);
+        String version = JSON.parseObject(hashMap.get("e")).getString("version_name");
+        System.out.println(version);  // 11.0.1
     }
 }
