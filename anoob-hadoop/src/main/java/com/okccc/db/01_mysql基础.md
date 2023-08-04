@@ -657,7 +657,7 @@ mysql> select * from bootstrap;
 +----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
 |  1 | mock          | base_trademark | NULL        |           1 |            11 |         11 | NULL       | 2023-04-10 11:22:52 | 2023-04-10 11:22:52 | NULL        |               0 | maxwell   | NULL    |
 +----+---------------+---------------+--------------+-------------+---------------+------------+------------+---------------------+---------------------+-------------+-----------------+-----------+---------+
-# kafka会收到一条元数据库bootstrap表的数据,然后bootstrap-start(complete)是开始和结束的标志,bootstrap-insert才是数据更新记录
+# kafka会收到一条元数据库bootstrap表的数据,然后bootstrap-start/complete是开始和结束的标志,bootstrap-insert才是数据更新记录
 {"database":"maxwell","table":"bootstrap","type":"insert","ts":1681096551,"xid":1168952,"commit":true,"data":{"id":5,"database_name":"mock","table_name":"base_trademark","where_clause":null,"is_complete":0,"inserted_rows":0,"total_rows":11,"created_at":null,"started_at":null,"completed_at":null,"binlog_file":null,"binlog_position":0,"client_id":"maxwell","comment":null}}
 {"database":"mock","table":"base_trademark","type":"bootstrap-start","ts":1681096552,"data":{}}
 {"database":"mock","table":"base_trademark","type":"bootstrap-insert","ts":1681096552,"data":{"id":1,"tm_name":"苹果","logo_url":"/static/default.jpg"}}
