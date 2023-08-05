@@ -123,7 +123,7 @@ esac
 export KAFKA_HOME=/opt/module/kafka_2.12-3.3.1
 export PATH=$PATH:$KAFKA_HOME/bin
 
-# 修改zookeeper配置文件
+# kafka2.8以后自带zk减少网络通信(可选)
 [root@cdh1 ~]$ vim zookeeper.properties
 # 快照存储目录
 dataDir=${KAFKA_HOME}/data/zookeeper
@@ -140,7 +140,7 @@ broker.id=0
 listeners=PLAINTEXT://localhost:9092
 # 数据存储目录
 log.dirs=${KAFKA_HOME}/data/kafka-logs
-# zk地址,kafka2.8以后自带zk减少网络通信
+# zk地址,可以用独立的也可以用自带的
 zookeeper.connect=localhost:2181
 
 # 分发到其他节点并修改broker.id
