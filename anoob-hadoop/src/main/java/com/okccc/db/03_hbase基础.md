@@ -1,7 +1,7 @@
 ### hbase
 ```shell script
 # hbase是分布式、可扩展、支持海量数据存储的K-V类型NoSQL数据库
-[root@cdh1 ~]$ wget http://apache.claz.org/hbase/2.3.7/hbase-2.3.7-bin.tar.gz
+[root@cdh1 ~]$ wget https://archive.apache.org/dist/hbase/2.0.5/hbase-2.0.5-bin.tar.gz
 # 安装
 [root@cdh1 ~]$ tar -xvf hbase-2.0.5-bin.tar.gz -C /opt/module
 # 修改配置文件
@@ -104,7 +104,7 @@ hbase(main):001:0> disable 'student' & drop 'student'  # 删除表
 
 # 常用操作
 # 创建schema,通过phoenix操作的schema/table/field会自动转换为大写,若要小写需使用双引号"student"
-jdbc:phoenix:localhost:2181> create schema if not exists dim
+jdbc:phoenix:localhost:2181> create schema if not exists dim;
 # 删除schema
 jdbc:phoenix:localhost:2181> drop schema dim;
 # 查看所有表
