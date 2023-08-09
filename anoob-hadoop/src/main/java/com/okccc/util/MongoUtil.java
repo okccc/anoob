@@ -56,20 +56,21 @@ public class MongoUtil {
     /**
      * 根据_id查询
      */
-    public static String getDocumentById(String dbName, String collectionName, String value, String key) {
+    public static String getDocumentById(String dbName, String collectionName, String id, String key) {
         // 选择库
         MongoDatabase db = mongoClient.getDatabase(dbName);
         // 选择集合
         MongoCollection<Document> collection = db.getCollection(collectionName);
         // 条件查询
-        FindIterable<Document> documents = collection.find(Filters.eq("_id", value));
+        FindIterable<Document> documents = collection.find(Filters.eq("_id", id));
         // _id是唯一键,所以迭代器只有一条记录
         MongoCursor<Document> iterator = documents.iterator();
+        String res = null;
         while (iterator.hasNext()) {
             Document document = iterator.next();
-            return document.getString(key);
+            res =  document.getString(key);
         }
-        return null;
+        return res;
     }
 
     public static void main(String[] args) {
