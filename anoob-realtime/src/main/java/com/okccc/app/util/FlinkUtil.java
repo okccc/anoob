@@ -1,8 +1,11 @@
 package com.okccc.app.util;
 
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.file.sink.FileSink;
@@ -17,8 +20,8 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Properties;
@@ -92,9 +95,30 @@ public class FlinkUtil {
                 .setBootstrapServers(KAFKA_SERVER)
                 .setTopics(topics)
                 .setGroupId(groupId)
+                // 查看SimpleStringSchema源码77行和String源码514行发现bytes[]是@NotNull,所以要自定义反序列化器
+//                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .setValueOnlyDeserializer(new DeserializationSchema<String>() {
+                    @Override
+                    public String deserialize(byte[] message) {
+                        // flink sql的left join会生成null值,如果直接用SimpleStringSchema会报空指针异常
+                        if (message != null && message.length > 0) {
+                            return new String(message, StandardCharsets.UTF_8);
+                        }
+                        // 这里返回null不会报错,下游消费者过滤即可
+                        return null;
+                    }
+
+                    @Override
+                    public boolean isEndOfStream(String nextElement) {
+                        return false;  // kafka是无界流
+                    }
+
+                    @Override
+                    public TypeInformation<String> getProducedType() {
+                        return BasicTypeInfo.STRING_TYPE_INFO;
+                    }
+                })
                 .setStartingOffsets(OffsetsInitializer.latest())
-                .setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
-                .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
     }
 
