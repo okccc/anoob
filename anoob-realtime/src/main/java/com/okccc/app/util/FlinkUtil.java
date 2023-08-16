@@ -1,5 +1,8 @@
 package com.okccc.app.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
@@ -16,10 +19,13 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
+import org.apache.flink.util.Collector;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -256,6 +262,24 @@ public class FlinkUtil {
                 "    operate_time    STRING,\n" +
                 "PRIMARY KEY(dic_code) NOT ENFORCED\n" +
                 ")" + FlinkUtil.getMysqlSourceDdl("base_dic");
+    }
+
+    /**
+     * 将流中数据格式转换成JSON
+     */
+    public static SingleOutputStreamOperator<JSONObject> convertStrToJson(DataStreamSource<String> dataStream) {
+        return dataStream.flatMap(new FlatMapFunction<String, JSONObject>() {
+            @Override
+            public void flatMap(String value, Collector<JSONObject> out) {
+                try {
+                    JSONObject jsonObject = JSON.parseObject(value);
+                    out.collect(jsonObject);
+                } catch (Exception e) {
+                    // 上游数据有left join时会生成null值,需要过滤
+                    System.out.println(">>>" + value);
+                }
+            }
+        });
     }
 
     /**
