@@ -7,8 +7,12 @@ import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.common.state.StateTtlConfig;
+import org.apache.flink.api.common.state.ValueStateDescriptor;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.file.sink.FileSink;
@@ -280,6 +284,27 @@ public class FlinkUtil {
                 }
             }
         });
+    }
+
+    /**
+     * 设置状态存活时间
+     */
+    public static ValueStateDescriptor<String> setStateTtl(String stateName, int ttl) {
+        // 创建状态描述符
+        ValueStateDescriptor<String> stateDescriptor = new ValueStateDescriptor<>(stateName, Types.STRING);
+
+        // 独立访客的状态用来筛选当天是否访问过,第二天就没用了,所以要设置失效时间ttl,避免状态常驻内存
+        StateTtlConfig stateTtlConfig = StateTtlConfig
+                // 设置状态存活时间为1天
+                .newBuilder(Time.days(ttl))
+                // 状态更新策略：比如状态是今天10点创建11点更新12点读取,那么失效时间是明天Disabled(10点)/OnCreateAndWrite(11点)/OnReadAndWrite(12点)
+                .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+                // 状态可见性：内存中的状态过期后,如果没有被jvm垃圾回收,是否还会返回给调用者
+                .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
+                .build();
+        stateDescriptor.enableTimeToLive(stateTtlConfig);
+
+        return stateDescriptor;
     }
 
     /**
