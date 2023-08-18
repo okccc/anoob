@@ -3,16 +3,19 @@ package com.okccc.app.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.state.StateTtlConfig;
+import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.file.sink.FileSink;
@@ -305,6 +308,49 @@ public class FlinkUtil {
         stateDescriptor.enableTimeToLive(stateTtlConfig);
 
         return stateDescriptor;
+    }
+
+    /**
+     * 针对left join生成的回撤流进行去重,保留主键(唯一键)的第一条数据
+     */
+    public static SingleOutputStreamOperator<JSONObject> getEarliestData(SingleOutputStreamOperator<JSONObject> dataStream, String key, int ttl) {
+        return dataStream
+                // 按照主键(唯一键)分组
+                .keyBy(r -> r.getString(key))
+                .filter(new RichFilterFunction<JSONObject>() {
+                    // 声明状态变量,记录最新数据
+                    private ValueState<JSONObject> earliestData;
+
+                    @Override
+                    public void open(Configuration parameters) {
+                        // 创建状态描述符
+                        ValueStateDescriptor<JSONObject> stateDescriptor = new ValueStateDescriptor<>("earliest", JSONObject.class);
+
+                        // 设置状态存活时间
+                        StateTtlConfig stateTtlConfig = new StateTtlConfig.Builder(Time.seconds(ttl))
+                                .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+                                .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
+                                .build();
+                        stateDescriptor.enableTimeToLive(stateTtlConfig);
+
+                        // 初始化状态变量
+                        earliestData = getRuntimeContext().getState(stateDescriptor);
+                    }
+
+                    @Override
+                    public boolean filter(JSONObject value) throws Exception {
+                        // 获取状态数据
+                        JSONObject jsonObject = earliestData.value();
+
+                        // 判断状态是否为空
+                        if (jsonObject == null) {
+                            earliestData.update(value);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                });
     }
 
     /**
