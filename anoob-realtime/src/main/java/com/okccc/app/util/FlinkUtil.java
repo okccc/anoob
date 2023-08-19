@@ -30,6 +30,7 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.util.Collector;
@@ -349,6 +350,56 @@ public class FlinkUtil {
                         } else {
                             return false;
                         }
+                    }
+                });
+    }
+
+    /**
+     * 针对left join生成的回撤流进行去重,保留主键(唯一键)的最后一条数据
+     */
+    public static SingleOutputStreamOperator<JSONObject> getLatestData(SingleOutputStreamOperator<JSONObject> dataStream, String key, long timer, String createTime) {
+        return dataStream
+                // 按照主键(唯一键)分组
+                .keyBy(r -> r.getString(key))
+                // 涉及定时器操作用process
+                .process(new KeyedProcessFunction<String, JSONObject, JSONObject>() {
+                    // 声明状态变量,记录最新数据
+                    private ValueState<JSONObject> latestData;
+
+                    @Override
+                    public void open(Configuration parameters) {
+                        // 初始化状态变量,这里不设置ttl,后面定时器触发时会手动清空状态
+                        latestData = getRuntimeContext().getState(
+                                new ValueStateDescriptor<>("latest", JSONObject.class));
+                    }
+
+                    @Override
+                    public void processElement(JSONObject value, KeyedProcessFunction<String, JSONObject, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
+                        // 获取状态中的数据
+                        JSONObject jsonObject = latestData.value();
+
+                        // 判断状态是否为空
+                        if (jsonObject == null) {
+                            latestData.update(value);
+                            // 注册5秒后的定时器,和数据乱序程度保持一致
+                            ctx.timerService().registerProcessingTimeTimer(ctx.timerService().currentProcessingTime() + timer);
+                        } else {
+                            // 不为空就要比较两条数据的生成时间
+                            String stateTs = jsonObject.getString(createTime);
+                            String currentTs = value.getString(createTime);
+                            int diff = DateUtil.compare(stateTs, currentTs);
+                            // 将后来的数据更新到状态
+                            if (diff != 1) {
+                                latestData.update(value);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onTimer(long timestamp, KeyedProcessFunction<String, JSONObject, JSONObject>.OnTimerContext ctx, Collector<JSONObject> out) throws Exception {
+                        // 定时器触发,输出数据并清空状态
+                        out.collect(latestData.value());
+                        latestData.clear();
                     }
                 });
     }
