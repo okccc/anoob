@@ -2,6 +2,7 @@ package com.okccc.kafka;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.util.StringUtil;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
@@ -30,7 +31,7 @@ public class ETLInterceptor implements Interceptor {
         // 将event转换成字符串
         String line = new String(event.getBody(), StandardCharsets.UTF_8);
         // 日志格式校验
-        if (!LogUtil.isJsonFormat(line)) {
+        if (!StringUtil.isJsonFormat(line)) {
             return null;
         }
 
@@ -39,7 +40,7 @@ public class ETLInterceptor implements Interceptor {
 //        JSONObject jsonObject = JSON.parseObject(line);
 //        try {
 //            // 对字符串的编码部分进行解码
-//            String newBody = LogUtil.decode(jsonObject.getString("request_body"));
+//            String newBody = StringUtil.decode(jsonObject.getString("request_body"));
 //            // 将解码后的字符串再塞回去,往json对象添加json字符串会转义生成反斜杠,所以采集数据时不建议url解码,等到处理数据时再处理
 //            jsonObject.put("request_body", newBody);
 //            // 返回新的event
@@ -54,8 +55,8 @@ public class ETLInterceptor implements Interceptor {
         JSONObject jsonObject = JSON.parseObject(line);
         try {
             String request_body = jsonObject.getString("request_body");
-            HashMap<String, String> hashMap = LogUtil.strToMap(request_body);
-            String e = LogUtil.decode(hashMap.get("e"));
+            HashMap<String, String> hashMap = StringUtil.strToMap(request_body);
+            String e = StringUtil.decode(hashMap.get("e"));
             String version = JSON.parseArray(e).getJSONObject(0).getString("version_name");
             if (version == null || version.length() == 0) {
                 event.setBody(line.getBytes(StandardCharsets.UTF_8));
