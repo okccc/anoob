@@ -17,17 +17,17 @@ public class UserBehavior {
 
     public String behavior;
 
-    public Long timestamp;
+    public Long ts;
 
     public UserBehavior() {
     }
 
-    public UserBehavior(String userId, String itemId, String categoryId, String behavior, Long timestamp) {
+    public UserBehavior(String userId, String itemId, String categoryId, String behavior, Long ts) {
         this.userId = userId;
         this.itemId = itemId;
         this.categoryId = categoryId;
         this.behavior = behavior;
-        this.timestamp = timestamp;
+        this.ts = ts;
     }
 
     public String getUserId() {
@@ -62,12 +62,12 @@ public class UserBehavior {
         this.behavior = behavior;
     }
 
-    public Long getTimestamp() {
-        return timestamp;
+    public Long getTs() {
+        return ts;
     }
 
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
+    public void setTs(Long ts) {
+        this.ts = ts;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class UserBehavior {
                 ", itemId='" + itemId + '\'' +
                 ", categoryId='" + categoryId + '\'' +
                 ", behavior='" + behavior + '\'' +
-                ", timestamp=" + new Timestamp(timestamp) +
+                ", ts=" + new Timestamp(ts) +
                 '}';
     }
 }
