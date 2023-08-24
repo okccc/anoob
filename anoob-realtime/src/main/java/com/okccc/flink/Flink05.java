@@ -26,7 +26,11 @@ import org.apache.flink.util.Collector;
 /**
  * @Author: okccc
  * @Date: 2021/9/18 下午2:28
- * @Desc: flink双流join
+ * @Desc: DataStream API - Operators - connect、union、join
+ *
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/overview/#connect
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/overview/#union
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/joining/
  *
  * 合流
  * union可以合并多条流,流中的元素类型必须相同
@@ -123,7 +127,7 @@ public class Flink05 {
                     private String query = "";
 
                     @Override
-                    public void flatMap1(Event value, Collector<Event> out) throws Exception {
+                    public void flatMap1(Event value, Collector<Event> out) {
                         // 第一条流的数据进来时调用
                         if (value.url.equals(query)) {
                             // 满足条件就向下游发送
@@ -132,7 +136,7 @@ public class Flink05 {
                     }
 
                     @Override
-                    public void flatMap2(String value, Collector<Event> out) throws Exception {
+                    public void flatMap2(String value, Collector<Event> out) {
                         // 第二条流的数据进来时调用
                         query = value;
                     }
@@ -250,7 +254,7 @@ public class Flink05 {
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))
                 .apply(new JoinFunction<Tuple2<String, Integer>, Tuple2<String, Integer>, String>() {
                     @Override
-                    public String join(Tuple2<String, Integer> first, Tuple2<String, Integer> second) throws Exception {
+                    public String join(Tuple2<String, Integer> first, Tuple2<String, Integer> second) {
                         return first + " <=> " + second;
                     }
                 })
@@ -262,9 +266,9 @@ public class Flink05 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-//        testUnion(env);
+        testUnion(env);
 //        testWatermarkBroadcast(env);
-        testConnect01(env);
+//        testConnect01(env);
 //        testConnect02(env);
 //        testIntervalJoin(env);
 //        testWindowJoin(env);
