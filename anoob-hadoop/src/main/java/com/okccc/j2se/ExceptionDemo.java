@@ -75,4 +75,36 @@ public class ExceptionDemo {
         URLDecoder.decode("%22os_name%22%3A%22android%22", "sb");
         System.out.println("ccc");
     }
+
+    public static void testTryCatch() {
+        long start = System.nanoTime();
+        int a = 0;
+        for (int i = 0; i < 1000000; i++) {
+            a++;
+        }
+        long end1 = System.nanoTime();
+        System.out.println(end1 - start);  // 没有try catch耗时2ms
+
+        for (int i = 0; i < 1000000; i++) {
+            try {
+                a++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        long end2 = System.nanoTime();
+        System.out.println(end2 - end1);  // 有try catch但不抛异常耗时2ms,对性能几乎没有影响
+
+        for (int i = 0; i < 1000000; i++) {
+            try {
+                a++;
+//                int num = 10 / 0;
+                throw new Exception();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        long end3 = System.nanoTime();
+        System.out.println(end3 - end2);  // 有try catch且抛出异常耗时5200毫秒,性能差了几千倍
+    }
 }
