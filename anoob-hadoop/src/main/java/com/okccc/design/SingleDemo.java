@@ -3,25 +3,8 @@ package com.okccc.design;
 /**
  * @Author: okccc
  * @Date: 2020/12/31 2:09 下午
- * @Desc: java单例模式
+ * @Desc: 双重校验锁DCL(Double Check Lock)解决单例模式懒汉式的线程安全问题
  *
- * 设计模式是对程序设计中普遍存在的问题提出的解决方案,核心思想就是低耦合高内聚面向接口编程
- *
- * 设计模式七大原则
- * 单一职责原则: 一个类只负责一项职责,降低类的复杂度,提高可维护性
- * 接口隔离原则: 一个类对另一个类的依赖应该建立在最小的接口上
- * 依赖倒转原则: 抽象不应该依赖细节,而是细节依赖抽象,本质上是面向接口编程
- * 里氏替换原则: 继承时尽量不要重写父类方法,继承实际上增加了两个类的耦合性,可以通过聚合/组合/依赖解决问题
- * 开闭原则OCP: 对方法开放扩展功能封闭已有功能
- * 迪米特法则: 也叫最少知道原则,即一个类对自己依赖的类知道的越少越好,只与直接朋友通信,降低耦合度
- * 合成复用原则: 尽量使用聚合/组合/依赖方式,而不使用继承
- *
- * 设计模式三种类型
- * 创建型: 单例模式、工厂模式、抽象工厂模式、构造者模式、原型模式
- * 结构型: 装饰模式、代理模式、适配器模式、桥接模式、组合模式、外观模式、享元模式
- * 行为型: 观察者模式、中介者模式、解释器模式、迭代器模式、访问者模式、备忘录模式、状态模式、策略模式、责任链模式、命令模式、模板方法模式
- *
- * 单例模式：保证类在内存中对象的唯一性
  * 1.在该类使用new创建一个本类对象
  * 2.私有化构造函数不允许其它程序创建对象
  * 3.对外提供静态get方法让其它程序可以获取该对象
@@ -31,7 +14,7 @@ package com.okccc.design;
  */
 public class SingleDemo {
 
-    // 饿汉式：类一加载就创建好对象
+    // 饿汉式：类一加载就创建好对象,不存在线程安全问题
 //    public static SingleDemo singleDemo = new SingleDemo();
 //
 //    private SingleDemo() {}
@@ -41,26 +24,21 @@ public class SingleDemo {
 //    }
 
     // 懒汉式：要用的时候再创建对象(延迟加载)
-    public static SingleDemo singleDemo;
+    public static volatile SingleDemo singleDemo;
 
     private SingleDemo() {}
 
     public static SingleDemo getInstance() {
-        // 效率问题：A进来拿到锁创建对象,B在外面一直等直到拿到锁,发现对象已存在岂不是白等了？先判断对象是否存在,存在就直接返回,不用每次都判断锁
+        // 效率问题：先判断对象是否存在,有就直接返回,不然每次进来都要上锁
         if (singleDemo == null) {
-            // 线程安全问题：A和B同时进来,判断为空岂不是都要创建对象？同步代码块保证线程安全,静态方法不能使用this,可通过反射获取对象
+            // 线程安全问题：CPU是逐条执行代码,线程执行具有随机性,谁抢到CPU谁执行,A和B都进来了,判断为空岂不是都要创建对象？所以要加锁
             synchronized (SingleDemo.class) {
+                // A创建对象后释放锁,B拿到锁进来发现对象已存在,就不会重复初始化
                 if (singleDemo == null) {
                     singleDemo = new SingleDemo();
                 }
             }
         }
         return singleDemo;
-    }
-
-    public static void main(String[] args) {
-        SingleDemo s1 = SingleDemo.getInstance();
-        SingleDemo s2 = SingleDemo.getInstance();
-        System.out.println(s1==s2);  // 结果是true说明是同一个对象
     }
 }
