@@ -11,6 +11,30 @@ package com.okccc.design;
  *
  * Arrays/Collections/Math/System等工具类将构造函数私有化,类中全部是静态方法,类名直接调用
  * Runtime类将构造函数私有化,对外提供getRuntime()方法获取单例对象,访问类中的非静态方法
+ *
+ * public class Demo {
+ *     public static void main(String[] args) {
+ *         Demo demo = new Demo();
+ *     }
+ * }
+ * javac Demo.java  # javac命令将源代码文件Demo.java编译成字节码文件Demo.class
+ * javap -c Demo.class  # javap命令反编译字节码文件
+ * Compiled from "Demo.java"
+ * public class Demo {
+ *   public Demo();
+ *     Code:
+ *        0: aload_0
+ *        1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+ *        4: return
+ *
+ *   public static void main(java.lang.String[]);
+ *     Code:
+ *        0: new           #2                  // class Demo
+ *        3: dup
+ *        4: invokespecial #3                  // Method "<init>":()V
+ *        7: astore_1
+ *        8: return
+ * }
  */
 public class SingleDemo {
 
