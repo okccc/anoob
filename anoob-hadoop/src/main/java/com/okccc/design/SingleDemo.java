@@ -73,4 +73,34 @@ public class SingleDemo {
         }
         return singleDemo;
     }
+
+    // 声明成员变量
+    private static volatile boolean flag = false;
+    public static void main(String[] args)  {
+        // 线程1
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!flag) {
+
+                }
+                // 如果不加volatile关键字,发现程序过了很久依然没有结束,说明线程1感知不到线程2对成员变量的修改
+                System.out.println("跳出循环程序结束");
+            }
+        }).start();
+
+        // 线程2
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                flag = true;
+                System.out.println("将flag设置为true");
+            }
+        }).start();
+    }
 }
