@@ -19,7 +19,8 @@ import java.time.Duration;
 /**
  * @Author: okccc
  * @Date: 2021/9/13 下午2:06
- * @Desc: flink水位线
+ * @Desc: 事件时间和水位线
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/event-time/generating_watermarks/
  *
  * 时间语义
  * 发生顺序：EventTime(事件时间) -> IngestionTime(机器时间) -> ProcessingTime(机器时间)
