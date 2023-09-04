@@ -22,9 +22,8 @@ import java.sql.Timestamp;
 /**
  * @Author: okccc
  * @Date: 2021/9/9 下午5:05
- * @Desc: flink窗口
- *
- * https://nightlies.apache.org/flink/flink-docs-release-1.15/zh/docs/dev/datastream/operators/windows/
+ * @Desc: DataStream API - Operators - Windows
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/windows/
  *
  * flink也有窗口函数,有些业务场景必须要攒一批数据做批处理
  * keyBy()是分组后聚合,keyBy() + window()是分组并各自开窗后再聚合,分组就是将数据分到不同的流
