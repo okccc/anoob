@@ -17,7 +17,9 @@ import java.sql.Timestamp;
 /**
  * @Author: okccc
  * @Date: 2021/9/7 下午4:49
- * @Desc: flink状态变量和定时器
+ * @Desc: 状态变量和定时器
+ *
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/fault-tolerance/state/
  *
  * RichFunction
  * DataStream API提供的转换算子都有其Rich版本,都继承自RichFunction接口,有额外三个方法
