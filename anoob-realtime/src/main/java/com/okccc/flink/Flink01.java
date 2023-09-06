@@ -12,6 +12,10 @@ import org.apache.flink.util.Collector;
  * @Date: 2021/9/1 下午2:35
  * @Desc: flink简介、部署模式、运行架构、DataStream-API、状态编程、容错机制、flink调优
  *
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/deployment/memory/mem_setup_tm/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/sources/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/overview/
+ *
  * 电商用户行为分析
  * 统计分析(实时)：热门商品、热门页面、访问流量、app市场推广统计、页面广告点击量
  * 风险控制(实时)：页面广告黑名单过滤、恶意登录监控、订单支付失效监控、支付实时对账
