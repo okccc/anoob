@@ -34,6 +34,8 @@ import org.apache.kafka.connect.source.SourceRecord;
  * The MySQL server has a timezone offset (0 seconds ahead of UTC) which does not match the configured timezone Asia/Shanghai.
  * Specify the right server-time-zone to avoid inconsistencies for time-related fields.
  * 如果是海外的数据库要设置serverTimeZone="UTC"
+ *
+ * 使用Maxwell或FlinkCdc往kafka刷历史数据时要避开流量高峰期,不然大量历史数据涌入会造成实时数据延迟
  */
 public class FlinkCdc {
 
@@ -59,7 +61,7 @@ public class FlinkCdc {
                 .build();
 
         env
-                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySql Source")
+                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySqlSource")
                 .print();
 
         // 启动任务
@@ -149,7 +151,7 @@ public class FlinkCdc {
             }
 
             // 获取时间戳
-            Long ts_ms = value.getInt64("ts_ms");
+            Long ts = value.getInt64("ts_ms");
 
             // 封装成JSON对象
             JSONObject jsonObject = new JSONObject();
@@ -157,7 +159,7 @@ public class FlinkCdc {
             jsonObject.put("database", db);
             jsonObject.put("table", table);
             jsonObject.put("type", type);
-            jsonObject.put("ts", ts_ms);
+            jsonObject.put("ts", ts);
 
             // 收集结果往下游发送
             out.collect(jsonObject.toJSONString());
