@@ -2,39 +2,32 @@ package com.okccc.j2se;
 
 import com.okccc.bean.Person;
 
-import java.io.FileReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * @Author: okccc
  * @Date: 2020/9/21 12:09
  * @Desc: java反射
  *
- * 反射：动态获取类的结构信息,创建对象,获取属性,调用方法
+ * 反射：动态加载类,创建未知类的对象并获取属性和调用方法
  * 类什么时候会被加载？
  * new创建该类对象 | 调用类中静态成员 | 加载该类的子类 | 反射
  * 静态加载：编译期加载类,类不存在则编译报错,依赖性太强
- * 动态加载(反射)：运行期加载类,类不存在编译不报错,降低依赖性,可以将类的描述写到配置文件,在各种框架中很常用
+ * 动态加载：运行期加载类,类不存在编译不报错,降低依赖性,可以将类的描述写到配置文件,在各种框架中很常用
  * 实现反射机制的4个类：Class,Field,Method,Constructor
+ *
+ * 为什么new比反射效率高？
+ * 1.编译时优化：new创建对象在编译时就确定对象的类型和构造函数,而反射要等到运行时才知道到底要加载哪个类,会有额外性能损耗
+ * 2.缓存和重用：new创建对象可以放入缓存重用,避免重复创建和销毁对象,而反射每次都要动态创建新的对象
  */
 public class ReflectDemo {
-    public static void main(String[] args) throws Exception {
-//        getClassObject();
-//        getClassField();
-//        getClassMethod();
-//        getClassConstructor();
-//        getClassOther();
-//        test01();
-        test02();
-    }
 
-    // 获取Class类对象的三种方式
-    private static void getClassObject() throws Exception {
+    /**
+     * 获取Class类对象的三种方式
+     */
+    private static void getObject() throws Exception {
         // 1.使用类加载器,传入类/接口字符串
         Class<?> c1 = Class.forName("java.lang.String");
         System.out.println(c1.getName());  // java.lang.String
@@ -45,8 +38,10 @@ public class ReflectDemo {
         Class<? extends String> c3 = "abc".getClass();
     }
 
-    // 通过反射获取类的属性
-    private static void getClassField() throws Exception {
+    /**
+     * 通过反射获取类的属性
+     */
+    private static void getField() throws Exception {
         Class<?> clazz = Class.forName("com.okccc.bean.Person");
 //        Field[] fields = clazz.getFields();  // 只能获取public修饰的属性
         Field[] fields = clazz.getDeclaredFields();  // 获取所有属性,但是private修饰的属性要先获取访问权限
@@ -61,8 +56,10 @@ public class ReflectDemo {
         }
     }
 
-    // 通过反射获取类的方法
-    private static void getClassMethod() throws Exception {
+    /**
+     * 通过反射获取类的方法
+     */
+    private static void getMethod() throws Exception {
         Class<?> clazz = Class.forName("com.okccc.bean.Person");
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
@@ -76,20 +73,21 @@ public class ReflectDemo {
             Class<?>[] parameterTypes = method.getParameterTypes();
             StringBuilder sb = new StringBuilder("(");
             for (int i = 0; i < parameterTypes.length; i++) {
-                String paraName = parameterTypes[i].getSimpleName();
-                sb.append(paraName);
-                if (i == parameterTypes.length-1) {
+                sb.append(parameterTypes[i].getSimpleName());
+                if (i == parameterTypes.length - 1) {
                     continue;
                 }
-                sb.append(", ");
+                sb.append(",");
             }
             sb.append(")");
             System.out.println(modifier + " " + type + " " + name + sb);
         }
     }
 
-    // 通过反射获取类的构造器
-    private static void getClassConstructor() throws Exception {
+    /**
+     * 通过反射获取类的构造器
+     */
+    private static void getConstructor() throws Exception {
         Class<?> clazz = Class.forName("com.okccc.bean.Person");
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
@@ -101,12 +99,11 @@ public class ReflectDemo {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             StringBuilder sb = new StringBuilder("(");
             for (int i = 0; i < parameterTypes.length; i++) {
-                String paraName = parameterTypes[i].getSimpleName();
-                sb.append(paraName);
+                sb.append(parameterTypes[i].getSimpleName());
                 if (i == parameterTypes.length-1) {
                     continue;
                 }
-                sb.append(", ");
+                sb.append(",");
             }
             sb.append(")");
             System.out.println(modifier + " " + name + sb);
@@ -114,11 +111,11 @@ public class ReflectDemo {
     }
 
     // 通过反射获取类的其它结构：包、父类、接口、泛型、注解
-    private static void getClassOther() throws Exception {
+    private static void getOther() throws Exception {
         Class<?> clazz = Class.forName("com.okccc.bean.Person");
         // 获取包
         Package pack = clazz.getPackage();
-        System.out.println(pack.getName());  // basic
+        System.out.println(pack.getName());  // com.okccc.bean
         // 获取父类
         Class<?> superclass = clazz.getSuperclass();
         System.out.println(superclass.getSimpleName());  // Object
@@ -138,25 +135,25 @@ public class ReflectDemo {
         // 获取所有泛型接口
         Type[] genericInterfaces = clazz.getGenericInterfaces();
         for (Type genericInterface : genericInterfaces) {
-            System.out.println(genericInterface.getTypeName());  // java.io.Serializable  java.lang.Comparable<com.okccc.pojo.Person>
+            System.out.println(genericInterface.getTypeName());  // java.io.Serializable  java.lang.Comparable<com.okccc.bean.Person>
         }
         // 泛型擦除：泛型是在编译期检查元素类型,并且只作用于编译期,而反射是作用于运行期,此时泛型已不存在
-        List l1 = new ArrayList();
-        List<String> l2 = new ArrayList<>();
+        ArrayList<String> l1 = new ArrayList<>();
+        ArrayList<Double> l2 = new ArrayList<>();
         System.out.println(l1.getClass() == l2.getClass());  // true
     }
 
-    private static void test01() throws Exception {
+    private static void example() throws Exception {
         // 使用类加载器加载类
         Class<?> clazz = Class.forName("com.okccc.bean.Person");
-        System.out.println(clazz);  // class com.okccc.pojo.Person
+        System.out.println(clazz);
         // 调用Class类的newInstance()方法,实例化一个带空参构造的对象(推荐)
-        Person person = (Person) clazz.newInstance();
-        System.out.println(person);  // null: 0: null
+        Person p1 = (Person) clazz.newInstance();
+        System.out.println(p1);
         // 如果该类没有空参构造,需使用Constructor类的newInstance(Object ... initargs)方法
         Constructor<?> constructor = clazz.getDeclaredConstructor(String.class, int.class, String.class);
-        Person p1 = (Person) constructor.newInstance("grubby", 18, "123456");
-        System.out.println(p1);  // grubby: 18: 123456
+        Person p2 = (Person) constructor.newInstance("grubby", 18, "123456");
+        System.out.println(p2);
 
         // 获取属性
         Field f1 = clazz.getDeclaredField("name");
@@ -164,92 +161,31 @@ public class ReflectDemo {
         // 由于类中字段是private的,要先获取访问权限,不然报错 java.lang.IllegalAccessException: Class com.okccc.j2se.ReflectDemo can not access a member of class com.okccc.pojo.Person with modifiers "private"
         f1.setAccessible(true);
         f2.setAccessible(true);
-        f1.set(person, "aaa");
-        System.out.println(f1.get(person));  // aaa
-        System.out.println(f2.get(person));  // 5898267155926398171
+        f1.set(p1, "aaa");
+        System.out.println(f1.get(p1));
+        System.out.println(f2.get(p1));
 
         // 调用方法
         Method m1 = clazz.getDeclaredMethod("toString");
         Method m2 = clazz.getDeclaredMethod("hashCode");
-        System.out.println(m1.invoke(person));  // aaa: 0: null
-        System.out.println(m2.invoke(person));  // 96321
+        System.out.println(m1.invoke(p1));
+        System.out.println(m2.invoke(p1));
     }
 
-    private static void test02() throws Exception {
-        // 案例：电脑开始只有主板,主板对外提供接口,可以添加网卡和声卡等
-        MainBoard mb = new MainBoard();
-        mb.run();
-        // 创建属性集合
-        Properties prop = new Properties();
-        // 关联输入流,从文件读取属性
-        FileReader fr = new FileReader("j2se/input/pci.properties");
-        prop.load(fr);
-        // 遍历集合
-        Set<String> keys = prop.stringPropertyNames();
-        for (String key : keys) {
-            String value = prop.getProperty(key);
-            System.out.println(value);  // com.okccc.j2se.NetCard, com.okccc.j2se.SoundCard
-            // 通过反射加载类
-            Class<?> clazz = Class.forName(value);
-//            // 创建该类对象
-//            Object o = clazz.newInstance();
-//            // 获取对象方法并调用
-//            Method m1 = clazz.getDeclaredMethod("open");
-//            Method m2 = clazz.getDeclaredMethod("close");
-//            m1.invoke(o);
-//            m2.invoke(o);
-            // 创建该类对象,并向上转型为接口类型
-            PCI p = (PCI) clazz.newInstance();
-            // 主板调用添加接口功能
-            mb.invokePCI(p);
+    public static void main(String[] args) throws Exception {
+        // new创建对象
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 100000000; i++) {
+            ReflectDemo reflectDemo = new ReflectDemo();
         }
-    }
+        long end = System.currentTimeMillis();
+        System.out.println("new耗时：" + (end - start));
 
-    // 主板
-    public static class MainBoard {
-        // 主板自身功能
-        public void run(){
-            System.out.println("我是主板");
+        // 反射创建对象
+        for (int i = 0; i < 100000000; i++) {
+            ReflectDemo reflectDemo = ReflectDemo.class.newInstance();
         }
-
-        // 主板对外提供添加接口功能
-        public void invokePCI(PCI p){
-            if (p != null) {
-                p.open();
-                p.close();
-            }
-        }
-    }
-
-    // 网卡、声卡等组件都具备开启关闭功能,向上抽取成接口
-    public interface PCI {
-        void open();
-        void close();
-    }
-
-    // 网卡
-    public static class NetCard implements PCI {
-        @Override
-        public void open() {
-            System.out.println("net open");
-        }
-
-        @Override
-        public void close() {
-            System.out.println("net close");
-        }
-    }
-
-    // 声卡
-    public static class SoundCard implements PCI{
-        @Override
-        public void open() {
-            System.out.println("sound open");
-        }
-
-        @Override
-        public void close() {
-            System.out.println("sound close");
-        }
+        long end2 = System.currentTimeMillis();
+        System.out.println("反射耗时：" + (end2 - end));
     }
 }
