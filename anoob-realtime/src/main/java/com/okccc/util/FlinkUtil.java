@@ -67,7 +67,7 @@ public class FlinkUtil {
         env.enableCheckpointing(60 * 1000, CheckpointingMode.EXACTLY_ONCE);
         CheckpointConfig config = env.getCheckpointConfig();
 
-        // 检查点存储路径
+        // 检查点存储路径,目录名称就是Flink Streaming Job ID
         config.setCheckpointStorage("hdfs://${ip}:${port}/flink/cp");
 
         // 检查点超时时间,防止状态数据过大或反压导致检查点耗时过长 Checkpoint expired before completing.
