@@ -93,8 +93,13 @@ public class FlinkUtil {
         // 重启策略：重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, 60 * 1000));
 
-        // 本地调试时要指定能访问hadoop的用户
-        System.setProperty("HADOOP_USER_NAME", "deploy");
+        // 获取命令行参数
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        // 本地调试时要设置能访问hdfs的用户
+        String hdfsUser = parameterTool.get("hdfs-user", "deploy");
+        System.setProperty("HADOOP_USER_NAME", hdfsUser);
+
+        return env;
     }
 
     /**
