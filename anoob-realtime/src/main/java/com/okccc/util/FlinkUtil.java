@@ -55,7 +55,12 @@ public class FlinkUtil {
      * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/ops/monitoring/checkpoint_monitoring/
      * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/ops/monitoring/back_pressure/
      */
-    public static void setCheckpointAndStateBackend(StreamExecutionEnvironment env) {
+    public static StreamExecutionEnvironment getStreamExecutionEnvironment(String[] args) {
+        // 创建流处理执行环境
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // 设置并行度,部署时应结合Kafka分区数,通过命令行-p指定全局并行度
+//        env.setParallelism(1);
+
         // 禁用算子链,方便定位导致反压的具体算子
         env.disableOperatorChaining();
 
