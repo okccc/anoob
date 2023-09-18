@@ -195,7 +195,7 @@ public class FlinkUtil {
                 "  'topic' = '" + topic + "',\n" +
                 "  'properties.bootstrap.servers' = '" + KAFKA_SERVER + "',\n" +
                 "  'properties.group.id' = '" + groupId + "',\n" +
-                "  'scan.startup.mode' = 'latest-offset',\n" +
+                "  'scan.startup.mode' = 'group-offsets',\n" +  // 默认从偏移量处断点续传
                 "  'format' = 'json',\n" +
                 "  'json.ignore-parse-errors' = 'true'\n" +  // 过滤非json数据
                 ")";
