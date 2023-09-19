@@ -1,4 +1,4 @@
-package com.okccc.app.util;
+package com.okccc.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -15,6 +15,7 @@ import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.base.DeliveryGuarantee;
@@ -278,7 +279,7 @@ public class FlinkUtil {
                 "    parent_code     STRING,\n" +
                 "    create_time     STRING,\n" +
                 "    operate_time    STRING,\n" +
-                "PRIMARY KEY(dic_code) NOT ENFORCED\n" +
+                "PRIMARY KEY(dic_code) NOT ENFORCED\n" +  // 主键具有唯一性但kafka做不到,not enforced表示会写入相同主键的数据
                 ")" + FlinkUtil.getMysqlSourceDdl("base_dic");
     }
 
