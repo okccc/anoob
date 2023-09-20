@@ -62,7 +62,53 @@ public class StringUtil {
         return str.replaceAll("[\r\n\t]", "");
     }
 
-    // url解码
+    /**
+     * 字符串加密：MD5/SHA1等加密算法是不可逆的无法解密,AES算法可以用相同的秘钥key将加密后的字符串解密
+     */
+    public static String encrypt(String inputStr, String key) {
+        try {
+            // 创建AES加密算法
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            // 创建密钥
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+            // 初始化加密算法
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            // 进行加密
+            byte[] encryptedBytes = cipher.doFinal(inputStr.getBytes(StandardCharsets.UTF_8));
+            // 使用Base64编码
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 字符串解密
+     */
+    public static String decrypt(String encryptedStr, String key) {
+        try {
+            // 创建AES解密算法
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            // 创建密钥
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+            // 初始化解密算法
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            // 使用Base64解码
+            byte[] encryptedBytes = Base64.getDecoder().decode(encryptedStr);
+            // 进行解密
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+            // 将解密后的字节流转换为字符串
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * url解码
+     */
     public static String decode(String str) {
         if (str != null && str.length() > 0) {
             try {
