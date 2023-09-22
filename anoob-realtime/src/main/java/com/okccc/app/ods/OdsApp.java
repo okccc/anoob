@@ -20,6 +20,25 @@ import org.apache.flink.util.Collector;
  * @Date: 2023/9/12 16:35:26
  * @Desc: FlinkCDC读取binlog捕获MySql实时数据写入ODS层Kafka
  *
+ * FlinkJob配置信息优先级：代码写死 > 命令行提交Job时动态指定(推荐) > flink-conf.yaml
+ * 配置项分为两类：
+ * a.官方提供了相关配置项,通过-Dkey=value指定
+ * b.官方未提供相关配置项,只能通过main方法的args参数传递,然后用ParameterTool解析,配置项的key必须以-/--开头,value紧邻其后
+ *
+ * flink run-application \
+ * -t yarn-application \
+ * -p 3 \
+ * -Dyarn.application.name=OdsApp \
+ * -Dyarn.application.queue=root.flink \
+ * -Djobmanager.memory.process.size=1024mb \
+ * -Dtaskmanager.memory.process.size=2048mb \
+ * -Dtaskmanager.numberOfTaskSlots=3 \
+ * -Dclassloader.resolve-order=parent-first \
+ * -c com.okccc.realtime.app.ods.OdsApp \
+ * /data/projects-app/flinkapp/flinkapp-1.0-SNAPSHOT-jar-with-dependencies.jar \
+ * --hdfs-user deploy \
+ * --two-phase false
+ *
  * 并行度设置
  * Flink并行度通常与Kafka分区数保持一致,可以在提交Job时通过-p参数动态指定
  * {"id":1,"name":"A"} -> {"id":1,"name":"B"} -> {"id":1,"name":"C"} 如果数据乱序下游可能先收到第二次修改,导致最终name=B
