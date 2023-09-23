@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.esotericsoftware.minlog.Log;
 import com.okccc.util.FlinkUtil;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
+import com.ververica.cdc.connectors.mysql.source.MySqlSourceBuilder;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -38,6 +39,9 @@ import org.apache.flink.util.Collector;
  * /data/projects-app/flinkapp/flinkapp-1.0-SNAPSHOT-jar-with-dependencies.jar \
  * --hdfs-user deploy \
  * --two-phase false
+ *
+ * MySql数据源
+ * 启动模式：事实表只抓更新数据,维度表要刷历史数据
  *
  * 并行度设置
  * Flink并行度通常与Kafka分区数保持一致,可以在提交Job时通过-p参数动态指定
@@ -80,23 +84,55 @@ public class OdsApp {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
+        // 事实表
+        mySqlToKafka(env, "dwd");
+
+        // 维度表
+        mySqlToKafka(env, "dim");
+
+        // 6.启动任务
+        env.execute();
+    }
+
+    public static void mySqlToKafka(StreamExecutionEnvironment env, String tableType) {
         // 2.MySQL数据源
-        MySqlSource<String> mySqlSource = MySqlSource.<String>builder()
+        MySqlSource<String> mysqlSource = null;
+        MySqlSourceBuilder<String> builder = MySqlSource.<String>builder()
                 .hostname("localhost")
                 .port(3306)
                 .username("root")
                 .password("root@123")
                 .databaseList("mock")
-                .tableList()
-                .startupOptions(StartupOptions.initial())
-                .deserializer(new JsonDebeziumDeserializationSchema())
-                .build();
+//                .tableList("")
+//                .startupOptions(StartupOptions.initial())
+                .deserializer(new JsonDebeziumDeserializationSchema());
+
+        switch (tableType) {
+            // 事实表
+            case "dwd":
+                String[] dwdTables = {"mock.cart_info", "mock.order_info", "mock.order_detail", "mock.payment_info"};
+                mysqlSource = builder
+                        .tableList(dwdTables)
+                        .serverId("5801")
+                        .startupOptions(StartupOptions.initial())
+                        .build();
+                break;
+            // 维度表
+            case "dim":
+                String[] dimTables = {"mock.user_info", "mock.sku_info", "mock.spu_info", "mock.base_province"};
+                mysqlSource = builder
+                        .tableList(dimTables)
+                        .serverId("5802")
+                        .startupOptions(StartupOptions.initial())
+                        .build();
+                break;
+        }
 
         // 3.从mysql读数据
         SingleOutputStreamOperator<String> dataStream = env
-                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MysqlSource")
+                .fromSource(mysqlSource, WatermarkStrategy.noWatermarks(), "MysqlSource")
                 .setParallelism(1)
-                .uid("source");
+                .uid(tableType + "_source");
 
         // 4.简单etl处理
         KeyedStream<JSONObject, String> keyedStream = dataStream
@@ -119,16 +155,13 @@ public class OdsApp {
                     }
                 })
                 .setParallelism(1)
-                .uid("flatMap")
+                .uid(tableType + "_flatMap")
                 .keyBy(r -> r.getJSONObject("after").getString("id"));
 
         // 5.往kafka写数据
         keyedStream
                 .map(JSONAware::toJSONString)
-                .sinkTo(FlinkUtil.getKafkaSink("ods_base_db", "mysql"))
-                .uid("sink");
-
-        // 6.启动任务
-        env.execute();
+                .sinkTo(FlinkUtil.getKafkaSink("ods_base_db", tableType + "_mysql"))
+                .uid(tableType + "_sink");
     }
 }
