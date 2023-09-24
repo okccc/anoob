@@ -42,6 +42,7 @@ import org.apache.flink.util.Collector;
  *
  * MySql数据源
  * 启动模式：事实表只抓更新数据,维度表要刷历史数据
+ * serverId：Canal/Maxwell/FlinkCDC监控binlog是基于主从复制实现的,每个并行度都会伪装成MySql集群的一个从节点,要有唯一编号
  *
  * 并行度设置
  * Flink并行度通常与Kafka分区数保持一致,可以在提交Job时通过-p参数动态指定
@@ -104,6 +105,7 @@ public class OdsApp {
                 .password("root@123")
                 .databaseList("mock")
 //                .tableList("")
+//                .serverId("")
 //                .startupOptions(StartupOptions.initial())
                 .deserializer(new JsonDebeziumDeserializationSchema());
 
