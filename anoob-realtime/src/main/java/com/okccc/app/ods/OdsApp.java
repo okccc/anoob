@@ -15,6 +15,10 @@ import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.connect.json.DecimalFormat;
+import org.apache.kafka.connect.json.JsonConverterConfig;
+
+import java.util.HashMap;
 
 /**
  * @Author: okccc
@@ -43,6 +47,7 @@ import org.apache.flink.util.Collector;
  * MySql数据源
  * 启动模式：事实表只抓更新数据,维度表要刷历史数据
  * serverId：Canal/Maxwell/FlinkCDC监控binlog是基于主从复制实现的,每个并行度都会伪装成MySql集群的一个从节点,要有唯一编号
+ * 数据序列化：decimal类型数据默认会被序列化为base-64编码的字符串,'0.00'会输出成'AA==',需要将默认的序列化格式更换为NUMERIC
  *
  * 并行度设置
  * Flink并行度通常与Kafka分区数保持一致,可以在提交Job时通过-p参数动态指定
@@ -96,6 +101,11 @@ public class OdsApp {
     }
 
     public static void mySqlToKafka(StreamExecutionEnvironment env, String tableType) {
+        // Serializes the JSON Decimal as a base-64 string. For example, serializing the value `10.2345` with the BASE64 setting will result in `"D3J5"`.
+        // Serializes the JSON Decimal as a JSON number. For example, serializing the value `10.2345` with the NUMERIC setting will result in `10.2345`.
+        HashMap<String, Object> customConverterConfigs = new HashMap<>();
+        customConverterConfigs.put(JsonConverterConfig.DECIMAL_FORMAT_CONFIG, DecimalFormat.NUMERIC.name());
+
         // 2.MySQL数据源
         MySqlSource<String> mysqlSource = null;
         MySqlSourceBuilder<String> builder = MySqlSource.<String>builder()
@@ -107,7 +117,7 @@ public class OdsApp {
 //                .tableList("")
 //                .serverId("")
 //                .startupOptions(StartupOptions.initial())
-                .deserializer(new JsonDebeziumDeserializationSchema());
+                .deserializer(new JsonDebeziumDeserializationSchema(false, customConverterConfigs));
 
         switch (tableType) {
             // 事实表
