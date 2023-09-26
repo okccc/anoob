@@ -49,6 +49,15 @@ import java.util.HashMap;
  * serverId：Canal/Maxwell/FlinkCDC监控binlog是基于主从复制实现的,每个并行度都会伪装成MySql集群的一个从节点,要有唯一编号
  * 数据序列化：decimal类型数据默认会被序列化为base-64编码的字符串,'0.00'会输出成'AA==',需要将默认的序列化格式更换为NUMERIC
  *
+ * FlinkCDC同步MySql会导致时间字段的时区和格式发生变化,需特殊处理
+ * a.date类型：会被转化为距离1970-01-01的天数,要先转换为毫秒时间戳再转换格式
+ * b.datetime类型：会被转化为毫秒时间戳,且比原始时间大8小时,要先减去8小时再转换格式
+ * c.timestamp类型：会被转化为2023-09-20T10:49:22Z格式,且比原始时间小8小时,要先去除"T"和"Z"再加上8小时再转换格式
+ * 日期类型       存储空间    日期格式                 日期范围
+ * date         3 bytes    yyyy-MM-dd             1000-01-01 ~ 9999-12-31
+ * datetime     8 bytes    yyyy-MM-dd HH:mm:ss    1000-01-01 00:00:00 ~ 9999-12-31 23:59:59
+ * timestamp    4 bytes    yyyy-MM-dd HH:mm:ss    1970-01-01 00:00:01 ~ 2037-12-31 23:59:59
+ *
  * 并行度设置
  * Flink并行度通常与Kafka分区数保持一致,可以在提交Job时通过-p参数动态指定
  * {"id":1,"name":"A"} -> {"id":1,"name":"B"} -> {"id":1,"name":"C"} 如果数据乱序下游可能先收到第二次修改,导致最终name=B
