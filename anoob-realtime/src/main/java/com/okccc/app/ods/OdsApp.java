@@ -57,6 +57,7 @@ import java.util.HashMap;
  * date         3 bytes    yyyy-MM-dd             1000-01-01 ~ 9999-12-31
  * datetime     8 bytes    yyyy-MM-dd HH:mm:ss    1000-01-01 00:00:00 ~ 9999-12-31 23:59:59
  * timestamp    4 bytes    yyyy-MM-dd HH:mm:ss    1970-01-01 00:00:01 ~ 2037-12-31 23:59:59
+ * datetime日期范围更大,timestamp占用字节更少并且在insert和update时会自动更新成当前时间CURRENT_TIMESTAMP
  *
  * 并行度设置
  * Flink并行度通常与Kafka分区数保持一致,可以在提交Job时通过-p参数动态指定
