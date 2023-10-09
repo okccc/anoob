@@ -167,13 +167,17 @@ public class HdfsUtil {
     }
 
     public static void main(String[] args) throws Exception {
-//        String job = args[0];
-//        switch (job) {
-//            case "offline":
-//                System.out.println("plan a");
-//            case "realtime":
-//                System.out.println("plan b");
-//        }
+        String job = args[0];
+        switch (job) {
+            case "offline":
+                System.out.println("plan a");
+                break;
+            case "realtime":
+                System.out.println("plan b");
+                break;
+            default:
+                System.out.println("plan c");
+        }
 
 //        testFile();
         testDirectory();
