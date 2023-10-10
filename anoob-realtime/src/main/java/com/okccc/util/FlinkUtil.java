@@ -113,11 +113,11 @@ public class FlinkUtil {
      * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
      * https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/connectors/datastream/kafka/#kafka-source
      */
-    public static KafkaSource<String> getKafkaSource(String groupId, String... topics) {
+    public static KafkaSource<String> getKafkaSource(String topic, String groupId) {
         // 创建flink消费者对象
         return KafkaSource.<String>builder()
                 .setBootstrapServers(KAFKA_SERVER)
-                .setTopics(topics)
+                .setTopics(topic)
                 .setGroupId(groupId)
                 // 查看SimpleStringSchema源码77行和String源码514行发现bytes[]是@NotNull,所以要自定义反序列化器
 //                .setValueOnlyDeserializer(new SimpleStringSchema())
