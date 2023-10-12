@@ -74,6 +74,8 @@ public class JdbcUtil {
         PreparedStatement ps = conn.prepareStatement(sql);
 
         // 执行查询,返回结果集
+        // 结果集并不是一次性加载到内存,ResultSet维护了一个指向数据库记录的游标,每次调用next就是取当前行数据放到内存并将游标下移
+        // next之前是获取了数据库连接的,只要连接不断就能一直取,为了提高性能和减少对数据库的访问,可以在url添加&useCursorFetch=true&defaultFetchSize=100
         ResultSet rs = ps.executeQuery();
 
         // 获取结果集的元数据信息
