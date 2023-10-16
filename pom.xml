@@ -16,11 +16,10 @@
 <!--        </repository>-->
 <!--    </repositories>-->
 
-    <!-- dependencies下的依赖会被maven加载,且默认被所有子项目继承 -->
+    <!-- 直接在父工程引入依赖,默认被所有子模块继承 -->
     <dependencies/>
 
-    <!-- dependencyManagement下的依赖不会被maven加载,用来统一管理各个子项目的依赖保持版本一致,切换版本在父项目中更新即可 -->
-    <!-- 子项目可以声明依赖继承父项目版本,也可以自己指定别的版本 -->
+    <!-- 父工程不引入依赖只声明依赖版本,统一管理各个子模块的依赖版本,子项目可以声明依赖继承父项目版本,也可以自己指定别的版本 -->
     <dependencyManagement>
         <dependencies/>
     </dependencyManagement>
