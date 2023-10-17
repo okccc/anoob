@@ -47,7 +47,7 @@ public class PageView {
                 // 分配时间戳和生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<UserBehavior>forBoundedOutOfOrderness(Duration.ofSeconds(0))
-                        .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
+                        .withTimestampAssigner((element, recordTimestamp) -> element.ts)
                 )
                 // 如果将数据都放到一条流,并行度是1无法充分利用集群资源,先将数据映射成Tuple2("randomStr",1)再按照随机字符串分组
                 // 实际应用场景中按照userId分组时,如果某个用户数据过多就会导致数据倾斜,此时也可以自定义map逻辑重新设计分组字段
