@@ -62,7 +62,7 @@ public class UniqueVisitor {
                 // 分配时间戳和生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<UserBehavior>forMonotonousTimestamps()
-                        .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
+                        .withTimestampAssigner((element, recordTimestamp) -> element.ts)
                 )
                 // 将数据都放到一条流
                 .keyBy(r -> 1)
