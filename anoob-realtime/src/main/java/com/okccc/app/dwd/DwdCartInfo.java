@@ -27,4 +27,9 @@ package com.okccc.app.dwd;
  * users can tune lookup.cache.ttl to a smaller value to have a better fresh data, but this may increase the number of requests send to database. So this is a balance between throughput and correctness.
  * 超过最大缓存行数会清除最老的记录,存活时间超过ttl也会清除
  * 缓存可以提高查询速度,但缓存可能不是最新的,将ttl调小尽可能获取最新数据但会增加访问数据库的次数,所以这是吞吐量和准确性之间的平衡
+ *
+ * 维度退化
+ * 将维度退化到事实表中,减少事实表和维度表的关联,降低维度数仓的复杂度
+ * 数仓维度建模时有一种维度叫Degenerate Dimension,比如将订单id这类事务编号合并到dwd层事实表,这样就不需要创建订单维度表
+ * 适用于base_dic这种单一维度表,base_category1/2/3这些有层级关联的就不适合,因为维度退化通常只退化某一张表,不会退化整个维度
  */
