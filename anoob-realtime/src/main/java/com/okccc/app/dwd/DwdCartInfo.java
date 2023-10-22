@@ -32,4 +32,10 @@ package com.okccc.app.dwd;
  * 将维度退化到事实表中,减少事实表和维度表的关联,降低维度数仓的复杂度
  * 数仓维度建模时有一种维度叫Degenerate Dimension,比如将订单id这类事务编号合并到dwd层事实表,这样就不需要创建订单维度表
  * 适用于base_dic这种单一维度表,base_category1/2/3这些有层级关联的就不适合,因为维度退化通常只退化某一张表,不会退化整个维度
+ *
+ * ERROR [Source: ods_base_db[1] -> Calc[2] -> LookupJoin[3] -> Calc[4] -> dwd_cart_add[5]: Writer -> dwd_cart_add[5]: Committer (1/1)#0]
+ * org.apache.flink.connector.jdbc.table.JdbcRowDataLookupFunction - JDBC executeBatch error, retry times = 0
+ * com.mysql.cj.jdbc.exceptions.CommunicationsException: The last packet successfully received from the server was 2,634,557 milliseconds ago.
+ * 分析："-"前半截是类的全路径,"-"后半截是该类打印的错误日志,直接double shift进入该类查看源码
+ * FlinkSQL访问mysql数据库长时间不操作连接会自动断开,报这个错然后自动重连,消费kafka发现其实数据已经写进去了
  */
