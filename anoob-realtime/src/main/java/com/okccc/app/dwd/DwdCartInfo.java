@@ -1,5 +1,12 @@
 package com.okccc.app.dwd;
 
+import com.okccc.util.FlinkUtil;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
+import java.time.Duration;
+
 /**
  * @Author: okccc
  * @Date: 2023/5/6 14:37:08
@@ -39,3 +46,78 @@ package com.okccc.app.dwd;
  * 分析："-"前半截是类的全路径,"-"后半截是该类打印的错误日志,直接double shift进入该类查看源码
  * FlinkSQL访问mysql数据库长时间不操作连接会自动断开,报这个错然后自动重连,消费kafka发现其实数据已经写进去了
  */
+public class DwdCartInfo {
+
+    public static void main(String[] args) throws Exception {
+        // 1.创建流处理执行环境,env执行DataStream操作
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        // 创建表环境,tableEnv执行Table操作
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+        tableEnv.getConfig().setIdleStateRetention(Duration.ofHours(1));
+
+        // 2.读取ods层业务数据(maxwell)
+        tableEnv.executeSql(FlinkUtil.getOdsBaseDb("dwd_cart_info_g"));
+
+        // 3.过滤cart_info数据,封装成动态表
+        Table cartInfo = tableEnv.sqlQuery(
+                "SELECT\n" +
+                        "    data['id'] id,\n" +
+                        "    data['user_id'] user_id,\n" +
+                        "    data['sku_id'] sku_id,\n" +
+                        "    data['sku_name'] sku_name,\n" +
+                        "    data['cart_price'] cart_price,\n" +
+                        "    if(type='insert',data['sku_num'],cast(cast(data['sku_num'] as int) - cast(`old`['sku_num'] as int) as string)) sku_num,\n" +
+                        "    data['create_time'] create_time,\n" +
+                        "    data['source_type'] source_type,\n" +
+                        "    proc_time\n" +
+                        "FROM ods_base_db\n" +
+                        "WHERE `table` = 'cart_info'\n" +
+                        "AND (type = 'insert' OR (type = 'update' and `old`['sku_num'] is not null and cast(data['sku_num'] as int) > cast(`old`['sku_num'] as int)))"
+        );
+//        cartInfo.printSchema();  // (`id` STRING,`user_id` STRING,...,`proc_time` TIMESTAMP_LTZ(3) NOT NULL *PROCTIME*)
+        tableEnv.createTemporaryView("cart_info", cartInfo);
+
+        // 4.读取mysql字典表base_dic
+        tableEnv.executeSql(FlinkUtil.getBaseDic());
+
+        // 5.关联加购表和字典表生成维度退化后的加购表
+        Table dwdCartInfo = tableEnv.sqlQuery(
+                "SELECT\n" +
+                        "    ci.id,\n" +
+                        "    ci.user_id,\n" +
+                        "    ci.sku_id,\n" +
+                        "    ci.sku_name,\n" +
+                        "    ci.cart_price,\n" +
+                        "    ci.sku_num,\n" +
+                        "    ci.create_time,\n" +
+                        "    ci.source_type,\n" +
+                        "    dic.dic_name\n" +
+                        "FROM cart_info ci\n" +
+                        "JOIN base_dic FOR SYSTEM_TIME AS OF ci.proc_time AS dic ON ci.source_type = dic.dic_code"
+        );
+//        tableEnv.createTemporaryView("dwd_cart_info", dwdCartInfo);
+        tableEnv.toDataStream(dwdCartInfo).print("dwdCartInfo");
+
+        // 6.将加购数据写入kafka
+        tableEnv.executeSql(
+                "CREATE TABLE IF NOT EXISTS dwd_cart_info (\n" +
+                        "    id              STRING  COMMENT '编号',\n" +
+                        "    user_id         STRING  COMMENT '用户id',\n" +
+                        "    sku_id          STRING  COMMENT '商品id',\n" +
+                        "    sku_name        STRING  COMMENT '商品名称',\n" +
+                        "    cart_price      STRING  COMMENT '放入购物车时商品价格',\n" +
+                        "    sku_num         STRING  COMMENT '商品数量',\n" +
+                        "    create_time     STRING  COMMENT '创建时间',\n" +
+                        "    source_type     STRING  COMMENT '来源类型',\n" +
+                        "    dic_name        STRING  COMMENT '编码名称'\n" +
+                        ")" + FlinkUtil.getKafkaSinkDdl("dwd_cart_info")
+        );
+        // 两种写法,创不创建视图都可以
+//        tableEnv.executeSql("INSERT INTO dwd_cart_info SELECT * FROM dwd_cart_info");
+        tableEnv.executeSql("INSERT INTO dwd_cart_info SELECT * FROM " + dwdCartInfo);
+
+        // 启动任务
+        env.execute("DwdCartInfo");
+    }
+}
