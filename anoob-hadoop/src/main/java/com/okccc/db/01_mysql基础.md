@@ -364,49 +364,6 @@ mysql> select * from a left join b on a.id=b.id where a.name='李四' and b.age=
 +----+------+------+------+
 ```
 
-### explain
-```sql
--- 执行计划：可以查看表的读取顺序,索引使用情况,扫描行数等
--- 结合type/key/key_len/rows这些指标判断是否要建索引,如果涉及排序则主要分析Extra指标的Using filesort
-mysql> explain select * from emp;
-+----+-------------+-------+------------+-------+---------------+-----------+---------+------+------+----------+-------------+
-| id | select_type | table | partitions | type  | possible_keys | key       | key_len | ref  | rows | filtered | Extra       |
-+----+-------------+-------+------------+-------+---------------+-----------+---------+------+------+----------+-------------+
-|  1 | SIMPLE      | emp   | NULL       | index | NULL          | idx_a_b_c | 71      | NULL |    1 |   100.00 | Using index |
-+----+-------------+-------+------------+-------+---------------+-----------+---------+------+------+----------+-------------+
--- id表示select执行顺序,id相同时从上往下,id不同时子查询id序号会递增且id越大执行优先级越高,每个id都是一次独立查询
--- select_type表示查询类型,主要用于区别普通查询、关联查询、子查询等
-SIMPLE 简单查询, select * from t1 where id=3;
-PRIMARY 包含子查询或union的最外层查询, select * from t1 union select * from t2;  -- t1是PRIMARY,t2是UNION
-DERIVED from列表中包含的子查询, select * from (select id,count(1) c from t1 group by id) t2 where c>10;  -- t1是DERIVED,t2是PRIMARY
-SUBQUERY where列表中包含的第一个子查询, select * from t1 where id in (select id from t2);  -- t1是PRIMARY,t2是SUBQUERY
-DEPENDENT SUBQUERY where列表中包含的第一个依赖外部查询的子查询, select * from t1 where exists (select 1 from t2 where t1.id=t2.id);  -- t2是DEPENDENT SUBQUERY 
--- table表示查询的表
--- type表示查询类型,性能system > const > eq_ref > ref > range > index > ALL,一般至少要达到range级别(重点)
-system 表中只有一行数据,是const特例
-const 通过索引一次就找到了,常见于primary key和unique, select * from t1 where id=1;
-eq_ref 唯一性索引扫描,返回匹配的唯一记录,常见于primary key和unique, select * from t1 left join t2 on t1.id=t2.id;
-ref 非唯一性索引扫描,返回匹配的所有记录, select * from t1 left join t2 on t1.job=t2.job;
-ref_or_null 某个字段既需要指定值也要null值, select * from t1 where t1.name='okc' or t1.name is null;
-index_merge 需要多个索引组合使用,常见于and和or语句, select * from t1 where t1.id=10 or t1.name='okc';
-index/unique_subquery 子查询中使用了(唯一)索引, select * from t1 where t1.id in (select t2.id from t2);
-range 只检索给定范围的行,key列会显示使用了哪个索引,常见于where语句, select * from t1 where t1.id>10;
-index 使用了索引但是没有通过索引进行过滤,会扫描索引树效率比ALL高,因为索引树比数据文件小很多, select * from t1;
-ALL 全表扫描,必须优化
--- possible_keys表示可能用到的索引,某个字段存在索引就会被列出来,但不一定被查询实际使用
--- key表示实际使用的索引(重点)
--- key_len表示索引中使用的字节数,可以帮助检查是否充分利用了索引(重点)
-1.先看索引列的字段类型+长度, int=4(int占4个字节,最大值2^31 - 1,所以是int(11)) | varchar(20)=20 | char(20)=20  
-2.varchar和char要视字符集乘以不同的值(utf-8 * 3 | gbk * 2),varchar是动态字符串要加2个字节,允许为空的字段要加1个字节
--- ref表示索引的哪一列被使用了
--- rows表示查询时检索的行数,越少越好(重点)
--- Extra(针对排序操作,尽量把Using filesort变成Using index)
-Using where 表示使用了条件过滤
-Using index 表示使用了覆盖索引
-Using filesort(重点) 表示排序字段没有通过索引访问,mysql中无法利用索引完成的排序操作称为"文件排序"
-Using temporary 表示对查询结果排序或分组时使用了临时表
-```
-
 ### index
 ```sql
 -- 索引：除了数据以外,数据库还维护着满足特定查找算法的数据结构,以某种方式指向物理数据,从而实现高级查找算法,这种数据结构就是索引
@@ -465,6 +422,50 @@ select * from t1 where exists (select 1 from t2 where t1.id=t2.id);
 -- not in无法使用索引且子查询结果集不能有null否则直接返回null,而not exists会使用索引性能更高,所以应尽量避免使用not in
 select * from a where id not in (select id from b)  -- 改进为select * from a left join b on a.id=b.id where b.id is null
 -- mysql优化器会改变sql语句中select和where字段的顺序,但是group和order字段的顺序是不能变的,否则业务逻辑就变了
+```
+
+### explain
+```sql
+-- 执行计划：可以查看表的读取顺序,索引使用情况,扫描行数等
+-- 结合type/key/key_len/rows这些指标判断是否要建索引,如果涉及排序则主要分析Extra指标的Using filesort
+mysql> explain select * from order_detail a join commodity b on a.spu_id = b.id where a.order_id = '15483062' and a.spu_id > 0;
++----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
+| id | select_type | table | partitions | type   | possible_keys | key           | key_len | ref      | rows | filtered | Extra                              |
++----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
+|  1 | SIMPLE      | a     | p997       | ref    | idex_order_id | idex_order_id | 8       | const    |    4 |    33.33 | Using index condition; Using where |
+|  1 | SIMPLE      | b     | NULL       | eq_ref | PRIMARY       | PRIMARY       | 4       | a.spu_id |    1 |   100.00 | NULL                               |
++----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
+-- id表示select执行顺序,id相同时从上往下,id不同时子查询id序号会递增且id越大执行优先级越高,每个id都是一次独立查询
+-- select_type表示查询类型,主要用于区别普通查询、关联查询、子查询等
+SIMPLE 简单查询, select * from t1 where id = 3;
+PRIMARY 包含子查询或union的最外层查询, select * from t1 union select * from t2;  -- t1是PRIMARY,t2是UNION
+DERIVED from列表中包含的子查询, select * from (select id,count(1) c from t1 group by id) t2 where c > 10;  -- t1是DERIVED,t2是PRIMARY
+SUBQUERY where列表中包含的第一个子查询, select * from t1 where id in (select id from t2);  -- t1是PRIMARY,t2是SUBQUERY
+DEPENDENT SUBQUERY where列表中包含的第一个依赖外部查询的子查询, select * from t1 where exists (select 1 from t2 where t1.id = t2.id);  -- t2是DEPENDENT SUBQUERY 
+-- table表示查询的表
+-- type表示查询类型,性能system > const > eq_ref > ref > range > index > ALL,一般至少要达到range级别(重点)
+system 表中只有一行数据,是const特例
+const 通过索引一次就找到了,常见于primary key和unique, select * from t1 where id = 1;
+eq_ref 唯一性索引扫描,返回匹配的唯一记录,常见于primary key和unique, select * from t1 left join t2 on t1.id = t2.id;
+ref 非唯一性索引扫描,返回匹配的所有记录, select * from t1 left join t2 on t1.job = t2.job;
+ref_or_null 某个字段既需要指定值也要null值, select * from t1 where t1.name = 'grubby' or t1.name is null;
+index_merge 需要多个索引组合使用,常见于and和or语句, select * from t1 where t1.id = 10 or t1.name = 'grubby';
+index/unique_subquery 子查询中使用了(唯一)索引, select * from t1 where t1.id in (select t2.id from t2);
+range 只检索给定范围的行,key列会显示使用了哪个索引,常见于where语句, select * from t1 where t1.id > 10;
+index 使用了索引但是没有通过索引进行过滤,会扫描索引树效率比ALL高,因为索引树比数据文件小很多, select * from t1;
+ALL 全表扫描,必须优化
+-- possible_keys表示可能用到的索引,某个字段存在索引就会被列出来,但不一定被查询实际使用
+-- key表示实际使用的索引(重点)
+-- key_len表示索引中使用的字节数,可以帮助检查是否充分利用了索引(重点)
+先看索引列的字段类型+长度, int=4(int占4个字节,最大值2^31 - 1,所以是int(11)) | varchar(32)=32 | char(32)=32  
+varchar和char要视字符集乘以不同的值(utf-8 * 3 | gbk * 2),varchar是动态字符串要加2个字节,允许为空的字段要加1个字节
+-- ref表示索引的哪一列被使用了
+-- rows表示查询时检索的行数,越少越好(重点)
+-- Extra(针对排序操作,尽量把Using filesort变成Using index)
+Using where 表示使用了条件过滤
+Using index 表示使用了覆盖索引
+Using filesort(重点) 表示排序字段没有通过索引访问,mysql中无法利用索引完成的排序操作称为"文件排序"
+Using temporary 表示对查询结果排序或分组时使用了临时表
 ```
 
 ### log
