@@ -45,6 +45,15 @@ public class DwdUserJump {
         KafkaSource<String> kafkaSource = FlinkUtil.getKafkaSource("dwd_page_log","dwd_user_jump_g");
         DataStreamSource<String> dataStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "KafkaSource");
 
+        // 测试数据
+        // env.fromElements()在排查问题时很有用,比如某条数据没统计到就可以手动输入然后Debug查看是哪些条件不满足
+//        DataStreamSource<String> dataStream = env.fromElements(
+//                "{\"common\":{\"mid\":\"101\"},\"page\":{\"page_id\":\"home\"},\"ts\":10000}",
+//                "{\"common\":{\"mid\":\"102\"},\"page\":{\"page_id\":\"home\"},\"ts\":12000}",
+//                "{\"common\":{\"mid\":\"102\"},\"page\":{\"page_id\":\"good_list\"},\"ts\":15000}",
+//                "{\"common\":{\"mid\":\"102\"},\"page\":{\"page_id\":\"good_list\",\"last_page_id\":\"detail\"},\"ts\":30000}"
+//        );
+
         // 3.将数据格式转换成JSON
         // {"common":{"ba":"Huawei", "is_new":"1"...}, "page":{"page_id":"cart"...}, "ts":1634284695000}
         SingleOutputStreamOperator<JSONObject> jsonStream = dataStream.map(JSON::parseObject);
