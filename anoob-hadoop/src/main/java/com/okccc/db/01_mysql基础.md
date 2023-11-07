@@ -36,7 +36,7 @@ mysql> show variables like 'validate_password%';
 mysql> set global validate_password_policy=0;
 # 修改密码(包含数字、字母、特殊字符)
 mysql> alter user 'root'@'localhost' identified by 'root@123';
-# 允许root远程访问(*.*:db.table  'root':账户名  @:赋权  '%':服务器ip '10.2.35.%'表示10.2.35集群上的节点)
+# 允许root远程访问(*.*:db.table  'root':账户名  @:赋权  '%':远程访问的服务器ip,不是mysql地址,'10.2.35.%'表示10.2.35集群上的节点)
 mysql> grant all privileges on *.* to 'root'@'%' identified by 'root@123' with grant option;
 # 查看root用户权限
 mysql> show grants for 'root'@'%';
