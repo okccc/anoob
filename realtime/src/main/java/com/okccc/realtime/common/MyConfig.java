@@ -27,9 +27,9 @@ public class MyConfig {
 
     // clickhouse
     public static final String CLICKHOUSE_DRIVER = "ru.yandex.clickhouse.ClickHouseDriver";
-    public static final String CLICKHOUSE_URL = "jdbc:clickhouse://localhost/default";
+    public static final String CLICKHOUSE_URL = "jdbc:clickhouse://localhost:8123";
     public static final String CLICKHOUSE_USER = "default";
-    public static final String CLICKHOUSE_PASSWORD = "xxx";
+    public static final String CLICKHOUSE_PASSWORD = null;
 
     // redis
     public static final String REDIS_HOST = "localhost";
