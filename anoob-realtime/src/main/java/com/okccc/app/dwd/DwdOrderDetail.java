@@ -6,6 +6,7 @@ package com.okccc.app.dwd;
  * @Desc: 订单预处理明细(FlinkSQL - KafkaSource & MysqlSource - Join & Lookup Join - UpsertKafkaSink)
  *
  * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/systemfunctions/#temporal-functions
  *
  * 下单业务的最细粒度是一个sku的下单或取消订单操作,所以将order_detail作为主表
  * order_detail数据在order_info都有对应的 - inner join
@@ -33,4 +34,10 @@ package com.okccc.app.dwd;
  * {"id":"81816","order_id":"1001","sku_id":"3","sku_name":"xiaomi","order_price":"5999.0","activity_id":null,"create_time":"2023-07-12 11:20:45"}
  * null
  * {"id":"81816","order_id":"1001","sku_id":"3","sku_name":"xiaomi","order_price":"5999.0","activity_id":"3","create_time":"2023-07-12 11:20:46"}
+ *
+ * 动态表属于流处理模式,下面四种函数任选其一即可,此处选择CURRENT_ROW_TIMESTAMP()
+ * LOCALTIMESTAMP: Returns the current SQL timestamp in local time zone, the return type is TIMESTAMP(3). It is evaluated for each record in streaming mode. But in batch mode, it is evaluated once as the query starts and uses the same result for every row.
+ * CURRENT_TIMESTAMP: Returns the current SQL timestamp in the local time zone, the return type is TIMESTAMP_LTZ(3). It is evaluated for each record in streaming mode. But in batch mode, it is evaluated once as the query starts and uses the same result for every row.
+ * NOW(): Returns the current SQL timestamp in the local time zone, this is a synonym of CURRENT_TIMESTAMP.
+ * CURRENT_ROW_TIMESTAMP(): Returns the current SQL timestamp in the local time zone, the return type is TIMESTAMP_LTZ(3). It is evaluated for each record no matter in batch or streaming mode.
  */
