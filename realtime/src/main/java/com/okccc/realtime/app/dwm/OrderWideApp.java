@@ -22,7 +22,6 @@ import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
-import java.text.ParseException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -267,7 +266,7 @@ public class OrderWideApp {
                         return orderWide.getSku_id().toString();
                     }
                     @Override
-                    public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
+                    public void join(OrderWide orderWide, JSONObject dimInfo) {
                         orderWide.setSpu_id(dimInfo.getLong("SPU_ID"));
                         orderWide.setTm_id(dimInfo.getLong("TM_ID"));
                         orderWide.setCategory3_id(dimInfo.getLong("CATEGORY3_ID"));
@@ -284,7 +283,7 @@ public class OrderWideApp {
                         return orderWide.getSpu_id().toString();
                     }
                     @Override
-                    public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
+                    public void join(OrderWide orderWide, JSONObject dimInfo) {
                         orderWide.setSpu_name(dimInfo.getString("SPU_NAME"));
                     }
                 },
@@ -300,7 +299,7 @@ public class OrderWideApp {
                         return orderWide.getTm_id().toString();
                     }
                     @Override
-                    public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
+                    public void join(OrderWide orderWide, JSONObject dimInfo) {
                         orderWide.setTm_name(dimInfo.getString("TM_NAME"));
                     }
                 },
@@ -316,7 +315,7 @@ public class OrderWideApp {
                         return orderWide.getCategory3_id().toString();
                     }
                     @Override
-                    public void join(OrderWide orderWide, JSONObject dimInfo) throws ParseException {
+                    public void join(OrderWide orderWide, JSONObject dimInfo) {
                         orderWide.setCategory3_name(dimInfo.getString("NAME"));
                     }
                 },
