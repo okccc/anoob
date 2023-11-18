@@ -51,8 +51,14 @@ public class MyFlinkUtil {
         Properties prop = new Properties();
         prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
         prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        prop.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         // 创建flink消费者对象
-        return new FlinkKafkaConsumer<>(topic, new SimpleStringSchema(), prop);
+        FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(topic, new SimpleStringSchema(), prop);
+        // 偏移量会作为算子状态存储在状态后端,并且在checkpoint的同时会提交到kafka,方便通过kafka-consumer-groups.sh监控
+        kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
+        // 偏移量读取顺序：先读状态后端,没有就读kafka消费者组,还没有就读latest,也可以手动设置偏移量的起始位置
+        kafkaConsumer.setStartFromLatest();
+        return kafkaConsumer;
     }
 
     public static FlinkKafkaConsumer<String> getKafkaSource(List<String> topics, String groupId) {
@@ -71,6 +77,7 @@ public class MyFlinkUtil {
         // 生产者属性配置
         Properties prop = new Properties();
         prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
+        prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         prop.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, UUID.randomUUID().toString());
         prop.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000);
         // 这个只能保证AT_LEAST_ONCE(96行源码)
@@ -96,6 +103,7 @@ public class MyFlinkUtil {
         // 生产者属性配置
         Properties prop = new Properties();
         prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
+        prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         prop.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, UUID.randomUUID().toString());
         prop.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000);
         // 创建flink生产者对象
