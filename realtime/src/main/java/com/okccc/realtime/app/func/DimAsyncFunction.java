@@ -51,17 +51,12 @@ public abstract class DimAsyncFunction<T> extends RichAsyncFunction<T, T> implem
 //                System.out.println("维度关联的key是：" + key);
                 // 根据表名和key去维度表查询维度数据
                 JSONObject dimInfo = DimUtil.getDimInfoWithCache(tableName, key);
-                try {
-                    if (dimInfo != null) {
-                        // 将维度数据赋值给流对象的属性,这里暂时还不知道要给输入流对象的哪些属性赋值,同样可以设置成抽象方法
-                        join(input, dimInfo);
-                    }
-                    // 将处理结果往下游传递
-                    resultFuture.complete(Collections.singleton(input));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("---维度查询发生异常---");
+                if (dimInfo != null) {
+                    // 将维度数据赋值给流对象的属性,这里暂时还不知道要给输入流对象的哪些属性赋值,同样可以设置成抽象方法
+                    join(input, dimInfo);
                 }
+                // 将处理结果往下游传递
+                resultFuture.complete(Collections.singleton(input));
             }
         });
     }
