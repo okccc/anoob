@@ -1,26 +1,14 @@
 package com.okccc.util;
 
-import redis.clients.jedis.Jedis;
-
 /**
  * @Author: okccc
  * @Date: 2023/4/8 09:37:54
  * @Desc:
+ *
+ * 计算机存储结构中,低一层的存储器都可以看成高一层的存储器的缓存,比如cache是内存的缓存,内存是硬盘的缓存,硬盘是网络的缓存
+ * 缓存容量是固定的,应该只放经常访问的热数据,根据过去的访问时间进行排序删除最老的元素,LRUCache(Least Recently Used)是最常用的缓存策略
+ *
+ * 缓存选型：
+ * 堆缓存(HashMap)：访问本地缓存路径更短性能更好,但是不便于维护,因为本地缓存的数据其它进程无法使用,LRUCache继承了LinkedHashMap
+ * 独立缓存(Redis)：创建连接和网络IO会略微降低性能,但是便于维护,因为独立缓存的数据可以被多个进程复用(推荐)
  */
-public class DimUtil {
-
-    /**
-     * 删除redis缓存
-     */
-    public static void deleteDimInfo(String tableName, String key) {
-        try {
-            // 获取连接有可能失败,比如redis挂了
-            Jedis jedis = RedisUtil.getJedis();
-            // 删除数据,redis删除不存在的数据也不会报错
-            jedis.del("DIM." + tableName + ":" + key);
-            jedis.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
