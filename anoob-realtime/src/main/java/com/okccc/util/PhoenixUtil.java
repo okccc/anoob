@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @Author: okccc
@@ -123,5 +124,31 @@ public class PhoenixUtil {
         // 代码没报错但是没数据？没有释放连接导致没有空闲连接可用,而DruidDataSource等待超时时间默认是-1即一直等待,所以一定要及时释放连接
         // 或者设置超时时间为10秒让代码报错 Caused by: com.alibaba.druid.pool.GetConnectionTimeoutException: wait millis 10005, active 10, maxActive 10, creating 0
         conn.close();
+    }
+
+    /**
+     * 根据主键id查询维度数据,结果只有一条
+     */
+    public static JSONObject getValueById(String tableName, String primaryKey) throws Exception {
+        // 从连接池获取连接
+        DruidPooledConnection conn = DRUID_DATA_SOURCE.getConnection();
+//        System.out.println(conn);  // org.apache.phoenix.jdbc.PhoenixConnection@ddf20fd
+
+        // 拼接查询语句
+        String dimSql = "SELECT * FROM " + ConfigInfo.HBASE_SCHEMA + "." + tableName + " WHERE id = '" + primaryKey + "'";
+
+        // 执行查询
+        List<JSONObject> list = JdbcUtil.queryList(conn, dimSql, JSONObject.class, false);
+
+        // 归还连接
+        conn.close();
+
+        // 返回结果
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            System.out.println("维度数据没找到：" + dimSql);
+        }
+        return null;
     }
 }
