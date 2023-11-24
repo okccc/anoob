@@ -8,6 +8,10 @@ import java.util.concurrent.TimeUnit;
  * @Author: okccc
  * @Date: 2021/11/4 上午11:07
  * @Desc: 线程池工具类：创建连接池和线程池都属于重量级操作,很消耗资源,可以使用单例模式只创建一次对象,静态代码块相当于饿汉式
+ *
+ * 线程池初始线程数量
+ * 流量峰值10000条/s - 压测翻倍20000条/s - redis查询速度1000条/s - 理论上需要20个并行度 - 而flink并行度通常和kafka分区数保持一致
+ * 假设kafka5个分区 - flink5个并行度 - 那么每个并行度要开4个线程 - 多个线程抢一个CPU会有损耗,性能稍低于真的并行度,所以线程数要开大一点
  */
 public class ThreadPoolUtil {
 
