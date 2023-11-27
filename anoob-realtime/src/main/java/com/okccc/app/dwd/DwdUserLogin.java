@@ -2,7 +2,7 @@ package com.okccc.app.dwd;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.okccc.app.bean.DwdUserLoginBean;
+import com.okccc.app.bean.UserLogin;
 import com.okccc.func.LoginProcessFunction;
 import com.okccc.util.DateUtil;
 import com.okccc.util.FlinkUtil;
@@ -61,7 +61,7 @@ public class DwdUserLogin {
                         JSONObject common = value.getJSONObject("common");
                         Long ts = value.getLong("ts");
                         // dwd层是明细数据,通常对应一个JavaBean
-                        DwdUserLoginBean dwdUserLoginBean = DwdUserLoginBean.builder()
+                        UserLogin dwdUserLoginBean = UserLogin.builder()
                                 .userId(common.getString("uid"))
                                 .provinceId(common.getString("ar"))
                                 .midId(common.getString("mid"))

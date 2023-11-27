@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class DwdUserLoginBean {
+public class UserLogin {
 
     // 用户ID
     String userId;
