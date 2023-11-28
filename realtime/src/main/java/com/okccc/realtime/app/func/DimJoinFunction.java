@@ -15,5 +15,5 @@ public interface DimJoinFunction<T> {
     String getKey(T input);
 
     // 关联维度表给流对象的属性赋值
-    void join(T input, JSONObject dimInfo) throws ParseException;
+    void join(T input, JSONObject dimInfo);
 }
