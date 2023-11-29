@@ -12,10 +12,12 @@ import java.util.List;
  * @Author: okccc
  * @Date: 2022/1/13 11:02 上午
  * @Desc: flink自定义函数
+ *
  * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/dev/table/functions/udfs/
- * 标量函数extends ScalarFunction：一对一(UDF)
- * 表值函数extends TableFunction<Row>：一对多(UDTF)
- * 聚合函数extends UserDefinedFunction：多对一(UDAF)
+ *
+ * 自定义标量函数 extends org.apache.flink.table.functions.ScalarFunction：一对一(UDF)
+ * 自定义表值函数 extends org.apache.flink.table.functions.TableFunction<Row>：一对多(UDTF)
+ * 自定义聚合函数 extends org.apache.flink.table.functions.AggregateFunction：多对一(UDAF)
  */
 // Row代表一行,指定其有多少列,分词完就是一个个单词所有只有一列
 @FunctionHint(output = @DataTypeHint("ROW<word STRING>"))
