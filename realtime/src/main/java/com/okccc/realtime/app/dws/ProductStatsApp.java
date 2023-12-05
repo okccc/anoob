@@ -29,7 +29,6 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
@@ -364,7 +363,7 @@ public class ProductStatsApp {
                         return productStats.getSku_id().toString();
                     }
                     @Override
-                    public void join(ProductStats productStats, JSONObject dimInfo) throws ParseException {
+                    public void join(ProductStats productStats, JSONObject dimInfo) {
                         productStats.setSku_name(dimInfo.getString("SKU_NAME"));
                         productStats.setSku_price(dimInfo.getBigDecimal("PRICE"));
                         productStats.setSpu_id(dimInfo.getLong("SPU_ID"));
@@ -383,7 +382,7 @@ public class ProductStatsApp {
                         return productStats.getSpu_id().toString();
                     }
                     @Override
-                    public void join(ProductStats productStats, JSONObject dimInfo) throws ParseException {
+                    public void join(ProductStats productStats, JSONObject dimInfo) {
                         productStats.setSpu_name(dimInfo.getString("SPU_NAME"));
                     }
                 },
@@ -398,7 +397,7 @@ public class ProductStatsApp {
                         return productStats.getTm_id().toString();
                     }
                     @Override
-                    public void join(ProductStats productStats, JSONObject dimInfo) throws ParseException {
+                    public void join(ProductStats productStats, JSONObject dimInfo) {
                         productStats.setTm_name(dimInfo.getString("TM_NAME"));
                     }
                 },
@@ -413,7 +412,7 @@ public class ProductStatsApp {
                         return productStats.getCategory3_id().toString();
                     }
                     @Override
-                    public void join(ProductStats productStats, JSONObject dimInfo) throws ParseException {
+                    public void join(ProductStats productStats, JSONObject dimInfo) {
                         productStats.setCategory3_name(dimInfo.getString("NAME"));
                     }
                 },
