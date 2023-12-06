@@ -76,7 +76,7 @@ public class DwdOrderDetail {
 //        +----+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+
 
         // 2.读取ods层业务数据(maxwell)
-        tableEnv.executeSql(FlinkUtil.getOdsBaseDb("dwd_order_pre_process_g"));
+        tableEnv.executeSql(FlinkUtil.getOdsBaseDb("dwd_order_detail_g"));
 
         // 3.过滤order_detail数据
         Table orderDetail = tableEnv.sqlQuery(
