@@ -5,8 +5,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-import java.time.Duration;
-
 /**
  * @Author: okccc
  * @Date: 2021/9/20 下午12:47
@@ -14,6 +12,43 @@ import java.time.Duration;
  */
 @SuppressWarnings("unused")
 public class FlinkSqlConnector {
+
+    public static void main(String[] args) throws Exception {
+        // 创建流处理执行环境,env执行DataStream相关操作
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        // 创建表环境,tableEnv执行Table相关操作
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+        // flink-sql调优
+        Configuration conf = tableEnv.getConfig().getConfiguration();
+        // 1.设置空闲状态保留时间：left join的左右表数据、distinct的重复数据都会一直存在状态里,需要手动清除防止状态常驻内存
+        conf.setString("table.exec.state.ttl", "1 h");
+        // 2.开启微批处理：缓存一定数据再触发处理,减少对state的访问,通过增加延迟提高吞吐量并减少数据输出量,聚合场景下能显著提升性能
+        conf.setString("table.exec.mini-batch.enabled", "true");
+        // 批量输出的间隔时间
+        conf.setString("table.exec.mini-batch.allow-latency", "5 s");
+        // 防止OOM设置每个批次最多缓存的数据条数
+        conf.setString("table.exec.mini-batch.size", "20000");
+        // 3.开启LocalGlobal：两阶段聚合解决数据倾斜问题,针对SUM/COUNT/MAX/MIN/AVG等普通聚合
+        conf.setString("table.optimizer.agg-phase-strategy", "TWO_PHASE");
+        // 4.开启Split Distinct：针对COUNT DISTINCT
+        conf.setString("table.optimizer.distinct-agg.split.enabled", "true");
+        // 第一层打散的bucket数目
+        conf.setString("table.optimizer.distinct-agg.split.bucket-num", "1024");
+        // 5.指定时区
+        conf.setString("table.local-time-zone", "Asia/Shanghai");
+
+//        getDataGenConnector(tableEnv);
+//        getFileSystemConnector(tableEnv);
+//        getJdbcConnector(tableEnv);
+//        getElasticsearchConnector(tableEnv);
+//        getKafkaConnector(tableEnv);
+        getUpsertKafkaConnector(tableEnv);
+
+        // 启动任务
+        env.execute();
+    }
 
     /**
      * DataGen SQL Connector
@@ -156,103 +191,161 @@ public class FlinkSqlConnector {
     /**
      * Kafka SQL Connector
      * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/kafka/
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
      * The Kafka connector allows for reading data from and writing data into Kafka topics.
-     * The Upsert Kafka connector allows for reading data from and writing data into Kafka topics in the upsert fashion.
      */
     private static void getKafkaConnector(StreamTableEnvironment tableEnv) {
-        // 读kafka
+        // 读取ods层业务数据,并创建动态表
         tableEnv.executeSql(
-                "CREATE TABLE kafka_source (\n" +
-                        "    database    STRING,\n" +
-                        "    `table`     STRING,\n" +
-                        "    type        STRING,\n" +
-                        "    data        MAP<STRING,STRING>,\n" +
-                        "    `old`       MAP<STRING,STRING>,\n" +
-                        "    ts          TIMESTAMP(3) METADATA FROM 'timestamp'\n" +
-                        ") WITH (\n" +
-                        "  'connector' = 'kafka',\n" +
-                        "  'topic' = 'ods_base_db',\n" +
-                        "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
-                        "  'properties.group.id' = 'gg',\n" +
-                        "  'scan.startup.mode' = 'earliest-offset',\n" +
-                        "  'format' = 'json'\n" +
-                        ")"
-        );
-        // 打印测试,sqlQuery("")是批处理一次只能执行一个查询,后面代码就执行不到了
-        tableEnv.sqlQuery("SELECT * FROM kafka_source LIMIT 10").execute().print();
-        // 将动态表转换成流打印测试
-//        Table table = tableEnv.sqlQuery("SELECT * FROM kafka_source");
-//        tableEnv.toDataStream(table).print();
-
-        // append kafka
-        tableEnv.executeSql(
-                "CREATE TABLE kafka_sink (\n" +
-                        "    database    STRING,\n" +
+                "CREATE TABLE ods_base_db (\n" +
                         "    `table`     STRING,\n" +
                         "    type        STRING,\n" +
                         "    data        MAP<STRING,STRING>\n" +
                         ") WITH (\n" +
                         "  'connector' = 'kafka',\n" +
-                        "  'topic' = 'aaa',\n" +
+                        "  'topic' = 'ods_base_db',\n" +
+                        "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
+                        "  'properties.group.id' = 'gg',\n" +
+                        "  'scan.startup.mode' = 'latest-offset',\n" +
+                        "  'format' = 'json',\n" +
+                        "  'json.ignore-parse-errors' = 'true'\n" +  // 过滤非json数据
+                        ")"
+        );
+
+        // 从动态表过滤用户数据
+        Table userInfo = tableEnv.sqlQuery(
+                "SELECT\n" +
+                "    data['id'] id,\n" +
+                "    data['name'] name,\n" +
+                "    data['phone_num'] phone,\n" +
+                "    data['gender'] gender,\n" +
+                "    data['create_time'] create_time,\n" +
+                "    data['operate_time'] update_time\n" +
+                "FROM ods_base_db\n" +
+                "WHERE `table` = 'user_info'"
+        );
+        // 打印测试,sqlQuery("")是批处理一次只能执行一个查询,后面代码就执行不到了
+//        tableEnv.createTemporaryView("user_info", userInfo);
+//        tableEnv.sqlQuery("SELECT * FROM user_info").execute().print();
+        // 将动态表转换成流打印测试
+        tableEnv.toDataStream(userInfo).print();  // +I[1, 顾凡, 13441279232, F, 2020-11-23 20:03:49, 2023-07-11 15:58:37]
+
+        // 将用户数据写入kafka
+        tableEnv.executeSql(
+                "CREATE TABLE user_info (\n" +
+                        "    id             STRING,\n" +
+                        "    name           STRING,\n" +
+                        "    phone          STRING,\n" +
+                        "    gender         STRING,\n" +
+                        "    create_time    STRING,\n" +
+                        "    update_time    STRING\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'kafka',\n" +
+                        "  'topic' = 'user_info',\n" +
                         "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
                         "  'format' = 'json'\n" +
                         ")"
         );
-        tableEnv.executeSql("INSERT INTO kafka_sink SELECT database,`table`,type,data FROM kafka_source");
+        tableEnv.executeSql("INSERT INTO user_info SELECT * FROM " + userInfo);
+    }
 
-        // upsert kafka
+    /**
+     * Upsert-Kafka SQL Connector
+     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
+     * The Upsert Kafka connector allows for reading data from and writing data into Kafka topics in the upsert fashion.
+     *
+     * As a source, the upsert-kafka connector produces a changelog stream, where each data record represents an update or delete event.
+     * a data record in a changelog stream is interpreted as an UPSERT aka INSERT/UPDATE because any existing row with the same key is overwritten.
+     * Also, null values are interpreted in a special way: a record with a null value represents a "DELETE".
+     *
+     * As a sink, the upsert-kafka connector can consume a changelog stream.
+     * It will write INSERT/UPDATE_AFTER data as normal Kafka messages value, and write DELETE data as Kafka messages with null values (indicate tombstone for the key).
+     */
+    private static void getUpsertKafkaConnector(StreamTableEnvironment tableEnv) {
+        // 读取ods层业务数据,并创建动态表
         tableEnv.executeSql(
-                "CREATE TABLE kafka_sink_upsert (\n" +
-                        "    database    STRING,\n" +
+                "CREATE TABLE ods_base_db (\n" +
                         "    `table`     STRING,\n" +
                         "    type        STRING,\n" +
-                        "    data        MAP<STRING,STRING>,\n" +
+                        "    data        MAP<STRING,STRING>\n" +
+                        ") WITH (\n" +
+                        "  'connector' = 'kafka',\n" +
+                        "  'topic' = 'ods_base_db',\n" +
+                        "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
+                        "  'properties.group.id' = 'gg',\n" +
+                        "  'scan.startup.mode' = 'latest-offset',\n" +
+                        "  'format' = 'json',\n" +
+                        "  'json.ignore-parse-errors' = 'true'\n" +  // 过滤非json数据
+                        ")"
+        );
+
+        // 过滤订单明细和订单活动数据
+        Table orderDetail = tableEnv.sqlQuery(
+                "SELECT\n" +
+                "    data['id'] id,\n" +
+                "    data['order_id'] order_id,\n" +
+                "    data['sku_id'] sku_id,\n" +
+                "    data['sku_name'] sku_name,\n" +
+                "    data['order_price'] order_price,\n" +
+                "    data['create_time'] create_time\n" +
+                "FROM ods_base_db\n" +
+                "WHERE `table` = 'order_detail' AND type = 'insert'"
+        );
+        tableEnv.createTemporaryView("order_detail", orderDetail);
+
+        Table orderDetailActivity = tableEnv.sqlQuery(
+                "SELECT\n" +
+                "    data['order_detail_id'] order_detail_id,\n" +
+                "    data['activity_id'] activity_id\n" +
+                "FROM ods_base_db\n" +
+                "WHERE `table` = 'order_detail_activity' AND type = 'insert'"
+        );
+        tableEnv.createTemporaryView("order_detail_activity", orderDetailActivity);
+
+        Table orderPreProcess = tableEnv.sqlQuery(
+                "SELECT\n" +
+                "    od.id,\n" +
+                "    od.order_id,\n" +
+                "    od.sku_id,\n" +
+                "    od.sku_name,\n" +
+                "    od.order_price,\n" +
+                "    oa.activity_id,\n" +
+                "    od.create_time\n" +
+                "FROM order_detail od\n" +
+                "LEFT JOIN order_detail_activity oa ON od.id = oa.order_detail_id"
+        );
+        tableEnv.toChangelogStream(orderPreProcess).print("order_pre_process");
+        // 先后往order_detail和order_detail_activity表插入一条数据
+        // mysql> insert into order_detail values(null,1001,3,'xiaomi',null,5999,1,'2023-07-12 11:20:45',null,null,null,null,null);
+        // mysql> insert into order_detail_activity values(null,1001,81816,3,null,null,'2023-07-12 11:15:29');
+        // idea输出结果
+        // order_pre_process> +I[81816, 1001, 3, xiaomi, 5999.0, null, 2023-07-12 11:20:45]
+        // order_pre_process> -D[81816, 1001, 3, xiaomi, 5999.0, null, 2023-07-12 11:20:45]
+        // order_pre_process> +I[81816, 1001, 3, xiaomi, 5999.0, 3, 2023-07-12 11:20:45]
+        // kafka数据
+        // {"id":"81816","order_id":"1001","sku_id":"3","sku_name":"xiaomi","order_price":"5999.0","activity_id":null,"create_time":"2023-07-12 11:20:45"}
+        // null
+        // {"id":"81816","order_id":"1001","sku_id":"3","sku_name":"xiaomi","order_price":"5999.0","activity_id":"3","create_time":"2023-07-12 11:20:45"}
+
+        // left join会生成回撤数据,所以得用upsert-kafka
+        tableEnv.executeSql(
+                "CREATE TABLE order_pre_process (\n" +
+                        "    id             STRING,\n" +
+                        "    order_id       STRING,\n" +
+                        "    sku_id         STRING,\n" +
+                        "    sku_name       STRING,\n" +
+                        "    order_price    STRING,\n" +
+                        "    activity_id    STRING,\n" +
+                        "    create_time    STRING,\n" +
                         // 'upsert-kafka' tables require to define a PRIMARY KEY constraint.
-                        // Flink doesn't support ENFORCED mode for PRIMARY KEY constraint.
-                        "  PRIMARY KEY (`table`) NOT ENFORCED\n" +
+                        "PRIMARY KEY (id) NOT ENFORCED\n" +
                         ") WITH (\n" +
                         "  'connector' = 'upsert-kafka',\n" +
-                        "  'topic' = 'bbb',\n" +
+                        "  'topic' = 'order_pre_process',\n" +
                         "  'properties.bootstrap.servers' = 'localhost:9092',\n" +
                         "  'key.format' = 'json',\n" +
                         "  'value.format' = 'json'\n" +
                         ")"
         );
-        tableEnv.executeSql("INSERT INTO kafka_sink_upsert SELECT database,`table`,type,data FROM kafka_source");
-    }
-
-    public static void main(String[] args) throws Exception {
-        // 创建流处理执行环境,env执行DataStream相关操作
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(1);
-        // 创建表环境,tableEnv执行Table相关操作
-        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
-
-        // flink-sql调优
-        Configuration conf = tableEnv.getConfig().getConfiguration();
-        // 1.设置空闲状态保留时间：join操作的左右表数据、distinct操作的重复数据都会一直存在状态里,需要定时清除
-        tableEnv.getConfig().setIdleStateRetention(Duration.ofHours(1));
-        conf.setString("table.exec.state.ttl", "1 h");
-        // 2.开启微批处理：缓存一定数据再触发处理,减少对state的访问,通过增加延迟提高吞吐量并减少数据输出量,聚合场景下能显著提升性能
-        conf.setString("table.exec.mini-batch.enabled", "true");
-        // 批量输出的间隔时间
-        conf.setString("table.exec.mini-batch.allow-latency", "5 s");
-        // 防止OOM设置每个批次最多缓存的数据条数
-        conf.setString("table.exec.mini-batch.size", "20000");
-        // 3.开启LocalGlobal：两阶段聚合解决数据倾斜问题,针对SUM/COUNT/MAX/MIN/AVG等普通聚合
-        conf.setString("table.optimizer.agg-phase-strategy", "TWO_PHASE");
-        // 4.开启Split Distinct：针对COUNT DISTINCT
-        conf.setString("table.optimizer.distinct-agg.split.enabled", "true");
-        // 第一层打散的bucket数目
-        conf.setString("table.optimizer.distinct-agg.split.bucket-num", "1024");
-        // 5.指定时区
-        conf.setString("table.local-time-zone", "Asia/Shanghai");
-
-//        getDataGenConnector(tableEnv);
-//        getFileSystemConnector(tableEnv);
-//        getJdbcConnector(tableEnv);
-//        getElasticsearchConnector(tableEnv);
-        getKafkaConnector(tableEnv);
+        tableEnv.executeSql("INSERT INTO order_pre_process SELECT * FROM " + orderPreProcess);
     }
 }
