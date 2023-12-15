@@ -48,7 +48,8 @@ public class JdbcUtil {
         druidDataSource.setValidationQuery("select 1");
 
         // 借出连接时是否校验(会降低性能)
-        druidDataSource.setTestOnBorrow(false);
+        // 可以解决异常 The last packet successfully received from the server was 5,811,951 milliseconds ago.
+        druidDataSource.setTestOnBorrow(true);
 
         // 归还连接时是否校验(会降低性能)
         druidDataSource.setTestOnReturn(false);
@@ -56,8 +57,11 @@ public class JdbcUtil {
         // 连接空闲时是否校验(不影响性能,保证安全性)
         druidDataSource.setTestWhileIdle(true);
 
-        // 连接空闲多久就回收(默认60s),是testWhileIdle的判断依据,要小于mysql的wait_timeout
+        // 空闲连接回收器每隔60秒(默认)运行一次,是testWhileIdle的判断依据,要小于mysql的wait_timeout
         druidDataSource.setTimeBetweenEvictionRunsMillis(60 * 1000L);
+
+        // 空闲连接超过30分钟(默认)就被回收
+        druidDataSource.setMinEvictableIdleTimeMillis(30 * 60 * 1000L);
 
         // 返回连接池
         return druidDataSource;
@@ -139,4 +143,5 @@ public class JdbcUtil {
         System.out.println(queryList(conn04, "select * from realtime.dirty_log", JSONObject.class, false));
         conn04.close();
     }
+
 }
