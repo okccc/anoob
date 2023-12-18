@@ -24,6 +24,7 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -35,6 +36,7 @@ import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -119,30 +121,13 @@ public class FlinkUtil {
                 .setBootstrapServers(KAFKA_SERVER)
                 .setTopics(topic)
                 .setGroupId(groupId)
+                .setStartingOffsets(OffsetsInitializer.latest())
                 // 查看SimpleStringSchema源码77行和String源码514行发现bytes[]是@NotNull,所以要自定义反序列化器
 //                .setValueOnlyDeserializer(new SimpleStringSchema())
-                .setValueOnlyDeserializer(new DeserializationSchema<String>() {
-                    @Override
-                    public String deserialize(byte[] message) {
-                        // flink sql的left join会生成null值,如果直接用SimpleStringSchema会报空指针异常
-                        if (message != null && message.length > 0) {
-                            return new String(message, StandardCharsets.UTF_8);
-                        }
-                        // 这里返回null不会报错,下游消费者过滤即可
-                        return null;
-                    }
-
-                    @Override
-                    public boolean isEndOfStream(String nextElement) {
-                        return false;  // kafka是无界流
-                    }
-
-                    @Override
-                    public TypeInformation<String> getProducedType() {
-                        return BasicTypeInfo.STRING_TYPE_INFO;
-                    }
-                })
-                .setStartingOffsets(OffsetsInitializer.latest())
+                // 获取kafka消息的value
+//                .setValueOnlyDeserializer(new MyDeserializationSchema())
+                // 获取kafka消息的value以及partition和offset等元数据信息
+                .setDeserializer(new MyKafkaRecordDeserializationSchema())
                 .build();
     }
 
@@ -461,6 +446,55 @@ public class FlinkUtil {
         public String getBucketId(IN element, Context context) {
             // flink分桶将文件放入不同文件夹,桶号对应hive分区,桶号默认返回时间字符串,而hive分区通常是dt=开头,所以要重写该方法
             return "dt=" + super.getBucketId(element, context);
+        }
+    }
+
+    /**
+     * 自定义类实现DeserializationSchema接口,只反序列化ConsumerRecord对象的value部分,参考SimpleStringSchema
+     */
+    public static class MyDeserializationSchema implements DeserializationSchema<String> {
+
+        @Override
+        public String deserialize(byte[] message) {
+            // flink sql的left join会生成null值,如果直接用SimpleStringSchema会报空指针异常
+            if (message != null && message.length > 0) {
+                return new String(message, StandardCharsets.UTF_8);
+            }
+            // 这里返回null不会报错,下游消费者过滤即可
+            return null;
+        }
+
+        @Override
+        public boolean isEndOfStream(String nextElement) {
+            return false;  // kafka是无界流
+        }
+
+        @Override
+        public TypeInformation<String> getProducedType() {
+            return BasicTypeInfo.STRING_TYPE_INFO;
+        }
+    }
+
+    /**
+     * 自定义类实现KafkaRecordDeserializationSchema接口,反序列化ConsumerRecord对象,参考JSONKeyValueDeserializationSchema
+     */
+    public static class MyKafkaRecordDeserializationSchema implements KafkaRecordDeserializationSchema<String> {
+
+        @Override
+        public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<String> out) {
+            if (record.value() != null && record.value().length > 0) {
+                String value = new String(record.value(), StandardCharsets.UTF_8);
+                JSONObject jsonObject = JSON.parseObject(value);
+                // 将kafka消息的元数据整合到value中,partition和offset很有用,方便下游比对数据
+                jsonObject.put("partition", record.partition());
+                jsonObject.put("offset", record.offset());
+                out.collect(jsonObject.toJSONString());
+            }
+        }
+
+        @Override
+        public TypeInformation<String> getProducedType() {
+            return BasicTypeInfo.STRING_TYPE_INFO;
         }
     }
 }
