@@ -141,7 +141,7 @@ public class Flink01 {
         // 创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // 配置参数优先级：算子并行度(代码写死) > 全局并行度(代码写死) > flink run -p(动态指定) > flink-conf.yaml(集群配置)
-        // Source并行度设置为1可以保证数据有序
+        // 并行度默认是cpu核数,设置为1可以保证数据有序
         env.setParallelism(1);
 
         env
