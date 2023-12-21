@@ -87,9 +87,9 @@ public class FlinkConnector {
      * flink是流批统一的,离线数据集也会当成流来处理,每来一条数据都会驱动程序运行并输出一个结果,SparkStreaming批处理只会输出最终结果
      */
     private static void getFileSystemConnector(StreamExecutionEnvironment env) {
-        // 读文件
+        // 读文件,可以是文件也可以是目录
         FileSource<String> fileSource = FileSource
-                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/LoginData.csv"))
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("hdfs:///ods.db/ods_user_info"))
                 .build();
         DataStreamSource<String> dataStream = env.fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source");
         dataStream.print();
