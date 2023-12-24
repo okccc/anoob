@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * 事实数据和事实数据关联：双流join(推荐使用flink-sql)
  * 事实数据和维度数据关联：维表关联,在流计算中根据userId/areaId/skuId等关联查询维度信息补充到事实表
  *
- * 与外部系统的交互是实时流计算的主要性能瓶颈
+ * 与外部系统的交互是实时流计算的主要性能瓶颈,查询mysql/mongo时先看下查询列是否加索引很影响效率
  * When interacting with external systems (for example when enriching stream events with data stored in a database),
  * one needs to take care that communication delay with the external system does not dominate the streaming application’s total work.
  *
