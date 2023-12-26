@@ -1,6 +1,7 @@
 package com.okccc.flink;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
@@ -17,10 +18,10 @@ import org.apache.kafka.connect.source.SourceRecord;
 /**
  * @Author: okccc
  * @Date: 2023/1/29 14:21
- * @Desc: flink-cdc动态获取mysql数据
+ * @Desc: flink-cdc动态获取mysql & mongodb数据
  *
- * CDC(ChangeDataCapture): 监控并捕获数据库的insert/update/delete记录,按顺序写入消息队列供下游服务订阅和消费
- * Flink-CDC: 通过flink-cdc-connectors组件直接从mysql和pg等数据库读取全量或增量的变更数据,连kafka中间件都省了
+ * CDC(Change Data Capture): 监控并捕获数据库的insert/update/delete记录,按顺序写入消息队列供下游服务订阅和消费
+ * Flink-CDC: 通过flink-connector-${db}-cdc组件直接从mysql和mongodb等数据库读取全量或增量的变更数据,连kafka中间件都省了
  * github地址：https://github.com/ververica/flink-cdc-connectors
  *
  * 常见错误
@@ -36,22 +37,49 @@ import org.apache.kafka.connect.source.SourceRecord;
  * 如果是海外的数据库要设置serverTimeZone="UTC"
  *
  * 使用Maxwell或FlinkCdc往kafka刷历史数据时要避开流量高峰期,不然大量历史数据涌入会造成实时数据延迟
+ *
+ * Caused by: com.mongodb.MongoSecurityException: Exception authenticating MongoCredential{mechanism=SCRAM-SHA-1,
+ * userName='root', source='admin', password=<hidden>, mechanismProperties=<hidden>}
+ * 需要先创建角色和账号
+ * use admin;
+ * db.createRole(
+ *     {
+ *         role: "flink",
+ *         privileges: [{
+ *             resource: { db: "", collection: "" },  // Grant privileges on all non-system collections in all databases
+ *             actions: ["splitVector", "listDatabases", "listCollections", "collStats", "find", "changeStream"]
+ *         }],
+ *         roles: [{role: 'read', db: 'config'}]  // Read config.collections and config.chunks for sharded cluster snapshot splitting.
+ *     }
+ * );
+ * db.createUser({user: 'cdc', pwd: 'cdc_mongo', roles: [{ role: 'flink', db: 'admin'}]});
+ *
+ * Caused by: com.mongodb.MongoCommandException: Command failed with error 40573 (Location40573):
+ * 'The $changeStream stage is only supported on replica sets' on server localhost:27017.
+ * 只能用于replica sets和sharded clusters,单节点的mongodb没有oplog所以不支持
  */
 public class FlinkCdc {
-
     public static void main(String[] args) throws Exception {
         // 创建流处理环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        // 获取数据源
+        env.fromSource(getMysqlSource(), WatermarkStrategy.noWatermarks(), "MySql Source").print();
+//        env.fromSource(getMongodbSource(), WatermarkStrategy.noWatermarks(), "Mongodb Source").print();
+
+        // 启动任务
+        env.execute();
+    }
+
+    public static MySqlSource<String> getMysqlSource() {
+        // MySql数据源
         MySqlSource<String> mySqlSource = MySqlSource.<String>builder()
                 .hostname("localhost")
                 .port(3306)
-                .databaseList("mock")  // lesson.*表示所有lesson开头的库
-                .tableList()  // 默认监控所有表,lesson.*\\.node_record.*表示lesson库下所有node_record开头的表
                 .username("root")
                 .password("root@123")
+                .databaseList("mock")  // lesson.*表示所有lesson开头的库
+                .tableList()  // 默认监控所有表,lesson.*\\.node_record.*表示lesson库下所有node_record开头的表
                 // 类似Kafka消费者,FlinkCDC也支持从开头、末尾、指定偏移量、指定时间戳进行消费
                 .startupOptions(StartupOptions.initial())  // initial启动时会扫描历史数据,然后继续读取最新的binlog
                 .serverTimeZone("Asia/Shanghai")
@@ -59,13 +87,25 @@ public class FlinkCdc {
                 .deserializer(new JsonDebeziumDeserializationSchema())  // binlog是二进制数据要反序列化,返回JSON方便解析(推荐)
 //                .deserializer(new MyDebeziumDeserializationSchema())  // 也可以自定义反序列化器
                 .build();
+        System.out.println(mySqlSource);  // com.ververica.cdc.connectors.mysql.source.MySqlSource@2890c451
+        return mySqlSource;
+    }
 
-        env
-                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySqlSource")
-                .print();
-
-        // 启动任务
-        env.execute();
+    public static MongoDBSource<String> getMongodbSource() {
+        // MongoDB数据源
+        MongoDBSource<String> mongodbSource = MongoDBSource.<String>builder()
+                // mongodb://${user}:${password}@${host}:${port}/${db}
+                .connectionOptions("authSource=${db}")  // 指定认证的库
+                .hosts("localhost:27017")  // ${ip}:${port}
+                .username("cdc")
+                .password("cdc_mongo")
+                .databaseList("users")
+                .collectionList("t_user")  // 这里表名前面不用写库名,和mysql不一样
+                .startupOptions(com.ververica.cdc.connectors.base.options.StartupOptions.initial())
+                .deserializer(new JsonDebeziumDeserializationSchema())
+                .build();
+        System.out.println(mongodbSource);  // com.ververica.cdc.connectors.mongodb.source.MongoDBSource@4034c28c
+        return mongodbSource;
     }
 
     // 自定义反序列化器,封装返回的数据格式,方便解析
@@ -170,4 +210,5 @@ public class FlinkCdc {
             return TypeInformation.of(String.class);
         }
     }
+
 }
