@@ -152,7 +152,7 @@ public class Flink01 {
                 // MapFunction/KeySelector/ReduceFunction/AggregateFunction/ProcessWindowFunction等所有UDF都继承自Function接口
                 .flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
                     @Override
-                    public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
+                    public void flatMap(String value, Collector<Tuple2<String, Integer>> out) {
                         for (String word : value.split(" ")) {
                             // 收集数据往下游发送
                             out.collect(Tuple2.of(word, 1));
@@ -164,7 +164,7 @@ public class Flink01 {
                 // key可以是输入元素本身,也可以是任意的Integer/String/Boolean,比如key=1/true这样的常量值表示将数据都划分到同一个分区
                 .keyBy(new KeySelector<Tuple2<String, Integer>, String>() {
                     @Override
-                    public String getKey(Tuple2<String, Integer> value) throws Exception {
+                    public String getKey(Tuple2<String, Integer> value) {
                         return value.f0;
                     }
                 })
