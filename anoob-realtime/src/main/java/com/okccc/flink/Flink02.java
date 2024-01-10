@@ -60,31 +60,31 @@ public class Flink02 {
                 .socketTextStream("localhost", 9999)
                 .map(new RichMapFunction<String, Integer>() {
                     @Override
-                    public void open(Configuration parameters) throws Exception {
+                    public void open(Configuration parameters) {
                         // 子任务索引和并行度有关,一个并行度索引就是0,两个并行度索引就是0和1
                         System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
                     }
 
                     @Override
-                    public Integer map(String value) throws Exception {
+                    public Integer map(String value) {
                         System.out.println("当前进来数据：" + value);
                         return Integer.parseInt(value) * 10;
                     }
 
                     @Override
-                    public void close() throws Exception {
+                    public void close() {
                         System.out.println("生命周期结束");
                     }
                 })
                 .keyBy(r -> true)
                 .process(new KeyedProcessFunction<Boolean, Integer, Integer>() {
                     @Override
-                    public void open(Configuration parameters) throws Exception {
+                    public void open(Configuration parameters) {
                         System.out.println("生命周期开始,当前子任务索引：" + getRuntimeContext().getIndexOfThisSubtask());
                     }
 
                     @Override
-                    public void processElement(Integer value, KeyedProcessFunction<Boolean, Integer, Integer>.Context ctx, Collector<Integer> out) throws Exception {
+                    public void processElement(Integer value, KeyedProcessFunction<Boolean, Integer, Integer>.Context ctx, Collector<Integer> out) {
                         System.out.println("当前进来数据：" + value);
                         out.collect(value * value);
                     }
