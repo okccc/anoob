@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- debug="true"会在控制台打印logback内部日志 -->
 <configuration debug="true">
-    <!-- 日志文件存储地址绝对路径 -->
-    <property name="LOG_HOME" value="anoob-hadoop/logs"/>
+    <!-- 日志文件存储路径 -->
+    <property name="LOG_HOME" value="/tmp/logs"/>
+    <!-- 日志格式：时间、日志级别、线程名称、打印日志的类、日志主体内容+换行符  -->
+    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} : %msg%n"/>
+    <!-- 彩色日志,%clr默认是green -->
+    <property name="CLR_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level){magenta} %clr([%thread]) %clr(%logger{50}){blue} : %clr(%msg%n){faint}"/>
 
-    <!-- 指定日志输出位置 -->
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+    <!-- 将日志输出到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <!-- %d时间格式 %p日志级别 %t线程名 %c类的全路径,%c{1}只取类名 %l发生位置 %m日志信息 %n换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p %t %c - %m%n</pattern>
+            <pattern>${CLR_PATTERN}</pattern>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <!-- 按照每天生成日志文件,存储事件日志 -->
+    <!-- 将日志输出到文件 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 基于时间的滚动策略,如果是web项目会保存到Tomcat的bin目录下 -->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CLR_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- 基于时间和大小的滚动策略,如果是web项目会保存到Tomcat的bin目录下 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- 日志文件名称 -->
             <fileNamePattern>${LOG_HOME}/com.okccc.app-%d{yyyy-MM-dd}_%i.log</fileNamePattern>
             <!-- 日志文件超过100M就切割 -->
