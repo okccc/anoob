@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- debug="true"会在控制台打印logback内部日志 -->
 <configuration debug="true">
-    <!-- 日志文件存储路径 -->
+    <!-- 日志文件存储地址绝对路径 -->
     <property name="LOG_HOME" value="/tmp/logs"/>
-    <!-- 日志格式：时间、日志级别、线程名称、打印日志的类、日志主体内容+换行符  -->
-    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} : %msg%n"/>
-    <!-- 彩色日志,%clr默认是green -->
-    <property name="CLR_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level){magenta} %clr([%thread]) %clr(%logger{50}){blue} : %clr(%msg%n){faint}"/>
-
-    <!-- 彩色日志依赖的渲染类 -->
-    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
     <!-- 将日志输出到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${CLR_PATTERN}</pattern>
+            <!-- %d时间格式 %p日志级别 %t线程名 %c类的全路径,%c{1}只取类名 %l发生位置 %m日志信息 %n换行符 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%t] %c - %m%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -22,7 +16,7 @@
     <!-- 将日志输出到文件 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${CLR_PATTERN}</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
         <!-- 基于时间和大小的滚动策略,如果是web项目会保存到Tomcat的bin目录下 -->
@@ -36,13 +30,6 @@
             <!-- 日志总量超过10G就开始删旧的 -->
             <totalSizeCap>10GB</totalSizeCap>
         </rollingPolicy>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} - %msg%n</pattern>
-        </encoder>
-        <!-- 基于大小的触发策略 -->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>128MB</MaxFileSize>
-        </triggeringPolicy>
     </appender>
 
     <!-- 异步打印日志 -->
@@ -55,7 +42,7 @@
         <appender-ref ref="FILE"/>
     </appender>
 
-    <!-- 设置全局日志级别 -->
+    <!-- 设置全局日志级别,ALL/TRACE/DEBUG/INFO/WARN/ERROR/FATAL/OFF -->
     <root level="WARN">
         <!-- 指定打印日志的appender -->
         <appender-ref ref="STDOUT" />
