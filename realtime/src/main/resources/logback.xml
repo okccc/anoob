@@ -2,32 +2,34 @@
 <!-- debug="true"会在控制台打印logback内部日志 -->
 <configuration debug="true">
     <!-- 日志文件存储地址绝对路径 -->
-    <property name="LOG_HOME" value="realtime/logs"/>
+    <property name="LOG_HOME" value="/tmp/logs"/>
 
-    <!-- 指定日志输出位置 -->
+    <!-- 将日志输出到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <!-- %d时间格式 %p日志级别 %t线程名 %c类的全路径,%c{1}只取类名 %l发生位置 %m日志信息 %n换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%t] %c - %m%n</pattern>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <!-- 按照每天生成日志文件,存储事件日志 -->
+    <!-- 将日志输出到文件 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 基于时间的滚动策略,如果是web项目会保存到Tomcat的bin目录下 -->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 日志文件名称 -->
-            <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}.log</FileNamePattern>
-            <!-- 日志文件保留天数 -->
-            <MaxHistory>3</MaxHistory>
-        </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
         </encoder>
-        <!-- 基于大小的触发策略 -->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>128MB</MaxFileSize>
-        </triggeringPolicy>
+        <!-- 基于时间和大小的滚动策略,如果是web项目会保存到Tomcat的bin目录下 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 日志文件名称 -->
+            <fileNamePattern>${LOG_HOME}/com.okccc.app-%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <!-- 日志文件超过100M就切割 -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 日志文件保留天数 -->
+            <maxHistory>30</maxHistory>
+            <!-- 日志总量超过10G就开始删旧的 -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
     </appender>
 
     <!-- 异步打印日志 -->
@@ -40,8 +42,8 @@
         <appender-ref ref="FILE"/>
     </appender>
 
-    <!-- 设置全局日志级别 -->
-    <root level="INFO">
+    <!-- 设置全局日志级别,ALL/TRACE/DEBUG/INFO/WARN/ERROR/FATAL/OFF -->
+    <root level="WARN">
         <!-- 指定打印日志的appender -->
         <appender-ref ref="STDOUT" />
         <appender-ref ref="ASYNC_FILE" />
