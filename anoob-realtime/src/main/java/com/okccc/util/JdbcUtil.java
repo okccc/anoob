@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @Author: okccc
  * @Date: 2023/4/8 09:39:03
- * @Desc: jdbc通用查询工具类 mysql、hive、phoenix、clickhouse
+ * @Desc: jdbc通用查询工具类 mysql、hive、presto、phoenix、clickhouse
  * https://github.com/alibaba/druid/wiki/DruidDataSource%E9%85%8D%E7%BD%AE%E5%B1%9E%E6%80%A7%E5%88%97%E8%A1%A8
  */
 public class JdbcUtil {
@@ -125,23 +125,29 @@ public class JdbcUtil {
         System.out.println(queryList(conn01, "select * from mock.base_trademark", JSONObject.class, false));
         conn01.close();
 
-        // 查询phoenix
-        DruidDataSource druidDataSource02 = getDataSource(ConfigInfo.PHOENIX_DRIVER, ConfigInfo.PHOENIX_SERVER, null, null);
+        // 查询hive
+        DruidDataSource druidDataSource02 = getDataSource(ConfigInfo.HIVE_DRIVER, ConfigInfo.HIVE_URL, ConfigInfo.HIVE_USER, ConfigInfo.HIVE_PASSWORD);
         DruidPooledConnection conn02 = druidDataSource02.getConnection();
-        System.out.println(queryList(conn02, "select * from dim.dim_base_trademark", JSONObject.class, false));
+        System.out.println(queryList(conn02, "select * from ods.ods_log_info where dt=20240101", JSONObject.class, false));
         conn02.close();
 
-        // 查询hive
-        DruidDataSource druidDataSource03 = getDataSource(ConfigInfo.HIVE_DRIVER, ConfigInfo.HIVE_URL, ConfigInfo.HIVE_USER, ConfigInfo.HIVE_PASSWORD);
+        // 查询presto,比hive快10倍
+        DruidDataSource druidDataSource03 = getDataSource(ConfigInfo.PRESTO_DRIVER, ConfigInfo.PRESTO_URL, ConfigInfo.PRESTO_USER, ConfigInfo.PRESTO_PASSWORD);
         DruidPooledConnection conn03 = druidDataSource03.getConnection();
-        System.out.println(queryList(conn03, "select * from ods.ods_trd_trade_admin_spu_info_all_d where dt=20230425", JSONObject.class, false));
+        System.out.println(queryList(conn03, "select * from ods.ods_log_info where dt='20240101'", JSONObject.class, false));
         conn03.close();
 
-        // 查询clickhouse
-        DruidDataSource druidDataSource04 = getDataSource(ConfigInfo.CLICKHOUSE_DRIVER, ConfigInfo.CLICKHOUSE_URL, ConfigInfo.CLICKHOUSE_USER, ConfigInfo.CLICKHOUSE_PASSWORD);
+        // 查询phoenix
+        DruidDataSource druidDataSource04 = getDataSource(ConfigInfo.PHOENIX_DRIVER, ConfigInfo.PHOENIX_SERVER, null, null);
         DruidPooledConnection conn04 = druidDataSource04.getConnection();
-        System.out.println(queryList(conn04, "select * from realtime.dirty_log", JSONObject.class, false));
+        System.out.println(queryList(conn04, "select * from dim.dim_base_trademark", JSONObject.class, false));
         conn04.close();
+
+        // 查询clickhouse
+        DruidDataSource druidDataSource05 = getDataSource(ConfigInfo.CLICKHOUSE_DRIVER, ConfigInfo.CLICKHOUSE_URL, ConfigInfo.CLICKHOUSE_USER, ConfigInfo.CLICKHOUSE_PASSWORD);
+        DruidPooledConnection conn05 = druidDataSource05.getConnection();
+        System.out.println(queryList(conn05, "select * from realtime.dirty_log", JSONObject.class, false));
+        conn05.close();
     }
 
 }
