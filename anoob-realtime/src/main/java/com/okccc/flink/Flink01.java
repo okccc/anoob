@@ -12,6 +12,7 @@ import org.apache.flink.util.Collector;
  * @Date: 2021/9/1 下午2:35
  * @Desc: flink简介、部署模式、运行架构、DataStream-API、状态编程、容错机制、flink调优
  *
+ * flink下载地址：https://archive.apache.org/dist/flink/
  * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/deployment/memory/mem_setup_tm/
  * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/sources/
  * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/overview/
