@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- debug="true"会在控制台打印logback内部日志 -->
-<configuration debug="true">
+<!-- debug="true"会在控制台打印logback启动日志ch.qos.logback.xxx -->
+<configuration debug="false">
+    <!-- 手动关闭 -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
     <!-- 日志文件存储地址绝对路径 -->
     <property name="LOG_HOME" value="/tmp/logs"/>
 
