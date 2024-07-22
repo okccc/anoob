@@ -584,6 +584,7 @@ canal.mq.servers = cdh1:9092,cdh2:9092   # kafka地址,逗号分隔
 canal.destinations = example1,example2   # canal默认单实例,可以拷贝conf/example配置多实例,通常一个ip对应一个instance
 canal.instance.filter.query.ddl = true   # canal默认抓所有binlog,可以过滤ddl语句,防止CREATE TABLE等语句解析异常
 canal.instance.filter.dml.delete = true  # 过滤delete数据,比如要删历史数据时会有巨量数据瞬间涌入kafka
+canal.instance.filter.transaction.entry = true  # 过滤事务操作,不然会抓到"type":"XACOMMIT"
 
 # instance实例配置(修改后直接生效不用重启)
 [root@cdh1 ~]$ vim conf/example/instance.properties
