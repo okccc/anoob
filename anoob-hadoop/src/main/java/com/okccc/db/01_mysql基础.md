@@ -615,6 +615,10 @@ find start position successfully, the next step is binlog dump
 # 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
 mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
 # canal/maxwell输出数据的"old"字段会显示update前的数据,业务处理非常有用,FlinkCdc也可以比较"before"和"after"判断具体更新情况
+
+# mysql加字段导致canal报错 CanalParseException: column size is not match for table:user.user_info,15 vs 14
+# 进入/data/canal-label/logs/example1日志目录,发现meta.log不刷新了说明程序已中断,再去查看example1.log分析具体原因
+# canal缓存的表结构信息存放在h2.mv.db文件,直接删除后重启,如果想在指定位置断点续传可以修改meta.dat的position和timestamp
 ```
 
 ### maxwell
