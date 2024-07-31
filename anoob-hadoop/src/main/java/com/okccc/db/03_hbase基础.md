@@ -97,7 +97,7 @@ hbase(main):001:0> disable 'student' & drop 'student'  # 删除表
 [root@cdh1 ~]$ cp /phoenix/phoenix-5.0.0-HBase-2.0-server.jar /hbase/lib/
 # 将hbase-site.xml拷贝到phoenix/bin
 [root@cdh1 ~]$ cp /hbase/conf/hbase-site.xml /phoenix/bin
-# 重启hbase(可能需要把hdfs和zk的/hbase目录删掉,不然phoenix启动报错)
+# 重启hbase(注意当前版本只兼容jdk8,另外可能需要把hdfs和zk的/hbase目录删掉,不然phoenix启动报错)
 [root@cdh1 ~]$ stop-hbase.sh && start-hbase.sh
 # 启动phoenix
 [root@cdh1 ~]$ sqlline.py localhost:2181
