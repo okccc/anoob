@@ -1,7 +1,7 @@
 ### hbase
 ```shell script
 # hbase是分布式、可扩展、支持海量数据存储的K-V类型NoSQL数据库
-[root@cdh1 ~]$ wget https://archive.apache.org/dist/hbase/2.0.5/hbase-2.0.5-bin.tar.gz
+[root@cdh1 ~]$ wget https://archive.apache.org/dist/hbase/2.5.6/hbase-2.5.6-bin.tar.gz
 # 安装
 [root@cdh1 ~]$ tar -xvf hbase-2.0.5-bin.tar.gz -C /opt/module
 # 修改配置文件
@@ -91,7 +91,7 @@ hbase(main):001:0> disable 'student' & drop 'student'  # 删除表
 ```shell script
 # phoenix是hbase的开源sql皮肤,可以使用标准jdbc-api操作hbase
 # 下载地址 https://phoenix.apache.org/download.html
-[root@cdh1 ~]$ wget http://archive.apache.org/dist/phoenix/apache-phoenix-5.0.0-HBase-2.0/bin/apache-phoenix-5.0.0-HBase-2.0-bin.tar.gz
+[root@cdh1 ~]$ wget https://archive.apache.org/dist/phoenix/phoenix-5.1.3/phoenix-hbase-2.5-5.1.3-bin.tar.gz
 [root@cdh1 ~]$ tar -xvf apache-phoenix-5.0.0-HBase-2.0-bin.tar.gz -C /opt/module/
 # 将phoenix-server.jar拷贝到hbase/lib
 [root@cdh1 ~]$ cp /phoenix/phoenix-5.0.0-HBase-2.0-server.jar /hbase/lib/
