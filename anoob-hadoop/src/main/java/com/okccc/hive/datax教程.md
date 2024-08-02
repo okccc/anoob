@@ -159,6 +159,52 @@
 }
 ```
 
+### hdfs2mysql
+```json
+{
+    "job": {
+        "content": [
+            {
+                "reader": {
+                    "name": "hdfsreader",
+                    "parameter": {
+                        "column": [],
+                        "defaultFS": "",
+                        "encoding": "UTF-8",
+                        "fieldDelimiter": ",",
+                        "fileType": "orc",
+                        "path": ""
+                    }
+                },
+                "writer": {
+                    "name": "mysqlwriter",
+                    "parameter": {
+                        "column": [],
+                        "connection": [
+                            {
+                                "jdbcUrl": "",
+                                "table": []
+                            }
+                        ],
+                        "password": "",
+                        "preSql": [],
+                        "session": [],
+                        "username": "",
+                        "writeMode": "insert/update/replace"
+                    }
+                }
+            }
+        ],
+        "setting": {
+          "speed": {
+            "channel": ""
+          }
+        }
+      }
+}
+
+```
+
 ### 参数配置
 ```shell
 job.setting.speed.channel  # 全局channel并发数
