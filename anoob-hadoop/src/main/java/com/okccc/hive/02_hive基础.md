@@ -96,6 +96,7 @@ hive>
 -- hive是把除了类似select * 以外的sql都翻译成mr在yarn集群里跑
 -- 内部表：数据由hive自己管理,删表会同时删除metadata和hdfs文件,默认路径hive.metastore.warehouse.dir=/user/hive/warehouse
 -- 外部表(推荐)：external修饰,数据由hdfs管理,删表只会删除metadata而hdfs文件还在,可以指定location,不指定就默认/user/hive/warehouse
+-- hive创建表最好给字段加上``,不然table/user/timestamp这些关键字会报错
 create external table if not exists dw.dw_log_info(
 id               int,
 name             array<string>,
