@@ -148,7 +148,7 @@ hive> desc database ods;
 ods    hdfs://dev-cdh/user/hive/warehouse/ods.db deploy USER
 -- 删除库(加cascade可以删除含有表的数据库)
 hive> drop database test cascade;
--- 模糊搜索表
+-- 模糊搜索,表名用'*',列名用'%'
 hive> show tables like '*name*';
 -- 查看hive表最近一次读写时间
 hive> show table extended in db_name like tbl_name;
