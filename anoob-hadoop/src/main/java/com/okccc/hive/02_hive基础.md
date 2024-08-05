@@ -236,8 +236,8 @@ mysql> select * from test into outfile '...' fields terminated by ',' enclosed b
 hive> load data [local] inpath '...' [overwrite] into table t1 [partition(dt='..')]  # 本地(复制)/hdfs(剪切)  覆盖/追加    
 hive> insert overwrite/into table t1 [partition(dt=20200101)] select * from t2 where ...
 hive> create table t2 as select * from t1 where ...
--- hive数据导出
-hive -e "select * from test" > /opt/aaa.txt  # insert overwrite慎用,会覆盖整个目录!
+-- hive数据导出为csv,并将默认的字段分隔符'\t'替换成','
+hive -e "select * from test" | sed 's/\t/,/g' > /opt/aaa.csv  # insert overwrite慎用,会覆盖整个目录!
 
 -- 排序方式
 hive> select * from test;
