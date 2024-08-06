@@ -18,6 +18,8 @@ hive> select concat_ws(',',sort_array(collect_list(col)));
 hive> select id,score from grade lateral view explode(scores) grade as score;
 -- 去空格
 hive> select trim(' abc ');
+-- 去除换行符
+hive> select regexp_replace('your str','\\r|\\n',' ')
 -- 截取
 hive> select substr('facebook',3);
 hive> select substr('facebook',3,2);
