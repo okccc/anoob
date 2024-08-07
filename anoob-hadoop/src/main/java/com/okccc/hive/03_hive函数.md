@@ -29,8 +29,9 @@ hive> select str_to_map('aaa:11&bbb:22', '&', ':')['aaa'];
 hive> select nvl(field,'-');
 -- 索引
 hive> select instr('abcde','c');
--- 替换
+-- 正则替换
 hive> select regexp_replace('2019-01-01','-','');
+hive> select regexp_replace('["wmq7a9BgAAfdS45B9HY_9LA_tpwkBhuA"]','[^0-9a-zA-Z_]','');
 -- 抽取
 hive> select regexp_extract('foothebar', 'foo(.*?)(bar)', 1);
 hive> select regexp_extract('foothebar', 'foo(.*?)(bar)', 2);
