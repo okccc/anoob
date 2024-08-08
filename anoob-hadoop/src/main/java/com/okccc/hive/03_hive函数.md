@@ -64,8 +64,8 @@ hive> select rpad('abc',10,'td');
 
 ### time
 ```hiveql
--- 当前日期/时间戳/unix格式时间戳
-hive> select current_date/current_timestamp/unix_timestamp();
+-- 当前日期,时间戳,unix格式时间戳
+hive> select current_date,current_timestamp,unix_timestamp();
 -- 通用格式转换
 hive> select from_unixtime(unix_timestamp(dt,'yyyyMMdd'),'yyyy-MM-dd');
 -- 将13位时间戳转换成时间
@@ -82,7 +82,7 @@ hive> select date_format('2020-10-30','yyyy-MM');
 hive> select dayofweek('2020-10-30');
 -- 日期增加
 hive> select date_add('2016-10-18',10);
--- 日起减少
+-- 日期减少
 hive> select date_sub('2016-10-18',10);
 -- 日期差值
 hive> select datediff('2016-10-19','2016-03-15');
