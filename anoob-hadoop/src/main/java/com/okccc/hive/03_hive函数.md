@@ -67,7 +67,10 @@ hive> select rpad('abc',10,'td');
 -- 当前日期/时间戳/unix格式时间戳
 hive> select current_date/current_timestamp/unix_timestamp();
 -- 通用格式转换
-hive> select from_unixtime(unix_timestamp(dt, 'yyyymmdd'),'yyyy-mm-dd');
+hive> select from_unixtime(unix_timestamp(dt,'yyyyMMdd'),'yyyy-MM-dd');
+-- 将13位时间戳转换成时间
+hive> select from_unixtime(bigint(1709424002169/1000),'yyyy-MM-dd HH:mm:ss');
+hive> select from_unixtime(bigint(substr(1709424002169,1,10)),'yyyy-MM-dd HH:mm:ss');
 -- 截取year/month/day/hour/minute/second
 hive> select year('2016-10-19 16:23:08');
 -- 截取日期
