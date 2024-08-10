@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * @Desc: java8新特性
  *
  * lambda表达式
- * 只有一个抽象方法的接口叫函数式接口,接口上方会添加@FunctionalInterface注解
+ * 只有一个未实现方法的接口叫函数式接口,通常会标注@FunctionalInterface注解
  * java内置四大核心函数式接口 Consumer<T> | Supplier<T> | Function<T,R> | Predicate<T>
  * 当匿名内部类实现函数式接口时,可以用lambda表达式简化代码 (参数列表) -> {抽象方法重写} 只有单个参数或单行代码时可以省略括号
  * 方法引用
@@ -55,7 +55,7 @@ public class Java8Demo {
         Consumer<String> c2 = s -> System.out.println(s.toUpperCase());
         c2.accept("java");
 
-        // 匿名表达式
+        // 匿名内部类
         Supplier<String> s1 = new Supplier<String>() {
             @Override
             public String get() {
