@@ -2,18 +2,17 @@ package com.okccc.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.okccc.func.HiveBucketAssigner;
+import com.okccc.func.MyKafkaRecordDeserializationSchema;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.time.Time;
-import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
@@ -24,7 +23,6 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -33,16 +31,11 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.util.Collector;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 /**
  * @Author: okccc
@@ -434,84 +427,5 @@ public class FlinkUtil {
 //                )
                 .build();
         // 批量编码格式 Bulk-encoded Formats: Parquet Format、Avro Format、ORC Format
-    }
-
-    /**
-     * 自定义hive桶分配器,继承默认的基于时间的分配器DateTimeBucketAssigner
-     */
-    public static class HiveBucketAssigner<IN> extends DateTimeBucketAssigner<IN> {
-
-        public String formatString;
-        public ZoneId zoneId;
-        private DateTimeFormatter dateTimeFormatter;
-
-        public HiveBucketAssigner(String formatString, ZoneId zoneId) {
-            super(formatString, zoneId);
-        }
-
-//        @Override
-//        public String getBucketId(IN element, Context context) {
-//            // flink分桶将文件放入不同文件夹,桶号对应hive分区,桶号默认返回时间字符串,而hive分区通常是dt=开头,所以要重写该方法
-//            // 点进去查看源码发现默认是以currentProcessingTime作为dt字段,可能存在零点漂移问题
-//            // 应该以事件时间处理数据,先在source端.withTimestampAssigner()指定某个long类型的时间戳字段作为dt
-//            return "dt=" + super.getBucketId(element, context);
-//        }
-
-        @Override
-        public String getBucketId(IN element, Context context) {
-            if (dateTimeFormatter == null) {
-                dateTimeFormatter = DateTimeFormatter.ofPattern(formatString).withZone(zoneId);
-            }
-            return "dt=" + dateTimeFormatter.format(Instant.ofEpochMilli(context.timestamp()));
-        }
-    }
-
-    /**
-     * 自定义类实现DeserializationSchema接口,只反序列化ConsumerRecord对象的value部分,参考SimpleStringSchema
-     */
-    public static class MyDeserializationSchema implements DeserializationSchema<String> {
-
-        @Override
-        public String deserialize(byte[] message) {
-            // flink sql的left join会生成null值,如果直接用SimpleStringSchema会报空指针异常
-            if (message != null && message.length > 0) {
-                return new String(message, StandardCharsets.UTF_8);
-            }
-            // 这里返回null不会报错,下游消费者过滤即可
-            return null;
-        }
-
-        @Override
-        public boolean isEndOfStream(String nextElement) {
-            return false;  // kafka是无界流
-        }
-
-        @Override
-        public TypeInformation<String> getProducedType() {
-            return BasicTypeInfo.STRING_TYPE_INFO;
-        }
-    }
-
-    /**
-     * 自定义类实现KafkaRecordDeserializationSchema接口,反序列化ConsumerRecord对象,参考JSONKeyValueDeserializationSchema
-     */
-    public static class MyKafkaRecordDeserializationSchema implements KafkaRecordDeserializationSchema<String> {
-
-        @Override
-        public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<String> out) {
-            if (record.value() != null && record.value().length > 0) {
-                String value = new String(record.value(), StandardCharsets.UTF_8);
-                JSONObject jsonObject = JSON.parseObject(value);
-                // 将kafka消息的元数据整合到value中,partition和offset很有用,方便下游比对数据
-                jsonObject.put("partition", record.partition());
-                jsonObject.put("offset", record.offset());
-                out.collect(jsonObject.toJSONString());
-            }
-        }
-
-        @Override
-        public TypeInformation<String> getProducedType() {
-            return BasicTypeInfo.STRING_TYPE_INFO;
-        }
     }
 }
