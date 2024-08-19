@@ -134,9 +134,13 @@ select user()/database()/version();
 -- 查看所有数据库
 show databases;
 -- 创建数据库
-create database java charset=utf8;
--- 显示默认创建的字符集
-show create database java; -- create database `java` /*!40100 default character set utf8 */
+-- mysql8使用utf8mb4字符集,4个字节存储1个字符,覆盖范围更广包括表情符号等,mysql5使用utf8字符集,3个字节存储1个字符,无法全部覆盖unicode编码,可能会乱码
+-- mysql8使用utf8mb4_0900_ai_ci排序方式,不区分大小写
+create database java character set utf8mb4 collate utf8mb4_0900_ai_ci;
+show create database java;
+-- 查看默认字符集和排序方式
+show variables like 'character_set_database';
+show variables like 'collation_database';
 -- 选择数据库
 use java;
 -- 删除数据库
