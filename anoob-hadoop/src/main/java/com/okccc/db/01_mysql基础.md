@@ -157,6 +157,12 @@ drop database java;
     退出重新连接: mysql -uroot –p 新创建的数据库 < ~/desktop/bac.sql
 */
 
+-- 整数类型
+-- unsigned表示无符号(负号),即没有负值,数值范围会将负值部分的绝对值加入到正值部分,常用于年龄、商品库存等字段
+-- tinyint：占1个字节,无符号0 ~ 255,有符号-128 ~ 127
+-- int：    占4个字节,无符号0 ~ 2^32 - 1,有符号-2^31 ~ 2^31 - 1
+-- bigint： 占8个字节,无符号0 ~ 2^64 - 1,有符号-2^63 ~ 2^63 - 1
+
 -- 添加外键约束(在一对多的多方添加),外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
 -- 也可以在创建表时直接外键约束
