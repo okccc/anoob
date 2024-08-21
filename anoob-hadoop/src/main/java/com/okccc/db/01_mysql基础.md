@@ -163,6 +163,11 @@ drop database java;
 -- int：    占4个字节,无符号0 ~ 2^32 - 1,有符号-2^31 ~ 2^31 - 1
 -- bigint： 占8个字节,无符号0 ~ 2^64 - 1,有符号-2^63 ~ 2^63 - 1
 
+-- 浮点类型
+-- float(m,d)：  占4个字节,单精度
+-- double(m,d)： 占8个字节,双精度
+-- decimal(m,d)：精度要求很高时使用,比如工资、价格等,m是长度,d是小数点位数
+
 -- 添加外键约束(在一对多的多方添加),外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
 -- 也可以在创建表时直接外键约束
