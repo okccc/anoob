@@ -168,6 +168,11 @@ drop database java;
 -- double(m,d)： 占8个字节,双精度
 -- decimal(m,d)：精度要求很高时使用,比如工资、价格等,m是长度,d是小数点位数
 
+-- 字符类型
+-- char：   固定长度,性能较好,不足则以空格补全,char(5) 'abc' -> 'abc  ',当然读取的时候会自动去掉右侧空格,char = char(1),最大值char(255)
+-- varchar：可变长度,性能一般,会自动伸缩,占有的空间不能超过一行数据的最大限制65535字节,varchar类型默认会使用1个字节标识是否为null,所以是65534个字节,utf8mb4字符集就是65534 / 4 = 16383个字符
+-- text：   大文本类型,无需指定长度,有固定的大小限制,text[65535],不占有一行数据的最大限制,一般也不会真的用text,这样读起来很费劲,通常是存放大文件的地址,比如avator_url
+
 -- 添加外键约束(在一对多的多方添加),外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
 -- 也可以在创建表时直接外键约束
