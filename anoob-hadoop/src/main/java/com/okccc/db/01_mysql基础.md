@@ -173,6 +173,17 @@ drop database java;
 -- varchar：可变长度,性能一般,会自动伸缩,占有的空间不能超过一行数据的最大限制65535字节,varchar类型默认会使用1个字节标识是否为null,所以是65534个字节,utf8mb4字符集就是65534 / 4 = 16383个字符
 -- text：   大文本类型,无需指定长度,有固定的大小限制,text[65535],不占有一行数据的最大限制,一般也不会真的用text,这样读起来很费劲,通常是存放大文件的地址,比如avator_url
 
+-- 时间类型
+-- date：     YYYY-MM-DD,占3个字节,范围是'1000-01-01' ~ '9999-12-31'
+-- datetime： YYYY-MM-DD HH:MM:SS,占8个字节,范围是'1000-01-01 00:00:00' ~ '9999-12-31 23:59:59'
+-- timestamp：YYYY-MM-DD HH:MM:SS,占4个字节,范围是'1970-01-01 00:00:00' ~ '2037-12-31 23:59:59',好处是insert/update时会以系统当前时间CURRENT_TIMESTAMP填充
+SELECT NOW(),CURDATE(),CURTIME(),UTC_DATE(),UTC_TIME(),YEAR(NOW()),MONTH(NOW()),WEEK(NOW()),WEEKDAY(NOW()),DAYOFWEEK(NOW()),DAY(NOW()),DAYOFMONTH(NOW());
+SELECT ADDDATE(NOW(),INTERVAL 1 DAY),ADDDATE(NOW(),INTERVAL -1 WEEK),ABS(DATEDIFF(CURDATE(),'2024-11-11')),ADDTIME('10:10:10',20),TIMEDIFF('12:00:00','10:00:00');
+SELECT DATE_FORMAT(NOW(),'%Y年%m月%d日'),TIME_FORMAT(NOW(),'%H:%i:%s');
+SELECT STR_TO_DATE('2024年04月20日','%Y年%m月%d日');  -- 将前端输入时间转换成标准时间
+SELECT * FROM user_info WHERE MONTH(birthday) = MONTH(NOW());  -- 当月过生日
+SELECT * FROM user_info WHERE DATE_FORMAT(birthday,'%m-%d') = DATE_FORMAT(NOW(),'%m-%d');  -- 当天过生日
+
 -- 添加外键约束(在一对多的多方添加),外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
 -- 也可以在创建表时直接外键约束
