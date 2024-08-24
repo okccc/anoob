@@ -57,6 +57,7 @@ public class JsonUtil {
         System.out.println(obj.values());  // [grubby, 1001]
         System.out.println(StringUtils.join(obj.values(), ","));  // grubby,1001
         System.out.println(obj.entrySet());  // [name=grubby, id=1001]
+        System.out.println(obj.getOrDefault("age", 20));  // 20
 
         // JSONObject对象过滤键值对
         String value = "{\"data\":[{\"age\":\"19\",\"id\":\"01\",\"name\":\"aaa\"}],\"database\":\"maxwell\",\"table\":\"user\"}";
