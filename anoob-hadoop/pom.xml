@@ -79,11 +79,16 @@
             <version>1.2.16</version>
         </dependency>
 
-        <!-- mongodb -->
+        <!-- org.mongodb » mongo-java-driver Relocated → org.mongodb » mongodb-driver-sync -->
+<!--        <dependency>-->
+<!--            <groupId>org.mongodb</groupId>-->
+<!--            <artifactId>mongo-java-driver</artifactId>-->
+<!--            <version>3.12.10</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.12.10</version>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>5.0.1</version>
         </dependency>
 
         <!-- 发送http请求 -->
