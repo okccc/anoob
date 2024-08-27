@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -271,12 +272,14 @@ public class JdbcUtil {
             PreparedStatement ps = conn.prepareStatement(sql);
 
             // 填充占位符
-            for (int i = 1; i <= 1000000; i++) {
+            for (int i = 1; i <= 1000999; i++) {
                 ps.setObject(1, "hello" + i);
                 // 挨个执行单条sql性能很差,插入100万条数据要好几个小时
 //                ps.execute();
                 // 攒一批sql
                 ps.addBatch();
+
+                // 手动控制batchSize
                 if (i % 1000 == 0) {
                     // 执行批处理,插入100万条数据只要30秒,如果关闭自动提交事务只要5秒
                     // 要给url添加&rewriteBatchedStatements=true否则批处理不生效
@@ -286,7 +289,11 @@ public class JdbcUtil {
                 }
             }
 
-            // 手动提交
+            // 输出影响行数,验证下这里执行的是零头还是全部
+            int[] ints = ps.executeBatch();
+            System.out.println("ints = " + Arrays.toString(ints));
+
+            // 所有语句都执行完手动提交
             conn.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -356,7 +363,7 @@ public class JdbcUtil {
     public static void main(String[] args) throws Exception {
         // 获取数据库连接
         String driverClass = "com.mysql.cj.jdbc.Driver";
-        String jdbcUrl = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true&allowMultiQueries=true";
+        String jdbcUrl = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowMultiQueries=true";
         String username = "root";
         String password = "root@123";
         DruidDataSource dataSource = getDataSource(driverClass, jdbcUrl, username, password);
