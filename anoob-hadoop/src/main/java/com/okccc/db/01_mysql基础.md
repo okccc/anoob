@@ -182,7 +182,26 @@ SELECT ADDDATE(NOW(),INTERVAL 1 DAY),ADDDATE(NOW(),INTERVAL -1 WEEK),ABS(DATEDIF
 SELECT DATE_FORMAT(NOW(),'%Y年%m月%d日'),TIME_FORMAT(NOW(),'%H:%i:%s');
 SELECT STR_TO_DATE('2024年04月20日','%Y年%m月%d日');  -- 将前端输入时间转换成标准时间
 SELECT * FROM user_info WHERE MONTH(birthday) = MONTH(NOW());  -- 当月过生日
-SELECT * FROM user_info WHERE DATE_FORMAT(birthday,'%m-%d') = DATE_FORMAT(NOW(),'%m-%d');  -- 当天过生日
+SELECT * FROM user_info WHERE DATE_FORMAT(birthday,'%m-%d') = DATE_FORMAT(NOW(),'%m-%d');  -- 当日过生日
+
+-- 创建表
+CREATE TABLE IF NOT EXISTS `user_info` (
+`id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
+`username` varchar(50) DEFAULT NULL COMMENT '用户名',
+`password` varchar(500) DEFAULT NULL COMMENT '密码',
+`age` tinyint DEFAULT NULL COMMENT '年龄',
+`sex` tinyint DEFAULT NULL COMMENT '性别',
+`birthday` date DEFAULT NULL COMMENT '生日',
+`amount` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '金额',
+`pay_time` datetime DEFAULT NULL COMMENT '支付时间',
+`create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+`update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+`is_deleted` tinyint NOT NULL DEFAULT '0' COMMENT '删除标记',
+PRIMARY KEY (`id`),                      -- 主键索引
+unique `idx_name` (`username`),          -- 唯一索引
+key `idx_age` (`age`),                   -- 单列索引
+key `idx_sex_birth` (`sex`, `birthday`)  -- 联合索引
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
 
 -- 添加外键约束(在一对多的多方添加),外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
