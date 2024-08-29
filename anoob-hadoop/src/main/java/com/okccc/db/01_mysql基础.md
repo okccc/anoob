@@ -203,6 +203,16 @@ key `idx_age` (`age`),                   -- 单列索引
 key `idx_sex_birth` (`sex`, `birthday`)  -- 联合索引
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
 
+-- 元数据信息监控
+-- 查询数据库有多少张表
+select table_schema,count(*) as tables from information_schema.tables group by table_schema;
+-- 查询表中有多少字段
+select count(*) from information_schema.columns where table_schema = '数据库名' and table_name = '表名';
+-- 查询数据库中有多少字段
+select count(column_name) from information_schema.columns where table_schema = '数据库名';
+-- 查询数据库中所有表、字段、类型和注释
+select table_name,column_name,data_type,column_comment from information_schema.columns where table_schema = '数据库名';
+
 -- 添加外键约束(在一对多的多方添加),外键是另一个表的主键,用于关联操作,一个表可以有多个外键
 alter table scores add constraint stu_sco foreign key(stuid) references students(id);
 -- 也可以在创建表时直接外键约束
