@@ -9,13 +9,12 @@ import java.util.ArrayList;
 /**
  * @Author: okccc
  * @Date: 2020/9/21 12:09
- * @Desc: java反射
+ * @Desc: java反射：运行时才获取类的完整构造并调用方法,是Spring和Mybatis等框架中很常见
  *
- * 反射：动态加载类,创建未知类的对象并获取属性和调用方法
  * 类什么时候会被加载？
  * new创建该类对象 | 调用类中静态成员 | 加载该类的子类 | 反射
  * 静态加载：编译期加载类,类不存在则编译报错,依赖性太强
- * 动态加载：运行期加载类,类不存在编译不报错,降低依赖性,可以将类的描述写到配置文件,在各种框架中很常用
+ * 动态加载：运行期加载类,类不存在编译不报错,降低依赖性,可以将类的描述写到配置文件(比如Spring在xml中配置Bean对象)
  * 实现反射机制的4个类：Class,Field,Method,Constructor
  *
  * 为什么new比反射效率高？
@@ -23,8 +22,9 @@ import java.util.ArrayList;
  * 2.缓存和重用：new创建对象可以放入缓存重用,避免重复创建和销毁对象,而反射每次都要动态创建新的对象
  *
  * 反射应用场景
- * 1.Spring通过反射实例化对象并放入IOC容器
- * 2.JDBC连接数据库时使用Class.forName()加载数据库驱动
+ * 1.JDBC连接数据库时使用Class.forName()加载数据库驱动
+ * 2.Spring IOC通过反射创建对象,Spring AOP通过jdk动态代理实现底层也是反射
+ * 3.Mybatis通过反射获取Mapper接口并调用方法执行CRUD
  */
 public class ReflectDemo {
 
