@@ -70,8 +70,8 @@ hive>
 -h,--hostname                  # 连接远程hive server
 -p,--port                      # 连接远程hive server端口号
 -hiveconf,<property=value>     # 设置配置参数
--hivevar,<key=value>           # 类似define  
--s,--silent                    # 安静模式,只显示结果不显示进度
+-hivevar,<key=value>           # 类似define
+-S,--silent                    # 安静模式,只显示结果不显示MapReduce Jobs进度
 
 # impala-shell
 -b,--delimited                 # 去格式化输出,大数据量查询可以提高效率

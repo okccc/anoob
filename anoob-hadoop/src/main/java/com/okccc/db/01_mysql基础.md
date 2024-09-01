@@ -116,7 +116,7 @@ RDBMS：关系型数据库管理系统
 表：按列和行排列的一组数据,列表示特征行表示条目
 三大范式：列不可拆分(比如地址)、不能有部分函数依赖、不能有传递函数依赖
 五大约束：primary key、unique、not null、default、foreign key
-逻辑删除：对于重要数据并不希望物理删除,删除后无法恢复,可以设置isdelete列,类型为bit默认值0,要逻辑删除的写1,查询的时候查值为0的即可
+逻辑删除：对于重要数据并不希望物理删除,删除后无法恢复,可以设置is_delete列,类型为bit默认值0,要逻辑删除的写1,查询的时候查值为0的即可
 sql：structured query language
 DDL(数据定义语言)：create/alter/drop/truncate/rename  -- 针对表
 DML(数据操作语言)：insert/delete/update/select        -- 针对数据
@@ -130,7 +130,7 @@ sql和nosql区别？
 */
 
 -- 查看当前用户/当前数据库/数据库版本
-select user()/database()/version();
+select user(),database(),version();
 -- 查看所有数据库
 show databases;
 -- 创建数据库
@@ -202,6 +202,57 @@ unique `idx_name` (`username`),          -- 唯一索引
 key `idx_age` (`age`),                   -- 单列索引
 key `idx_sex_birth` (`sex`, `birthday`)  -- 联合索引
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
+
+-- 删除表
+drop table emp;
+-- 重命名表
+alter table emp rename to emp1;
+-- 添加字段
+alter table emp add column job varchar(20) after name;
+-- 修改字段,modify只能修改属性,change既能修改属性也能修改名称
+alter table emp modify column job varchar(60);
+alter table emp change column job job1 varchar(60);
+-- 删除字段
+alter table emp drop column job1;
+
+-- 插入数据,自增主键给null值
+insert into emp values (null, 'grubby', 19, 'orc@163.com', '1990-01-01');
+-- 修改字段值
+update emp set name='sky',email='hum@123.com' where id = 2;
+-- 关闭自动提交事务
+set autocommit = false;
+-- delete删除数据,在commit之前可以rollback
+delete from emp; -- 不加where条件会删除所有数据(慎用!)
+-- truncate清空表,相当于自动commit无法rollback,如果表有外键约束就不能使用
+truncate table emp;
+-- 事务一旦提交就无法回滚,所以回滚数据只能回滚到最近一次提交后的位置
+commit;
+rollback;
+-- drop/truncate/delete区别？
+-- drop直接删除表,truncate和delete删除数据表还在,有外键约束的表不能使用truncate
+-- drop和truncate是ddl操作不涉及事务无法回滚,delete是dml操作涉及事务可以回滚
+-- truncate是释放存储表数据使用的数据页,delete是逐行删除数据binlog会记录该操作,速度 drop > truncate > delete
+
+-- select语句书写规则
+select - from - (join) - where - group by - having - order by - limit
+-- mysql数据库解析顺序
+from - (join) - where - group by - having - select - order by - limit
+-- where是分组前过滤,having是分组后过滤
+select gender, avg(age) age_avg from emp where age > 19 group by gender;
+-- where在select之前解析无法识别别名,having在select之后解析可以识别别名
+select gender, avg(age) age_avg from emp group by gender having age_avg > 19;
+-- 显示最近几次查询
+show profiles;
+
+-- 视图：将复杂的查询sql封装成虚拟表
+-- 优点：sql语句重用,简化复杂sql(解耦),定制用户数据,安全(read-only)
+create view view_name as select * from emp where email is not null;
+-- 查看视图
+select * from view_name;
+-- 更新视图
+create or replace view view_name as select * from emp where email is not null;
+-- 删除视图
+drop view view_name;
 
 -- 元数据信息监控
 -- 查询数据库有多少张表
@@ -301,85 +352,6 @@ mysql> show variables like 'tx_isolation' / select @@tx_isolation
 mysql> set global transaction isolation level read committed;
 -- 查看当前正在运行的事务
 mysql> select * from information_schema.innodb_trx;
-```
-
-### crud
-```sql
-create table if not exists `emp` (
-`id` int(11) not null auto_increment comment '编号',
-`name` varchar(20) not null default '' comment '姓名',
-`age` int(11) default null comment '年龄',
-`email` varchar(20) default null comment '邮箱',
-`birth` date default null comment '生日',
-primary key (`id`),                       -- 主键索引
-unique `idx_name` (`name`),               -- 唯一索引
-key `idx_age` (`age`),                    -- 单列索引
-key `idx_email_birth` (`email`, `birth`)  -- 联合索引
-) engine=innodb default charset=utf8 comment='员工表';
-
--- 删除表
-drop table emp;
--- 重命名表
-alter table emp rename to emp1;
--- 添加字段
-alter table emp add column job varchar(20) after name;
--- 修改字段,modify只能修改属性,change既能修改属性也能修改名称
-alter table emp modify column job varchar(60);
-alter table emp change column job job1 varchar(60);
--- 删除字段
-alter table emp drop column job1;
-
--- 插入数据,自增主键给null值
-insert into emp values (null, 'grubby', 19, 'orc@163.com', '1990-01-01');
--- 修改字段值
-update emp set name='sky',email='hum@123.com' where id = 2;
--- 关闭自动提交事务
-set autocommit = false;
--- delete删除数据,在commit之前可以rollback
-delete from emp; -- 不加where条件会删除所有数据(慎用!)
--- truncate清空表,相当于自动commit无法rollback,如果表有外键约束就不能使用
-truncate table emp;
--- 事务一旦提交就无法回滚,所以回滚数据只能回滚到最近一次提交后的位置
-commit;
-rollback;
--- drop/truncate/delete区别？
--- drop直接删除表,truncate和delete删除数据表还在,有外键约束的表不能使用truncate
--- drop和truncate是ddl操作不涉及事务无法回滚,delete是dml操作涉及事务可以回滚
--- truncate是释放存储表数据使用的数据页,delete是逐行删除数据binlog会记录该操作,速度 drop > truncate > delete
-
--- select语句书写规则
-select - from - (join) - where - group by - having - order by - limit
--- mysql数据库解析顺序
-from - (join) - where - group by - select - having - order by - limit
--- where是分组前过滤,having是分组后过滤
-select gender, avg(age) age_avg from emp where age > 19 group by gender;
--- where在select之前解析无法识别别名,having在select之后解析可以识别别名
-select gender, avg(age) age_avg from emp group by gender having age_avg > 19;
--- 分页查询
-select * from emp limit 0,20;  -- 第一页
-select * from emp limit 40,20; -- 第三页
--- 显示最近几次查询
-show profiles;
-
--- 视图：将复杂的查询sql封装成虚拟表
--- 优点：sql语句重用,简化复杂sql(解耦),定制用户数据,安全(read-only)
-create view view_name as select * from emp where email is not null;
--- 查看视图
-select * from view_name;
--- 更新视图
-create or replace view view_name as select * from emp where email is not null;
--- 删除视图
-drop view view_name;
-
--- 表结构监控
--- 查询数据库有多少张表
-select table_schema,count(*) as tables from information_schema.tables group by table_schema;
--- 查询表中有多少字段
-select count(*) from information_schema.columns where table_schema = '数据库名' and table_name = '表名';
--- 查询数据库中有多少字段
-select count(column_name) from information_schema.columns where table_schema = '数据库名';
--- 查询数据库中所有表、字段、类型和注释
-select table_name,column_name,data_type,column_comment from information_schema.columns where table_schema = '数据库名';
 ```
 
 ### join
@@ -674,7 +646,6 @@ find start position successfully, the next step is binlog dump
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic ods_base_db
 # 往mysql插入数据,或者运行mock-db.jar生成模拟数据,kafka消费者能接收到说明ok
 mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
-# canal/maxwell输出数据的"old"字段会显示update前的数据,业务处理非常有用,FlinkCdc也可以比较"before"和"after"判断具体更新情况
 
 # mysql加字段导致canal报错 CanalParseException: column size is not match for table:user.user_info,15 vs 14
 # 进入/data/canal-label/logs/example1日志目录,发现meta.log不刷新了说明程序已中断,再去查看example1.log分析具体原因

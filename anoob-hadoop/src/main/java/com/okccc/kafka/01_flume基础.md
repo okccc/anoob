@@ -147,7 +147,7 @@ a1.channels.c2.parseAsFlumeEvent = false
 
 # 先启动kafka
 [root@cdh1 ~]$ kafka-server-start.sh -daemon ../config/server.properties
-[root@cdh1 ~]$ kafka-topics.sh --create --zookeeper cdh1:2181 --topic start --partitions 1 --replication-factor 1
+[root@cdh1 ~]$ kafka-topics.sh --bootstrap-server cdh1:9092 --topic start --partitions 1 --replication-factor 1
 [root@cdh1 ~]$ kafka-console-consumer.sh --bootstrap-server cdh1:9092 --from-beginning --topic start
 # 再启动flume-ng
 [root@cdh1 ~]$ nohup flume-ng agent -c conf/ -f conf/nginx-kafka.conf -n a1 -Dflume.root.logger=info,console > logs/flume.log 2>&1 &

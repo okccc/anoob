@@ -218,7 +218,7 @@ topic
 partition
 # 分区：每个partition对应一个log文件,生产者不断往log文件末尾追加数据,且每条消息都有offset,保存在kafka内置topic __consumer_offsets
 replication
-# 副本：保证高可用性,kafka副本包括leader和follower,生产者发送数据到leader,然后follower找leader同步数据,而hdfs的副本作用完全一样
+# 副本：保证高可用性,kafka副本包括leader和follower,生产者发送数据到leader,然后follower找leader同步数据,和hdfs的副本作用完全一样
 # AR = ISR(和leader保持同步的follower集合,超过replica.lag.time.max.ms没有通信就剔除,默认30s) + OSR,当leader故障时会从Isr重新选举
 segment
 # 片段：为了防止log文件过大难以定位数据,将其分为多个segment,包含.index(索引)和.log(数据),文件以当前segment第一条消息的offset命名
