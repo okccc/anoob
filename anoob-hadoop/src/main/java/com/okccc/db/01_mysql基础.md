@@ -116,7 +116,7 @@ RDBMS：关系型数据库管理系统
 表：按列和行排列的一组数据,列表示特征行表示条目
 三大范式：列不可拆分(比如地址)、不能有部分函数依赖、不能有传递函数依赖
 五大约束：primary key、unique、not null、default、foreign key
-逻辑删除：对于重要数据并不希望物理删除,删除后无法恢复,可以设置isdelete列,类型为bit默认值0,要逻辑删除的写1,查询的时候查值为0的即可
+逻辑删除：对于重要数据并不希望物理删除,删除后无法恢复,可以设置is_delete列,类型为bit默认值0,要逻辑删除的写1,查询的时候查值为0的即可
 sql：structured query language
 DDL(数据定义语言)：create/alter/drop/truncate/rename  -- 针对表
 DML(数据操作语言)：insert/delete/update/select        -- 针对数据
@@ -130,7 +130,7 @@ sql和nosql区别？
 */
 
 -- 查看当前用户/当前数据库/数据库版本
-select user()/database()/version();
+select user(),database(),version();
 -- 查看所有数据库
 show databases;
 -- 创建数据库
