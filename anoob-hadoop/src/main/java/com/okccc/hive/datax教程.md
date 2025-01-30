@@ -144,6 +144,9 @@
             "speed": {
                 "channel": 1,
                 "record": 100000
+            },
+            "errorLimit": {
+                "record": 0
             }
         }
     },
@@ -196,9 +199,12 @@
             }
         ],
         "setting": {
-          "speed": {
-            "channel": ""
-          }
+            "speed": {
+                "channel": ""
+            },
+            "errorLimit": {
+                "record": 0
+            }
         }
       }
 }
@@ -210,6 +216,7 @@
 job.setting.speed.channel  # 全局channel并发数
 job.setting.speed.record  # 全局channel的record限速
 job.setting.speed.byte  # 全局channel的byte限速
+job.setting.errorLimit.record  # 传输过程中有一条失败就停止,严格保证数据完整性
 core.transport.channel.speed.record  # 单个channel的record限速
 core.transport.channel.speed.byte  # 单个channel的byte限速
 
