@@ -27,7 +27,7 @@ public class PhoenixUtil {
      */
     public static void createTable(String sinkTable, String sinkColumns, String sinkPk, String sinkExtend) {
         // 判断主键字段和建表扩展
-        if (sinkPk == null || "".equals(sinkPk)) {
+        if (sinkPk == null || sinkPk.isEmpty()) {
             sinkPk = "id";
         }
         if (sinkExtend == null) {
