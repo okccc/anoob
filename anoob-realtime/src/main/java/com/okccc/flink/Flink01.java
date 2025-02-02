@@ -13,9 +13,9 @@ import org.apache.flink.util.Collector;
  * @Desc: flink简介、部署模式、运行架构、DataStream-API、状态编程、容错机制、flink调优
  *
  * flink下载地址：https://archive.apache.org/dist/flink/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/deployment/memory/mem_setup_tm/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/sources/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/overview/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/deployment/memory/mem_setup_tm/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/sources/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/operators/overview/
  *
  * 电商用户行为分析
  * 统计分析(实时)：热门商品、热门页面、访问流量、app市场推广统计、页面广告点击量
