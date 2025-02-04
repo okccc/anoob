@@ -143,7 +143,7 @@ public class StringUtil {
         String[] arr2 = arr[1].split(",");
         for (String s : arr1) {
             // java中的null在hive表无法通过where ${column} is null查询,因为hive底层使用'\N'存储空值,需要手动转换
-            // 并且修改hive表信息显式指定空值 alter table ${table} set serdeproperties('serialization.null.format'='\N');
+            // 并且修改hive表信息显式指定空值 alter table ${table} set serdeproperties('serialization.null.format'='\\N');
             String value = data.getString(s);
             sb.append(value == null ? "\\N" : value.replaceAll("\n", "")).append("\001");
         }
