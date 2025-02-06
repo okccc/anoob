@@ -33,9 +33,10 @@ import java.util.Properties;
  * 存储：将大量数据按照分区切割存储在多个broker达到负载均衡
  * 计算：数据分区可以提高生产者(4个参数)和消费者(2个参数)的吞吐量
  *
- * 生产者分区策略,全局搜索DefaultPartitioner类查看源码注释
- * a.指定partition
- * b.没有指定partition但是有key(user_id/order_info),将key的hash值与partition数取余决定写往哪个partition(很有用)
+ * 生产者分区策略(重点)
+ * 源码分析：KafkaProducer.partition - Partitioner - DefaultPartitioner/RoundRobinPartitioner/UniformStickyPartitioner
+ * a.手动指定partition
+ * b.没有指定partition但是有key(user_id/order_id),将key的hash值与partition数取余决定写往哪个partition(很有用)
  * c.没有指定partition也没有key,采用StickyPartition粘性分区器,先随机选择一个分区一直写,等该分区batch已满再换新的分区
  *
  * 生产者数据可靠性
@@ -102,7 +103,7 @@ public class ProducerDemo {
         interceptors.add("com.okccc.kafka.InterceptorDemo");
         prop.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, interceptors);
         // 添加分区器(可选)
-//        prop.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, "com.okccc.kafka.PartitionerDemo");
+        prop.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerDemo.class.getName());
 
         // 2.创建生产者对象,<String, String>是topics和record
         KafkaProducer<String, String> producer = new KafkaProducer<>(prop);
