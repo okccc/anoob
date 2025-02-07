@@ -120,12 +120,12 @@ public class StringUtil {
      * url解码
      */
     public static String decode(String str) {
-        if (str != null && str.length() > 0) {
+        if (str != null && !str.isEmpty()) {
             try {
                 // java.lang.IllegalArgumentException: URLDecoder: Incomplete trailing escape (%) pattern
                 // url解码,%在url中是特殊字符,要先将单独出现的%替换成编码后的%25,再对整个字符串解码
-//                return URLDecoder.decode(str, "utf-8");
-                return URLDecoder.decode(str.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "utf-8");
+//                return URLDecoder.decode(str, StandardCharsets.UTF_8);
+                return URLDecoder.decode(str.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), StandardCharsets.UTF_8);
             } catch (Exception e){
                 e.printStackTrace();
             }
