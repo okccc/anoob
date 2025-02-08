@@ -58,7 +58,7 @@ public class ETLInterceptor implements Interceptor {
             HashMap<String, String> hashMap = StringUtil.strToMap(request_body);
             String e = StringUtil.decode(hashMap.get("e"));
             String version = JSON.parseArray(e).getJSONObject(0).getString("version_name");
-            if (version == null || version.length() == 0) {
+            if (version == null || version.isEmpty()) {
                 event.setBody(line.getBytes(StandardCharsets.UTF_8));
                 return event;
             } else {
