@@ -3,8 +3,6 @@ package com.okccc.kafka;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +48,9 @@ import java.util.Properties;
  *
  * 数据重复
  * at most once 可能会丢数据(UDP) | at least once 可能数据重复 | exactly once 精准发送,保证每条消息都会发送且只发送一次
- * kafka0.11版本引入了幂等性机制,生产者不管发送多少次数据broker只会持久化一条 at least once + idempotent = exactly once
- * 重复数据判断标准是主键<pid,partition,seqNum>,pid是每次kafka重启会分配一个新的,partition是分区号,seqNum单调自增
- * 所以幂等性只能保证单分区单会话内数据不重复,完全不重复还得在幂等性的基础上开启事务
+ * kafka0.11版本引入了幂等性机制,生产者不管发送多少次数据broker只会持久化一条
+ * 重复数据判断标准是主键<pid, partition, seqNum>,pid是每次kafka重启会分配一个新的,partition是分区号,seqNum单调自增
+ * 所以幂等性只能保证单分区单会话内数据不重复,完全不重复还得在此基础上开启事务 at least once + idempotent + tx = exactly once
  *
  * 数据乱序(重点)
  * kafka1.x后的版本可以保证数据单分区有序,设置参数max.in.flight.requests.per.connection=1(未开启幂等性)/<=5(开启幂等性)
@@ -69,7 +67,7 @@ import java.util.Properties;
  * follower故障会被临时踢出Isr,恢复后读取本地磁盘记录的HW,并将log文件高于HW的部分截掉,然后同步数据直到追上leader再重新加入Isr
  *
  * kafka高效读写数据
- * 1.将数据分区提高并行度高
+ * 1.将数据分区提高并行度
  * 2.文件存储采用稀疏索引,读数据时可以快速定位要消费的数据
  * 3.顺序写磁盘：生产者将数据按顺序追加到log文件末尾,省去了大量的磁头寻址时间,写一个大文件比写多个小文件速度快得多
  * 4.零拷贝和页缓存：kafka数据加工都由生产者和消费者处理,broker应用层不关心存储的数据,传输时就不用走应用层提高效率
@@ -89,20 +87,21 @@ public class ProducerDemo {
         prop.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  // value序列化器
         // 生产者吞吐量
         prop.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 1024 * 1024 * 32);  // 缓冲区大小,默认32m
-        prop.put(ProducerConfig.BATCH_SIZE_CONFIG, 1024 * 16);          // 批次大小,默认16k
-        prop.put(ProducerConfig.LINGER_MS_CONFIG, 10);                // 等待时间,默认0
-        prop.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");   // 压缩类型,默认none
+        prop.put(ProducerConfig.BATCH_SIZE_CONFIG, 1024 * 16);            // 批次大小,默认16k
+        prop.put(ProducerConfig.LINGER_MS_CONFIG, 10);                    // 等待时间,默认0
+        prop.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");       // 压缩类型,默认none
         // 生产者可靠性
         prop.put(ProducerConfig.ACKS_CONFIG, "all");                  // ack可靠性级别,0基本不用、1普通日志、-1(all)涉及钱的
         prop.put(ProducerConfig.RETRIES_CONFIG, 1);                   // 重试次数
         prop.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);     // 开启幂等性
-//        prop.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "tid");      // 开启事务,速度会变慢
+//        prop.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "tx-id");    // 开启事务,速度会变慢
 
         // 添加拦截器集合(可选)
-        List<String> interceptors = new ArrayList<>();
-        interceptors.add("com.okccc.kafka.InterceptorDemo");
-        prop.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, interceptors);
-        // 添加分区器(可选)
+//        List<String> interceptors = new ArrayList<>();
+//        interceptors.add(InterceptorDemo.class.getName());
+//        prop.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, interceptors);
+
+        // 添加分区器(可选),创建ProducerRecord对象时要指定key
         prop.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerDemo.class.getName());
 
         // 2.创建生产者对象,<String, String>是topics和record
@@ -111,31 +110,41 @@ public class ProducerDemo {
 //        producer.initTransactions();
 
         // 3.往kafka发送数据
-        String topic = "nginx";
-        BufferedReader br = new BufferedReader(new FileReader("input/ApacheLog.csv"));
-        String line;
-        while ((line = br.readLine()) != null) {
+        List<String> records = new ArrayList<>();
+        records.add("{\"uid\":\"101101\",\"score\":97}");
+        records.add("{\"uid\":\"101101\",\"score\":97}");
+        records.add("{\"uid\":\"101102\",\"score\":98}");
+        records.add("{\"uid\":\"101102\",\"score\":98}");
+        records.add("{\"uid\":\"101103\",\"score\":99}");
+        records.add("{\"uid\":\"101103\",\"score\":99}");
+
+        try {
             // 开启事务
 //            producer.beginTransaction();
-            try {
+
+            for (String value : records) {
                 // 将消息封装成ProducerRecord发送,可以指定topic/partition(N)/key(N)/value,还能添加回调函数在生产者收到ack时调用
                 // 同步发送：生产者将外部数据往缓存队列中放一批,必须等这批数据发送到kafka集群再继续放下一批(不常用)
-//                    producer.send(new ProducerRecord<>(topic, line)).get();
+//                producer.send(new ProducerRecord<>(topic, value)).get();
                 // 异步发送：生产者将外部数据一批一批往缓存队列中放,不管这批数据有没有发送到kafka集群
-                producer.send(new ProducerRecord<>(topic, line), new Callback() {
+                producer.send(new ProducerRecord<>("nginx", "uid", value), new Callback() {
                     @Override
                     public void onCompletion(RecordMetadata metadata, Exception exception) {
-                        System.out.println("topic=" + metadata.topic() + ", partition=" + metadata.partition() + ", offset=" + metadata.offset());
+                        System.out.println("topic = " + metadata.topic() + ", partition = " + metadata.partition() + ", offset = " + metadata.offset());
                     }
                 });
-                // 提交事务
-//                producer.commitTransaction();
-//                Thread.sleep(1000);
-            } catch (Exception e) {
-                e.printStackTrace();
-                // 有异常就终止事务
-//                producer.abortTransaction();
             }
+
+            // 提交事务
+//            producer.commitTransaction();
+//            Thread.sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 有异常就终止事务
+//            producer.abortTransaction();
+        } finally {
+            // 关闭生产者连接
+            producer.close();
         }
     }
 }
