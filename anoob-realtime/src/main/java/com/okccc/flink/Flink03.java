@@ -1,8 +1,7 @@
 package com.okccc.flink;
 
-import com.okccc.source.UserActionSource;
-import com.okccc.bean.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
+import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ValueState;
@@ -13,17 +12,17 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 
 /**
  * @Author: okccc
  * @Date: 2021/9/9 下午5:05
  * @Desc: DataStream API - Operators - Windows
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/windows/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/operators/windows/
  *
  * flink也有窗口函数,有些业务场景必须要攒一批数据做批处理
  * keyBy()是分组后聚合,keyBy() + window()是分组并各自开窗后再聚合,分组就是将数据分到不同的流
@@ -59,51 +58,50 @@ import java.sql.Timestamp;
 public class Flink03 {
 
     /**
-     * 演示ProcessWindowFunction: 统计每个用户每5秒钟的pv
+     * 演示ProcessWindowFunction: 统计每个单词每5秒钟的pv
      */
     private static void testProcess(StreamExecutionEnvironment env) {
         env
-                .addSource(new UserActionSource())
-                .keyBy(r -> r.user)
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
-                .process(new ProcessWindowFunction<Event, String, String, TimeWindow>() {
+                .socketTextStream("localhost", 9999)
+                .keyBy(r -> r)
+                .window(TumblingProcessingTimeWindows.of(Duration.ofSeconds(5)))
+                .process(new ProcessWindowFunction<String, String, String, TimeWindow>() {
                     @Override
-                    public void process(String key, ProcessWindowFunction<Event, String, String, TimeWindow>.Context context, Iterable<Event> elements, Collector<String> out) throws Exception {
+                    public void process(String key, ProcessWindowFunction<String, String, String, TimeWindow>.Context context, Iterable<String> elements, Collector<String> out) {
                         // 获取窗口信息
                         long start = context.window().getStart();
                         long end = context.window().getEnd();
-                        // 迭代器保存了当前窗口内的所有元素
+                        // 迭代器保存了当前窗口的所有元素
                         System.out.println(key + ": " + elements);
                         // 获取迭代器中的元素个数
                         long cnt = elements.spliterator().getExactSizeIfKnown();
                         // 收集结果往下游发送
-                        out.collect(key + ": [" + new Timestamp(start) + " ~ " + new Timestamp(end) + ") = " + cnt);
+                        out.collect(key + ": [" + new Timestamp(start) + ", " + new Timestamp(end) + ") = " + cnt);
                     }
                 })
                 .print();
     }
 
     /**
-     * 演示ProcessWindowFunction结合AggregateFunction: 统计每个用户每5秒钟的pv
+     * 演示ProcessWindowFunction结合AggregateFunction: 统计每个单词每5秒钟的pv
      */
     private static void testAggregate(StreamExecutionEnvironment env) {
         env
-                .addSource(new UserActionSource())
-                // 分组：按照用户分组
-                .keyBy(r -> r.user)
+                .socketTextStream("localhost", 9999)
+                // 分组：按照单词分组
+                .keyBy(r -> r)
                 // 开窗：滚动窗口,窗口大小为5秒
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
+                .window(TumblingProcessingTimeWindows.of(Duration.ofSeconds(5)))
                 // 先增量聚合再全窗口处理,前者的输出作为后者的输入
                 .aggregate(
-                        new AggregateFunction<Event, Integer, Integer>() {
+                        new AggregateFunction<String, Integer, Integer>() {
                             @Override
                             public Integer createAccumulator() {
                                 return 0;
                             }
                             @Override
-                            public Integer add(Event value, Integer accumulator) {
+                            public Integer add(String value, Integer accumulator) {
                                 // 定义累加规则,返回更新后的累加器
-                                System.out.println("当前进来数据: " + value);
                                 return accumulator + 1;
                             }
                             @Override
@@ -117,16 +115,16 @@ public class Flink03 {
                         },
                         new ProcessWindowFunction<Integer, String, String, TimeWindow>() {
                             @Override
-                            public void process(String key, ProcessWindowFunction<Integer, String, String, TimeWindow>.Context context, Iterable<Integer> elements, Collector<String> out) throws Exception {
+                            public void process(String key, ProcessWindowFunction<Integer, String, String, TimeWindow>.Context context, Iterable<Integer> elements, Collector<String> out) {
                                 // 当时间越过windowEnd时窗口关闭,驱动该方法执行,计算完后窗口销毁
-                                System.out.println("current time is: " + context.currentProcessingTime());
+                                System.out.println("current time is: " + new Timestamp(context.currentProcessingTime()));
                                 // 获取窗口信息
-                                long windowStart = context.window().getStart();
-                                long windowEnd = context.window().getEnd();
+                                long start = context.window().getStart();
+                                long end = context.window().getEnd();
                                 // 迭代器只包含一个元素,就是增量聚合的结果
                                 Integer cnt = elements.iterator().next();
                                 // 收集结果往下游发送
-                                out.collect(key + ": [" + new Timestamp(windowStart) + ", " + new Timestamp(windowEnd) + ") = " + cnt);
+                                out.collect(key + ": [" + new Timestamp(start) + ", " + new Timestamp(end) + ") = " + cnt);
                             }
                         }
                 )
@@ -134,13 +132,13 @@ public class Flink03 {
     }
 
     /**
-     * 使用定时器模拟窗口: 统计每个用户每5秒钟的pv
+     * 使用定时器模拟窗口: 统计每个单词每5秒钟的pv
      */
     public static void testMockWindow(StreamExecutionEnvironment env) {
         env
-                .addSource(new UserActionSource())
-                .keyBy(r -> r.user)
-                .process(new KeyedProcessFunction<String, Event, String>() {
+                .socketTextStream("localhost", 9999)
+                .keyBy(r -> r)
+                .process(new KeyedProcessFunction<String, String, String>() {
                     // 声明一个ValueState作为累加器
                     private ValueState<Integer> acc;
                     // 声明一个ValueState作为定时器
@@ -149,8 +147,7 @@ public class Flink03 {
                     private final long windowSize = 5000L;
 
                     @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
+                    public void open(OpenContext openContext) {
                         // 实例化状态变量
                         acc = getRuntimeContext().getState(
                                 new ValueStateDescriptor<>("acc", Types.INT));
@@ -159,14 +156,11 @@ public class Flink03 {
                     }
 
                     @Override
-                    public void processElement(Event value, KeyedProcessFunction<String, Event, String>.Context ctx, Collector<String> out) throws Exception {
-                        // 每来一条数据都会驱动该方法运行
-                        System.out.println("当前进来数据：" + value);
-
+                    public void processElement(String value, KeyedProcessFunction<String, String, String>.Context ctx, Collector<String> out) throws Exception {
                         // 计算当前数据所属窗口区间
-                        Long curTime = value.timestamp;
+                        long now = System.currentTimeMillis();
                         // 比如7s所属的窗口是[5s, 10s)
-                        long windowStart = curTime - curTime % windowSize;
+                        long windowStart = now - now % windowSize;
                         long windowEnd = windowStart + windowSize;
 
                         // 判断累加器状态
@@ -180,21 +174,21 @@ public class Flink03 {
                         if (timer.value() == null) {
                             // 没有定时器就创建
                             ctx.timerService().registerProcessingTimeTimer(windowEnd - 1L);
+                        } else {
                             // 更新定时器状态
                             timer.update(windowEnd);
                         }
                     }
 
                     @Override
-                    public void onTimer(long timestamp, KeyedProcessFunction<String, Event, String>.OnTimerContext ctx, Collector<String> out) throws Exception {
-                        super.onTimer(timestamp, ctx, out);
+                    public void onTimer(long timestamp, KeyedProcessFunction<String, String, String>.OnTimerContext ctx, Collector<String> out) throws Exception {
                         // 获取窗口信息
-                        long windowEnd = timestamp + 1L;
-                        long windowStart = windowEnd - windowSize;
+                        long end = timestamp + 1L;
+                        long start = end - windowSize;
                         // 获取累加器的值
                         Integer cnt = acc.value();
                         // 收集结果往下游发送
-                        out.collect(ctx.getCurrentKey() + ": [" + new Timestamp(windowStart) + ", " + new Timestamp(windowEnd) + ") = " + cnt);
+                        out.collect(ctx.getCurrentKey() + ": [" + new Timestamp(start) + ", " + new Timestamp(end) + ") = " + cnt);
                         // 清空累加器,不然下一个窗口的数据进来时检查累加器状态不为null就会在上一个窗口的基础上累加
                         acc.clear();
                         // 清空定时器,不然下一个窗口的数据进来时检查定时器状态不为null就不会更新,那么就只会触发第一个窗口
@@ -206,9 +200,9 @@ public class Flink03 {
 
     private static void testMockWindow02(StreamExecutionEnvironment env) {
         env
-                .addSource(new UserActionSource())
-                .keyBy(r -> r.user)
-                .process(new KeyedProcessFunction<String, Event, String>() {
+                .socketTextStream("localhost", 9999)
+                .keyBy(r -> r)
+                .process(new KeyedProcessFunction<String, String, String>() {
                     // 声明一个MapState作为当前窗口的累加器,key是窗口开始时间,value是累加器
                     private MapState<Long, Integer> mapState;
                     // 声明一个ValueState作为定时器
@@ -226,14 +220,11 @@ public class Flink03 {
                     }
 
                     @Override
-                    public void processElement(Event value, Context ctx, Collector<String> out) throws Exception {
-                        // 每来一条数据都会驱动该方法运行
-                        System.out.println("当前进来数据：" + value);
-
+                    public void processElement(String value, KeyedProcessFunction<String, String, String>.Context ctx, Collector<String> out) throws Exception {
                         // 计算当前数据所属窗口区间
-                        Long curTime = value.timestamp;
+                        long now = System.currentTimeMillis();
                         // 比如7s所属的窗口是[5s, 10s)
-                        long windowStart = curTime - curTime % windowSize;
+                        long windowStart = now - now % windowSize;
                         long windowEnd = windowStart + windowSize;
 
                         // 判断累加器状态
@@ -249,14 +240,14 @@ public class Flink03 {
                         if (timer.value() == null) {
                             // 没有定时器就创建
                             ctx.timerService().registerProcessingTimeTimer(windowEnd - 1L);
+                        } else {
                             // 更新定时器状态
                             timer.update(windowEnd);
                         }
                     }
 
                     @Override
-                    public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                        super.onTimer(timestamp, ctx, out);
+                    public void onTimer(long timestamp, KeyedProcessFunction<String, String, String>.OnTimerContext ctx, Collector<String> out) throws Exception {
                         // 获取窗口信息
                         long windowEnd = timestamp + 1L;
                         long windowStart = windowEnd - windowSize;
@@ -280,8 +271,8 @@ public class Flink03 {
 
 //        testProcess(env);
 //        testAggregate(env);
-        testMockWindow(env);
-//        testMockWindow02(env);
+//        testMockWindow(env);
+        testMockWindow02(env);
 
         // 启动任务
         env.execute();
