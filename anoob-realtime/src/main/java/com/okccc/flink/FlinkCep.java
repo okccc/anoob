@@ -1,7 +1,7 @@
 package com.okccc.flink;
 
-import com.okccc.bean.LoginData;
-import com.okccc.bean.OrderData;
+import com.okccc.flink.bean.LoginData;
+import com.okccc.flink.bean.OrderData;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.ValueState;
@@ -16,11 +16,13 @@ import org.apache.flink.cep.functions.PatternProcessFunction;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
@@ -47,15 +49,23 @@ import java.util.Map;
  * .within()         定义时间窗口,相当于window()
  *
  * 总结：Pattern是flink语法糖,底层就是KeyedProcessFunction + 状态变量 + 定时器,一般直接cep就行,除非特别复杂的需求才会用大招
+ *
+ * jdk8升级jdk17报错：module java.base does not "opens java.util" to unnamed module @703580bf
+ * 给启动类添加配置：Edit Configurations - Modify options - Add VM options
+ * --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED
  */
 public class FlinkCep {
 
     /**
      * 使用CEP检测5秒内连续三次登录失败的用户
      */
-    private static void checkLoginFail(StreamExecutionEnvironment env) {
-        KeyedStream<LoginData, String> dataStream = env
-                .readTextFile("anoob-realtime/input/LoginData.csv")
+    public static void checkLoginFail(StreamExecutionEnvironment env) {
+        // 读取文件
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/LoginData.csv"))
+                .build();
+        KeyedStream<LoginData, String> keyedStream = env
+                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, LoginData>) value -> {
                     // 5402,83.149.11.115,success,1558430815
@@ -65,35 +75,35 @@ public class FlinkCep {
                 // 提取时间戳生成水位线
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<LoginData>forBoundedOutOfOrderness(Duration.ofSeconds(0))
-                                .withTimestampAssigner((element, recordTimestamp) -> element.timestamp)
+                                .withTimestampAssigner((element, recordTimestamp) -> element.getTimestamp())
                 )
-                .keyBy(r -> r.userId);
+                .keyBy(LoginData::getUserId);
 
         // 定义匹配模板,类似正则表达式(主要就是写这玩意)
         Pattern<LoginData, LoginData> pattern = Pattern
                 .<LoginData>begin("begin")
-                .where(new SimpleCondition<LoginData>() {
+                .where(new SimpleCondition<>() {
                     @Override
-                    public boolean filter(LoginData value) throws Exception {
-                        return "fail".equals(value.eventType);
+                    public boolean filter(LoginData value) {
+                        return "fail".equals(value.getEventType());
                     }
                 })
                 .times(3)
                 .consecutive()
-                .within(Time.seconds(5));
+                .within(Duration.ofSeconds(5));
 
         // 将pattern应用到数据流
-        PatternStream<LoginData> patternStream = CEP.pattern(dataStream, pattern);
+        PatternStream<LoginData> patternStream = CEP.pattern(keyedStream, pattern);
 
         // 提取匹配事件(process/select)
         patternStream
                 .process(new PatternProcessFunction<LoginData, String>() {
                     @Override
-                    public void processMatch(Map<String, List<LoginData>> match, Context ctx, Collector<String> out) throws Exception {
+                    public void processMatch(Map<String, List<LoginData>> match, Context ctx, Collector<String> out) {
                         LoginData firstFail = match.get("begin").get(0);
                         LoginData secondFail = match.get("begin").get(1);
                         LoginData thirdFail = match.get("begin").get(2);
-                        out.collect(firstFail.userId + " 连续三次登录失败 " + firstFail.timestamp + ", " + secondFail.timestamp + ", " + thirdFail.timestamp);
+                        out.collect(firstFail.getUserId() + " 连续三次登录失败 " + firstFail.getTimestamp() + ", " + secondFail.getTimestamp() + ", " + thirdFail.getTimestamp());
                     }
                 })
                 .print();
@@ -102,10 +112,13 @@ public class FlinkCep {
     /**
      * 使用CEP检测15min内未支付的超时订单
      */
-    private static void checkOrderPay(StreamExecutionEnvironment env) {
-        // 业务系统需要不停判断订单支付时间是否超时,类似618这种促销场景数据量暴增对系统压力很大,可以考虑使用低延迟高吞吐的flink处理
-        KeyedStream<OrderData, String> dataStream = env
-                .readTextFile("anoob-realtime/input/OrderData.csv")
+    public static void checkOrderPay(StreamExecutionEnvironment env) {
+        // 业务系统需要不停判断订单支付是否超时,类似618这种促销场景数据量暴增对系统压力很大,可以考虑使用低延迟高吞吐的flink处理
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/OrderData.csv"))
+                .build();
+        KeyedStream<OrderData, String> keyedStream = env
+                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, OrderData>) value -> {
                     // 34729,create,,1558430842 | 34729,pay,sd76f87d6,1558430844
@@ -122,26 +135,26 @@ public class FlinkCep {
         // 定义匹配模板
         Pattern<OrderData, OrderData> pattern = Pattern
                 .<OrderData>begin("begin")
-                .where(new SimpleCondition<OrderData>() {
+                .where(new SimpleCondition<>() {
                     @Override
-                    public boolean filter(OrderData value) throws Exception {
+                    public boolean filter(OrderData value) {
                         return "create".equals(value.eventType);
                     }
                 })
                 .followedBy("followedBy")
-                .where(new SimpleCondition<OrderData>() {
+                .where(new SimpleCondition<>() {
                     @Override
-                    public boolean filter(OrderData value) throws Exception {
+                    public boolean filter(OrderData value) {
                         return "pay".equals(value.eventType);
                     }
                 })
-                .within(Time.minutes(15));
+                .within(Duration.ofMinutes(15));
 
         // 将pattern应用到数据流
-        PatternStream<OrderData> patternStream = CEP.pattern(dataStream, pattern);
+        PatternStream<OrderData> patternStream = CEP.pattern(keyedStream, pattern);
 
         // 声明侧输出流标签
-        OutputTag<String> outputTag = new OutputTag<String>("timeout") {};
+        OutputTag<String> outputTag = new OutputTag<>("timeout") {};
         // 提取匹配事件(process/flatSelect)
         SingleOutputStreamOperator<String> result = patternStream
                 .flatSelect(
@@ -150,7 +163,7 @@ public class FlinkCep {
                         // 超时订单：创建后15min内未支付或超时支付
                         new PatternFlatTimeoutFunction<OrderData, String>() {
                             @Override
-                            public void timeout(Map<String, List<OrderData>> pattern, long timeoutTimestamp, Collector<String> out) throws Exception {
+                            public void timeout(Map<String, List<OrderData>> pattern, long timeoutTimestamp, Collector<String> out) {
                                 OrderData orderData = pattern.get("begin").get(0);
                                 out.collect("订单 " + orderData.orderId + " 已超时,创建时间为" + orderData.timestamp + ",当前时间为" + timeoutTimestamp);
                             }
@@ -158,7 +171,7 @@ public class FlinkCep {
                         // 正常订单：创建后15min内及时支付
                         new PatternFlatSelectFunction<OrderData, String>() {
                             @Override
-                            public void flatSelect(Map<String, List<OrderData>> pattern, Collector<String> out) throws Exception {
+                            public void flatSelect(Map<String, List<OrderData>> pattern, Collector<String> out) {
                                 OrderData orderData = pattern.get("followedBy").get(0);
                                 out.collect("订单 " + orderData.orderId + " 已支付,支付时间为" + orderData.timestamp);
                             }
@@ -174,9 +187,12 @@ public class FlinkCep {
     /**
      * 使用状态机检测连续三次登录失败的用户
      */
-    private static void testStateMachine(StreamExecutionEnvironment env) {
+    public static void testStateMachine(StreamExecutionEnvironment env) {
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/LoginData.csv"))
+                .build();
         env
-                .readTextFile("anoob-realtime/input/LoginData.csv")
+                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, LoginData>) value -> {
                     // 5402,83.149.11.115,success,1558430815
@@ -184,13 +200,13 @@ public class FlinkCep {
                     return LoginData.of(arr[0], arr[2], Long.parseLong(arr[3]) * 1000);
                 })
                 // 按照用户分组
-                .keyBy(r -> r.userId)
+                .keyBy(LoginData::getUserId)
                 // 处理函数
                 .process(new KeyedProcessFunction<String, LoginData, String>() {
                     // 创建一个状态机,key是当前状态和接收到的事件类型,value是即将跳转到的状态
-                    private final HashMap<Tuple2<String, String>, String> stateMachine = new HashMap<>();
+                    public final HashMap<Tuple2<String, String>, String> stateMachine = new HashMap<>();
                     // 声明一个ValueState表示当前状态
-                    private ValueState<String> currentState;
+                    public ValueState<String> currentState;
 
                     @Override
                     public void open(Configuration parameters) throws Exception {
@@ -216,13 +232,13 @@ public class FlinkCep {
                             currentState.update("INITIAL");
                         }
                         // 计算即将要跳转的状态
-                        String nextState = stateMachine.get(Tuple2.of(currentState.value(), value.eventType));
+                        String nextState = stateMachine.get(Tuple2.of(currentState.value(), value.getEventType()));
                         if ("SUCCESS".equals(nextState)) {
                             // 登录成功,清空状态变量
                             currentState.clear();
                         } else if ("FAIL".equals(nextState)) {
                             // 登录失败,输出结果(这里有缺陷,如果有延迟数据结果就有点问题,比如时间戳为43,44,47,42)
-                            out.collect(value.userId + " 在 " + value.timestamp + " 已经连续三次登录失败！");
+                            out.collect(value.getUserId() + " 在 " + value.getTimestamp() + " 已经连续三次登录失败！");
                         } else {
                             // 还处于中间状态,正常跳转
                             currentState.update(nextState);
@@ -239,8 +255,8 @@ public class FlinkCep {
         env.setParallelism(1);
 
 //        checkLoginFail(env);
-        checkOrderPay(env);
-//        testStateMachine(env);
+//        checkOrderPay(env);
+        testStateMachine(env);
 
         // 启动任务
         env.execute();
