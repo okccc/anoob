@@ -9,7 +9,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
@@ -20,10 +19,10 @@ import java.time.Duration;
  * @Author: okccc
  * @Date: 2021/9/13 下午2:06
  * @Desc: 事件时间和水位线
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/event-time/generating_watermarks/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/event-time/generating_watermarks/
  *
  * 时间语义
- * 发生顺序：EventTime(事件时间) -> IngestionTime(机器时间) -> ProcessingTime(机器时间)
+ * 发生顺序：EventTime(事件时间) -> IngestionTime(机器时间) -> ProcessingTime(处理时间)
  * 使用ProcessingTime处理数据就不存在延迟,但窗口计算结果不准,因为网络延迟和分布式(kafka分区间数据无序)等原因很容易产生乱序数据
  * 所以流处理的时间进度应该取决于数据本身而不是系统时间,flink1.12开始默认使用EventTime处理数据,并且针对乱序数据专门引入水位线的概念
  *
@@ -61,7 +60,7 @@ public class Flink04 {
                     String[] words = value.split("\\s");
                     return Tuple2.of(words[0], Long.parseLong(words[1]) * 1000L);
                 })
-                // Tuple2是flink给java设置的新数据类型,使用lambda表达式会泛型丢失,需要显示指定返回类型,或者直接使用匿名内部类
+                // Tuple2是flink给java设置的新数据类型,使用lambda表达式会泛型丢失,需要显式指定返回类型,或者直接使用匿名内部类
                 // 比如按照Tuple2类型的字段进行keyBy会报错：The generic type parameters of 'Tuple2' are missing.
                 .returns(Types.TUPLE(Types.STRING, Types.LONG))
                 // window算子使用事件时间时必须分配时间戳和生成水位线
@@ -74,7 +73,7 @@ public class Flink04 {
                 // 分组
                 .keyBy(r -> r.f0)
                 // 开窗
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .window(TumblingEventTimeWindows.of(Duration.ofSeconds(5)))
                 // 输入`a 1` `a 2` `a 10` `a 1` `a 6` `a 15` `a 9`观察迭代器中的元素
                 .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
                     @Override
@@ -149,7 +148,7 @@ public class Flink04 {
                                 .withTimestampAssigner((element, recordTimestamp) -> element.f1)
                 )
                 .keyBy(r -> r.f0)
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .window(TumblingEventTimeWindows.of(Duration.ofSeconds(5)))
                 // 输入`a 1` `a 2` `a 10` `a 3` `a 4`,因为水位线30秒后才更新为4999,所以1、2、3、4都会进入[0, 5)窗口
                 .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
                     @Override
@@ -171,7 +170,7 @@ public class Flink04 {
      */
     private static void testWatermark04(StreamExecutionEnvironment env) {
         // 侧输出流标签必须写成{}匿名类的形式,不然报错：The types of the interface org.apache.flink.util.OutputTag could not be inferred
-        OutputTag<Tuple2<String, Long>> outputTag = new OutputTag<Tuple2<String, Long>>("dirty") {};
+        OutputTag<Tuple2<String, Long>> outputTag = new OutputTag<>("dirty") {};
         SingleOutputStreamOperator<String> result = env
                 .socketTextStream("localhost", 9999)
                 .map((MapFunction<String, Tuple2<String, Long>>) value -> {
@@ -184,9 +183,9 @@ public class Flink04 {
                                 .withTimestampAssigner((element, recordTimestamp) -> element.f1)
                 )
                 .keyBy(r -> r.f0)
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .window(TumblingEventTimeWindows.of(Duration.ofSeconds(5)))
                 // 允许迟到事件,水位线越过windowEnd + allowLateness时窗口才销毁,后面再进来的迟到数据就放侧输出流
-                .allowedLateness(Time.seconds(5))
+                .allowedLateness(Duration.ofSeconds(5))
                 // 设置侧输出流
                 .sideOutputLateData(outputTag)
                 // 输入`a 1` `a 2` `a 10` `a 1` `a 2` `a 15` `a,1` `a 2`查看结果
