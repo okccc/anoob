@@ -8,6 +8,8 @@ import org.apache.flink.api.connector.sink2.SinkWriter;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.connector.datagen.source.DataGeneratorSource;
+import org.apache.flink.connector.datagen.source.GeneratorFunction;
 import org.apache.flink.connector.elasticsearch.sink.Elasticsearch7SinkBuilder;
 import org.apache.flink.connector.elasticsearch.sink.ElasticsearchEmitter;
 import org.apache.flink.connector.elasticsearch.sink.ElasticsearchSink;
@@ -29,8 +31,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
-import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
-import org.apache.flink.streaming.api.functions.source.datagen.RandomGenerator;
 import org.apache.flink.streaming.connectors.redis.RedisSink;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand;
@@ -48,74 +48,39 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.UUID;
 
 /**
  * @Author: okccc
  * @Date: 2023/5/31 10:54:46
  * @Desc: Flink DataStream Connectors
+ *
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/datastream/datagen/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/datastream/jdbc/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/datastream/elasticsearch/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/datastream/filesystem
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/datastream/kafka
  */
-@SuppressWarnings("unused")
 public class FlinkConnector {
 
     /**
      * DataGen Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/datagen/
-     * The DataGen connector provides a Source implementation that allows for generating input data for Flink pipelines.
      */
     private static void getDataGenConnector(StreamExecutionEnvironment env) {
         // DataGen生成数据
-        DataGeneratorSource<String> dataGeneratorSource = new DataGeneratorSource<>(
-                new RandomGenerator<String>() {
+        DataGeneratorSource<String> generatorSource = new DataGeneratorSource<>(
+                new GeneratorFunction<Long, String>() {
                     @Override
-                    public String next() {
-                        return UUID.randomUUID().toString();
+                    public String map(Long value) {
+                        return "Number: " + value;
                     }
-                },
-                100,
-                10000L
+                }, 1000, Types.STRING
         );
-        // 获取数据
-        env.addSource(dataGeneratorSource).returns(Types.STRING).print();
-    }
 
-    /**
-     * FileSystem Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/filesystem
-     * This connector provides a unified Source and Sink for BATCH and STREAMING that reads or writes (partitioned) files.
-     *
-     * flink是流批统一的,离线数据集也会当成流来处理,每来一条数据都会驱动程序运行并输出一个结果,SparkStreaming批处理只会输出最终结果
-     */
-    private static void getFileSystemConnector(StreamExecutionEnvironment env) {
-        // 读文件,可以是文件也可以是目录
-        FileSource<String> fileSource = FileSource
-                .forRecordStreamFormat(new TextLineInputFormat(), new Path("hdfs:///ods.db/ods_user_info"))
-                .build();
-        DataStreamSource<String> dataStream = env.fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source");
-        dataStream.print();
-
-        // 写文件
-        FileSink<String> fileSink = FileSink
-                // 行编码格式 Row-encoded Formats
-                .forRowFormat(new Path("anoob-realtime/output"), new SimpleStringEncoder<String>())
-                // 桶分配
-                .withBucketAssigner(new DateTimeBucketAssigner<>("yyyyMMdd", ZoneId.of("Asia/Shanghai")))
-                // 滚动策略,如果hadoop < 2.7就只能使用OnCheckpointRollingPolicy
-                .withRollingPolicy(
-                        DefaultRollingPolicy.builder()
-                                .withRolloverInterval(Duration.ofSeconds(10))
-                                .withInactivityInterval(Duration.ofSeconds(10))
-                                .withMaxPartSize(MemorySize.ofMebiBytes(1024))
-                                .build()
-                )
-                .build();
-        dataStream.sinkTo(fileSink);
+        env.fromSource(generatorSource, WatermarkStrategy.noWatermarks(), "Generator Source").print();
     }
 
     /**
      * JDBC Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/jdbc/
-     * This connector provides a sink that writes data to a JDBC database.
      */
     private static void getJdbcConnector(StreamExecutionEnvironment env) {
         // 获取SinkFunction
@@ -147,13 +112,11 @@ public class FlinkConnector {
         );
 
         // 模拟数据写入
-        env.fromElements(Tuple2.of("orc", "grubby"), Tuple2.of("hum", "sky"), Tuple2.of("ne", "moon")).addSink(jdbcSink);
+        env.fromData(Tuple2.of("orc", "grubby"), Tuple2.of("hum", "sky"), Tuple2.of("ne", "moon")).addSink(jdbcSink);
     }
 
     /**
      * Elasticsearch Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/elasticsearch/
-     * This connector provides sinks that can request document actions to an Elasticsearch Index.
      *
      * 报错：[TOO_MANY_REQUESTS/12/disk usage exceeded flood-stage watermark, index has read-only-allow-delete block]
      * 原因：flood stage disk watermark [95%] exceeded, all indices on this node will be marked read-only
@@ -188,12 +151,11 @@ public class FlinkConnector {
                 .build();
 
         // 模拟数据写入
-        env.fromElements("grubby", "moon", "sky").sinkTo(elasticsearchSink);
+        env.fromData("grubby", "moon", "sky").sinkTo(elasticsearchSink);
     }
 
     /**
-     * Redis Connector
-     * 很少用,redis只能存少量数据但速度极快,适合做缓存以及大数据场景下根据key查询的聚合结果、临时数据
+     * Redis Connector(很少用,redis只能存少量数据但速度极快,适合做缓存以及大数据场景下根据key查询的聚合结果、临时数据)
      */
     private static void getRedisConnector(StreamExecutionEnvironment env) {
         // 获取RedisSink
@@ -218,17 +180,40 @@ public class FlinkConnector {
         );
 
         // 模拟数据写入
-        env.fromElements(Tuple2.of("orc", "grubby"), Tuple2.of("hum", "sky"), Tuple2.of("ne", "moon")).addSink(redisSink);
+        env.fromData(Tuple2.of("orc", "grubby"), Tuple2.of("hum", "sky"), Tuple2.of("ne", "moon")).addSink(redisSink);
+    }
+
+    /**
+     * FileSystem Connector
+     */
+    private static void getFileSystemConnector(StreamExecutionEnvironment env) {
+        // 读文件,可以是文件也可以是目录
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("hdfs:///ods.db/ods_user_info"))
+                .build();
+        DataStreamSource<String> dataStream = env.fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source");
+        dataStream.print();
+
+        // 写文件
+        FileSink<String> fileSink = FileSink
+                // 行编码格式 Row-encoded Formats
+                .forRowFormat(new Path("/tmp"), new SimpleStringEncoder<String>())
+                // 桶分配
+                .withBucketAssigner(new DateTimeBucketAssigner<>("yyyyMMdd", ZoneId.of("Asia/Shanghai")))
+                // 滚动策略,如果hadoop < 2.7就只能使用OnCheckpointRollingPolicy
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                .withRolloverInterval(Duration.ofSeconds(10))
+                                .withInactivityInterval(Duration.ofSeconds(10))
+                                .withMaxPartSize(MemorySize.ofMebiBytes(1024))
+                                .build()
+                )
+                .build();
+        dataStream.sinkTo(fileSink);
     }
 
     /**
      * Kafka Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/kafka
-     * Flink provides an Apache Kafka connector for reading data from and writing data to Kafka topics with exactly-once guarantees.
-     *
-     * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
-     * FlinkKafkaProducer已被弃用并将在Flink1.15中移除,请改用KafkaSink
-     * Sink端的EXACTLY_ONCE依赖于事务,会影响性能且容易出故障,大多数场景AT_LEAST_ONCE就行,只要下游kafka消费者能保证幂等性即可
      */
     private static void getKafkaConnector(StreamExecutionEnvironment env) {
         // 读kafka
@@ -269,6 +254,7 @@ public class FlinkConnector {
                                 .setValueSerializationSchema(new SimpleStringSchema())
                                 .build()
                 )
+                // Sink端的EXACTLY_ONCE依赖于事务,会影响性能且容易出故障,大多数场景不丢数据就行,只要下游kafka消费者能保证幂等性即可
                 .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
                 .setKafkaProducerConfig(prop)
                 .build();
@@ -280,11 +266,11 @@ public class FlinkConnector {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        getDataGenConnector(env);
-        getFileSystemConnector(env);
-        getJdbcConnector(env);
-        getElasticsearchConnector(env);
-        getRedisConnector(env);
+//        getDataGenConnector(env);
+//        getJdbcConnector(env);
+//        getElasticsearchConnector(env);
+//        getRedisConnector(env);
+//        getFileSystemConnector(env);
         getKafkaConnector(env);
 
         // 启动任务
