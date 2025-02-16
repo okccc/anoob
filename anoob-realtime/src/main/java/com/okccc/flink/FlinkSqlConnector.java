@@ -10,7 +10,6 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
  * @Date: 2021/9/20 下午12:47
  * @Desc: Flink Table API Connectors
  */
-@SuppressWarnings("unused")
 public class FlinkSqlConnector {
 
     public static void main(String[] args) throws Exception {
@@ -52,7 +51,7 @@ public class FlinkSqlConnector {
 
     /**
      * DataGen SQL Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/datagen/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/datagen/
      * The DataGen connector allows for creating tables based on in-memory data generation.
      */
     private static void getDataGenConnector(StreamTableEnvironment tableEnv) {
@@ -78,9 +77,9 @@ public class FlinkSqlConnector {
 
     /**
      * FileSystem SQL Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/filesystem/
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/concepts/time_attributes/
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/sql/queries/window-agg/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/filesystem/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/concepts/time_attributes/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/sql/queries/window-agg/
      */
     private static void getFileSystemConnector(StreamTableEnvironment tableEnv) {
         // 读文件
@@ -134,7 +133,7 @@ public class FlinkSqlConnector {
 
     /**
      * JDBC SQL Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/jdbc/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/jdbc/
      * The JDBC connector allows for reading data from and writing data into any relational databases with a JDBC driver.
      * The connector operates in upsert mode if the primary key was defined, otherwise, the connector operates in append mode.
      */
@@ -168,7 +167,7 @@ public class FlinkSqlConnector {
 
     /**
      * Elasticsearch SQL Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/elasticsearch/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/elasticsearch/
      * The Elasticsearch connector allows for writing into an index of the Elasticsearch engine.
      */
     private static void getElasticsearchConnector(StreamTableEnvironment tableEnv) {
@@ -190,7 +189,7 @@ public class FlinkSqlConnector {
 
     /**
      * Kafka SQL Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/kafka/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/kafka/
      * The Kafka connector allows for reading data from and writing data into Kafka topics.
      */
     private static void getKafkaConnector(StreamTableEnvironment tableEnv) {
@@ -250,7 +249,7 @@ public class FlinkSqlConnector {
 
     /**
      * Upsert-Kafka SQL Connector
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/upsert-kafka/
      * The Upsert Kafka connector allows for reading data from and writing data into Kafka topics in the upsert fashion.
      *
      * As a source, the upsert-kafka connector produces a changelog stream, where each data record represents an update or delete event.
