@@ -1,4 +1,4 @@
-package com.okccc.bean;
+package com.okccc.flink.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
