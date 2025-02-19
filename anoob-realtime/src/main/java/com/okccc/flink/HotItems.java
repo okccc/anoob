@@ -1,7 +1,7 @@
 package com.okccc.flink;
 
-import com.okccc.bean.ItemViewCount;
-import com.okccc.bean.UserBehavior;
+import com.okccc.flink.bean.ItemViewCount;
+import com.okccc.flink.bean.UserBehavior;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -9,16 +9,19 @@ import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.shaded.guava30.com.google.common.collect.Lists;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
+import org.apache.flink.shaded.guava31.com.google.common.collect.Lists;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -51,8 +54,11 @@ public class HotItems {
         // 设置并行度
         env.setParallelism(1);
 
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/UserBehavior.csv"))
+                .build();
         env
-                .readTextFile("anoob-realtime/input/UserBehavior.csv", "UTF-8")
+                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将输入数据封装成POJO类
                 .map((MapFunction<String, UserBehavior>) value -> {
                     // 561558,3611281,965809,pv,1511658000
@@ -65,11 +71,11 @@ public class HotItems {
                         WatermarkStrategy.<UserBehavior>forMonotonousTimestamps()
                                 .withTimestampAssigner((element, recordTimestamp) -> element.ts)
                 )
-                // 按照商品分组
+                // 先按照商品分组
                 .keyBy(r -> r.itemId)
                 // 有刷新频率就是滑动窗口,窗口大小1小时,滑动间隔5分钟,一个EventTime可以属于窗口大小(1hour)/滑动间隔(5min)=12个窗口
-                .window(SlidingEventTimeWindows.of(Time.hours(1), Time.minutes(5)))
-                // 先统计每个商品在每个窗口的访问量
+                .window(SlidingEventTimeWindows.of(Duration.ofHours(1), Duration.ofMinutes(5)))
+                // 统计每个商品在每个窗口的访问量
                 .aggregate(
                         new AggregateFunction<UserBehavior, Integer, Integer>() {
                             @Override
