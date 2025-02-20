@@ -1,7 +1,7 @@
 package com.okccc.flink;
 
-import com.okccc.bean.ApacheLog;
-import com.okccc.bean.PageViewCount;
+import com.okccc.flink.bean.ApacheLog;
+import com.okccc.flink.bean.PageViewCount;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.FilterFunction;
@@ -10,13 +10,15 @@ import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.shaded.guava30.com.google.common.collect.Lists;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
+import org.apache.flink.shaded.guava31.com.google.common.collect.Lists;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
@@ -80,16 +82,19 @@ public class HotPages {
         // 设置并行度
         env.setParallelism(1);
         // 创建侧输出流标签
-        OutputTag<ApacheLog> outputTag = new OutputTag<ApacheLog>("dirty") {};
+        OutputTag<ApacheLog> outputTag = new OutputTag<>("dirty") {};
 
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/ApacheLog.csv"))
+                .build();
         SingleOutputStreamOperator<ApacheLog> dataStream = env
                 // socket方便调试代码,没问题再替换成kafka
-//                .socketTextStream("localhost", 9999)
-                .readTextFile("anoob-realtime/input/ApacheLog.csv", "UTF-8")
+                .socketTextStream("localhost", 9999)
+//                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将输入数据封装成POJO类
                 .map(new MapFunction<String, ApacheLog>() {
                     @Override
-                    public ApacheLog map(String value) throws Exception {
+                    public ApacheLog map(String value) {
                         // 83.149.9.216 - - 17/05/2015:10:05:03 +0000 GET /presentations/kibana-search.png
                         String[] arr = value.split(" ");
                         DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern("dd/MM/yyyy:HH:mm:ss");
@@ -100,7 +105,7 @@ public class HotPages {
                 // 过滤静态资源
                 .filter(new FilterFunction<ApacheLog>() {
                     @Override
-                    public boolean filter(ApacheLog value) throws Exception {
+                    public boolean filter(ApacheLog value) {
                         String regex = "^((?!\\.(css|js|png|ico)$).)*$";
                         return Pattern.matches(regex, value.url);
                     }
@@ -114,15 +119,15 @@ public class HotPages {
         dataStream.print("data");  // data> ApacheLog{ip='82.165.139.53', userId='-', method='GET', url='/', timestamp=2015-05-20 21:05:15.0}
 
         SingleOutputStreamOperator<PageViewCount> windowStream = dataStream
-                // 按照页面分组
+                // 先按照页面分组
                 .keyBy(r -> r.url)
                 // 开窗,有刷新频率的就是滑动窗口,一个EventTime可以属于窗口大小(10min)/滑动间隔(5s)=120个窗口
-                .window(SlidingEventTimeWindows.of(Time.minutes(10), Time.seconds(5)))
+                .window(SlidingEventTimeWindows.of(Duration.ofMinutes(10), Duration.ofSeconds(5)))
                 // 允许迟到事件,水位线越过windowEnd + allowLateness时窗口才关闭
-                .allowedLateness(Time.seconds(60))
+                .allowedLateness(Duration.ofSeconds(60))
                 // 设置侧输出流
                 .sideOutputLateData(outputTag)
-                // 先统计每个页面在每个窗口的访问量
+                // 统计每个页面在每个窗口的访问量
                 .aggregate(
                         new AggregateFunction<ApacheLog, Integer, Integer>() {
                             @Override
