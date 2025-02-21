@@ -1,8 +1,8 @@
 package com.okccc.flink;
 
-import com.okccc.bean.BlackListUser;
-import com.okccc.bean.ClickCount;
-import com.okccc.bean.ClickData;
+import com.okccc.flink.bean.BlackListUser;
+import com.okccc.flink.bean.ClickCount;
+import com.okccc.flink.bean.ClickData;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -12,15 +12,19 @@ import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+
+import java.time.Duration;
 
 /**
  * @Author: okccc
@@ -36,8 +40,11 @@ public class MaliceClick {
         env.setParallelism(1);
 
         // 获取数据源
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/ClickData.csv"))
+                .build();
         SingleOutputStreamOperator<ClickData> filterStream = env
-                .readTextFile("anoob-realtime/input/ClickData.csv")
+                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将数据封装成POJO类
                 .map((MapFunction<String, ClickData>) value -> {
                     // 578814,1715,guangdong,shenzhen,1511658330
@@ -53,7 +60,7 @@ public class MaliceClick {
                 // 先处理刷单行为,按照(userId, adId)分组
                 .keyBy(new KeySelector<ClickData, Tuple2<String, String>>() {
                     @Override
-                    public Tuple2<String, String> getKey(ClickData value) throws Exception {
+                    public Tuple2<String, String> getKey(ClickData value) {
                         return Tuple2.of(value.userId, value.adId);
                     }
                 })
@@ -66,12 +73,12 @@ public class MaliceClick {
                 // 按照(province, city)分组
                 .keyBy(new KeySelector<ClickData, Tuple2<String, String>>() {
                     @Override
-                    public Tuple2<String, String> getKey(ClickData value) throws Exception {
-                        return Tuple2.of(value.province, value.city);
+                    public Tuple2<String, String> getKey(ClickData value) {
+                        return Tuple2.of(value.getProvince(), value.getCity());
                     }
                 })
                 // 滚动窗口
-                .window(TumblingEventTimeWindows.of(Time.minutes(5)))
+                .window(TumblingEventTimeWindows.of(Duration.ofMinutes(5)))
                 // 先增量聚合再全窗口处理
                 // 结果显示beijing地区的数据明显偏多,查看数据源发现有大量相同的(userId, adId)属于恶意刷单行为,应该在数据统计之前就过滤掉
                 .aggregate(
@@ -95,7 +102,7 @@ public class MaliceClick {
                         },
                         new ProcessWindowFunction<Integer, ClickCount, Tuple2<String, String>, TimeWindow>() {
                             @Override
-                            public void process(Tuple2<String, String> key, ProcessWindowFunction<Integer, ClickCount, Tuple2<String, String>, TimeWindow>.Context context, Iterable<Integer> elements, Collector<ClickCount> out) throws Exception {
+                            public void process(Tuple2<String, String> key, ProcessWindowFunction<Integer, ClickCount, Tuple2<String, String>, TimeWindow>.Context context, Iterable<Integer> elements, Collector<ClickCount> out) {
                                 out.collect(new ClickCount(context.window().getStart(), context.window().getEnd(), key.f0, key.f1, elements.iterator().next()));
                             }
                         }
@@ -151,7 +158,8 @@ public class MaliceClick {
                     // 将刷单用户添加到黑名单
                     isBlack.update(true);
                     // 将刷单数据放到侧输出流
-                    ctx.output(new OutputTag<BlackListUser>("black"){}, new BlackListUser(value.userId, value.adId, msg));
+                    ctx.output(new OutputTag<>("black") {
+                    }, new BlackListUser(value.userId, value.adId, msg));
                 }
                 // 已经在黑名单就不处理直接结束
                 return;
