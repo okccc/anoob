@@ -1,7 +1,7 @@
 package com.okccc.flink;
 
-import com.okccc.bean.PVCount;
-import com.okccc.bean.UserBehavior;
+import com.okccc.flink.bean.PVCount;
+import com.okccc.flink.bean.UserBehavior;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -10,11 +10,13 @@ import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
@@ -33,12 +35,15 @@ public class PageView {
         // 设置并行度,默认是cpu核数
 //        env.setParallelism(1);
 
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/UserBehavior.csv"))
+                .build();
         env
-                .readTextFile("anoob-realtime/input/UserBehavior.csv", "UTF-8")
+                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将输入数据封装成样例类
                 .map(new MapFunction<String, UserBehavior>() {
                     @Override
-                    public UserBehavior map(String value) throws Exception {
+                    public UserBehavior map(String value) {
                         // 561558,3611281,965809,pv,1511658000
                         String[] arr = value.split(",");
                         return new UserBehavior(arr[0], arr[1], arr[2], arr[3], Long.parseLong(arr[4]) * 1000);
@@ -54,13 +59,13 @@ public class PageView {
 //                .keyBy(r -> 1)
                 .map(new MapFunction<UserBehavior, Tuple2<String, Integer>>() {
                     @Override
-                    public Tuple2<String, Integer> map(UserBehavior value) throws Exception {
+                    public Tuple2<String, Integer> map(UserBehavior value) {
                         return Tuple2.of("str" + new Random().nextInt(8), 1);
                     }
                 })
                 .keyBy(r -> r.f0)
                 // 1小时的滚动窗口
-                .window(TumblingEventTimeWindows.of(Time.hours(1)))
+                .window(TumblingEventTimeWindows.of(Duration.ofHours(1)))
                 // 先统计每个slot中每个窗口的访问量,一个slot就是一个并行度
                 .aggregate(
                         new AggregateFunction<Tuple2<String, Integer>, Integer, Integer>() {
