@@ -1,21 +1,24 @@
 package com.okccc.flink;
 
-import com.okccc.bean.UVCount;
-import com.okccc.bean.UserBehavior;
+import com.okccc.flink.bean.UVCount;
+import com.okccc.flink.bean.UserBehavior;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.shaded.guava30.com.google.common.base.Charsets;
-import org.apache.flink.shaded.guava30.com.google.common.hash.BloomFilter;
-import org.apache.flink.shaded.guava30.com.google.common.hash.Funnels;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
+import org.apache.flink.shaded.guava31.com.google.common.base.Charsets;
+import org.apache.flink.shaded.guava31.com.google.common.hash.BloomFilter;
+import org.apache.flink.shaded.guava31.com.google.common.hash.Funnels;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+import java.time.Duration;
 import java.util.HashSet;
 
 /**
@@ -48,12 +51,15 @@ public class UniqueVisitor {
         // 设置并行度
         env.setParallelism(1);
 
+        FileSource<String> fileSource = FileSource
+                .forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/UserBehavior.csv"))
+                .build();
         env
-                .readTextFile("anoob-realtime/input/UserBehavior.csv")
+                .fromSource(fileSource, WatermarkStrategy.noWatermarks(), "File Source")
                 // 将流数据封装成POJO类
                 .map(new MapFunction<String, UserBehavior>() {
                     @Override
-                    public UserBehavior map(String value) throws Exception {
+                    public UserBehavior map(String value) {
                         // 561558,3611281,965809,pv,1511658000
                         String[] arr = value.split(",");
                         return new UserBehavior(arr[0], arr[1], arr[2], arr[3], Long.parseLong(arr[4]) * 1000);
@@ -67,13 +73,13 @@ public class UniqueVisitor {
                 // 将数据都放到一条流
                 .keyBy(r -> 1)
                 // 1小时的滚动窗口
-                .windowAll(TumblingEventTimeWindows.of(Time.hours(1)))
+                .windowAll(TumblingEventTimeWindows.of(Duration.ofHours(1)))
                 // 先增量聚合再全窗口处理
                 .aggregate(
                         new CountAggWithBloomFilter(),
                         new ProcessAllWindowFunction<Integer, UVCount, TimeWindow>() {
                             @Override
-                            public void process(ProcessAllWindowFunction<Integer, UVCount, TimeWindow>.Context context, Iterable<Integer> elements, Collector<UVCount> out) throws Exception {
+                            public void process(ProcessAllWindowFunction<Integer, UVCount, TimeWindow>.Context context, Iterable<Integer> elements, Collector<UVCount> out) {
                                 // 收集结果往下游发送
                                 out.collect(new UVCount(context.window().getStart(), context.window().getEnd(), elements.iterator().next()));
                             }
