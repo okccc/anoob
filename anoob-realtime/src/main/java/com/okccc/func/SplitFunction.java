@@ -14,12 +14,12 @@ import java.util.List;
  * @Date: 2023/6/16 10:49:22
  * @Desc: 分词是一对多,FlinkSql没有提供相关内置函数,需要自定义UDTF实现
  *
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/systemfunctions/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/udfs/#overview
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/udfs/#scalar-functions
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/udfs/#table-functions
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/udfs/#aggregate-functions
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/udfs/#table-aggregate-functions
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/systemfunctions/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/udfs/#overview
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/udfs/#scalar-functions
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/udfs/#table-functions
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/udfs/#aggregate-functions
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/udfs/#table-aggregate-functions
  *
  * Automatic Type Inference
  * The automatic type inference inspects the function’s class and evaluation methods to derive data types for the
