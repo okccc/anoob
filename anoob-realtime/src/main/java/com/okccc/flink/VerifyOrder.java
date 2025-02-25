@@ -1,13 +1,16 @@
 package com.okccc.flink;
 
-import com.okccc.bean.OrderData;
-import com.okccc.bean.ReceiptData;
+import com.okccc.flink.bean.OrderData;
+import com.okccc.flink.bean.ReceiptData;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction;
@@ -29,7 +32,9 @@ public class VerifyOrder {
 
         // 订单流
         SingleOutputStreamOperator<OrderData> orderStream = env
-                .readTextFile("anoob-realtime/input/OrderData.csv")
+                .fromSource(
+                        FileSource.forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/OrderData.csv")).build(),
+                        WatermarkStrategy.noWatermarks(), "Order Source")
                 .map((MapFunction<String, OrderData>) value -> {
                     // 34729,pay,sd76f87d6,1558430844
                     String[] arr = value.split(",");
@@ -43,7 +48,8 @@ public class VerifyOrder {
 
         // 账单流
         SingleOutputStreamOperator<ReceiptData> receiptStream = env
-                .readTextFile("anoob-realtime/input/ReceiptData.csv")
+                .fromSource(FileSource.forRecordStreamFormat(new TextLineInputFormat(), new Path("anoob-realtime/input/ReceiptData.csv")).build(),
+                        WatermarkStrategy.noWatermarks(), "Receipt Source")
                 .map((MapFunction<String, ReceiptData>) value -> {
                     // ewr342as4,wechat,1558430845
                     String[] arr = value.split(",");
@@ -55,8 +61,8 @@ public class VerifyOrder {
                 );
 
         // 创建侧输出流标签
-        OutputTag<String> orderTag = new OutputTag<String>("order") {};
-        OutputTag<String> receiptTag = new OutputTag<String>("receipt") {};
+        OutputTag<String> orderTag = new OutputTag<>("order") {};
+        OutputTag<String> receiptTag = new OutputTag<>("receipt") {};
 
         // 双流合并
         SingleOutputStreamOperator<String> result = orderStream
