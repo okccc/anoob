@@ -3,7 +3,6 @@ package com.okccc.app.ods;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
-import com.esotericsoftware.minlog.Log;
 import com.okccc.util.FlinkUtil;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.source.MySqlSourceBuilder;
@@ -11,6 +10,7 @@ import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -65,37 +65,16 @@ import java.util.HashMap;
  * 从kafka读数据时,同一主键的数据可能进入不同的并行度导致数据乱序,所以Source算子并行度设置为1可以保证数据严格有序
  * 处理kafka数据时,同一主键的数据可能进入不同的并行度导致数据乱序,所以flatMap算子并行度也设置为1
  * 往kafka写数据时,同一主键的数据可能进入不同的分区导致数据乱序,可以先按照主键分组,保证相同主键的数据进入同一个分区
- *
- * FlinkCDC采集的原始数据
- * {
- *     "op":"r",
- *     "after":{
- *         "area_code":"320000",
- *         "name":"江苏",
- *         "region_id":"2",
- *         "iso_3166_2":"CN-JS",
- *         "id":7,
- *         "iso_code":"CN-32"
- *     },
- *     "source":{
- *         "server_id":1,
- *         "version":"1.6.4.Final",
- *         "file":"mysql-bin.000032",
- *         "connector":"mysql",
- *         "pos":31597836,
- *         "name":"mysql_binlog_source",
- *         "row":0,
- *         "ts_ms":1694763884000,
- *         "snapshot":"false",
- *         "db":"mock",
- *         "table":"base_province"
- *     },
- *     "ts":"1694762229116"
- * }
  */
 public class OdsApp {
 
     public static void main(String[] args) throws Exception {
+        // 获取命令行参数
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        // 本地调试时要设置能访问hdfs的用户
+        String hdfsUser = parameterTool.get("hdfs-user", "deploy");
+        System.setProperty("HADOOP_USER_NAME", hdfsUser);
+
         // 1.创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -172,7 +151,6 @@ public class OdsApp {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Log.error("数据格式不是JSON");
                         }
                     }
                 })
