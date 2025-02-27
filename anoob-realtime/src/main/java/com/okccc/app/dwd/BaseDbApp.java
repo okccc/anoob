@@ -29,9 +29,9 @@ public class BaseDbApp {
         // 设置检查点和状态后端
 //        FlinkUtil.setCheckpointAndStateBackend(env);
 
-        // 2.读取ods层日志数据(maxwell)
+        // 2.读取ods层业务数据(Canal/Maxwell/FlinkCDC)
         KafkaSource<String> kafkaSource = FlinkUtil.getKafkaSource("ods_base_db", "base_db_app_g");
-        DataStreamSource<String> dataStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "log");
+        DataStreamSource<String> dataStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "KafkaSource");
 
         // 3.将数据格式转换成JSON
         SingleOutputStreamOperator<JSONObject> jsonStream = dataStream.flatMap(new FlatMapFunction<String, JSONObject>() {
