@@ -20,13 +20,13 @@ import org.apache.flink.util.OutputTag;
  * @Date: 2023/3/22 18:28:20
  * @Desc: 日志数据分流(DataStream - KafkaSource - State - SideOutput - KafkaSink)
  *
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/connectors/datastream/kafka/#kafka-source
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/side_output/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/connectors/datastream/kafka/#kafka-sink
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/zh/docs/connectors/datastream/kafka/#kafka-source
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/side_output/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/zh/docs/connectors/datastream/kafka/#kafka-sink
  *
  * 计算框架flink,存储框架kafka(消息队列,实时读 & 实时写)
  * 存储框架为什么选kafka而不是hive
- * 实时计算必须同时满足实时读和实时写,实时写mysql/hive/ck等存储系统都可以,但实时读显然需要一个消息队列中间件,总不能每次都去查询数据源
+ * 实时计算必须同时满足实时读和实时写,实时写mysql/hive/ck等存储系统都可以,但实时读显然需要一个消息队列中间件,总不能每次都去查数据源
  *
  * 离线和实时区别：1.数据处理方式 -> 流处理/批处理  2.数据处理延迟 -> T+0/T+1
  * 普通实时计算时效性更好,实时数仓分层可以提高数据复用性
@@ -56,13 +56,13 @@ public class BaseLogApp {
         // 设置检查点和状态后端
 //        FlinkUtil.setCheckpointAndStateBackend(env);
 
-        // 2.读取ods层日志数据(flume)
+        // 2.读取ods层日志数据(Flume)
         KafkaSource<String> kafkaSource = FlinkUtil.getKafkaSource("ods_base_log","base_log_app_g");
         DataStreamSource<String> dataStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "KafkaSource");
 
         // 3.将数据格式转换成JSON
-        OutputTag<String> outputTag = new OutputTag<String>("dirty"){};
-        SingleOutputStreamOperator<JSONObject> jsonStream = dataStream.process(new ProcessFunction<String, JSONObject>() {
+        OutputTag<String> outputTag = new OutputTag<>("dirty") {};
+        SingleOutputStreamOperator<JSONObject> jsonStream = dataStream.process(new ProcessFunction<>() {
             @Override
             public void processElement(String value, Context ctx, Collector<JSONObject> out) {
                 try {
@@ -85,12 +85,12 @@ public class BaseLogApp {
                 .map(new CheckUserFunction());
 
         // 5.使用侧输出流将日志按照类型分流
-        OutputTag<String> startTag = new OutputTag<String>("start") {};
-        OutputTag<String> displayTag = new OutputTag<String>("display") {};
-        OutputTag<String> actionTag = new OutputTag<String>("action") {};
-        OutputTag<String> errorTag = new OutputTag<String>("error") {};
+        OutputTag<String> startTag = new OutputTag<>("start") {};
+        OutputTag<String> displayTag = new OutputTag<>("display") {};
+        OutputTag<String> actionTag = new OutputTag<>("action") {};
+        OutputTag<String> errorTag = new OutputTag<>("error") {};
 
-        SingleOutputStreamOperator<String> pageStream = checkStream.process(new ProcessFunction<JSONObject, String>() {
+        SingleOutputStreamOperator<String> pageStream = checkStream.process(new ProcessFunction<>() {
             @Override
             public void processElement(JSONObject value, Context ctx, Collector<String> out) {
                 // 尝试获取错误日志
@@ -112,7 +112,7 @@ public class BaseLogApp {
 
                     // 尝试获取曝光日志
                     JSONArray displays = value.getJSONArray("displays");
-                    if (displays != null && displays.size() > 0) {
+                    if (displays != null && !displays.isEmpty()) {
                         for (int i = 0; i < displays.size(); i++) {
                             JSONObject display = displays.getJSONObject(i);
                             display.put("common", common);
@@ -125,7 +125,7 @@ public class BaseLogApp {
 
                     // 尝试获取动作日志
                     JSONArray actions = value.getJSONArray("actions");
-                    if (actions != null && actions.size() > 0) {
+                    if (actions != null && !actions.isEmpty()) {
                         for (int i = 0; i < actions.size(); i++) {
                             JSONObject action = actions.getJSONObject(i);
                             action.put("common", common);
