@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
  *
  * 输入数据可能是订单宽表流、支付宽表流或其它宽表流,所以使用泛型<T>设计成通用类
  * 模板方法设计模式：在父类中定义某个功能的核心算法骨架(步骤),具体实现延迟到子类完成,每个子类都可以有自己的不同实现(难点1)
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/asyncio/#async-io-api
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/operators/asyncio/#async-io-api
  */
 public abstract class DimAsyncFunction<T> extends RichAsyncFunction<T, T> implements DimJoinFunction<T> {
 
