@@ -13,8 +13,8 @@ import java.time.ZoneId;
  * @Date: 2023/5/25 11:25:14
  * @Desc: 订单预处理明细(FlinkSQL - KafkaSource & MysqlSource - Join & Lookup Join - UpsertKafkaSink)
  *
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/systemfunctions/#temporal-functions
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/upsert-kafka/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/systemfunctions/#temporal-functions
  *
  * 下单业务的最细粒度是一个sku的下单或取消订单操作,所以将order_detail作为主表
  * order_detail数据在order_info都有对应的 - inner join
