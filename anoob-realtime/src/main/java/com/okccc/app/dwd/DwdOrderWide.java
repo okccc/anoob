@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2023/8/14 18:50:26
  * @Desc: 订单宽表(DataStream - KafkaSource - Side Cache & Async IO - KafkaSink)
  *
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/asyncio/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/operators/asyncio/
  *
  * 事实数据(kafka)：订单表 & 订单明细表
  * 维度数据(hbase)：订单表(用户表 & 地区表)、订单明细表(商品表 -> SPU表/品牌表/类别表)
