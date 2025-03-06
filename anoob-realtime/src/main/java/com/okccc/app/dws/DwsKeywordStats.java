@@ -14,11 +14,11 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
  * @Date: 2023/6/16 10:45:33
  * @Desc: 搜索关键词主题统计(FlinkSQL - KafkaSource - UDTF - Window - JdbcSink)
  *
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/concepts/time_attributes/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/systemfunctions/#temporal-functions
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/functions/udfs/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/sql/queries/window-tvf/
- * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/sql/queries/window-agg/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/concepts/time_attributes/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/systemfunctions/#temporal-functions
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/functions/udfs/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/sql/queries/window-tvf/
+ * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/table/sql/queries/window-agg/
  *
  * Temporal Functions
  * TO_TIMESTAMP(str1[, str2])：Converts date time string str1 with format str2 (by default: 'yyyy-MM-dd HH:mm:ss') under the 'UTC+0' time zone to a timestamp.
