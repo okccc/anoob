@@ -6,26 +6,21 @@ import com.okccc.func.HiveBucketAssigner;
 import com.okccc.func.MyKafkaRecordDeserializationSchema;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichFilterFunction;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.MemorySize;
+import org.apache.flink.configuration.*;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.file.sink.FileSink;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
+import org.apache.flink.core.execution.CheckpointingMode;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -49,29 +44,41 @@ public class FlinkUtil {
 
     /**
      * 配置状态后端和检查点
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/fault-tolerance/checkpointing/
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/ops/monitoring/checkpoint_monitoring/
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/ops/monitoring/back_pressure/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/fault-tolerance/checkpointing/
      */
-    public static StreamExecutionEnvironment getStreamExecutionEnvironment(String[] args) {
-        // 创建流处理执行环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+    public static void setCheckpointAndStateBackend(StreamExecutionEnvironment env) {
         // 设置并行度,部署时应结合Kafka分区数,通过命令行-p指定全局并行度
-//        env.setParallelism(1);
+        env.setParallelism(1);
 
         // 禁用算子链,方便定位导致反压的具体算子
         env.disableOperatorChaining();
 
-        // 设置状态后端
-//        env.setStateBackend(new HashMapStateBackend());
-        env.setStateBackend(new EmbeddedRocksDBStateBackend());
+        // 1.基本配置
+        Configuration conf = new Configuration();
+
+        // 状态后端
+//        config.set(StateBackendOptions.STATE_BACKEND, "hashmap");
+        conf.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
+
+        // 检查点存储路径,目录名称就是Flink Streaming Job ID
+        conf.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
+        conf.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "hdfs://${ip}:${port}/flink/cp");
+
+        // enable checkpointing with finished tasks
+        conf.set(CheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
+
+        // 重启策略：重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
+        conf.set(RestartStrategyOptions.RESTART_STRATEGY, "fixed-delay");
+        conf.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_ATTEMPTS, 3);
+        conf.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_DELAY, Duration.ofSeconds(60));
+
+        env.configure(conf);
+
+        // 2.检查点配置
+        CheckpointConfig config = env.getCheckpointConfig();
 
         // 开启检查点：通常1~5分钟执行一次,查看Checkpoints - Summary - End to End Duration,综合考虑性能和时效性
         env.enableCheckpointing(60 * 1000, CheckpointingMode.EXACTLY_ONCE);
-        CheckpointConfig config = env.getCheckpointConfig();
-
-        // 检查点存储路径,目录名称就是Flink Streaming Job ID
-        config.setCheckpointStorage("hdfs://${ip}:${port}/flink/cp");
 
         // 检查点超时时间,防止状态数据过大或反压导致检查点耗时过长 Checkpoint expired before completing.
         config.setCheckpointTimeout(3 * 60 * 1000);
@@ -91,24 +98,13 @@ public class FlinkUtil {
         config.enableUnalignedCheckpoints();
 
         // 检查点保留策略：job取消时默认会自动删除检查点,可以保留防止任务故障重启失败,还能从检查点恢复任务,后面手动删除即可
-        config.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-
-        // 重启策略：重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
-        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, 60 * 1000));
-
-        // 获取命令行参数
-        ParameterTool parameterTool = ParameterTool.fromArgs(args);
-        // 本地调试时要设置能访问hdfs的用户
-        String hdfsUser = parameterTool.get("hdfs-user", "deploy");
-        System.setProperty("HADOOP_USER_NAME", hdfsUser);
-
-        return env;
+        config.setExternalizedCheckpointRetention(ExternalizedCheckpointRetention.RETAIN_ON_CANCELLATION);
     }
 
     /**
      * KafkaSource
      * FlinkKafkaConsumer已被弃用并将在Flink1.17中移除,请改用KafkaSource
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/connectors/datastream/kafka/#kafka-source
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/zh/docs/connectors/datastream/kafka/#kafka-source
      */
     public static KafkaSource<String> getKafkaSource(String topic, String groupId) {
         // 创建flink消费者对象
@@ -127,9 +123,9 @@ public class FlinkUtil {
     }
 
     /**
-     * KafkaSink,将数据写入指定topic
+     * KafkaSink,将数据写入指定topic,并传入key作为分区策略
      * FlinkKafkaProducer已被弃用并将在Flink1.15中移除,请改用KafkaSink
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/connectors/datastream/kafka/#kafka-sink
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/zh/docs/connectors/datastream/kafka/#kafka-sink
      */
     public static KafkaSink<String> getKafkaSink(String topic, String transactionId) {
         // 创建flink生产者对象
@@ -147,7 +143,6 @@ public class FlinkUtil {
 //                // https://kafka.apache.org/documentation/#producerconfigs_transactional.id
 //                .setTransactionalIdPrefix(transactionId)
 //                // The transaction timeout is larger than the maximum value allowed by the broker (transaction.max.timeout.ms)
-//                // https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/datastream/kafka/#kafka-producer-%E5%92%8C%E5%AE%B9%E9%94%99
 //                .setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000 + "")
                 .build();
     }
@@ -165,8 +160,8 @@ public class FlinkUtil {
 
     /**
      * KafkaSource DDL
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/kafka
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/formats/json/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/kafka
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/datastream/formats/json/
      * The Kafka connector allows for reading data from and writing data into Kafka topics.
      */
     public static String getKafkaSourceDdl(String topic, String groupId) {
@@ -196,7 +191,7 @@ public class FlinkUtil {
 
     /**
      * UpsertKafkaSink DDL
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/upsert-kafka/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/upsert-kafka/
      * The Upsert Kafka connector allows for reading data from and writing data into Kafka topics in the upsert fashion.
      */
     public static String getUpsertKafkaSinkDdl(String topic) {
@@ -229,8 +224,8 @@ public class FlinkUtil {
 
     /**
      * MysqlSource DDL
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/jdbc/
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/jdbc/#lookup-cache
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/jdbc/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/connectors/table/jdbc/#lookup-cache
      */
     public static String getMysqlSourceDdl(String tableName) {
         // 通常是读取mysql维度表和kafka事实表做lookup join
@@ -291,7 +286,7 @@ public class FlinkUtil {
         // 独立访客的状态用来筛选当天是否访问过,第二天就没用了,所以要设置失效时间ttl,避免状态常驻内存
         StateTtlConfig stateTtlConfig = StateTtlConfig
                 // 设置状态存活时间为1天
-                .newBuilder(Time.days(ttl))
+                .newBuilder(Duration.ofDays(ttl))
                 // 状态更新策略：比如状态是今天10点创建11点更新12点读取,那么失效时间是明天Disabled(10点)/OnCreateAndWrite(11点)/OnReadAndWrite(12点)
                 .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
                 // 状态可见性：内存中的状态过期后,如果没有被jvm垃圾回收,是否还会返回给调用者
@@ -309,7 +304,7 @@ public class FlinkUtil {
         return dataStream
                 // 按照主键(唯一键)分组
                 .keyBy(r -> r.getString(key))
-                .filter(new RichFilterFunction<JSONObject>() {
+                .filter(new RichFilterFunction<>() {
                     // 声明状态变量,记录最新数据
                     private ValueState<JSONObject> earliestData;
 
@@ -319,7 +314,8 @@ public class FlinkUtil {
                         ValueStateDescriptor<JSONObject> stateDescriptor = new ValueStateDescriptor<>("earliest", JSONObject.class);
 
                         // 设置状态存活时间
-                        StateTtlConfig stateTtlConfig = new StateTtlConfig.Builder(Time.seconds(ttl))
+                        StateTtlConfig stateTtlConfig = StateTtlConfig
+                                .newBuilder(Duration.ofSeconds(ttl))
                                 .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
                                 .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
                                 .build();
@@ -353,7 +349,7 @@ public class FlinkUtil {
                 // 按照主键(唯一键)分组
                 .keyBy(r -> r.getString(key))
                 // 涉及定时器操作用process
-                .process(new KeyedProcessFunction<String, JSONObject, JSONObject>() {
+                .process(new KeyedProcessFunction<>() {
                     // 声明状态变量,记录最新数据
                     private ValueState<JSONObject> latestData;
 
@@ -397,7 +393,7 @@ public class FlinkUtil {
 
     /**
      * 往hdfs写数据的生产者
-     * https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/connectors/datastream/filesystem/
+     * https://nightlies.apache.org/flink/flink-docs-release-1.20/zh/docs/connectors/datastream/filesystem/
      */
     public static FileSink<String> getHdfsSink(String output) {
         return FileSink
