@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.okccc.func.HiveBucketAssigner;
 import com.okccc.func.MyKafkaRecordDeserializationSchema;
+import com.okccc.func.MyKeySerializationSchema;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
@@ -134,6 +135,28 @@ public class FlinkUtil {
                 .setRecordSerializer(
                         KafkaRecordSerializationSchema.builder()
                                 .setTopic(topic)
+                                .setValueSerializationSchema(new SimpleStringSchema())
+                                .build()
+                )
+                // Sink端的EXACTLY_ONCE依赖事务,影响性能且容易故障,大多数场景AT_LEAST_ONCE就行,只要下游kafka消费者能保证幂等性即可
+                .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+//                // There is a newer producer with the same transactionalId which fences the current one
+//                // https://kafka.apache.org/documentation/#producerconfigs_transactional.id
+//                .setTransactionalIdPrefix(transactionId)
+//                // The transaction timeout is larger than the maximum value allowed by the broker (transaction.max.timeout.ms)
+//                .setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000 + "")
+                .build();
+    }
+
+    public static KafkaSink<String> getKafkaSink(String topic, String key, String transactionId) {
+        // 创建flink生产者对象
+        return KafkaSink.<String>builder()
+                .setBootstrapServers(KAFKA_SERVER)
+                .setRecordSerializer(
+                        KafkaRecordSerializationSchema.builder()
+                                .setTopic(topic)
+                                // 设置key的序列化器,指定生产者分区策略
+                                .setKeySerializationSchema(new MyKeySerializationSchema(key))
                                 .setValueSerializationSchema(new SimpleStringSchema())
                                 .build()
                 )
