@@ -16,3 +16,10 @@ select * from employee where job_id = (select job_id from employee where id = 14
 
 # 查询与1号或8号员工的manager_id和department_id相同的其他员工
 select * from employee where manager_id in (select manager_id from employee where id in (1,8)) and department_id in (select department_id from employee where id in (1,8)) and id not in (1,8);
+
+# HAVING中的子查询
+# 查询最低工资大于50号部门最低工资的部门和其最低工资
+select department_id,min(salary) from employee group by department_id having min(salary) > (select min(salary) from employee where department_id = 50);
+
+# 查询平均工资大于公司平均工资的部门
+select department_id from employee group by department_id having avg(salary) > (select avg(salary) from employee);
