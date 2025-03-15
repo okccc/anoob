@@ -23,3 +23,8 @@ select department_id,min(salary) from employee group by department_id having min
 
 # 查询平均工资大于公司平均工资的部门
 select department_id from employee group by department_id having avg(salary) > (select avg(salary) from employee);
+
+# CASE/IF中的子查询
+# 查询员工的location,如果其department_id与Tom的department_id相同,则location为'Canada',其余则为'USA'
+select case department_id when (select department_id from employee where name = 'Tom') then 'Canada' else 'USA' end as location from employee;
+select if(department_id = (select department_id from employee where name = 'Tom'), 'Canada', 'USA') as location from employee;
