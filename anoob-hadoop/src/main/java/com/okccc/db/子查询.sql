@@ -1,5 +1,6 @@
 # 子查询大大增强了sql的查询能力,因为很多时候需要从结果集中获取数据,或者从同一个表中先计算得到一个结果,然后再与这个结果比较
 # 单行子查询：子查询返回一行数据
+# 多行子查询：子查询返回多行数据
 use eshop;
 
 # 1.单行子查询：
@@ -28,3 +29,37 @@ select department_id from employee group by department_id having avg(salary) > (
 # 查询员工的location,如果其department_id与Tom的department_id相同,则location为'Canada',其余则为'USA'
 select case department_id when (select department_id from employee where name = 'Tom') then 'Canada' else 'USA' end as location from employee;
 select if(department_id = (select department_id from employee where name = 'Tom'), 'Canada', 'USA') as location from employee;
+
+# 2.多行子查询
+# 查询其它部门比'IT'部门任一工资都低的员工
+select * from employee where salary < any (select salary from employee where department_id = 'IT') and department_id <> 'IT';
+select * from employee where salary < (select max(salary) from employee where department_id = 'IT') and department_id <> 'IT';
+
+# 查询其它部门比'IT'部门所有工资都低的员工
+select * from employee where salary < all (select salary from employee where department_id = 'IT') and department_id <> 'IT';
+select * from employee where salary < (select min(salary) from employee where department_id = 'IT') and department_id <> 'IT';
+
+# 查询工资最低的员工
+select * from employee where salary = (select min(salary) from employee);
+
+# 查询平均工资最低的部门
+select department_id from employee group by department_id having avg(salary) <= all (select avg(salary) from employee group by department_id);
+select department_id from employee group by department_id having avg(salary) = (
+    select min(avg_salary) from (select avg(salary) as avg_salary from employee group by department_id) t1
+);
+
+# 查询各个部门中最高工资最低的那个部门的最低工资
+select min(salary) from employee where department_id = (
+    select department_id from employee group by department_id having max(salary) = (
+        select min(max_salary) from (select max(salary) max_salary from employee group by department_id) t1
+    )
+);
+
+# 查询平均工资最高部门的manager信息
+select * from employee where id = (
+    select distinct manager_id from employee where department_id = (
+        select department_id from employee group by department_id having avg(salary) = (
+            select max(avg_salary) from (select avg(salary) avg_salary from employee group by department_id) t1
+        )
+    )
+);
