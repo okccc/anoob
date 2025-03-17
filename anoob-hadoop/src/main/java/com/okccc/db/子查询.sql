@@ -1,6 +1,7 @@
 # 子查询大大增强了sql的查询能力,因为很多时候需要从结果集中获取数据,或者从同一个表中先计算得到一个结果,然后再与这个结果比较
 # 单行子查询：子查询返回一行数据
 # 多行子查询：子查询返回多行数据
+# 关联子查询：子查询会使用主查询中的列
 use eshop;
 
 # 1.单行子查询：
@@ -63,3 +64,14 @@ select * from employee where id = (
         )
     )
 );
+
+# 3.关联子查询
+# 查询工资大于本部门平均工资的员工
+select * from employee t1 where salary > (select avg(salary) from employee t2 where t1.department_id = t2.department_id);
+
+# 查询公司中的管理者信息
+select * from employee where id in (select distinct manager_id from employee);  # 子查询
+select distinct t1.* from employee t1 join employee t2 where t1.id = t2.manager_id;  # 自连接
+
+# 查询人数大于10的部门
+select t1.department_name from department t1 where 10 < (select count(*) from employee t2 where t1.id = t2.department_id);
