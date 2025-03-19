@@ -6,9 +6,10 @@ import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
+
+import java.time.Duration;
 
 /**
  * @Author: okccc
@@ -28,7 +29,7 @@ public class FilterUserFunction extends RichFilterFunction<JSONObject> {
         stateDescriptor.enableTimeToLive(
                 StateTtlConfig
                         // 设置状态存活时间为1天
-                        .newBuilder(Time.days(1))
+                        .newBuilder(Duration.ofDays(1))
                         // 状态更新策略：比如状态是今天10点创建11点更新12点读取,那么失效时间是明天Disabled(10点)/OnCreateAndWrite(11点)/OnReadAndWrite(12点)
                         .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
                         // 状态可见性：内存中的状态过期后,如果没有被jvm垃圾回收,是否还会返回给调用者
@@ -43,7 +44,7 @@ public class FilterUserFunction extends RichFilterFunction<JSONObject> {
     public boolean filter(JSONObject value) throws Exception {
         // 先判断是否从别的页面跳转过来
         String lastPageId = value.getJSONObject("page").getString("last_page_id");
-        if (lastPageId != null && lastPageId.length() > 0) {
+        if (lastPageId != null && !lastPageId.isEmpty()) {
             // 有上一页,说明肯定不是第一次访问,直接过滤
             return false;
         }
