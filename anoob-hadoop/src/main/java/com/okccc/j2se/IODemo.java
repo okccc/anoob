@@ -58,8 +58,11 @@ import java.util.List;
  * 序列化
  * 网络传输是通过IO流的字节序列实现,序列化就是将内存中的java对象转换成字节序列进行网络传输或持久化到硬盘(文件&数据库)
  * 为什么对象没被序列化也能在网络中传输？因为声明变量时String/int/Double/Boolean等数据类型已经实现了java.io.Serializable接口
- * 对象序列化时默认序列化所有属性,transient关键字修饰的属性除外,其生命周期仅存在于内存不会持久化到硬盘,通常用于卡号、密码等敏感信息
- * serialVersionUID给序列化的类添加版本号,兼容新旧版本,比如新版本加了字段反序列化时找不到旧版本的类会报错
+ *
+ * serialVersionUID
+ * 在序列化和反序列化过程中为了保证类的版本一致性,通常会显式指定 private static final long serialVersionUID = 1L;
+ * 不然jvm会根据类的结构自动生成一个默认值,当类结构发生变化时serialVersionUID也会跟着变,反序列化时就会报错 InvalidClassException
+ * 查看String/Number/LocalDate等类的源码发现都显式指定了serialVersionUID
  */
 public class IODemo {
 
