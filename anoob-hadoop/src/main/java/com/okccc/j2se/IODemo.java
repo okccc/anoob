@@ -63,6 +63,8 @@ import java.util.List;
  * 在序列化和反序列化过程中为了保证类的版本一致性,通常会显式指定 private static final long serialVersionUID = 1L;
  * 不然jvm会根据类的结构自动生成一个默认值,当类结构发生变化时serialVersionUID也会跟着变,反序列化时就会报错 InvalidClassException
  * 查看String/Number/LocalDate等类的源码发现都显式指定了serialVersionUID
+ *
+ * transient关键字修饰的变量不会被序列化,比如身份证和密码等敏感信息,其生命周期仅存在于内存不会持久化到硬盘
  */
 public class IODemo {
 
