@@ -65,6 +65,8 @@ import java.util.List;
  * 查看String/Number/LocalDate等类的源码发现都显式指定了serialVersionUID
  *
  * transient关键字修饰的变量不会被序列化,比如身份证和密码等敏感信息,其生命周期仅存在于内存不会持久化到硬盘
+ *
+ * static关键字修饰的变量不会被序列化,因为序列化的目的是保存和恢复对象的状态,而静态变量属于类不属于某个对象
  */
 public class IODemo {
 
@@ -90,7 +92,7 @@ public class IODemo {
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("j2se/output/avatar.jpg"));
         // 读写数据
         byte[] buf = new byte[1024];
-        while (bis.read(buf) != -1){
+        while (bis.read(buf) != -1) {
             bos.write(buf);
         }
         // BufferedOutputStream和BufferedWriter的close()方法会调用flush(),所以一定要关闭流,或者write()之后手动flush()
@@ -105,7 +107,7 @@ public class IODemo {
         // 读取字符数组
         int len;
         char[] arr = new char[1024];
-        while ((len = fr.read(arr)) != -1){
+        while ((len = fr.read(arr)) != -1) {
             // 输出到控制台
             System.out.print(new String(arr, 0, len));
             // 输出到文件
@@ -120,7 +122,7 @@ public class IODemo {
         BufferedWriter bw = new BufferedWriter(new FileWriter("j2se/output/aaa.txt", true));
         // 读写数据
         String line;
-        while ((line = br.readLine()) != null){
+        while ((line = br.readLine()) != null) {
             bw.write(line);
             bw.newLine();
         }
@@ -129,7 +131,7 @@ public class IODemo {
         br.close();
     }
 
-    private static void tryIOException(){
+    private static void tryIOException() {
         FileInputStream fis = null;
         FileOutputStream fos = null;
         try {
@@ -146,10 +148,10 @@ public class IODemo {
             e.printStackTrace();
         } finally {
             try {
-                if(fos != null){
+                if (fos != null) {
                     fos.close();
                 }
-                if(fis != null){
+                if (fis != null) {
                     fis.close();
                 }
             } catch (IOException e) {
@@ -197,8 +199,8 @@ public class IODemo {
 
         // 读写数据
         String line;
-        while ((line = br.readLine()) != null){
-            if ("over".equalsIgnoreCase(line)){
+        while ((line = br.readLine()) != null) {
+            if ("over".equalsIgnoreCase(line)) {
                 break;
             }
             // 使用System.out之前可以重定向标准输出
@@ -243,8 +245,8 @@ public class IODemo {
         // 获取文件(夹)路径
         File[] files = dir.listFiles();
         for (File file : files) {
-            if(file.isFile()) {
-                if(file.getName().endsWith(".txt")) {
+            if (file.isFile()) {
+                if (file.getName().endsWith(".txt")) {
                     list.add(new BufferedInputStream(new FileInputStream(file)));
                 }
             } else {
