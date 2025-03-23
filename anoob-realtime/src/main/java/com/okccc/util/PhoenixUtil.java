@@ -144,7 +144,7 @@ public class PhoenixUtil {
         conn.close();
 
         // 返回结果
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             return list.get(0);
         } else {
             System.out.println("维度数据没找到：" + dimSql);
