@@ -61,7 +61,7 @@ public class DimUtil {
         }
 
         // 缓存命中
-        if (value != null && value.length() > 0) {
+        if (value != null && !value.isEmpty()) {
             // 重置过期时间
             jedis.expire(redisKey, 24 * 3600);
             // 返回查询结果
