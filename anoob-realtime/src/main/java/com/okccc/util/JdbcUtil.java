@@ -88,7 +88,8 @@ public class JdbcUtil {
         // 行遍历,将行数据转换成T类型对象
         while (rs.next()) {
             // 通过反射创建对应封装类型的对象
-            T obj = clazz.newInstance();
+//            T obj = clazz.newInstance();
+            T obj = clazz.getConstructor().newInstance();
 
             // 列遍历,给T类型对象赋值
             for (int i = 0; i < md.getColumnCount(); i++) {
@@ -122,7 +123,7 @@ public class JdbcUtil {
         // 查询mysql
         DruidDataSource druidDataSource01 = getDataSource(ConfigInfo.MYSQL_DRIVER, ConfigInfo.MYSQL_URL, ConfigInfo.MYSQL_USER, ConfigInfo.MYSQL_PASSWORD);
         DruidPooledConnection conn01 = druidDataSource01.getConnection();
-        System.out.println(queryList(conn01, "select * from mock.base_trademark", JSONObject.class, false));
+        System.out.println(queryList(conn01, "select * from eshop.brand", JSONObject.class, false));
         conn01.close();
 
         // 查询hive
