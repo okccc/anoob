@@ -4,10 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
+
+import java.time.Duration;
 
 /**
  * @Author: okccc
@@ -25,7 +26,7 @@ public class LoginProcessFunction extends KeyedProcessFunction<String, JSONObjec
         ValueStateDescriptor<JSONObject> stateDescriptor = new ValueStateDescriptor<>("first", JSONObject.class);
         // 登录用户的状态用来筛选当天第一次访问,第二天就没用了,所以要设置失效时间ttl,避免状态常驻内存
         stateDescriptor.enableTimeToLive(
-                StateTtlConfig.newBuilder(Time.days(1))
+                StateTtlConfig.newBuilder(Duration.ofDays(1))
                         .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
                         .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
                         .build()
