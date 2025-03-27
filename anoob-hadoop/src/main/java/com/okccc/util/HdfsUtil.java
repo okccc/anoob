@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * @Author: okccc
- * @Date: 2021/10/27 上午11:33
+ * @Date: 2021/10/27 10:11:33
  * @Desc: hdfs工具类
  */
 public class HdfsUtil {
@@ -104,13 +104,7 @@ public class HdfsUtil {
         }
 
         // 创建新文件并写入数据
-        FSDataOutputStream os = fs.create(new Path(filePath));
-        for (String line : lines) {
-            // 对应hive表中一行数据
-            os.write(line.getBytes());
-            // 写入换行符
-            os.write("\r\n".getBytes());
-        }
+        appendToHdfs(filePath, lines);
     }
 
     /**
