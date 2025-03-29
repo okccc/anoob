@@ -9,9 +9,9 @@ public class ConfigInfo {
 
     // mysql
     public static final String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
-    public static final String MYSQL_URL = "jdbc:mysql://localhost:3306/mock?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&allowMultiQueries=true";
+    public static final String MYSQL_URL = "jdbc:mysql://localhost:3306/eshop?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&allowMultiQueries=true";
     public static final String MYSQL_USER = "root";
-    public static final String MYSQL_PASSWORD = "root@123";
+    public static final String MYSQL_PASSWORD = "Q-D37Sq*k61#yT_y";
 
     // hive
     // beeline命令行连接方式 beeline -u jdbc:hive2://${host}:10000 -n ${user} -p ${password}
