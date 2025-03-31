@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * @Author: okccc
- * @Date: 2022/5/11 3:44 下午
+ * @Date: 2022/5/11 14:23:44
  * @Desc: 自定义生产者分区器实现Partitioner接口,参照RoundRobinPartitioner
  */
 public class PartitionerDemo implements Partitioner {

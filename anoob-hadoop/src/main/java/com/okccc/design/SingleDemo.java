@@ -2,7 +2,7 @@ package com.okccc.design;
 
 /**
  * @Author: okccc
- * @Date: 2020/12/31 2:09 下午
+ * @Date: 2020/12/31 12:12:09
  * @Desc: 双重校验锁DCL(Double Check Lock)解决单例模式懒汉式的线程安全问题
  *
  * 1.在该类使用new创建一个本类对象

@@ -17,7 +17,7 @@ import java.time.Duration;
 
 /**
  * @Author: okccc
- * @Date: 2021/9/13 下午2:06
+ * @Date: 2021/9/13 15:22:06
  * @Desc: 事件时间和水位线
  * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/event-time/generating_watermarks/
  *

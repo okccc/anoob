@@ -2,7 +2,7 @@ package com.okccc.design.princple;
 
 /**
  * @Author: okccc
- * @Date: 2021/8/3 下午4:15
+ * @Date: 2021/8/3 15:24:15
  * @Desc: 依赖倒转原则
  */
 public class DependencyReverse {
@@ -49,5 +49,3 @@ public class DependencyReverse {
         }
     }
 }
-
-

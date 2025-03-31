@@ -38,7 +38,7 @@ import java.io.IOException;
 
 /**
  * @Author: okccc
- * @Date: 2022/2/11 10:38 上午
+ * @Date: 2022/2/11 10:38:55
  * @Desc: es工具类
  */
 public class ESUtil {

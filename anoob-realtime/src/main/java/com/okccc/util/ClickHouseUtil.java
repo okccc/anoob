@@ -14,7 +14,7 @@ import java.sql.SQLException;
 
 /**
  * @Author: okccc
- * @Date: 2021/10/27 上午11:22
+ * @Date: 2021/10/27 10:11:22
  * @Desc: flink写clickhouse的工具类
  */
 public class ClickHouseUtil {

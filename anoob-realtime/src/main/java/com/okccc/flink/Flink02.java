@@ -18,7 +18,7 @@ import java.util.Random;
 
 /**
  * @Author: okccc
- * @Date: 2021/9/7 下午4:49
+ * @Date: 2021/9/7 15:24:49
  * @Desc: 状态变量和定时器
  *
  * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/fault-tolerance/state/

@@ -25,7 +25,7 @@ import java.time.Duration;
 
 /**
  * @Author: okccc
- * @Date: 2021/9/18 下午2:28
+ * @Date: 2021/9/18 15:22:28
  * @Desc: DataStream API - Operators - connect、union、join
  *
  * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/operators/overview/#connect

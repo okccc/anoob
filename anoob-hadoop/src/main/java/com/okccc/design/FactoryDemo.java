@@ -2,7 +2,7 @@ package com.okccc.design;
 
 /**
  * @Author: okccc
- * @Date: 2021/7/13 下午8:43
+ * @Date: 2021/7/13 15:28:43
  * @Desc: java工厂模式
  *
  * GoF(Gang of Four)：1995年由四个人出版的书里收录了23种设计模式,人称GoF设计模式

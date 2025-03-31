@@ -5,7 +5,7 @@ import java.util.Properties;
 
 /**
  * @Author: okccc
- * @Date: 2022/1/29 3:36 下午
+ * @Date: 2022/1/29 13:13:36
  * @Desc: 读取配置文件的工具类
  */
 public class PropertiesUtil {

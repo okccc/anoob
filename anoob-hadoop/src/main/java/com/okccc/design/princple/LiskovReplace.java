@@ -2,7 +2,7 @@ package com.okccc.design.princple;
 
 /**
  * @Author: okccc
- * @Date: 2021/8/3 下午5:02
+ * @Date: 2021/8/3 15:25:02
  * @Desc: 里式替换原则
  */
 public class LiskovReplace {
@@ -43,4 +43,3 @@ public class LiskovReplace {
         }
     }
 }
-

@@ -9,7 +9,7 @@ import org.apache.flink.util.Collector;
 
 /**
  * @Author: okccc
- * @Date: 2021/9/1 下午2:35
+ * @Date: 2021/9/1 15:22:35
  * @Desc: flink简介、部署模式、运行架构、DataStream-API、状态编程、容错机制、flink调优
  *
  * flink下载地址：https://archive.apache.org/dist/flink/

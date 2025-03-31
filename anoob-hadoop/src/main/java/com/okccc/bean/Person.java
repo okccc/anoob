@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * @Author: okccc
- * @Date: 2021/11/15 下午3:45
+ * @Date: 2021/11/15 15:23:45
  * @Desc: java模板类
  */
 public class Person implements Serializable, Comparable<Person> {

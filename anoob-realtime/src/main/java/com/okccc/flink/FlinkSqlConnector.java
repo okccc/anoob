@@ -7,7 +7,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 /**
  * @Author: okccc
- * @Date: 2021/9/20 下午12:47
+ * @Date: 2021/9/20 15:21:47
  * @Desc: Flink Table API Connectors
  */
 public class FlinkSqlConnector {

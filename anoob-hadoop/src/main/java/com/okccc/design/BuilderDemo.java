@@ -2,7 +2,7 @@ package com.okccc.design;
 
 /**
  * @Author: okccc
- * @Date: 2020/12/31 2:09 下午
+ * @Date: 2020/12/31 12:12:09
  * @Desc: java构造者模式：解决多参数构造方法的初始化问题
  *
  * 1.在类的内部创建静态内部类Builder
