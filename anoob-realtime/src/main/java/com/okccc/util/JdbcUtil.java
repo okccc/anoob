@@ -71,15 +71,18 @@ public class JdbcUtil {
      * 批量查询,将结果集封装成T类型对象
      */
     public static <T> List<T> queryList(Connection conn, String sql, Class<T> clazz, Boolean underlineToCamel) throws Exception {
-        // 存放结果集的列表
-        ArrayList<T> list = new ArrayList<>();
-
         // 预编译sql
         PreparedStatement ps = conn.prepareStatement(sql);
 
+        // 场景1.数据量一般,可以先放到结果集列表后续统一处理
+        ArrayList<T> list = new ArrayList<>();
+
+        // 场景2.数据量很大,列表放不下会导致内存溢出,可以分批处理
+        ps.setFetchSize(1000);
+
         // 执行查询,返回结果集
-        // 结果集并不是一次性加载到内存,ResultSet维护了一个指向数据库记录的游标,每次调用next就是取当前行数据放到内存并将游标下移
-        // next之前是获取了数据库连接的,只要连接不断就能一直取,为了提高性能和减少对数据库的访问,可以在url添加&useCursorFetch=true&defaultFetchSize=100
+        // ResultSet维护了一个指向数据库记录的游标,每次调用next就是取当前行数据放到内存并将游标下移,只要数据库连接不中断就能一直取
+        // 为了提高性能和减少对数据库的访问,可以在url添加&useCursorFetch=true&defaultFetchSize=100,如果不生效就要在代码里手动设置
         ResultSet rs = ps.executeQuery();
 
         // 获取结果集的元数据信息
