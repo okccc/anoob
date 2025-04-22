@@ -9,7 +9,6 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -290,8 +289,15 @@ public class JdbcUtil {
             }
 
             // 输出影响行数,验证下这里执行的是零头还是全部
-            int[] ints = ps.executeBatch();
-            System.out.println("ints = " + Arrays.toString(ints));
+            int[] arr = ps.executeBatch();
+            // 返回值int[]中的每个元素代表该批次中对应sql语句执行所影响的行数
+            int totalRowsAffected = 0;
+            for (int count : arr) {
+                if (count != Statement.SUCCESS_NO_INFO && count != Statement.EXECUTE_FAILED) {
+                    totalRowsAffected += count;
+                }
+            }
+            System.out.println("本次操作影响的总行数：" + totalRowsAffected);
 
             // 所有语句都执行完手动提交
             conn.commit();
@@ -365,7 +371,7 @@ public class JdbcUtil {
         String driverClass = "com.mysql.cj.jdbc.Driver";
         String jdbcUrl = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowMultiQueries=true";
         String username = "root";
-        String password = "root@123";
+        String password = "Q-D37Sq*k61#yT_y";
         DruidDataSource dataSource = getDataSource(driverClass, jdbcUrl, username, password);
         DruidPooledConnection conn = dataSource.getConnection();
 
