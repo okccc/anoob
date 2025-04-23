@@ -502,6 +502,13 @@ Using temporary 表示对查询结果排序或分组时使用了临时表
 
 ### log
 ```sql
+-- 查看mysql文件存储位置
+mysql> show variables like 'datadir';
++---------------+------------------------+
+| Variable_name | Value                  |
++---------------+------------------------+
+| datadir       | /usr/local/mysql/data/ |
++---------------+------------------------+
 -- 慢查询日志
 mysql> show variables like 'slow_query_log' / select @@slow_query_log
 +---------------------+------------------------------+
