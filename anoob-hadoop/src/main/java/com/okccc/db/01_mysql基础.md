@@ -509,6 +509,13 @@ mysql> show variables like 'datadir';
 +---------------+------------------------+
 | datadir       | /usr/local/mysql/data/ |
 +---------------+------------------------+
+-- 查看mysql错误日志
+mysql> show variables like 'log_error';
++---------------+----------------------------------------+
+| Variable_name | Value                                  |
++---------------+----------------------------------------+
+| log_error     | /usr/local/mysql/data/mysqld.local.err |
++---------------+----------------------------------------+
 -- 慢查询日志
 mysql> show variables like 'slow_query_log' / select @@slow_query_log
 +---------------------+------------------------------+
