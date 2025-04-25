@@ -516,12 +516,12 @@ mysql> show variables like 'log_error';
 +---------------+----------------------------------------+
 | log_error     | /usr/local/mysql/data/mysqld.local.err |
 +---------------+----------------------------------------+
--- 慢查询日志
-mysql> show variables like 'slow_query_log' / select @@slow_query_log
-+---------------------+------------------------------+
-| slow_query_log      | OFF                          |
-| slow_query_log_file | /var/lib/mysql/cdh1-slow.log | # 可以监控该文件优化速度慢的sql,但是手工查找不方便可借助工具
-+---------------------+------------------------------+
+-- 查看mysql慢查询日志
+mysql> show variables like 'slow_query_log%';
++---------------------+--------------------------------+
+| slow_query_log      | OFF                            |
+| slow_query_log_file | /usr/local/mysql/data/slow.log | # 可以监控该文件优化速度慢的sql,但是手工查找不方便可借助工具
++---------------------+--------------------------------+
 mysql> show variables like 'long_query_time' / select @@long_query_time
 +-----------------+-----------+
 | long_query_time | 10.000000 |
