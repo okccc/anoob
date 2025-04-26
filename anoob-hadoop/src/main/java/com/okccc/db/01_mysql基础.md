@@ -522,7 +522,8 @@ mysql> show variables like 'slow_query_log%';
 | slow_query_log      | OFF                            |
 | slow_query_log_file | /usr/local/mysql/data/slow.log | # 可以监控该文件优化速度慢的sql,但是手工查找不方便可借助工具
 +---------------------+--------------------------------+
-mysql> show variables like 'long_query_time' / select @@long_query_time
+-- 查询时间超过几秒就记录到慢查询日志
+mysql> show variables like 'long_query_time';
 +-----------------+-----------+
 | long_query_time | 10.000000 |
 +-----------------+-----------+
