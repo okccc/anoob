@@ -352,6 +352,13 @@ mysql> show variables like 'tx_isolation' / select @@tx_isolation
 mysql> set global transaction isolation level read committed;
 -- 查看当前正在运行的事务
 mysql> select * from information_schema.innodb_trx;
+# 查看是否启用全局事务标识符
+mysql> show variables like 'gtid_mode';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| gtid_mode     | OFF   |
++---------------+-------+
 ```
 
 ### join
