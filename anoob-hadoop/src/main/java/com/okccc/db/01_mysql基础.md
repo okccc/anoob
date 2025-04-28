@@ -573,6 +573,13 @@ ERROR 1317 (70100): Query execution was interrupted
 server_id=1        # 配置mysql replication时定义,不能和canal的slaveId重复
 log-bin=mysql-bin  # binlog日志前缀
 binlog_format=row  # binlog格式为row,只记录行记录变化后的结果,保证数据绝对一致性,canal和maxwell的配置也只针对row格式才生效
+# 查看服务器唯一id
+mysql> show variables like 'server_id';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| server_id     | 1     |
++---------------+-------+
 # 查看是否开启
 mysql> show variables like '%log_bin%' \g  # sql语句结尾加上\g表示界定符相当于分号,加上\G表示将查询结果按列打印输出内容过多时使用
 +---------------------------------+---------------------------------------+
