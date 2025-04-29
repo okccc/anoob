@@ -592,6 +592,13 @@ mysql> show variables like '%log_bin%' \g  # sql语句结尾加上\g表示界定
 | log_bin_use_v1_row_events       | OFF                                   |
 | sql_log_bin                     | ON                                    |
 +---------------------------------+---------------------------------------+
+# 查看二进制日志格式
+mysql> show variables like 'binlog_format';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| binlog_format | ROW   |
++---------------+-------+
 # 查看binlog日志的工具,如果data目录进不去就 chmod -R a+rwx /usr/local/mysql/data 
 [root@cdh1 ~]$ cd /usr/local/mysql/data && mysqlbinlog mysql-bin.000001
 # 查看binlog日志列表
