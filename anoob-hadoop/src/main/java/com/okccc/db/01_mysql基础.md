@@ -309,6 +309,13 @@ mysql> show variables like '%engine%';
 | disabled_storage_engines         |        |
 | internal_tmp_disk_storage_engine | InnoDB |
 +----------------------------------+--------+
+# 查看innodb缓冲池大小
+mysql> show variables like 'innodb_buffer_pool_size';
++-------------------------+-----------+
+| Variable_name           | Value     |
++-------------------------+-----------+
+| innodb_buffer_pool_size | 134217728 |
++-------------------------+-----------+
 -- 修改表引擎
 mysql> alter table test engine=innodb;
 -- 存储引擎对比
