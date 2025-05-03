@@ -323,6 +323,13 @@ mysql> show variables like 'innodb_log_file_size';
 +----------------------+----------+
 | innodb_log_file_size | 50331648 |
 +----------------------+----------+
+# 查看innodb日志缓冲区大小
+mysql> show variables like 'innodb_log_buffer_size';
++------------------------+----------+
+| Variable_name          | Value    |
++------------------------+----------+
+| innodb_log_buffer_size | 16777216 |
++------------------------+----------+
 -- 修改表引擎
 mysql> alter table test engine=innodb;
 -- 存储引擎对比
