@@ -330,6 +330,13 @@ mysql> show variables like 'innodb_log_buffer_size';
 +------------------------+----------+
 | innodb_log_buffer_size | 16777216 |
 +------------------------+----------+
+# 查看innodb事务提交日志刷新策略
+mysql> show variables like 'innodb_flush_log_at_trx_commit';
++--------------------------------+-------+
+| Variable_name                  | Value |
++--------------------------------+-------+
+| innodb_flush_log_at_trx_commit | 1     |
++--------------------------------+-------+
 -- 修改表引擎
 mysql> alter table test engine=innodb;
 -- 存储引擎对比
