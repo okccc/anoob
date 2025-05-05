@@ -103,6 +103,13 @@ mysql> show variables like 'thread_cache_size';
 +-------------------+-------+
 | thread_cache_size | 512   |
 +-------------------+-------+
+# 查看顺序读缓冲区大小
+mysql> show variables like 'read_buffer_size';
++------------------+--------+
+| Variable_name    | Value  |
++------------------+--------+
+| read_buffer_size | 131072 |
++------------------+--------+
 # 批量插入数据
 mysql> source area.sql;
 ```
