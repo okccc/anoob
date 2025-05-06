@@ -52,7 +52,7 @@ public class ArrayDemo {
             System.out.println(i);
         }
         // 数组可以转成集合
-        List<int[]> list = Arrays.asList(arr2);
+        List<int[]> list = List.of(arr2);
         System.out.println(list);
 
         int max = getMax(arr2);
