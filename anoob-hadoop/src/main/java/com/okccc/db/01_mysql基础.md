@@ -117,6 +117,13 @@ mysql> show variables like 'read_rnd_buffer_size';
 +----------------------+--------+
 | read_rnd_buffer_size | 262144 |
 +----------------------+--------+
+# 查看排序缓冲区大小
+mysql> show variables like 'sort_buffer_size';
++------------------+--------+
+| Variable_name    | Value  |
++------------------+--------+
+| sort_buffer_size | 262144 |
++------------------+--------+
 # 批量插入数据
 mysql> source area.sql;
 ```
