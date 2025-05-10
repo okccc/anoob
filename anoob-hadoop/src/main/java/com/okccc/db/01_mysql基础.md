@@ -124,6 +124,13 @@ mysql> show variables like 'sort_buffer_size';
 +------------------+--------+
 | sort_buffer_size | 262144 |
 +------------------+--------+
+# 查看连接缓冲区大小
+mysql> show variables like 'join_buffer_size';
++------------------+--------+
+| Variable_name    | Value  |
++------------------+--------+
+| join_buffer_size | 262144 |
++------------------+--------+
 # 批量插入数据
 mysql> source area.sql;
 ```
