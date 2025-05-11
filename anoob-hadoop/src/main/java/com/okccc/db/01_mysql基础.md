@@ -131,6 +131,13 @@ mysql> show variables like 'join_buffer_size';
 +------------------+--------+
 | join_buffer_size | 262144 |
 +------------------+--------+
+# 查看临时表大小
+mysql> show variables like 'tmp_table_size';
++----------------+----------+
+| Variable_name  | Value    |
++----------------+----------+
+| tmp_table_size | 16777216 |
++----------------+----------+
 # 批量插入数据
 mysql> source area.sql;
 ```
