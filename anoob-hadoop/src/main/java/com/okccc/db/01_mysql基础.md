@@ -138,6 +138,13 @@ mysql> show variables like 'tmp_table_size';
 +----------------+----------+
 | tmp_table_size | 16777216 |
 +----------------+----------+
+# 查看内存表大小
+mysql> show variables like 'max_heap_table_size';
++---------------------+----------+
+| Variable_name       | Value    |
++---------------------+----------+
+| max_heap_table_size | 16777216 |
++---------------------+----------+
 # 批量插入数据
 mysql> source area.sql;
 ```
