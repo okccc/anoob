@@ -145,6 +145,13 @@ mysql> show variables like 'max_heap_table_size';
 +---------------------+----------+
 | max_heap_table_size | 16777216 |
 +---------------------+----------+
+# 查看最大数据包大小
+mysql> show variables like 'max_allowed_packet';
++--------------------+----------+
+| Variable_name      | Value    |
++--------------------+----------+
+| max_allowed_packet | 67108864 |
++--------------------+----------+
 # 批量插入数据
 mysql> source area.sql;
 ```
