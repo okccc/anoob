@@ -306,6 +306,8 @@ drop view view_name;
 -- 元数据信息监控
 -- 查询数据库有多少张表
 select table_schema,count(*) as tables from information_schema.tables group by table_schema;
+-- 查询表的行数、数据容量、索引容量
+select table_schema,table_name,table_rows,data_length,index_length from information_schema.tables order by data_length desc,index_length desc;
 -- 查询表中有多少字段
 select count(*) from information_schema.columns where table_schema = '数据库名' and table_name = '表名';
 -- 查询数据库中有多少字段
