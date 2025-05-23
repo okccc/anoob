@@ -159,6 +159,13 @@ mysql> SHOW VARIABLES LIKE 'sql_mode';
 +---------------+-----------------------------------------------------------------------------------------------------------------------+
 | sql_mode      | ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION |
 +---------------+-----------------------------------------------------------------------------------------------------------------------+
+# 查看sql语句读写文件的权限
+mysql> SHOW VARIABLES LIKE 'secure_file_priv';
++------------------+-------+
+| Variable_name    | Value |
++------------------+-------+
+| secure_file_priv | NULL  |
++------------------+-------+
 # 批量插入数据
 mysql> source area.sql;
 ```
