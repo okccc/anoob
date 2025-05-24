@@ -166,6 +166,13 @@ mysql> SHOW VARIABLES LIKE 'secure_file_priv';
 +------------------+-------+
 | secure_file_priv | NULL  |
 +------------------+-------+
+# 查看是否允许客户端从本地文件加载数据
+mysql> SHOW VARIABLES LIKE 'local_infile';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| local_infile  | OFF   |
++---------------+-------+
 # 批量插入数据
 mysql> source area.sql;
 ```
