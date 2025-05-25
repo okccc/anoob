@@ -616,6 +616,18 @@ mysql> show variables like 'datadir';
 +---------------+------------------------+
 | datadir       | /usr/local/mysql/data/ |
 +---------------+------------------------+
+# 查看mysql通用查询日志
+mysql> show variables like 'general_log%';
++------------------+--------------------------------------------+
+| Variable_name    | Value                                      |
++------------------+--------------------------------------------+
+| general_log      | OFF                                        |
+| general_log_file | /usr/local/mysql/data/okcdeMacBook-Pro.log |
++------------------+--------------------------------------------+
+# 开启日志监控
+mysql> set global general_log='on';
+# 修改日志文件位置,可使用tail -f /var/log/mysqld.log监听
+mysql> set global general_log_file='/var/log/mysqld.log';
 -- 查看mysql错误日志
 mysql> show variables like 'log_error';
 +---------------+----------------------------------------+
