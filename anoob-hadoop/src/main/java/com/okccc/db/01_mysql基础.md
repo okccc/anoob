@@ -52,11 +52,6 @@ mysql> show variables like 'character%';
 character-set-server=utf8
 init-connect='SET NAMES utf8'
 validate_password_policy=0
-# 开启日志监控
-mysql> show variables like 'general%';
-mysql> set global general_log='on';
-mysql> set global general_log_file='/var/log/mysqld.log';
-tail -f /var/log/mysqld.log
 # 查看时区
 mysql> show variables like '%time_zone%';
 +------------------+--------+
