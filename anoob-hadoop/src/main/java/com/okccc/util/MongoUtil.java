@@ -14,7 +14,8 @@ public class MongoUtil {
     private static MongoClient mongoClient;
     static {
         // 数据库地址 mongodb://${username}:${password}@${host}:${port}/${db}
-        String uri = "mongodb://root:root@localhost:27017/WAR3";
+        // 在uri中显式指定authSource告诉MongoDB驱动用哪个数据库做认证,如果cdc用户是在admin里创建的而不是在WAR3里,就会出现认证失败
+        String uri = "mongodb://cdc:cdc@localhost:27017/WAR3?authSource=admin";
         try {
             // 创建mongo客户端
 //            mongoClient = new MongoClient(new MongoClientURI(uri));
