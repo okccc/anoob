@@ -792,7 +792,8 @@ mysql> INSERT INTO z_user_info VALUES(9,'aaa'),(10,'bbb');
 
 # mysql加字段导致canal报错 CanalParseException: column size is not match for table:user.user_info,15 vs 14
 # 进入/data/canal-label/logs/example1日志目录,发现meta.log不刷新了说明程序已中断,再去查看example1.log分析具体原因
-# canal缓存的表结构信息存放在h2.mv.db文件,直接删除后重启,如果想在指定位置断点续传可以修改meta.dat的position和timestamp
+# canal缓存的表结构信息存放在h2.mv.db,必须重启才会刷新,先删除然后/data/canal-label/bin/restart.sh重启,meta.dat可以实现断点续传
+# 手动删除很耽误时间,会导致写入kafka数据延迟,需要自动检测脚本
 
 # canal数据格式
 # "id"：生成的消息id,对应一次事务操作 | "es"：binlog时间戳 | "ts"：connector时间戳 | "old"：变更前的字段信息
