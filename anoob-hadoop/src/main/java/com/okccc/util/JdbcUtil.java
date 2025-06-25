@@ -211,21 +211,34 @@ public class JdbcUtil {
      * 批量更新插入(upsert)
      */
     public static void upsert(Connection conn, List<String> records, String table, String columns) throws Exception {
-        // 拼接upsert语句
         // replace into是先delete再insert,直接删数据有点危险不建议
-        // mysql的upsert操作ON DUPLICATE key update导致主键ID跳跃增长,很快突破int类型最大值 https://blog.csdn.net/ke2602060221/article/details/126143254
-        // url添加&allowMultiQueries=true支持多条sql语句执行,每次执行insert前先调用alter table t1 auto_increment=1;性能会稍微降低
+        // ON DUPLICATE key update导致主键ID跳跃增长,很快突破int类型最大值 https://blog.csdn.net/ke2602060221/article/details/126143254
+        // url添加&allowMultiQueries=true支持多条sql语句执行,每次执行insert前先调用alter table t1 auto_increment=1;性能会稍微降低(不推荐)
         // INSERT INTO t1 VALUES(...)    常规insert语句
         // ON DUPLICATE KEY              当插入数据发生主键(Primary Key)或唯一键(Unique Key)冲突时就执行更新操作
         // UPDATE k1=v1,k2=v2...         常规update语句
+        // 优化1：JDBC添加&rewriteBatchedStatements=true批处理参数,INSERT INTO t1 VALUES (...), (...) 大大提升写入速度
+
         StringBuilder sb = new StringBuilder();
-        sb.append("alter table ").append(table).append(" auto_increment=1;");
-        sb.append("insert into ").append(table).append(" values (null,?,?) on duplicate key update ");
+        // 拼接INSERT语句
+        sb.append("INSERT INTO ").append(table).append(" (");
         for (String column : columns.split(",")) {
-            sb.append(column).append("=values(").append(column).append("),");
+            sb.append(column).append(",");
         }
-        String sql = sb.substring(0, sb.length() - 1);
-        // alter table user_info auto_increment=1;insert into user_info values (null,?,?) on duplicate key update name=values(name),age=values(age)
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append(") VALUES (");
+        // 拼接占位符
+        sb.append("?,".repeat(columns.split(",").length));
+        sb.deleteCharAt(sb.length() - 1);
+        // 拼接UPDATE语句
+        sb.append(") ON DUPLICATE KEY UPDATE ");
+        for (String column : columns.split(",")) {
+            sb.append(column).append("=VALUES(").append(column).append("),");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        // 完整SQL语句
+        String sql = sb.toString();
+        // INSERT INTO user_info (user_name,age) VALUES (?,?) ON DUPLICATE KEY UPDATE user_name=VALUES(user_name),age=VALUES(age)
         System.out.println(sql);
 
         try {
@@ -234,6 +247,10 @@ public class JdbcUtil {
 
             // 预编译sql
             PreparedStatement ps = conn.prepareStatement(sql);
+
+            // 优化2：数据量很大时要控制批次大小,所有数据都放一个batch可能会OOM
+            int batchSize = 1000;
+            int count = 0;
 
             // 遍历结果集
             for (String record : records) {
@@ -244,13 +261,24 @@ public class JdbcUtil {
                 }
                 // 攒一批sql
                 ps.addBatch();
+                count ++;
+                // 分批执行
+                if (count % batchSize == 0) {
+                    // 执行批处理
+                    ps.executeBatch();
+                    // 优化3：事务也要分批次提交,所有sql都放一个大事务持续时间很长,容易锁表或binlog无法刷新,如果失败回滚效率也很差
+                    conn.commit();
+                    ps.clearBatch();
+                    System.out.println("已提交 batch ,当前行数：" + count);
+                }
             }
 
-            // 执行批处理
-            ps.executeBatch();
-
-            // 所有语句都执行完手动提交
-            conn.commit();
+            // 提交最后一批
+            if (count % batchSize != 0) {
+                ps.executeBatch();
+                conn.commit();
+                System.out.println("提交最后 batch ,总行数：" + count);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             // 有异常就回滚事务
@@ -277,30 +305,19 @@ public class JdbcUtil {
 //                ps.execute();
                 // 攒一批sql
                 ps.addBatch();
-
-                // 手动控制batchSize
+                // 分批执行,插入100万条数据只要30秒,如果关闭自动提交事务只要5秒
                 if (i % 1000 == 0) {
-                    // 执行批处理,插入100万条数据只要30秒,如果关闭自动提交事务只要5秒
-                    // 要给url添加&rewriteBatchedStatements=true否则批处理不生效
                     ps.executeBatch();
-                    // 清理批
+                    conn.commit();
                     ps.clearBatch();
+                    System.out.println("已提交 batch, 当前行数：" + i);
                 }
             }
 
-            // 输出影响行数,验证下这里执行的是零头还是全部
-            int[] arr = ps.executeBatch();
-            // 返回值int[]中的每个元素代表该批次中对应sql语句执行所影响的行数
-            int totalRowsAffected = 0;
-            for (int count : arr) {
-                if (count != Statement.SUCCESS_NO_INFO && count != Statement.EXECUTE_FAILED) {
-                    totalRowsAffected += count;
-                }
-            }
-            System.out.println("本次操作影响的总行数：" + totalRowsAffected);
-
-            // 所有语句都执行完手动提交
+            // 提交最后一批
+            ps.executeBatch();
             conn.commit();
+            System.out.println("提交最后 batch");
         } catch (Exception e) {
             e.printStackTrace();
             // 有异常就回滚事务
@@ -376,12 +393,12 @@ public class JdbcUtil {
         DruidPooledConnection conn = dataSource.getConnection();
 
         // 演示更新插入
-        // create table user_info(user_id int primary key auto_increment, user_name varchar(10) unique key, age int);
+        // create table user_info(id int primary key auto_increment, user_name varchar(10) unique key, age int);
         ArrayList<String> records = new ArrayList<>();
         records.add("grubby, 19");
         records.add("moon, 19");
         records.add("sky, 20");
-        upsert(conn, records, "user_info", "user_name, age");
+        upsert(conn, records, "user_info", "user_name,age");
 
         // 演示批量查询
         // 当表的列名和类的属性名不一致时,要用guava将下划线转换成驼峰,或者手动添加属性名作为列名的别名
@@ -390,7 +407,8 @@ public class JdbcUtil {
         System.out.println(queryList(conn, sql, JSONObject.class, false));  // [{"user_id":1,"user_name":"grubby","age":18}]
 
         // 演示批量插入
-        insertBatch(conn, "insert into test.aaa values(null,?)");
+        // create table aaa(id int primary key auto_increment, name varchar(20));
+        insertBatch(conn, "INSERT INTO test.aaa (name) VALUES(?)");
 
         // 演示批量修改
         update(conn, "update user_info set age = ? where user_id = ?", 19, 1);
