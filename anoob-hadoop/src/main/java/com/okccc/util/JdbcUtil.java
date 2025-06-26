@@ -168,6 +168,9 @@ public class JdbcUtil {
         // 预编译sql
         PreparedStatement ps = conn.prepareStatement(sql);
 
+        // 如果数据量很大,JDBC一次性加载所有数据可能会OOM,开启流式查询逐行读取减轻内存压力
+        ps.setFetchSize(1000);
+
         // 执行查询,返回结果集
         ResultSet rs = ps.executeQuery();
 
