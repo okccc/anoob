@@ -267,7 +267,7 @@ public class JdbcUtil {
                 count ++;
                 // 分批执行
                 if (count % batchSize == 0) {
-                    // 执行批处理
+                    // 执行批处理,executeBatch()无法精确统计影响的记录数,executeUpdate()可以但是效率很低
                     ps.executeBatch();
                     // 优化3：事务也要分批次提交,所有sql都放一个大事务持续时间很长,容易锁表或binlog无法刷新,如果失败回滚效率也很差
                     conn.commit();
