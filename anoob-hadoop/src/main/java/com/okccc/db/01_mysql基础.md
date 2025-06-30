@@ -477,6 +477,8 @@ select * from t1 a left join t2 b on a.id=b.id where b.id is null union all sele
 -- 笛卡尔积,不写on条件时join/inner join/cross join是等价的
 select * from t1 a join t2 b;
 
+-- mysql可以跨库join但不能跨ip实例,参与join的库必须在同一个ip实例上
+
 -- left join数据量一定和左表相等吗？
 -- 不是的,数据量>=左表,取决于关联的key在表中的数据是否唯一,比如a.name=b.name但是b表中name不止一条记录结果集就会大于a表
 
