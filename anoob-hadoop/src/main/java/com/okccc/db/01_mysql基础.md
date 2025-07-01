@@ -502,62 +502,8 @@ mysql> select * from a left join b on a.id=b.id where a.name='李四' and b.age=
 
 ### index
 ```sql
--- 索引：除了数据以外,数据库还维护着满足特定查找算法的数据结构,以某种方式指向物理数据,从而实现高级查找算法,这种数据结构就是索引
--- 优点：索引是一种排好序的快速查找数据结构,B+树(多路平衡查找树)存储,类似字典目录,可以提高数据检索效率降低IO成本和数据排序成本
--- 缺点：在insert/update/delete数据时要连带索引一起更新,会降低表的更新速度
--- 为啥使用B+树：查询时访问磁盘的次数由树的层数决定,二叉树只有左右两个子节点而B+树可以有多个子节点,减少树的高度
-
--- 适合建立索引的场景：主键/频繁查询字段/外键(join)/过滤字段(where)/分组字段(group)/排序字段(order),通过索引访问将大大提高检索效率
--- 不适合建立索引场景：表记录数很少(mysql优化器会忽略索引直接全表扫描)/频繁更新字段
--- 索引失效场景：在索引列做计算/函数/类型转换等任何操作 price/100 = 3 -> price = 100 * 3 | substr(name,1,3) = 'orc' -> name like 'orc%'
--- or两边列必须都有索引 | 使用!=或<> | like '..%'可以,like '%..'不行 | is null 可以,is not null 不行
--- 创建索引
-alter table emp add primary key emp (id);      -- 主键索引,设定为主键后数据库会自动创建索引且索引列的值唯一非空
-create unique index idx_name on emp (name);    -- 唯一索引,索引列的值必须唯一但允许有空值
-create index idx_name on emp (name);           -- 单值索引,索引只包含一个列
-create index idx_name_age on emp (name, age);  -- 联合索引,索引包含多个列
-create index idx_name on emp (name desc);      -- 倒叙索引
--- 查看索引
-show index from emp;
--- 删除索引
-drop index idx_name on emp;
-
--- 主键索引(聚簇索引)：叶子结点存放整行数据,如果没有主键mysql会创建rowid来组织这棵B+树,从而将数据有规律的存储起来
--- 非主键索引(二级索引)：叶子结点存放主键值,查询时先搜索二级索引树找到主键值,再回到主键索引树搜索整行数据的其它列,该过程叫回表
--- 覆盖索引：从二级索引就能找到所有查询列,避免回表,减少索引树的搜索次数,explain输出结果Extra=Using index表示使用了覆盖索引
-select id,name from emp where name='grubby';  -- create index idx_name on emp (name)
-select age from emp where name='grubby';      -- create index idx_name_age on emp (name,age)
--- 最左匹配原则：联合索引的查询是从最左前列开始,如果跳过中间列或使用非等值查询会导致后边列索引失效,所以尽量将过滤性好的列放前面
-create index idx_a_b_c on emp (a,b,c);        -- 联合索引,树上每个节点均同时包含a,b,c字段且a全局有序b局部有序(当a相同时),以此类推
-select * from emp where a=3 and b=4 and c=5;  -- Y a,b,c都使用了索引
-select * from emp where b=4 and c=5;          -- N 跳过a,后面都断了
-select * from emp where a=3 and c=5;          -- Y 只使用了a,跳过b,后面c断了
-select * from emp where a=3 and b>4 and c=5;  -- Y 只使用了a,b,联合索引只能保证局部有序,非等值查询的后续字段无法直接通过索引树确定范围,需要回表
--- 索引下推：mysql5.6将与索引有关的条件判断由mysql服务器向下传递至存储引擎,减少IO次数,主要用来优化联合索引中索引失效的情况
--- explain输出结果Extra=Using index condition(ICP)表示使用了索引下推
-select * from emp where name like '陈%' and age=20;
--- 未开启ICP,存储引擎只会搜索idx_name_age这棵树上的name列,age列需要回表再过滤,如果有10个姓陈的就需要回表10次
--- 开启ICP后,存储引擎在索引内部就过滤了age=20这个条件,减少回表次数,其实就是充分利用索引,尽量在查询出整行数据之前先过滤掉无效数据
-
--- 关联查询优化：left join左表是主表(驱动表),右表是从表(被驱动表),左表数据会全表扫描,关联条件用来确定右表搜索的行,所以尽量将小表放左边,
--- 由于驱动表会全表扫描,即使添加索引虽然能用上但扫描行数不变,应当给被驱动表的关联字段建索引,如果是inner join mysql会自动将小表作为驱动表
-select * from a left join b on a.id=b.id;  -- create index idx_id on b (id)
-
--- 排序分组优化：尽量避免出现Extra=Using filesort,但是当排序之前有过滤操作时优先给过滤字段加索引
-create index idx_a_b_c on emp (a,b,c);    -- 是否出现filesort
-select * from emp order by d;             -- Y 排序字段没有索引
-select * from emp order by a;             -- Y 排序字段有索引但不是覆盖索引,所以尽量减少使用select *
-select a,b,c from emp order by a,b;       -- N 排序字段有索引且是覆盖索引,很合理
-select a,b,c from emp order by a,c;       -- Y 排序字段有索引但跳过了中间列
-select a,b,c from emp order by a,b desc;  -- Y 排序字段中同时存在升序(默认)和降序,而索引都是升序的
-select a,b,c from emp order by b,a;       -- Y 排序字段顺序和索引顺序不一致,此处mysql优化器也不能调换b和a的位置,会改变排序逻辑
-select a,b,c from emp where a<100 order by b;  -- Y 过滤条件是范围查询,但这样是值得的,过滤掉大量数据提升的性能要远远超过使用索引
--- in和exists：主查询和子查询的执行顺序不一样,in先执行子查询适合内表小外表大的情况,exists先执行主查询适合外表小内表大的情况
-select * from t1 where id in (select id from t2);
-select * from t1 where exists (select 1 from t2 where t1.id=t2.id);
--- not in无法使用索引且子查询结果集不能有null否则直接返回null,而not exists会使用索引性能更高,所以应尽量避免使用not in
-select * from a where id not in (select id from b)  -- 改进为select * from a left join b on a.id=b.id where b.id is null
--- mysql优化器会改变sql语句中select和where字段的顺序,但是group和order字段的顺序是不能变的,否则业务逻辑就变了
+# 1.什么是索引
+# 索引是一种可以提高查询效率的数据结构,类似字典目录可以快速找到对应记录
 ```
 
 ### explain
