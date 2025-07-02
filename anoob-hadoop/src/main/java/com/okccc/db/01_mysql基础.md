@@ -504,6 +504,10 @@ mysql> select * from a left join b on a.id=b.id where a.name='李四' and b.age=
 ```sql
 # 1.什么是索引
 # 索引是一种可以提高查询效率的数据结构,类似字典目录可以快速找到对应记录
+
+# 2.索引优缺点
+# 索引是一种排好序的快速查找数据结构,B+树(多路平衡查找树)存储,类似字典目录,可以提高数据检索效率降低IO成本和数据排序成本
+# 在insert/update/delete数据时要连带索引一起更新,会降低表的更新速度
 ```
 
 ### explain
