@@ -517,6 +517,15 @@ mysql> select * from a left join b on a.id=b.id where a.name='李四' and b.age=
 # 4.索引适用场景
 # 频繁查询字段：主键(pk)/外键(join)/过滤(where)/分组(group)/排序(order),通过索引访问将大大提高检索效率
 # 频繁更新字段,或者表记录数很少(MYSQL优化器会忽略索引直接全表扫描)不适合建索引
+
+# 5.索引类型
+alter table emp add primary key emp (id);      -- 主键索引,设定为主键后数据库会自动创建索引且索引列的值唯一非空
+create unique index idx_name on emp (name);    -- 唯一索引,索引列的值必须唯一但允许有空值
+create index idx_name on emp (name);           -- 单值索引,索引只包含一个列
+create index idx_name_age on emp (name, age);  -- 联合索引,索引包含多个列
+create index idx_name on emp (name desc);      -- 倒叙索引
+show index from emp;         -- 查看索引
+drop index idx_name on emp;  -- 删除索引
 ```
 
 ### explain
