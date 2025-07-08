@@ -526,6 +526,10 @@ create index idx_name_age on emp (name, age);  -- 联合索引,索引包含多�
 create index idx_name on emp (name desc);      -- 倒叙索引
 show index from emp;         -- 查看索引
 drop index idx_name on emp;  -- 删除索引
+
+# 6.主键索引和二级索引
+# 主键索引：以主键创建的索引,叶子结点存放的是整行数据(聚集索引),数据行按主键顺序存储,查询效率极高
+# 二级索引：以非主键创建的索引,叶子结点存放的是主键值(非聚集索引),查询时可能会回表,容易成为性能瓶颈,需要优化
 ```
 
 ### explain
