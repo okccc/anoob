@@ -532,8 +532,12 @@ drop index idx_name on emp;  -- 删除索引
 # 二级索引：以非主键创建的索引,叶子结点存放的是主键值(非聚集索引),查询时可能会回表,容易成为性能瓶颈,需要优化
 
 # 7.什么是回表
+# 如果需要查询所有列,idx_age二级索引无法满足,需要先拿到主键id的值,再回到主键索引去搜索,所以尽量避免使用select *
 select * from emp where age = 20;
-# 这里需要查询所有列,idx_age二级索引无法满足,需要先拿到主键id的值,再回到主键索引去搜索,所以尽量指定列而不是select *
+
+# 8.什么是覆盖索引
+# 从二级索引就能找到需要查询的列,避免回表,减少索引树的搜索次数,explain输出结果Extra=Using index表示使用了覆盖索引
+select id,name from emp where age = 20;
 ```
 
 ### explain
