@@ -538,6 +538,13 @@ select * from emp where age = 20;
 # 8.什么是覆盖索引
 # 从二级索引就能找到需要查询的列,避免回表,减少索引树的搜索次数,explain输出结果Extra=Using index表示使用了覆盖索引
 select id,name from emp where age = 20;
+
+# 9.索引最左匹配原则：联合索引的查询是从最左前列开始,如果跳过中间列或使用非等值查询会导致后边列索引失效,所以尽量将过滤性好的列放前面
+create index idx_a_b_c on emp (a,b,c);        -- 联合索引(a,b,c)相当于创建了(a)、(a,b)、(a,b,c)三个索引
+select * from emp where a=3 and b=4 and c=5;  -- Y a,b,c都使用了索引
+select * from emp where b=4 and c=5;          -- N 跳过a,后面都断了
+select * from emp where a=3 and c=5;          -- Y 只使用了a,跳过b,后面c断了
+select * from emp where a=3 and b>4 and c=5;  -- Y 只使用了a,b,联合索引只能保证局部有序,非等值查询的后续字段无法直接通过索引树确定范围,需要回表
 ```
 
 ### explain
