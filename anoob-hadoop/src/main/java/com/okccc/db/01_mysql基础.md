@@ -545,6 +545,12 @@ select * from emp where a=3 and b=4 and c=5;  -- Y a,b,c都使用了索引
 select * from emp where b=4 and c=5;          -- N 跳过a,后面都断了
 select * from emp where a=3 and c=5;          -- Y 只使用了a,跳过b,后面c断了
 select * from emp where a=3 and b>4 and c=5;  -- Y 只使用了a,b,联合索引只能保证局部有序,非等值查询的后续字段无法直接通过索引树确定范围,需要回表
+
+# 10.索引下推
+# mysql5.6将与索引有关的条件判断由mysql服务器向下传递至存储引擎,减少IO次数,主要用来优化联合索引中索引失效的情况,explain输出结果Extra=Using index condition(ICP)表示使用了索引下推
+select * from emp where name like '陈%' and age=20;
+# 未开启ICP,存储引擎只会搜索idx_name_age这棵树上的name列,age列需要回表再过滤,如果有10个姓陈的就需要回表10次
+# 开启ICP后,存储引擎在索引内部就过滤了age=20这个条件,减少回表次数,其实就是充分利用索引,尽量在查询出整行数据之前先过滤掉无效数据
 ```
 
 ### explain
