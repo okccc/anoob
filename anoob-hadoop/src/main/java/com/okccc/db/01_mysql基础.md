@@ -551,6 +551,10 @@ select * from emp where a=3 and b>4 and c=5;  -- Y 只使用了a,b,联合索引�
 select * from emp where name like '陈%' and age=20;
 # 未开启ICP,存储引擎只会搜索idx_name_age这棵树上的name列,age列需要回表再过滤,如果有10个姓陈的就需要回表10次
 # 开启ICP后,存储引擎在索引内部就过滤了age=20这个条件,减少回表次数,其实就是充分利用索引,尽量在查询出整行数据之前先过滤掉无效数据
+
+# 11.索引失效场景
+# 在索引列做计算或函数 price/100 = 3 -> price = 100 * 3 | substr(name,1,3) = 'orc' -> name like 'orc%'
+# or两边列必须都有索引、模糊查询'..%'可以'%..'不行、使用!=或<>、is null可以is not null不行
 ```
 
 ### explain
