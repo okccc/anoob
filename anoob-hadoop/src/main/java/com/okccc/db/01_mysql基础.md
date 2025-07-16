@@ -555,6 +555,16 @@ select * from emp where name like '陈%' and age=20;
 # 11.索引失效场景
 # 在索引列做计算或函数 price/100 = 3 -> price = 100 * 3 | substr(name,1,3) = 'orc' -> name like 'orc%'
 # or两边列必须都有索引、模糊查询'..%'可以'%..'不行、使用!=或<>、is null可以is not null不行
+
+-- explain执行计划：可以查看表的读取顺序,索引使用情况,扫描行数等
+-- 结合type/key/key_len/rows这些指标判断是否要建索引,如果涉及排序则主要分析Extra指标的Using filesort
+mysql> explain select * from order_detail a join commodity b on a.spu_id = b.id where a.order_id = '15483062' and a.spu_id > 0;
++----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
+| id | select_type | table | partitions | type   | possible_keys | key           | key_len | ref      | rows | filtered | Extra                              |
++----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
+|  1 | SIMPLE      | a     | p997       | ref    | idex_order_id | idex_order_id | 8       | const    |    4 |    33.33 | Using index condition; Using where |
+|  1 | SIMPLE      | b     | NULL       | eq_ref | PRIMARY       | PRIMARY       | 4       | a.spu_id |    1 |   100.00 | NULL                               |
++----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
 ```
 
 ### explain
