@@ -565,6 +565,7 @@ mysql> explain select * from order_detail a join commodity b on a.spu_id = b.id 
 |  1 | SIMPLE      | a     | p997       | ref    | idex_order_id | idex_order_id | 8       | const    |    4 |    33.33 | Using index condition; Using where |
 |  1 | SIMPLE      | b     | NULL       | eq_ref | PRIMARY       | PRIMARY       | 4       | a.spu_id |    1 |   100.00 | NULL                               |
 +----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
+-- id表示select执行顺序,id相同时从上往下,id不同时子查询id序号会递增且id越大执行优先级越高,每个id都是一次独立查询
 ```
 
 ### explain
