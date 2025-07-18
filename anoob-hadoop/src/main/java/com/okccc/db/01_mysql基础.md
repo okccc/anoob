@@ -566,6 +566,12 @@ mysql> explain select * from order_detail a join commodity b on a.spu_id = b.id 
 |  1 | SIMPLE      | b     | NULL       | eq_ref | PRIMARY       | PRIMARY       | 4       | a.spu_id |    1 |   100.00 | NULL                               |
 +----+-------------+-------+------------+--------+---------------+---------------+---------+----------+------+----------+------------------------------------+
 -- id表示select执行顺序,id相同时从上往下,id不同时子查询id序号会递增且id越大执行优先级越高,每个id都是一次独立查询
+-- select_type表示查询类型,主要用于区别普通查询、关联查询、子查询等
+select * from t1 where id = 3;  -- SIMPLE 简单查询
+select * from t1 union select * from t2;  -- PRIMARY 包含子查询或union的最外层查询,t1是PRIMARY,t2是UNION
+select * from (select id,count(1) c from t1 group by id) t2 where c > 10;  -- DERIVED from列表中包含的子查询,t1是DERIVED,t2是PRIMARY
+select * from t1 where id in (select id from t2);  -- SUBQUERY where列表中包含的第一个子查询,t1是PRIMARY,t2是SUBQUERY
+select * from t1 where exists (select 1 from t2 where t1.id = t2.id);  -- DEPENDENT SUBQUERY where列表中包含的第一个依赖外部查询的子查询,t2是DEPENDENT SUBQUERY
 ```
 
 ### explain
