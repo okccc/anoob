@@ -572,6 +572,7 @@ select * from t1 union select * from t2;  -- PRIMARY 包含子查询或union的�
 select * from (select id,count(1) c from t1 group by id) t2 where c > 10;  -- DERIVED from列表中包含的子查询,t1是DERIVED,t2是PRIMARY
 select * from t1 where id in (select id from t2);  -- SUBQUERY where列表中包含的第一个子查询,t1是PRIMARY,t2是SUBQUERY
 select * from t1 where exists (select 1 from t2 where t1.id = t2.id);  -- DEPENDENT SUBQUERY where列表中包含的第一个依赖外部查询的子查询,t2是DEPENDENT SUBQUERY
+-- table表示查询的表
 ```
 
 ### explain
