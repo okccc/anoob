@@ -573,6 +573,17 @@ select * from (select id,count(1) c from t1 group by id) t2 where c > 10;  -- DE
 select * from t1 where id in (select id from t2);  -- SUBQUERY where列表中包含的第一个子查询,t1是PRIMARY,t2是SUBQUERY
 select * from t1 where exists (select 1 from t2 where t1.id = t2.id);  -- DEPENDENT SUBQUERY where列表中包含的第一个依赖外部查询的子查询,t2是DEPENDENT SUBQUERY
 -- table表示查询的表
+-- type表示查询类型,性能system > const > eq_ref > ref > range > index > ALL,一般至少要达到range级别(重点)
+system  -- 表中只有一行数据,是const特例
+select * from t1 where id = 1;  -- const 通过索引一次就找到了,常见于primary key和unique
+select * from t1 left join t2 on t1.id = t2.id;  -- eq_ref 唯一性索引扫描,返回匹配的唯一记录,常见于primary key和unique
+select * from t1 left join t2 on t1.job = t2.job;  -- ref 非唯一性索引扫描,返回匹配的所有记录
+select * from t1 where t1.name = 'grubby' or t1.name is null;  -- ref_or_null 某个字段既需要指定值也要null值 
+select * from t1 where t1.id = 10 or t1.name = 'grubby';  -- index_merge 需要多个索引组合使用,常见于and和or语句 
+select * from t1 where t1.id in (select id from t2);  -- index/unique_subquery 子查询中使用了(唯一)索引 
+select * from t1 where t1.id > 10;  -- range 只检索给定范围的行,key列会显示使用了哪个索引,常见于where语句 
+select * from t1;  -- index 使用了索引但是没有通过索引进行过滤,会扫描索引树效率比ALL高,因为索引树比数据文件小很多 
+ALL  -- 全表扫描,必须优化
 ```
 
 ### explain
