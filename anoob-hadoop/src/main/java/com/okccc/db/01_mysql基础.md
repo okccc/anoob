@@ -584,6 +584,7 @@ select * from t1 where t1.id in (select id from t2);  -- index/unique_subquery �
 select * from t1 where t1.id > 10;  -- range 只检索给定范围的行,key列会显示使用了哪个索引,常见于where语句 
 select * from t1;  -- index 使用了索引但是没有通过索引进行过滤,会扫描索引树效率比ALL高,因为索引树比数据文件小很多 
 ALL  -- 全表扫描,必须优化
+-- possible_keys表示可能用到的索引,某个字段存在索引就会被列出来,但不一定被查询实际使用
 ```
 
 ### explain
