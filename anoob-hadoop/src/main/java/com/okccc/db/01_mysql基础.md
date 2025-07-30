@@ -591,6 +591,11 @@ ALL  -- 全表扫描,必须优化
 -- varchar和char要视字符集乘以不同的值(utf-8 * 3 | gbk * 2),varchar是动态字符串要加2个字节,允许为空的字段要加1个字节
 -- ref表示索引的哪一列被使用了
 -- rows表示查询时检索的行数,越少越好(重点)
+-- Extra针对排序操作,尽量把Using filesort变成Using index
+Using where  -- 表示使用了条件过滤
+Using index  -- 表示使用了覆盖索引
+Using filesort  -- 表示排序字段没有通过索引访问,mysql中无法利用索引完成的排序操作称为"文件排序"(重点)
+Using temporary  -- 表示对查询结果排序或分组时使用了临时表
 ```
 
 ### explain
