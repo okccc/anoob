@@ -4,6 +4,7 @@ import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
@@ -140,8 +141,12 @@ public class Flink01 {
 
     public static void main(String[] args) throws Exception {
         // 创建流处理执行环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        // 配置参数优先级：算子并行度(代码写死) > 全局并行度(代码写死) > flink run -p(动态指定) > flink-conf.yaml(集群配置)
+//        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        // IDEA运行时也可以访问WebUI,可用于本地测试,需引入flink-runtime-web依赖
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
+
+        // 配置参数优先级：算子并行度(map/reduce) > 全局并行度(env) > flink run -p(动态指定) > flink-conf.yaml(集群配置)
         // 并行度默认是cpu核数,设置为1可以保证数据有序
         env.setParallelism(1);
 

@@ -78,6 +78,13 @@
             <version>${flink.version}</version>
         </dependency>
 
+        <!-- IDEA本地运行也可以访问WebUI http://localhost:8081 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
         <!-- contains the table runtime -->
         <dependency>
             <groupId>org.apache.flink</groupId>
