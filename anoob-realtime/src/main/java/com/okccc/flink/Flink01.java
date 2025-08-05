@@ -150,6 +150,10 @@ public class Flink01 {
         // 并行度默认是cpu核数,设置为1可以保证数据有序
         env.setParallelism(1);
 
+        // Flink流批一体使用同一套API,默认是STREAMING执行模式,如果是读取文件可以手动指定BATCH模式,注意观察两种模式输出结果
+        // 一般不在代码写死,建议在提交任务时通过参数指定 -Dexecution.runtime-mode=BATCH
+//        env.setRuntimeMode(RuntimeExecutionMode.BATCH);
+
         env
                 // 监听socket数据流,先在终端开启`nc -lk 9999`
                 .socketTextStream("localhost", 9999)
