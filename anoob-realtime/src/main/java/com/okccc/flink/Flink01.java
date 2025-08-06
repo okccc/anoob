@@ -150,6 +150,9 @@ public class Flink01 {
         // 并行度默认是cpu核数,设置为1可以保证数据有序
         env.setParallelism(1);
 
+        // 全局禁用算子链,方便定位反压算子,也可以针对具体算子 .disableChaining()前后都不串在一起 .startNewChain()不与前面串在一起
+        env.disableOperatorChaining();
+
         // Flink流批一体使用同一套API,默认是STREAMING执行模式,如果是读取文件可以手动指定BATCH模式,注意观察两种模式输出结果
         // 一般不在代码写死,建议在提交任务时通过参数指定 -Dexecution.runtime-mode=BATCH
 //        env.setRuntimeMode(RuntimeExecutionMode.BATCH);
