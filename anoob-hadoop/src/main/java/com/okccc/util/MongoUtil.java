@@ -4,6 +4,9 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author: okccc
  * @Date: 2023/2/21 15:41
@@ -36,15 +39,20 @@ public class MongoUtil {
             System.out.println(databaseName);
         }
 
+        // 选择库
+        MongoDatabase db = mongoClient.getDatabase("databaseName");
         // 遍历库的所有集合
-        MongoDatabase db = mongoClient.getDatabase("WAR3");
         for (String collectionName : db.listCollectionNames()) {
             System.out.println(collectionName);
         }
 
-        // 遍历集合的所有文档
-        MongoCollection<Document> collection = db.getCollection("users");
+        // 选择集合
+        MongoCollection<Document> collection = db.getCollection("collectionName");
+        // 统计所有行数
         System.out.println(collection.countDocuments());
+        // 统计指定条件的行数
+        System.out.println(collection.countDocuments(Filters.eq("fieldName", "value")));
+        // 遍历集合的所有文档
         for (Document document : collection.find()) {
             System.out.println(document);
         }
@@ -79,7 +87,7 @@ public class MongoUtil {
     /**
      * 根据非_id单条件查询
      */
-    public static String getValue(String dbName, String collectionName, String field1, String value1, String field2) {
+    public static List<String> getValue(String dbName, String collectionName, String field1, String value1, String field2) {
         // 选择库
         MongoDatabase db = mongoClient.getDatabase(dbName);
         // 选择集合
@@ -88,10 +96,10 @@ public class MongoUtil {
         FindIterable<Document> documents = collection.find(Filters.eq(field1, value1));
         // 遍历迭代器
         MongoCursor<Document> iterator = documents.iterator();
-        String res = null;
+        ArrayList<String> res = new ArrayList<>();
         while (iterator.hasNext()) {
             Document document = iterator.next();
-            res = document.getString(field2);
+            res.add(document.getString(field2));
         }
         return res;
     }
