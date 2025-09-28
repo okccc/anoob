@@ -1,4 +1,4 @@
-package com.okccc.kafka;
+package com.okccc.flume.interceptor;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
