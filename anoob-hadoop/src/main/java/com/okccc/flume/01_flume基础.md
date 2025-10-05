@@ -1,5 +1,5 @@
 ### nginx
-```shell script
+```shell
 # nginx三大功能：反向代理、负载均衡、动静分离
 # 安装依赖
 [root@cdh1 ~]$ yum -y install gcc pcre-devel zlib zlib-devel openssl openssl-devel net-tools
@@ -27,7 +27,7 @@ Welcome to nginx!
 
 ### flume
 - [flume官方文档](http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html)
-```shell script
+```shell
 # 下载
 [root@cdh1 ~]$ wget https://mirror.bit.edu.cn/apache/flume/1.9.0/apache-flume-1.9.0-bin.tar.gz
 # 安装
@@ -111,7 +111,7 @@ a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防�
 ```
 
 ### nginx-kafka.conf
-```shell script
+```shell
 # 注意：生产环境上编写conf文件时不要在行的后面加#注释,会被当成类名
 # 命名agent组件
 a1.sources = r1
@@ -210,7 +210,7 @@ a1.sinks.k1.channel = c1     # 一个sink只能接一个channel
 ```
 
 ### netcat-console.conf
-```shell script
+```shell
 # 命名agent组件
 a1.sources = r1
 a1.sinks = k1
@@ -238,7 +238,7 @@ java
 ```
 
 ### ganglia
-```shell script
+```shell
 # flume可以在启动时添加http监控端口 -Dflume.monitoring.type=http -Dflume.monitoring.port=9999,也可以借助专业监控工具ganglia
 http://localhost:9999/metrics
 # 安装http服务于php
