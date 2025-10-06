@@ -40,46 +40,24 @@ export JAVA_OPTS="-Xms4096m -Xmx4096m -Dcom.sun.management.jmxremote"
 # 创建logs目录
 [root@cdh1 ~]$ mkdir logs
 
-# 集群生成日志启动脚本
-# 解压jar包: tar -xvf mock.jar -C mock(目标目录需提前创建),jar包本质上也是压缩包,直接用tar命令解压缩即可
-# java -jar/-cp区别: 打包时mainClass已指定类名java -jar a.jar,未指定类名java -cp a.jar 包名.类名,可在解压jar包的META-INF文件中查看
-[root@cdh1 ~]$ vim log.sh
-#!/bin/bash
-for i in cdh1 cdh2 cdh3
-do
-    ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
-done
-
-# 启动flume(每个nginx节点都单独装flume,单个nginx节点配置是8核16g,4个节点峰值流量100M/S,稳定流量10M/S)
-# 运维每天凌晨会定时切割nginx日志,不然日志文件会无限增大,切割后监控的日志文件inode变了,所以flume进程也要重启,position从0开始
-[{"inode":70,"pos":10743524421,"file":"/data/logs/access_sdk.log"}]
-[root@cdh1 ~]$ vim flume.sh
-#!/bin/bash
-case $1 in
-"start"){
-    echo "================= 启动flume,重定向日志使用追加模式便于追溯历史排查问题 ================"
-    nohup flume-ng agent -c conf -f conf/nginx-kafka.conf -n a1 -C lib/Interceptor.jar -Dflume.root.logger=info,console >> logs/flume.log 2>&1 &
-};;
-"stop"){
-    echo "================= 停止flume ================"
-    ps -ef | grep flume | grep -v grep | awk '{print \$2}' | xargs kill  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
-};;
-esac
-
 # event
-flume传输数据的基本单元,由headers和body组成 Event: {headers:{} body: 61 61 61  aaa}
-headers是Map<String, String>集合,可以根据key来区分不同event并将其分流,headers并不会被传输,body是byte[]数组,是真正传输的数据
+# flume传输数据的基本单元,由headers和body组成 Event: {headers:{} body: 61 61 61  aaa}
+# headers是Map<String, String>集合,可以根据key来区分不同event并将其分流,headers并不会被传输,body是byte[]数组,是真正传输的数据
+
 # agent
-jvm运行flume的最小单元,由source-channel-sink组成
+# jvm运行flume的最小单元,由source-channel-sink组成
+
 # source
-flume1.7版本使用TailDir可以监控多目录,且会记录日志文件读取位置,故障重启后就从该位置开始,解决断点续传问题
+# flume1.7版本使用TailDir可以监控多目录,且会记录日志文件读取位置,故障重启后就从该位置开始,解决断点续传问题
+
 # channel
-file channel：数据存到磁盘,速度慢,可靠性高,默认100万个event,适用于交易数据
-memory channel：数据存到内存,速度快,可靠性低,默认100个event,适用于普通日志
-kafka channel：数据存到kafka也是磁盘,可靠性高,且省去sink阶段速度更快,kafka channel > memory channel + sink
-channel selectors：replicating将events发往所有channel,multiplexing将events发往指定channel
+# file channel：数据存到磁盘,速度慢,可靠性高,默认100万个event,适用于交易数据
+# memory channel：数据存到内存,速度快,可靠性低,默认100个event,适用于普通日志
+# kafka channel：数据存到kafka也是磁盘,可靠性高,且省去sink阶段速度更快,kafka channel > memory channel + sink
+# channel selectors：replicating将events发往所有channel,multiplexing将events发往指定channel
+
 # sink
-不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger/kafka
+# 不断轮询channel中的事件并将其移除到存储系统或下一个agent,目的地通常是hdfs/logger/kafka
 
 # flume调优
 a1.sources.r1.batchSize = 1000  # 控制往channel发送数据的批次大小,可以适当调大提高吞吐量,但是不能超过capacity和transactionCapacity
