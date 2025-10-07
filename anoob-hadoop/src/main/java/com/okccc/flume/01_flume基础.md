@@ -104,8 +104,8 @@ a1.sources.r1.filegroups.f1 = /tmp/logs/app.+  # 一组文件以空格分隔,也
 a1.sources.r1.channels = c1 c2
 # 拦截器(jar包放到flume的lib目录)
 a1.sources.r1.interceptors = i1 i2
-a1.sources.r1.interceptors.i1.type = com.okccc.interceptor.ETLInterceptor$Builder
-a1.sources.r1.interceptors.i2.type = com.okccc.interceptor.TypeInterceptor$Builder
+a1.sources.r1.interceptors.i1.type = com.okccc.flume.interceptor.ETLInterceptor$Builder
+a1.sources.r1.interceptors.i2.type = com.okccc.flume.interceptor.TypeInterceptor$Builder
 # 选择器(配合拦截器使用)
 a1.sources.r1.selector.type = multiplexing     # 根据日志类型指定channel
 a1.sources.r1.selector.header = type           # headers的key,通过headers对event分流
