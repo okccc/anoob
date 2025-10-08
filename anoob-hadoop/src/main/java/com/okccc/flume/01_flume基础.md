@@ -136,20 +136,20 @@ a1.channels.c2.parseAsFlumeEvent = false
 ```
 
 ### nginx-hdfs.conf
-```shell script
+```shell
 # 命名agent组件
 a1.sources = r1
 a1.channels = c1
 a1.sinks = k1
 
-# 配置source
+# source端是nginx
 a1.sources.r1.type = TAILDIR
 a1.sources.r1.positionFile = ${flume}/position/offline_position.json  # 记录采集位置的json文件
 a1.sources.r1.filegroups = f1
 a1.sources.r1.filegroups.f1 = /data1/logstash/logs/.*.txt  # 监控的文件,可以是单个文件,也可以是正则匹配多个文件
 # 自定义拦截器(可选)
 a1.sources.r1.interceptors = i1
-a1.sources.r1.interceptors.i1.type = com.okccc.interceptor.TimestampInterceptor$Builder
+a1.sources.r1.interceptors.i1.type = com.okccc.flume.interceptor.TimestampInterceptor$Builder
 
 # memory channel
 a1.channels.c1.type = memory
@@ -171,7 +171,7 @@ a1.sinks.k1.hdfs.useLocalTimeStamp = false     # 是否使用本地时间戳代�
 a1.sinks.k1.hdfs.batchSize = 1000              # 有1000个event写入文件就flush到hdfs
 # 数据压缩(可选)
 a1.sinks.k1.hdfs.fileType = CompressedStream   # 文件类型,SequenceFile(默认)/DataStream(常用)/CompressedStream(压缩)
-a1.sinks.k1.hdfs.codeC = lzop                  # 指定压缩方式
+a1.sinks.k1.hdfs.codeC = gzip                  # 指定压缩方式
 # 控制hdfs文件大小,默认参数会生成大量小文件
 a1.sinks.k1.hdfs.rollInterval = 3600           # tmp文件达到3600秒会滚动生成正式文件
 a1.sinks.k1.hdfs.rollSize = 10737418420        # tmp文件达到10G会滚动生成正式文件
