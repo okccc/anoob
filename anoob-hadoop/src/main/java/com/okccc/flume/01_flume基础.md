@@ -135,7 +135,7 @@ a1.channels.c2.parseAsFlumeEvent = false
 # nginx落地的日志文件还在,从文件中grep时间戳截取丢失数据写到临时文件,flume再写一个conf单独监听这个临时文件写入topic就行
 ```
 
-### nginx-hdfs.conf
+### nginx(kafka)-hdfs.conf
 ```shell
 # 命名agent组件
 a1.sources = r1
@@ -147,6 +147,12 @@ a1.sources.r1.type = TAILDIR
 a1.sources.r1.positionFile = ${flume}/position/offline_position.json  # 记录采集位置的json文件
 a1.sources.r1.filegroups = f1
 a1.sources.r1.filegroups.f1 = /data1/logstash/logs/.*.txt  # 监控的文件,可以是单个文件,也可以是正则匹配多个文件
+# source端是kafka
+a1.sources.r1.type = org.apache.flume.source.kafka.KafkaSource
+a1.sources.r1.batchSize = 5000
+a1.sources.r1.batchDurationMillis = 2000
+a1.sources.r1.kafka.bootstrap.servers = cdh1:9092,cdh2:9092,cdh3:9092
+a1.sources.r1.kafka.topics = event
 # 自定义拦截器(可选)
 a1.sources.r1.interceptors = i1
 a1.sources.r1.interceptors.i1.type = com.okccc.flume.interceptor.TimestampInterceptor$Builder
