@@ -67,21 +67,19 @@ a1.sources.r1.ServerConnector.idleTimeout = 300  # 超过该时间没有新增�
 a1.channels.c1.transactionCapacity = 5000  # batchSize <= transactionCapacity <= capacity
 a1.channels.c1.capacity = 10000  # 可以适当调大提高吞吐量,还能避免The channel is full or unexpected failure异常
 a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防止channel处于时满时空状态
-```
 
-### problems
-```shell script
-1.java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
+# 常见错误
+# java.io.FileNotFoundException: /opt/cloudera/parcels/CDH/lib/flume-ng/position/log_position.json (Permission denied)
 # 显示没有positionFile文件的写入权限,可以先将该文件所属目录读写权限改成777,然后看是哪个用户在读写该文件(这里是flume),再修改目录所属用户即可
 
-2.Caused by: java.lang.ClassNotFoundException: com.okccc.interceptor.InterceptorDemo$Builder
+# Caused by: java.lang.ClassNotFoundException: com.okccc.interceptor.InterceptorDemo$Builder
 # java找不到类要么是打jar包类没加载进去,要么是jar包冲突,要么是启动命令没找到lib/Interceptor.jar,可以在flume-ng命令行里-C手动指定jar包
 
-3.Producer clientId=producer-1 Connection to node 0 could not be established. Broker may not be available.
+# Producer clientId=producer-1 Connection to node 0 could not be established. Broker may not be available.
 # flume往kafka写数据时,下游kafka挂了导致flume作为生产者一直连不上broker,重启kafka之后flume也要重启然后继续之前的position采集和发送数据
 # nginx-flume-kafka采集通道正常时flume日志的ClusterID和zookeeper的/cluster/id以及kafka日志的meta.properties的cluster.id应该相同
 
-4.RecordTooLargeException: The request included a message 2262864 bytes which is larger than the max message size the server will accept.
+# RecordTooLargeException: The request included a message 2262864 bytes which is larger than the max message size the server will accept.
 # flume发送消息大小超过了kafka生产者最大请求字节数(默认1M),agent添加配置a1.channels.c1.kafka.producer.max.request.size = 5242880
 # flume作为kafka生产者的配置信息在其运行日志flume.log通过ProducerConfig values可以找到
 # kafka消息大小有限制 max.request.size(producer端) < message.max.bytes(broker端) < max.partition.fetch.bytes(consumer端)
