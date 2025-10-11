@@ -84,6 +84,16 @@ a1.channels.c1.keep-alive = 15  # put/take事务的超时时间,适当调大防�
 # flume作为kafka生产者的配置信息在其运行日志flume.log通过ProducerConfig values可以找到
 # kafka消息大小有限制 max.request.size(producer端) < message.max.bytes(broker端) < max.partition.fetch.bytes(consumer端)
 # flume数据传输失败position位置是不更新的,直到修复问题重启脚本后继续之前的位置采集,Last read was never committed - resetting position
+
+# 集群生成日志启动脚本
+# 解压jar包: tar -xvf mock.jar -C mock(目标目录需提前创建),jar包本质上也是压缩包,直接用tar命令解压缩即可
+# java -jar/-cp区别: 打包时mainClass已指定类名java -jar a.jar,未指定类名java -cp a.jar 包名.类名,可在解压jar包的META-INF文件中查看
+[root@cdh1 ~]$ vim log.sh
+#!/bin/bash
+for i in cdh1 cdh2 cdh3
+do
+    ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
+done
 ```
 
 ### nginx-kafka.conf
