@@ -94,6 +94,22 @@ for i in cdh1 cdh2 cdh3
 do
     ssh $i "source /etc/profile && cd /opt/module && java -cp mock-1.0-SNAPSHOT-jar-with-dependencies.jar app.AppMain > a.log &"
 done
+
+# flume启动脚本(每个nginx节点都单独装flume,单个nginx节点配置是8核16g,4个节点峰值流量100M/S,稳定流量10M/S)
+# 运维每天凌晨会定时切割nginx日志,不然日志文件会无限增大,切割后监控的日志文件inode变了,所以flume进程也要重启,position从0开始
+[{"inode":70,"pos":10743524421,"file":"/data/logs/access_sdk.log"}]
+[root@cdh1 ~]$ vim flume.sh
+#!/bin/bash
+case $1 in
+"start"){
+    echo "================= 启动flume,重定向日志使用追加模式便于追溯历史排查问题 ================"
+    nohup flume-ng agent -c conf -f conf/nginx-kafka.conf -n a1 -C lib/Interceptor.jar -Dflume.root.logger=info,console >> logs/flume.log 2>&1 &
+};;
+"stop"){
+    echo "================= 停止flume ================"
+    ps -ef | grep flume | grep -v grep | awk '{print \$2}' | xargs kill  # 这里的$2要加\转义,不然会被当成脚本的第二个参数
+};;
+esac
 ```
 
 ### nginx-kafka.conf
