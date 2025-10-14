@@ -112,6 +112,11 @@ public class FlinkUtil {
         return KafkaSource.<String>builder()
                 .setBootstrapServers(KAFKA_SERVER)
                 .setTopics(topic)
+                // 同一个kafka集群的groupId必须唯一,防止不同消费者组之间偏移量冲突
+                // 不能使用时间戳和随机数等动态变量,不然每次启动都会新建groupId无法复用偏移量
+                // 命名需要直观反映当前需求的业务场景、数据源、用途和环境,方便后期维护和排查问题
+                // 推荐格式：flink_{业务域user/order/log}_{topic}_{用途etl/analyze/sync}_{环境标识}
+                // 比如topic是user_behavior_log,对应groupId是flink_user_behavior_log_sync2hdfs_prod
                 .setGroupId(groupId)
                 .setStartingOffsets(OffsetsInitializer.latest())
                 // 查看SimpleStringSchema源码77行和String源码514行发现bytes[]是@NotNull,所以要自定义反序列化器
