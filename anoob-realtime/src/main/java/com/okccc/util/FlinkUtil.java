@@ -125,6 +125,8 @@ public class FlinkUtil {
 //                .setValueOnlyDeserializer(new MyDeserializationSchema())
                 // 获取kafka消息的value以及partition和offset等元数据信息
                 .setDeserializer(new MyKafkaRecordDeserializationSchema())
+                // kafka消费者默认隔离级别是读未提交,因此Flink Sink端2PC预提交的数据也会被读到,将其修改为读已提交
+                .setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, IsolationLevel.READ_COMMITTED.toString().toLowerCase(Locale.ROOT))
                 .build();
     }
 
