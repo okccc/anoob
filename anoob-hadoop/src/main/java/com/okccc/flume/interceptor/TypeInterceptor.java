@@ -44,7 +44,7 @@ public class TypeInterceptor implements Interceptor {
 
     @Override
     public List<Event> intercept(List<Event> list) {
-//        // 1.ArrayList直接删除数据会有线程安全问题: java.util.ConcurrentModificationException
+//        // 1.不能在遍历集合的同时修改(删除)数据,会有线程安全问题: java.util.ConcurrentModificationException
 //        for (Event event : list) {
 //            if (intercept(event) == null) {
 //                list.remove(event);
