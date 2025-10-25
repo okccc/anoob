@@ -2,7 +2,7 @@ package com.okccc.util;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.google.common.base.CaseFormat;
 import com.okccc.bean.UserInfo;
 import org.apache.commons.beanutils.BeanUtils;
