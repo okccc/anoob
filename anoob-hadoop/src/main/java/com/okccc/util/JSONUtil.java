@@ -1,26 +1,23 @@
 package com.okccc.util;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.serializer.ValueFilter;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson2.filter.Filter;
+import com.alibaba.fastjson2.filter.PropertyFilter;
+import com.alibaba.fastjson2.filter.ValueFilter;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author: okccc
  * @Date: 2021/11/23 15:26:09
  * @Desc: 处理JSON格式数据的工具类
  */
-public class JsonUtil {
+public class JSONUtil {
     public static void main(String[] args) {
         /*
          * 主要类
@@ -28,10 +25,10 @@ public class JsonUtil {
          * public class JSONArray extends JSON implements List<Object>, Serializable
          *
          * 主要方法
-         * JSON.parseObject(jsonStr)：将json字符串转换成JSONObject
-         * JSON.parseObject(jsonStr, OrderInfo.class)：将json字符串转换成java实体类
-         * JSON.toJSONString(OrderInfo)：将java实体类转换成json字符串
-         * JSON.parseArray(jsonStr)：将json字符串转换成json数组
+         * JSON.parseObject(jsonStr)：将JSON字符串转换成JSONObject
+         * JSON.parseObject(jsonStr, OrderInfo.class)：将JSON字符串转换成java实体类
+         * JSON.toJSONString(OrderInfo)：将java实体类转换成JSON字符串
+         * JSON.parseArray(jsonStr)：将JSON字符串转换成json数组
          *
          * 常见错误
          * ValueError: Expecting, delimiter: line 4 column 1(char 23) 字符串不是标准json格式,看看是否有双引号和逗号缺失
@@ -68,7 +65,7 @@ public class JsonUtil {
         keySet.removeIf(s -> !columns.contains(s));
         System.out.println(jsonObject);
 
-        // 往JSONObject添加json格式的字符串会转译生成反斜杠
+        // 往JSONObject添加JSON格式的字符串会转译生成反斜杠
         JSONObject json01 = new JSONObject();
         JSONObject json02 = new JSONObject();
         JSONObject json03 = new JSONObject();
@@ -86,7 +83,7 @@ public class JsonUtil {
         System.out.println(json04);  // {"k4":"[a, b, c]"}
         System.out.println(json05);  // {"k5":["a","b","c"]}
 
-        // 将json字符串转换成java实体类时会将缺省字段设为null并过滤多余字段
+        // 将JSON字符串转换成java实体类时会将缺省字段设为null并过滤多余字段
         String str01 = "{\"name\":\"grubby\",\"age\":19,\"gender\":\"male\"}";
         String str02 = "{\"name\":\"grubby\",\"age\":19,\"gender\":\"male\",\"phone\":\"111\",\"email\":\"orc@qq.com\"}";
         User user01 = JSON.parseObject(str01, User.class);
@@ -94,43 +91,45 @@ public class JsonUtil {
         System.out.println(user01);  // User(name=grubby, age=19, gender=male, phone=null)
         System.out.println(user02);  // User(name=grubby, age=19, gender=male, phone=111)
 
-        // 将java实体类转换成json字符串时会过滤null值字段
+        // 将java实体类转换成JSON字符串时会过滤null值字段
         User user = new User();
         user.setName("grubby");
         String s1 = JSON.toJSONString(user);
         System.out.println(s1);  // {"age":0,"name":"grubby"}
-        // 设置SerializerFeature允许写null值
-        String s2 = JSON.toJSONString(user, SerializerFeature.WriteMapNullValue);
+
+        // 设置JSONWriter允许写null值
+        String s2 = JSON.toJSONString(user, JSONWriter.Feature.WriteMapNullValue);
         System.out.println(s2);  // {"age":0,"gender":null,"name":"grubby","phone":null}
-        // null值放json里面不好看,可以将其转换成空字符串,可以使用SerializeFilter接口的子接口ValueFilter
-        String s3 = JSON.toJSONString(user, new ValueFilter() {
-            @Override
-            public Object process(Object object, String name, Object value) {
-                if (value == null) {
-                    return "";
-                }
-                return value;
-            }
-        });
+
+        // null值放JSON里面不好看,设置ValueFilter将其转换成空字符串
+        String s3 = JSON.toJSONString(user,
+                new ValueFilter[]{
+                        new ValueFilter() {
+                            @Override
+                            public Object apply(Object object, String name, Object value) {
+                                return Objects.requireNonNullElse(value, "");
+                            }
+                        }},
+                JSONWriter.Feature.WriteMapNullValue);
         System.out.println(s3);  // {"age":0,"gender":"","name":"grubby","phone":""}
-        // 如果有些null值要过滤而有些null值要保留,可以组合使用ValueFilter和PropertyFilter
-        String s4 = JSON.toJSONString(user, new SerializeFilter[]{
-                new PropertyFilter() {
-                    @Override
-                    public boolean apply(Object object, String name, Object value) {
-                        return "gender".equals(name) || value != null;
+
+        // 如果有些null值要过滤而有些null值要保留,可以组合使用PropertyFilter和ValueFilter
+        String s4 = JSON.toJSONString(user,
+                new Filter[]{
+                    new PropertyFilter() {
+                        @Override
+                        public boolean apply(Object object, String name, Object value) {
+                            return "gender".equals(name) || value != null;
+                        }
+                    },
+                    new ValueFilter() {
+                        @Override
+                        public Object apply(Object object, String name, Object value) {
+                            return Objects.requireNonNullElse(value, "");
+                        }
                     }
                 },
-                new ValueFilter() {
-                    @Override
-                    public Object process(Object object, String name, Object value) {
-                        if (value == null) {
-                            return "";
-                        }
-                        return value;
-                    }
-                }
-        }, SerializerFeature.WriteMapNullValue);
+                JSONWriter.Feature.WriteMapNullValue);
         System.out.println(s4);  // {"age":0,"gender":"","name":"grubby"}
     }
 
