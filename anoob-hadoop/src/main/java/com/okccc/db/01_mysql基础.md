@@ -74,6 +74,16 @@ mysql> show variables like 'wait_timeout' / select @@wait_timeout / set global w
 +---------------+-------+
 | wait_timeout  | 7200  |
 +---------------+-------+
+# 查看mysql是否配置SSL连接
+mysql> SHOW VARIABLES LIKE '%ssl%';
++--------------------+-----------------+
+| Variable_name      | Value           |
++--------------------+-----------------+
+| have_ssl           | YES             |
+| ssl_ca             | ca.pem          |
+| ssl_cert           | server-cert.pem |
+| ssl_key            | server-key.pem  |
++--------------------+-----------------+
 # 查看mysql线程状态created/cached/connected/running
 mysql> show status like 'Thread%';
 +-------------------------+-------+
