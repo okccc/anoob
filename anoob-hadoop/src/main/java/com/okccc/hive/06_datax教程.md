@@ -15,7 +15,7 @@
 [root@cdh1 ~]$ bin/datax.py job/mysql2stream.json
 # 查看mysql2hdfs模板
 [root@cdh1 ~]$ bin/datax.py -r mysqlreader -w hdfswriter
-[root@cdh1 ~]$ bin/datax.py job/mysql2hdfs.json
+[root@cdh1 ~]$ bin/datax.py job/mysql2hdfs.json  # 可通过-p"-Ddt=20250802"动态传入日期
 ```
 
 ### stream2stream
@@ -129,13 +129,13 @@
                             "type": "string"
                           }
                         ],
-                        "compress": "hdfs文件压缩类型,默认不压缩",
-                        "defaultFS": "namenode地址,hdfs://${ip}:${port}",
-                        "fieldDelimiter": "字段分隔符",
+                        "compress": "hdfs文件压缩类型 - gzip",
+                        "defaultFS": "namenode地址 - hdfs://${ip}:${port}",
+                        "fieldDelimiter": "字段分隔符 - \t是TSV格式,逗号是CSV格式",
                         "fileName": "文件名",
-                        "fileType": "文件类型text/orc",
-                        "path": "hdfs路径",
-                        "writeMode": "写入模式append/nonConflict/truncate"
+                        "fileType": "文件类型 - text/orc",
+                        "path": "hdfs路径 - /base_province/${dt},日期可以通过参数动态传入",
+                        "writeMode": "写入模式 - append/nonConflict/truncate"
                     }
                 }
             }
