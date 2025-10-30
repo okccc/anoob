@@ -29,6 +29,9 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.IsolationLevel;
 
 import java.time.Duration;
 import java.time.ZoneId;
@@ -424,19 +427,25 @@ public class FlinkUtil {
     /**
      * 往hdfs写数据的生产者
      * https://nightlies.apache.org/flink/flink-docs-release-1.20/zh/docs/connectors/datastream/filesystem/
+     * FileSink写Hdfs的两种滚动策略
+     * OnCheckpointRollingPolicy：仅在checkpoint时才触发,与检查点强绑定,不好控制文件的大小和数量,适合EXACTLY_ONCE场景
+     * DefaultRollingPolicy：可通过大小、时间、超时等多个条件触发,与检查点弱绑定,可以控制文件的大小和数量,适合大多数通用场景
      */
     public static FileSink<String> getHdfsSink(String output) {
         return FileSink
                 // 行编码格式 Row-encoded Formats
                 .forRowFormat(new Path(output), new SimpleStringEncoder<String>("UTF-8"))
-                // 桶分配
+                // 按时间目录分桶
+//                .withBucketAssigner(new DateTimeBucketAssigner<>("yyyyMMdd", ZoneId.systemDefault()))
                 .withBucketAssigner(new HiveBucketAssigner<>("yyyyMMdd", ZoneId.of("Asia/Shanghai")))
+                // 输出文件名的前后缀(可选)
+                .withOutputFileConfig(OutputFileConfig.builder().withPartPrefix("bigdata-").withPartSuffix(".log").build())
                 // 滚动策略,如果hadoop < 2.7就只能使用OnCheckpointRollingPolicy
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
-                                // part file何时由inprogress变成finished
-                                .withRolloverInterval(Duration.ofSeconds(300))
-                                .withInactivityInterval(Duration.ofSeconds(300))
+                                // part file何时由in-progress - pending - finished
+                                .withRolloverInterval(Duration.ofSeconds(60))
+                                .withInactivityInterval(Duration.ofSeconds(60))
                                 .withMaxPartSize(MemorySize.ofMebiBytes(128 * 1024 * 1024))
                                 .build()
                 )
