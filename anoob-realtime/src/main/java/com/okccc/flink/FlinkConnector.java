@@ -5,6 +5,7 @@ import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.connector.sink2.SinkWriter;
+import org.apache.flink.api.connector.source.util.ratelimit.RateLimiterStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.base.DeliveryGuarantee;
@@ -73,7 +74,10 @@ public class FlinkConnector {
                     public String map(Long value) {
                         return "Number: " + value;
                     }
-                }, 1000, Types.STRING
+                },
+                1000,
+                RateLimiterStrategy.perSecond(1),
+                Types.STRING
         );
 
         env.fromSource(generatorSource, WatermarkStrategy.noWatermarks(), "Generator Source").print();
