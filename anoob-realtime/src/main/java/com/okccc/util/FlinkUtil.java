@@ -1,7 +1,7 @@
 package com.okccc.util;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.okccc.func.HiveBucketAssigner;
 import com.okccc.func.MyKafkaRecordDeserializationSchema;
 import com.okccc.func.MyKeySerializationSchema;
@@ -27,6 +27,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -35,6 +36,7 @@ import org.apache.kafka.common.IsolationLevel;
 
 import java.time.Duration;
 import java.time.ZoneId;
+import java.util.Locale;
 
 /**
  * @Author: okccc
@@ -134,7 +136,7 @@ public class FlinkUtil {
     }
 
     /**
-     * KafkaSink,将数据写入指定topic,并传入key作为分区策略
+     * KafkaSink,将数据写入指定topic
      * FlinkKafkaProducer已被弃用并将在Flink1.15中移除,请改用KafkaSink
      * https://nightlies.apache.org/flink/flink-docs-release-1.20/zh/docs/connectors/datastream/kafka/#kafka-sink
      */
@@ -148,17 +150,24 @@ public class FlinkUtil {
                                 .setValueSerializationSchema(new SimpleStringSchema())
                                 .build()
                 )
-                // Sink端的EXACTLY_ONCE依赖事务,影响性能且容易故障,大多数场景AT_LEAST_ONCE就行,只要下游kafka消费者能保证幂等性即可
-                .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
-//                // There is a newer producer with the same transactionalId which fences the current one
-//                // https://kafka.apache.org/documentation/#producerconfigs_transactional.id
-//                .setTransactionalIdPrefix(transactionId)
-//                // The transaction timeout is larger than the maximum value allowed by the broker (transaction.max.timeout.ms)
-//                .setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000 + "")
+                // Sink端的EXACTLY_ONCE依赖事务,影响性能且容易故障,大多数场景AT_LEAST_ONCE就行,只要下游能保证幂等性即可
+//                .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+                // EXACTLY_ONCE 开启两阶段提交
+                .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
+                // There is a newer producer with the same transactionalId which fences the current one
+                // https://kafka.apache.org/documentation/#producerconfigs_transactional.id
+                // EXACTLY_ONCE 必须设置事务前缀
+                .setTransactionalIdPrefix(transactionId)
+                // The transaction timeout is larger than the maximum value allowed by the broker (transaction.max.timeout.ms)
+                // EXACTLY_ONCE 必须设置事务超时时间,大于checkpoint间隔,小于外部系统的事务最大超时时间,Kafka是15分钟
+                .setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 10 * 60 * 1000 + "")
                 .build();
     }
 
-    public static KafkaSink<String> getKafkaSink(String topic, String key, String transactionId) {
+    /**
+     * KafkaSink,将数据写入指定topic,并传入key作为分区策略
+     */
+    public static KafkaSink<String> getKafkaSinkWithKey(String topic, String key, String transactionId) {
         // 创建flink生产者对象
         return KafkaSink.<String>builder()
                 .setBootstrapServers(KAFKA_SERVER)
@@ -170,13 +179,7 @@ public class FlinkUtil {
                                 .setValueSerializationSchema(new SimpleStringSchema())
                                 .build()
                 )
-                // Sink端的EXACTLY_ONCE依赖事务,影响性能且容易故障,大多数场景AT_LEAST_ONCE就行,只要下游kafka消费者能保证幂等性即可
                 .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
-//                // There is a newer producer with the same transactionalId which fences the current one
-//                // https://kafka.apache.org/documentation/#producerconfigs_transactional.id
-//                .setTransactionalIdPrefix(transactionId)
-//                // The transaction timeout is larger than the maximum value allowed by the broker (transaction.max.timeout.ms)
-//                .setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000 + "")
                 .build();
     }
 
@@ -320,7 +323,7 @@ public class FlinkUtil {
         StateTtlConfig stateTtlConfig = StateTtlConfig
                 // 设置状态存活时间为1天
                 .newBuilder(Duration.ofDays(ttl))
-                // 状态更新策略：比如状态是今天10点创建11点更新12点读取,那么失效时间是明天Disabled(10点)/OnCreateAndWrite(11点)/OnReadAndWrite(12点)
+                // 状态更新策略：比如状态是今天10点创建11点更新12点读取,那么失效时间是明天OnCreateAndWrite(11点)/OnReadAndWrite(12点)
                 .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
                 // 状态可见性：内存中的状态过期后,如果没有被jvm垃圾回收,是否还会返回给调用者
                 .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
