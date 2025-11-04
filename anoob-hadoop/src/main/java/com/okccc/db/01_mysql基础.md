@@ -74,7 +74,7 @@ mysql> show variables like 'wait_timeout' / select @@wait_timeout / set global w
 +---------------+-------+
 | wait_timeout  | 7200  |
 +---------------+-------+
-# 查看mysql是否配置SSL连接
+# 查看mysql是否配置SSL连接,输入status命令显示SSL: Cipher in use is DHE-RSA-AES256-SHA表示当前连接正在使用SSL加密
 mysql> SHOW VARIABLES LIKE '%ssl%';
 +--------------------+-----------------+
 | Variable_name      | Value           |
