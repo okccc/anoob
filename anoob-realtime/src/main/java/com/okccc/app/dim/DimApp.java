@@ -1,7 +1,7 @@
 package com.okccc.app.dim;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.okccc.app.bean.TableProcess;
 import com.okccc.func.DimSinkFunction;
 import com.okccc.func.TableProcessFunction;
