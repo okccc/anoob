@@ -1,6 +1,6 @@
 package com.okccc.func;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.okccc.util.DateUtil;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.state.StateTtlConfig;
