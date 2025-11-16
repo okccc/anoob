@@ -1,6 +1,6 @@
 package com.okccc.func;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.okccc.util.DimUtil;
 import com.okccc.util.ThreadPoolUtil;
 import org.apache.flink.configuration.Configuration;
