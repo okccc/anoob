@@ -1,8 +1,7 @@
 package com.okccc.app.dwd;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.okccc.func.FilterUserFunction;
 import com.okccc.util.FlinkUtil;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -37,7 +36,7 @@ public class DwdUniqueVisitor {
 
         // 5.将数据写入kafka
         filterStream
-                .map(JSONAware::toJSONString)
+                .map(value -> value.toJSONString())
                 .sinkTo(FlinkUtil.getKafkaSink("dwd_unique_visitor", "uv_"));
 
         // 6.启动任务
