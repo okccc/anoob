@@ -1,7 +1,7 @@
 package com.okccc.app.dws;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.okccc.app.bean.PaymentStats;
 import com.okccc.util.ClickHouseUtil;
 import com.okccc.util.DateUtil;
