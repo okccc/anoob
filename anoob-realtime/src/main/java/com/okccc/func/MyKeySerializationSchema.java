@@ -1,7 +1,7 @@
 package com.okccc.func;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 
 import java.nio.charset.StandardCharsets;
