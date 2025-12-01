@@ -67,8 +67,9 @@ public class FlinkUtil {
         conf.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
 
         // 检查点存储路径,目录名称就是Flink Streaming Job ID
-        conf.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
-        conf.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "hdfs://${ip}:${port}/flink/cp");
+        // 如何查看hdfs完整路径 show create table ${table}
+        configuration.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
+        configuration.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "hdfs://${ip}:${port}/flink/cp");
 
         // enable checkpointing with finished tasks
         conf.set(CheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
