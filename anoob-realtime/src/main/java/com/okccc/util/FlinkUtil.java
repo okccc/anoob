@@ -52,19 +52,13 @@ public class FlinkUtil {
      * 配置状态后端和检查点
      * https://nightlies.apache.org/flink/flink-docs-release-1.20/docs/dev/datastream/fault-tolerance/checkpointing/
      */
-    public static void setCheckpointAndStateBackend(StreamExecutionEnvironment env) {
-        // 设置并行度,部署时应结合Kafka分区数,通过命令行-p指定全局并行度
-        env.setParallelism(1);
-
-        // 禁用算子链,方便定位导致反压的具体算子
-        env.disableOperatorChaining();
-
-        // 1.基本配置
-        Configuration conf = new Configuration();
+    public static StreamExecutionEnvironment getEnv() {
+        // 基本配置
+        Configuration config = new Configuration();
 
         // 状态后端
 //        config.set(StateBackendOptions.STATE_BACKEND, "hashmap");
-        conf.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
+        config.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
 
         // 检查点存储路径,目录名称就是Flink Streaming Job ID
         // 如何查看hdfs完整路径 show create table ${table}
