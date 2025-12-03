@@ -62,11 +62,8 @@ public class FlinkUtil {
 
         // 检查点存储路径,目录名称就是Flink Streaming Job ID
         // 如何查看hdfs完整路径 show create table ${table}
-        configuration.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
-        configuration.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "hdfs://${ip}:${port}/flink/cp");
-
-        // enable checkpointing with finished tasks
-        conf.set(CheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
+        config.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
+        config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "hdfs://${ip}:${port}/flink/cp");
 
         // 重启策略：重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
         conf.set(RestartStrategyOptions.RESTART_STRATEGY, "fixed-delay");
