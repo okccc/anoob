@@ -66,9 +66,9 @@ public class FlinkUtil {
         config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "hdfs://${ip}:${port}/flink/cp");
 
         // 重启策略：重试间隔调大一点,不然flink监控页面一下子就刷新过去变成job failed,看不到具体异常信息
-        conf.set(RestartStrategyOptions.RESTART_STRATEGY, "fixed-delay");
-        conf.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_ATTEMPTS, 3);
-        conf.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_DELAY, Duration.ofSeconds(60));
+        config.set(RestartStrategyOptions.RESTART_STRATEGY, "fixed-delay");
+        config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_ATTEMPTS, 3);
+        config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_DELAY, Duration.ofSeconds(60));
 
         env.configure(conf);
 
