@@ -70,13 +70,9 @@ public class FlinkUtil {
         config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_ATTEMPTS, 3);
         config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_DELAY, Duration.ofSeconds(60));
 
-        env.configure(conf);
-
-        // 2.检查点配置
-        CheckpointConfig config = env.getCheckpointConfig();
-
         // 开启检查点：通常1~5分钟执行一次,查看Checkpoints - Summary - End to End Duration,综合考虑性能和时效性
-        env.enableCheckpointing(60 * 1000, CheckpointingMode.EXACTLY_ONCE);
+        config.set(CheckpointingOptions.CHECKPOINTING_INTERVAL, Duration.ofSeconds(60));
+        config.set(CheckpointingOptions.CHECKPOINTING_CONSISTENCY_MODE, CheckpointingMode.EXACTLY_ONCE);
 
         // 检查点超时时间,防止状态数据过大或反压导致检查点耗时过长 Checkpoint expired before completing.
         config.setCheckpointTimeout(3 * 60 * 1000);
