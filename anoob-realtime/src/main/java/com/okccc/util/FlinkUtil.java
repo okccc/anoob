@@ -75,7 +75,7 @@ public class FlinkUtil {
         config.set(CheckpointingOptions.CHECKPOINTING_CONSISTENCY_MODE, CheckpointingMode.EXACTLY_ONCE);
 
         // 检查点超时时间,防止状态数据过大或反压导致检查点耗时过长 Checkpoint expired before completing.
-        config.setCheckpointTimeout(3 * 60 * 1000);
+        config.set(CheckpointingOptions.CHECKPOINTING_TIMEOUT, Duration.ofSeconds(60));
 
         // 检查点可容忍的连续失败次数,不然一故障就报错 Exceeded checkpoint tolerable failure threshold.
         config.setTolerableCheckpointFailureNumber(3);
