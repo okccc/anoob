@@ -78,7 +78,7 @@ public class FlinkUtil {
         config.set(CheckpointingOptions.CHECKPOINTING_TIMEOUT, Duration.ofSeconds(60));
 
         // 检查点可容忍的连续失败次数,不然一故障就报错 Exceeded checkpoint tolerable failure threshold.
-        config.setTolerableCheckpointFailureNumber(3);
+        config.set(CheckpointingOptions.TOLERABLE_FAILURE_NUMBER, 3);
 
         // 检查点之间的最小时间间隔,保证执行检查点的并发是1,防止检查点耗时过长导致积压,密集触发检查点操作会占用大量资源
         // 场景1：检查点60s执行一次,最小时间间隔30s,某次检查点耗时40s,理论上下一次检查点20s后就会执行,但是实际上会等30s
