@@ -85,11 +85,12 @@ public class FlinkUtil {
         // 场景2：检查点60s执行一次,最小时间间隔30s,某次检查点耗时90s,理论上下一次检查点已经在执行中了,但是实际上会等30s
         config.set(CheckpointingOptions.MIN_PAUSE_BETWEEN_CHECKPOINTS, Duration.ofSeconds(30));
 
-        // barrier对齐：快的barrier到达后,算子不会继续处理数据,而是放到缓冲区,等所有输入流的barrier到齐才会进行checkpoint
-        // 缓冲区数据变多容易造成阻塞 -> 出现反压时阻塞数据会加剧反压 -> 反压进一步导致barrier流动变慢 -> checkpoint耗时变长
-        // barrier不对齐：有barrier到达就触发检查点,不用等待所有输入流的barrier,可以避免阻塞但是会增加IO,因为检查点要保存更多数据
-        // barrier对齐可以保证exactly_once,不对齐的话从checkpoint故障恢复时快的那部分数据会重复消费只能保证at_least_once
-        config.enableUnalignedCheckpoints();
+        // 开启非对齐检查点,前提条件：1.检查点模式必须是EXACTLY_ONCE  2.检查点最大并发必须是1
+        // barrier对齐：算子必须等所有输入流的barrier到达才触发快照,反压和数据倾斜时对齐时间过长可能导致检查点超时
+        // barrier不对齐：算子接收到第一个输入流的barrier就触发快照,并将未处理数据缓存到检查点,反压和数据倾斜时性能更好(推荐)
+        config.set(CheckpointingOptions.ENABLE_UNALIGNED, Boolean.TRUE);
+        // 骚操作：该参数默认值是0,表示一开始就用barrier非对齐,如果该参数>0,表示一开始先用barrier对齐,对齐时间超过该参数就自动切换成barrier非对齐
+        config.set(CheckpointingOptions.ALIGNED_CHECKPOINT_TIMEOUT, Duration.ofSeconds(5));
 
         // 检查点保留策略：job取消时默认会自动删除检查点,可以保留防止任务故障重启失败,还能从检查点恢复任务,后面手动删除即可
         config.setExternalizedCheckpointRetention(ExternalizedCheckpointRetention.RETAIN_ON_CANCELLATION);
