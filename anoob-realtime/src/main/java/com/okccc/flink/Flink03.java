@@ -53,7 +53,7 @@ import java.time.Duration;
  * 总结：
  * 1.开窗需求通常都是结合两者一起使用,keyBy() + window() + aggregate(AggregateFunction(), ProcessWindowFunction())
  * 窗口闭合时,增量聚合函数会将累加结果发送给窗口处理函数,这样既不需要收集全部数据又能访问窗口信息,除非是排序和求中位数这种全局操作
- * 2.window()是flink语法糖,底层就是KeyedProcessFunction + 状态变量 + 定时器,一般直接开窗就行,除非特别复杂的需求才会用大招
+ * 2.window()是flink语法糖,底层就是KeyedProcessFunction + 状态 + 定时器,简单统计直接开窗就行,复杂业务(乱序/重复/超时)用process
  */
 public class Flink03 {
 
